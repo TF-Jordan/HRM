@@ -1,0 +1,84 @@
+@startuml dc-training-review
+!theme plain
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+package "common-core" #EEEEEE {
+    abstract class BaseEntity {
+        # id : UUID
+        # tenantId : UUID
+        # organizationId : UUID
+        ..
+    }
+}
+
+package "hrm-core / domain — Formations & Évaluations" #FFFFF0 {
+
+    class Training extends BaseEntity {
+        - intitule : String
+        - organisme : String
+        - dateDebut : LocalDate
+        - dateFin : LocalDate
+        - cout : BigDecimal
+        - nbPlaces : int
+        - lieu : String
+        - status : TrainingStatus
+    }
+
+    class TrainingEnrollment extends BaseEntity {
+        - trainingId : UUID
+        - employeeId : UUID
+        - status : EnrollmentStatus
+        - noteEvaluation : BigDecimal
+        - attestationFileId : UUID
+    }
+
+    class PerformanceReview extends BaseEntity {
+        - employeeId : UUID
+        - evaluateurRef : PartyRef
+        - periode : String
+        - objectifs : List<Objective>
+        - noteGlobale : BigDecimal
+        - commentaires : String
+        - planAction : String
+        - status : ReviewStatus
+        + submit() : void
+        + finalize(note) : void
+    }
+
+    class Objective <<Value Object>> {
+        - description : String
+        - poids : BigDecimal
+        - noteAtteinte : BigDecimal
+        - commentaire : String
+    }
+
+    enum TrainingStatus {
+        PLANNED
+        IN_PROGRESS
+        COMPLETED
+        CANCELLED
+    }
+
+    enum EnrollmentStatus {
+        ENROLLED
+        ATTENDED
+        COMPLETED
+        ABSENT
+    }
+
+    enum ReviewStatus {
+        DRAFT
+        SUBMITTED
+        ACKNOWLEDGED
+        FINALIZED
+    }
+
+    Training *-- "0..*" TrainingEnrollment
+    PerformanceReview *-- "1..*" Objective
+    Training --> TrainingStatus
+    TrainingEnrollment --> EnrollmentStatus
+    PerformanceReview --> ReviewStatus
+}
+
+@enduml

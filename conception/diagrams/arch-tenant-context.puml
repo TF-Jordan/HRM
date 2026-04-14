@@ -1,0 +1,70 @@
+@startuml arch-tenant-context
+!theme plain
+skinparam componentStyle rectangle
+
+title Propagation du contexte Tenant / Organisation / Agence
+
+actor "Admin RH" as admin
+
+package "Navigateur / Client" #FAFAFA {
+    component [Session ERP\n(JWT contient tenantId,\norganizationId, userId,\nroles[])] as browser
+}
+
+package "API Gateway / kernel-core" #EEEEEE {
+    component [SecurityFilter\n<<WebFlux Filter>>] as filter
+    note right of filter
+        Extrait du JWT :
+        • tenantId
+        • organizationId
+        • userId
+        • roles[]
+
+        Injecte dans le
+        **ReactiveSecurityContext**
+
+        Sélectionne le schéma
+        PostgreSQL du tenant
+        (tenant routing)
+    end note
+}
+
+package "hrm-core" #E8EAF6 {
+    component [WebController] as ctrl
+    component [Service Layer] as svc
+    component [R2DBC Repository] as repo
+    database "Schema tenant_xxx\n(PostgreSQL)" as db
+}
+
+admin -down-> browser : se connecte\n(login une seule fois)
+browser -down-> filter : requête HTTP\n+ Header Authorization: Bearer <JWT>
+
+filter -down-> ctrl : SecurityContext {\n  tenantId = "t-001"\n  organizationId = "org-042"\n  userId = "u-007"\n}
+
+ctrl -down-> svc : runPayroll(\n  **agencyId = optionnel**\n)
+
+note right of ctrl
+    L'Admin RH ne spécifie
+    **JAMAIS** son organisation.
+    Elle est **implicite** dans
+    le contexte de sécurité.
+
+    Il peut **optionnellement**
+    filtrer par **agencyId**
+    (une succursale / filiale).
+end note
+
+svc -down-> repo : findAllActiveEmployees(\n  orgId = context.organizationId,\n  agencyId = **nullable**\n)
+
+repo -down-> db : SELECT * FROM hrm_employee\nWHERE organization_id = 'org-042'\n[AND agency_id = 'ag-003']
+
+note bottom of db
+    Le schéma PostgreSQL est
+    automatiquement sélectionné
+    par le **tenant routing**
+    de kernel-core (schéma par tenant).
+
+    La colonne organization_id est
+    héritée de BaseEntity (common-core).
+end note
+
+@enduml

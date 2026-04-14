@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding">
+    <file url="file://$PROJECT_DIR$/RT-comops-accounting-core/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RT-comops-accounting-core/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RT-comops-actor-core/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RT-comops-actor-core/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RT-comops-administration-core/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RT-comops-administration-core/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RT-comops-auth-core/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RT-comops-auth-core/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RT-comops-bootstrap/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RT-comops-bootstrap/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RT-comops-common-core/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RT-comops-common-core/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RT-comops-file-core/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RT-comops-file-core/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RT-comops-inventory-core/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RT-comops-inventory-core/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RT-comops-kernel-core/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RT-comops-kernel-core/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RT-comops-organization-core/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RT-comops-organization-core/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RT-comops-product-core/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RT-comops-product-core/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RT-comops-resource-core/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RT-comops-resource-core/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RT-comops-roles-core/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RT-comops-roles-core/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RT-comops-sales-core/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RT-comops-sales-core/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RT-comops-settings-core/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RT-comops-settings-core/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RT-comops-tp-core/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RT-comops-tp-core/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RT-comops-treasury-core/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RT-comops-treasury-core/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/resources" charset="UTF-8" />
+  </component>
+</project>

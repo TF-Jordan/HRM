@@ -1,0 +1,97 @@
+@startuml ds-hrm-03-leave-request
+!theme plain
+skinparam sequenceArrowThickness 1.5
+
+title DS-HRM-03 — Soumission et validation d'une demande de congé
+
+actor "Employé" as employe
+actor "Manager" as manager
+participant "WebController\n<<adapter/in>>" as ctrl
+participant "LeaveService\n<<application/service>>" as svc
+participant "LeaveAccrualService\n<<application/service>>" as accrual
+participant "LeaveBalanceRepo\n<<port/out>>" as balRepo
+participant "LeaveRequestRepo\n<<port/out>>" as reqRepo
+participant "ActorPort\n<<port/out>>" as actorPort
+database "PostgreSQL" as db
+participant "OutboxEvent\n<<kernel-core>>" as outbox
+
+== Phase 1 : Soumission par l'employé ==
+
+employe -> ctrl : POST /api/v1/hrm/leaves\n{type: ANNUAL, dateDebut, dateFin, motif}
+activate ctrl
+
+ctrl -> svc : submitLeave(employeeId, request)
+activate svc
+
+svc -> balRepo : findByEmployeeAndTypeAndAnnee(\n  employeeId, ANNUAL, 2026)
+balRepo -> db : SELECT ... FROM hrm_leave_balance
+db --> balRepo : LeaveBalance{acquis=18.0, pris=5.5}
+balRepo --> svc : balance (solde restant = 12.5)
+
+svc -> svc : calculerNbJours(dateDebut, dateFin)\n= 5.0 jours ouvrables
+
+alt solde < nbJours
+    svc --> ctrl : InsufficientLeaveBalanceException
+    ctrl --> employe : HTTP 422 — ApiErrorResponse\n(format common-core)
+else solde >= nbJours
+
+    svc -> actorPort : resolveManager(employeeId)
+    actorPort --> svc : PartyRef{valideurId, displayName}
+
+    svc -> reqRepo : save(LeaveRequest{\n  status=PENDING,\n  valideurRef=managerRef,\n  nbJours=5.0\n})
+    reqRepo -> db : INSERT hrm_leave_request
+    db --> reqRepo : OK
+
+    svc -> outbox : insertOutboxEvent(\n  LEAVE_SUBMITTED,\n  {leaveId, employeeId, type, nbJours,\n   valideurId}\n)
+    outbox -> db : INSERT kernel.outbox_event
+
+    svc --> ctrl : LeaveRequest{id, status=PENDING}
+    deactivate svc
+    ctrl --> employe : HTTP 201 — LeaveRequestResponse
+
+end
+deactivate ctrl
+
+== Phase 2 : Approbation par le manager ==
+
+manager -> ctrl : PUT /api/v1/hrm/leaves/{id}/approve
+activate ctrl
+
+ctrl -> svc : approveLeave(leaveId, managerId)
+activate svc
+
+svc -> reqRepo : findById(leaveId)
+reqRepo --> svc : LeaveRequest{status=PENDING, employeeId, nbJours=5.0}
+
+alt status != PENDING
+    svc --> ctrl : IllegalStateException
+    ctrl --> manager : HTTP 409 — ApiErrorResponse
+else status == PENDING
+
+    svc -> svc : leaveRequest.approve(managerId)
+
+    svc -> balRepo : findByEmployeeAndTypeAndAnnee(...)
+    balRepo --> svc : LeaveBalance{acquis=18.0, pris=5.5}
+
+    svc -> svc : balance.debiter(5.0)\npris → 10.5, solde → 7.5
+
+    svc -> balRepo : save(balance)
+    balRepo -> db : UPDATE hrm_leave_balance SET pris=10.5
+
+    svc -> reqRepo : save(leaveRequest{status=APPROVED})
+    reqRepo -> db : UPDATE hrm_leave_request SET status='APPROVED'
+
+    svc -> outbox : insertOutboxEvent(\n  LEAVE_APPROVED,\n  {leaveId, employeeId, type,\n   dateDebut, dateFin, nbJours}\n)
+    outbox -> db : INSERT kernel.outbox_event
+
+    svc -> outbox : insertOutboxEvent(\n  LEAVE_BALANCE_UPDATED,\n  {employeeId, type=ANNUAL,\n   newBalance=7.5}\n)
+    outbox -> db : INSERT kernel.outbox_event
+
+    svc --> ctrl : LeaveRequest{status=APPROVED}
+    deactivate svc
+    ctrl --> manager : HTTP 200 — LeaveRequestResponse
+
+end
+deactivate ctrl
+
+@enduml

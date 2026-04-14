@@ -1,0 +1,28 @@
+@startuml sm-loan-advance
+!theme plain
+skinparam stateFontSize 12
+
+title Machine à états — LoanAdvance
+
+[*] --> PENDING : request(montant, nbEcheances)
+
+PENDING --> APPROVED : approve(approverId)\n[Comptable/DAF autorisé]
+PENDING --> REJECTED : reject(approverId, motif)
+
+APPROVED --> IN_REPAYMENT : premier cycle de paie\n[déduction de la mensualité]
+
+IN_REPAYMENT --> IN_REPAYMENT : deduire(mensualite)\n[soldeRestant > 0]
+IN_REPAYMENT --> FULLY_REPAID : deduire(mensualite)\n[soldeRestant == 0]
+
+REJECTED --> [*]
+FULLY_REPAID --> [*]
+
+note right of IN_REPAYMENT
+  À chaque calcul de paie
+  (DS-HRM-01), la mensualité
+  est automatiquement déduite
+  du salaire net et le
+  soldeRestant est diminué.
+end note
+
+@enduml

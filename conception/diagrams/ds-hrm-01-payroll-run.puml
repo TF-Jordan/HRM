@@ -1,0 +1,97 @@
+@startuml ds-hrm-01-payroll-run
+!theme plain
+skinparam sequenceArrowThickness 1.5
+skinparam sequenceParticipantBorderColor #2C3E50
+skinparam sequenceLifeLineBorderColor #7F8C8D
+
+title DS-HRM-01 — Exécution du calcul de paie mensuel
+
+actor "Admin RH" as admin
+participant "WebController\n<<adapter/in>>" as ctrl
+participant "PayrollService\n<<application/service>>" as svc
+participant "PayrollCalculation\nEngine" as engine
+participant "SettingsPort\n<<port/out>>" as settings
+participant "EmployeeRepository\n<<port/out>>" as empRepo
+participant "PayrollRunRepository\n<<port/out>>" as payRepo
+participant "LoanAdvanceRepository\n<<port/out>>" as loanRepo
+database "PostgreSQL\n<<tenant schema>>" as db
+participant "OutboxEvent\n<<kernel-core>>" as outbox
+
+admin -> ctrl : POST /api/v1/hrm/payroll/run\n{periode: "2026-03", agencyId: null}
+activate ctrl
+
+note right of ctrl
+  tenantId et organizationId sont
+  extraits **implicitement** du JWT
+  via le SecurityContext (kernel-core).
+  L'Admin RH ne les spécifie jamais.
+  **agencyId** est un filtre optionnel
+  (null = toute l'organisation).
+end note
+
+ctrl -> svc : runPayroll(periode, agencyId?)
+activate svc
+
+note over svc
+  orgId = SecurityContext.organizationId
+  tenantId = SecurityContext.tenantId
+  (injectés automatiquement par le framework)
+end note
+
+svc -> payRepo : existsByOrgAndPeriodeAndAgency(\n  orgId, "2026-03", agencyId?)
+payRepo -> db : SELECT ... WHERE org_id = ?\n  AND periode = ?\n  [AND agency_id = ?]
+db --> payRepo : false
+payRepo --> svc : false (pas de doublon)
+
+svc -> settings : getPayrollRules(tenantId, orgId, agencyId?)
+activate settings
+note right of settings
+  Résolution par héritage :
+  Agence → Organisation → Tenant
+  via settings-core
+end note
+settings --> svc : PayrollRules {\n  cnpsPvEmploye=0.042,\n  cnpsPvEmployeur=0.042,\n  cnpsAf=0.07,\n  plafondCnps=750000,\n  baremeIrpp=[...],\n  abattement=0.30\n}
+deactivate settings
+
+svc -> empRepo : findAllActive(orgId, agencyId?)
+empRepo -> db : SELECT ... WHERE org_id = ?\n  AND status = 'ACTIVE'\n  [AND agency_id = ?]
+db --> empRepo : Flux<Employee>
+empRepo --> svc : Flux<Employee>
+
+loop pour chaque Employee
+    svc -> loanRepo : findActiveByEmployee(empId)
+    loanRepo --> svc : List<LoanAdvance>
+
+    svc -> engine : calculate(employee, contracts, rules, loans)
+    activate engine
+    note right of engine
+      1. Récupérer contrat actif → salaireBase
+      2. Calculer primes (ancienneté, transport...)
+      3. Calculer heures supplémentaires
+      4. Brut = base + primes + HS
+      5. CNPS employé = min(brut, plafond) × 4.2%
+      6. CNPS employeur = PV + AF + AT
+      7. IRPP = barème progressif sur (brut × 0.70)
+      8. CAC = IRPP × 10%
+      9. Retenues = CNPS + IRPP + CAC + avances
+      10. Net = Brut − Retenues
+    end note
+    engine --> svc : PayrollEntry + List<PayslipLine>
+    deactivate engine
+end
+
+svc -> payRepo : save(PayrollRun{status=CALCULATED, entries})
+payRepo -> db : INSERT hrm_payroll_run + hrm_payroll_entry + hrm_payslip_line
+db --> payRepo : OK
+
+svc -> outbox : insertOutboxEvent(PAYROLL_CALCULATED,\n{payrollRunId, periode, totalBrut, totalNet})
+outbox -> db : INSERT kernel.outbox_event
+db --> outbox : OK
+
+svc --> ctrl : PayrollRun{id, status=CALCULATED, totaux}
+deactivate svc
+
+ctrl --> admin : HTTP 200 — PayrollRunResponse
+deactivate ctrl
+
+@enduml

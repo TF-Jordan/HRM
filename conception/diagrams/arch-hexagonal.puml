@@ -1,0 +1,79 @@
+@startuml arch-hexagonal
+!theme plain
+skinparam componentStyle rectangle
+skinparam defaultTextAlignment center
+
+title Architecture Hexagonale — hrm-core dans RT-Comops
+
+package "hrm-core" #F0F0FF {
+
+    package "domain/" #FFFFDD {
+        component [Employee\nContract\nPayrollRun\nLeaveRequest\nTraining\nPerformanceReview\nLoanAdvance] as domain
+        note bottom of domain
+            Agrégats, Value Objects,
+            Événements domaine,
+            Règles métier pures
+            (aucune dépendance technique)
+        end note
+    }
+
+    package "application/" #DDFFDD {
+        interface "<<port/in>>\nManageEmployeeUseCase\nRunPayrollUseCase\nManageLeaveUseCase\nManageTrainingUseCase\nManageReviewUseCase\nManageLoanAdvanceUseCase" as portIn
+
+        component [EmployeeService\nPayrollService\nPayrollCalculationEngine\nLeaveService\nLeaveAccrualService\nTrainingService\nReviewService\nLoanAdvanceService] as services
+
+        interface "<<port/out>>\nEmployeeRepository\nPayrollRunRepository\nLeaveRequestRepository\nActorPort\nOrganizationPort\nSettingsPort\nFilePort" as portOut
+    }
+
+    package "adapter/in/" #DDDDFF {
+        component [WebController\n(Spring WebFlux)\nDTO / Mapper] as adapterIn
+    }
+
+    package "adapter/out/" #FFDDDD {
+        component [R2DBC Repositories\n(persistence)] as adapterOutPersist
+        component [ActorAdapter\nOrganizationAdapter\nSettingsAdapter\nFileAdapter] as adapterOutAdapters
+        component [HrmEventConsumer\n(Kafka)] as adapterOutKafka
+    }
+
+    package "config/" #F0F0F0 {
+        component [HrmCoreConfiguration\nHrmPermissionRegistrar\nHrmLiquibaseConfig] as config
+    }
+}
+
+' Flux
+adapterIn -down-> portIn : implémente
+portIn -down-> services : orchestre
+services -down-> domain : utilise
+services -down-> portOut : appelle
+portOut -down-> adapterOutPersist : implémenté par
+portOut -down-> adapterOutAdapters : implémenté par
+
+' Cores externes
+cloud "actor-core" as actorCore
+cloud "organization-core" as orgCore
+cloud "settings-core" as settingsCore
+cloud "file-core" as fileCore
+cloud "kernel-core" as kernelCore
+cloud "roles-core" as rolesCore
+cloud "common-core" as commonCore
+cloud "accounting-core" as accCore
+cloud "treasury-core" as treCore
+queue "Kafka\niwm.events.business" as kafka
+
+' Connexions
+adapterOutAdapters -down-> actorCore : <<port/out synchrone>>
+adapterOutAdapters -down-> orgCore : <<port/out synchrone>>
+adapterOutAdapters -down-> settingsCore : <<port/out synchrone>>
+adapterOutAdapters -down-> fileCore : <<port/out synchrone>>
+
+domain .up.> commonCore : <<extends BaseEntity>>\n<<utilise PartyRef>>
+adapterIn .right.> rolesCore : <<@Secured>> vérification\ntransparente via filtre
+adapterIn .left.> commonCore : <<PagedResponse>>\n<<ApiErrorResponse>>
+adapterOutPersist -down-> kernelCore : <<outbox transactionnel>>\n<<audit trail>>\n<<tenant routing>>
+
+adapterOutKafka <-left- kafka : consume\nACTOR_UPDATED\nPAYMENT_COMPLETED
+kernelCore -right-> kafka : relay outbox
+kafka -down-> accCore : PAYROLL_VALIDATED
+kafka -down-> treCore : PAYMENT_ORDER_CREATED
+
+@enduml

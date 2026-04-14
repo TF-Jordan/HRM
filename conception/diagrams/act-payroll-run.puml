@@ -1,0 +1,70 @@
+@startuml act-payroll-run
+!theme plain
+skinparam activityFontSize 11
+
+title Diagramme d'activité — Calcul de paie mensuel
+
+|Admin RH|
+start
+:Accède à l'écran « Paie mensuelle »\n(contexte tenant/org implicite via JWT);
+:Sélectionne la période (mois/année);
+
+if (Filtrer par agence ?) then (oui)
+    :Sélectionne une **agencyId**\n(succursale / filiale);
+else (non)
+    :Toute l'organisation;
+endif
+
+:Clique « Lancer le calcul »;
+
+|hrm-core|
+:Vérifier qu'aucun PayrollRun\nn'existe pour cette période\n+ organization + agency;
+
+if (Doublon ?) then (oui)
+    :Retourner erreur 409\n« Paie déjà calculée »;
+    |Admin RH|
+    :Afficher message d'erreur;
+    stop
+else (non)
+endif
+
+:Charger les règles de paie\nvia **settings-core**\n(héritage Agence → Org → Tenant);
+
+:Récupérer tous les employés ACTIVE\npour orgId [+ agencyId optionnel];
+
+|hrm-core|
+partition "Boucle par employé" {
+    :Récupérer le contrat actif → salaireBase;
+    :Calculer les primes\n(ancienneté, transport, etc.);
+    :Récupérer les prêts actifs\n→ mensualités à déduire;
+    :Calculer le Brut\n= base + primes + HS + avantages;
+    :Calculer CNPS employé\n= min(brut, plafond) × 4.2%;
+    :Calculer CNPS employeur\n= PV + AF + AT;
+    :Calculer Net Imposable\n= brut × (1 − abattement 30%)\n− charges déductibles;
+    :Calculer IRPP\n(barème progressif camerounais);
+    :Calculer CAC = IRPP × 10%;
+    :Calculer retenues totales\n= CNPS + IRPP + CAC + prêts;
+    :Calculer Net à payer\n= Brut − retenues totales;
+    :Générer les PayslipLines;
+    :Mettre à jour solde prêts\n(deduire mensualité);
+}
+
+:Agréger les totaux du PayrollRun;
+:Persister PayrollRun\n(status = CALCULATED);
+:Publier événement\nPAYROLL_CALCULATED via outbox;
+
+|Admin RH|
+:Afficher le résumé :\n• Nb employés traités\n• Total brut / net\n• Total cotisations\n• Détail par employé;
+
+:Vérifier les montants;
+
+if (Corrections nécessaires ?) then (oui)
+    :Modifier les éléments variables;
+    :Relancer le calcul\n(le PayrollRun DRAFT est écrasé);
+else (non)
+    :Transmettre au Comptable\npour validation;
+endif
+
+stop
+
+@enduml
