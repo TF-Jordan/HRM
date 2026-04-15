@@ -1,0 +1,83 @@
+groups:
+  - name: iwm-runtime
+    rules:
+      - alert: IwmOutboxDeadLetterPresent
+        expr: iwm_outbox_dead_letter > 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "IWM outbox dead-letter present"
+          description: "Des evenements sont en dead-letter dans l'outbox depuis plus de 5 minutes."
+
+      - alert: IwmOutboxPendingAgeTooHigh
+        expr: iwm_outbox_oldest_pending_age_seconds > 900
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "IWM outbox backlog age too high"
+          description: "Le plus vieil evenement pending de l'outbox a plus de 15 minutes."
+
+      - alert: IwmOutboxRelayFailures
+        expr: increase(iwm_outbox_relay_events_failed_total[10m]) > 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "IWM outbox relay failures detected"
+          description: "Le relay outbox a echoue au moins une fois sur les 10 dernieres minutes."
+
+      - alert: IwmProjectionPipelineStale
+        expr: iwm_projections_latest_age_seconds > 1800 and iwm_outbox_published > 0
+        for: 10m
+        labels:
+          severity: critical
+        annotations:
+          summary: "IWM projection pipeline stale"
+          description: "Les projections semblent en retard de plus de 30 minutes."
+
+      - alert: IwmManagementScrapeDown
+        expr: up{job="iwm-management"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "IWM management scrape down"
+          description: "Prometheus ne peut plus scraper /actuator/prometheus."
+
+      - alert: RedisExporterDown
+        expr: up{job="redis-exporter"} == 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Redis exporter down"
+          description: "Prometheus ne recoit plus les metriques du redis exporter."
+
+      - alert: ElasticsearchExporterDown
+        expr: up{job="elasticsearch-exporter"} == 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Elasticsearch exporter down"
+          description: "Prometheus ne recoit plus les metriques de l'elasticsearch exporter."
+
+      - alert: IwmTenantQuotaRejectingTraffic
+        expr: increase(iwm_quotas_tenant_requests_rejected_total[5m]) > 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "IWM tenant quota is rejecting traffic"
+          description: "Le quota backend par tenant, client applicatif et service rejette des requetes depuis plus de 5 minutes."
+
+      - alert: IwmOrganizationServiceQuotaRejectingTraffic
+        expr: increase(iwm_quotas_organization_service_requests_rejected_total[5m]) > 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "IWM organization service quota is rejecting traffic"
+          description: "Le quota metier par organisation et service rejette des requetes depuis plus de 5 minutes."

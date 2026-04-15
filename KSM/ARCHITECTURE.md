@@ -1,0 +1,168 @@
+# Architecture cible
+
+## Style
+- Spring Boot
+- monolithe modulaire
+- architecture hexagonale par module
+
+## Regles
+- les modules core ne contiennent pas de logique d'assemblage global
+- RT-comops-bootstrap est le seul module executable
+- les dependances inter-modules suivent conceptioKernel_V3
+- les couches techniques futures seront branchees via adapter.in et adapter.out
+- les frontieres hexagonales sont verifiees par des garde-fous automatiques en test et en CI
+
+## Modules
+- RT-comops-kernel-core: multitenancy, audit, outbox, securite transverse, `ClientApplication`, quotas backend et quotas d organisation
+- RT-comops-common-core: types communs, `PlatformServiceCode`, adresses et contacts polymorphiques
+- RT-comops-actor-core: identite humaine interne et contrat canonique `BusinessActor`
+- RT-comops-organization-core: organisations, agences, horaires, points d'interet, structures secondaires et abonnements de services
+- RT-comops-tp-core: tiers externes, prospection, interactions et multi-roles commerciaux
+- RT-comops-auth-core: comptes techniques et authentification
+- RT-comops-roles-core: RBAC
+- RT-comops-administration-core: administration generale, catalogue des permissions, gestion des roles et audit admin
+- RT-comops-file-core: metadonnees de fichiers et stockage binaire
+- RT-comops-product-core: catalogue, categories, traductions, specification, variantes, batches, media assets et prix dates
+- RT-comops-inventory-core: stock et transformations
+- RT-comops-resource-core: ressources materielles internes
+- RT-comops-settings-core: settings hierarchiques organisation/agence et sequences
+- RT-comops-sales-core: commandes commerciales
+- RT-comops-accounting-core: comptabilite et facturation
+- RT-comops-treasury-core: banques, releves, cheques, rapprochements
+
+## Profils de persistance
+- `r2dbc`: profil PostgreSQL reactif pour l execution normale
+- `test-memory`: profil reserve aux tests applicatifs sans base externe
+- les migrations de schema sont appliquees par `Liquibase`
+- `Redis` et `Elasticsearch` sont cables par starters et feature flags, pas imposes au runtime par defaut
+- les endpoints de recherche exposes reposent sur des projections Elasticsearch alimentees par l outbox
+- les endpoints de recherche utilisent `ReactiveElasticsearchOperations` cote application
+- le transport vers Elasticsearch reste HTTP sous-jacent via le client Java Elastic pilote par Spring Data, ce qui est normal et distinct d un contournement manuel `WebClient`
+- aucun adapter de recherche ne doit appeler Elasticsearch via `WebClient` direct
+- les endpoints `auth/register` et `roles/**` sont des endpoints de bootstrap administres, pas des endpoints libres exposes a la seule API key
+- la stack locale de reference est documentee dans `docker-compose.infrastructure.yml` et `docs/local-infrastructure.md`
+- la surface d'exploitation est documentee dans `docs/operations-readiness.md`
+- la checklist de passage pre-prod -> prod est documentee dans `docs/preprod-prod-checklist.md`
+- les dashboards Grafana versionnes sont dans `ops/grafana/dashboards`
+
+## Evenements metier
+- les modules `sales`, `inventory`, `accounting` et `treasury` publient maintenant des evenements metier explicites
+- `tp-core` publie aussi les evenements tiers critiques: creation, conversion, enrichissement commercial
+- la publication est faite via un port transverse `BusinessEventPublisher`
+- les evenements sont persistés dans `kernel.outbox_event`
+- les flux sensibles ecriture metier + outbox sont encapsules par `ReactiveTransactionalExecutor`
+- le relay externe par defaut est un adaptateur `Kafka`
+- le topic canonique par defaut est `iwm.events.business`
+- le dead-letter topic par defaut est `iwm.events.dead-letter`
+- les tests forcent un adaptateur `recording` pour valider le cycle complet sans dependance reseau
+- des consommateurs internes persistés alimentent `integration.domain_event_projection`
+- l outbox est profile par environnement:
+- `test-memory`: repository en memoire reserve aux tests standards
+- `r2dbc`: persistance PostgreSQL reactive pour les validations reelles et les futurs relays d integration
+- un relay d outbox applicatif existe maintenant avec retry, backoff et dead-letter
+- le scheduler de relay reste desactive par defaut et s active via `iwm.outbox.relay.enabled=true`
+- en mode Kafka, les consumers internes lisent le topic canonique et routent par enveloppe evenementielle, pas par topic specifique de domaine
+- des projections Elasticsearch optionnelles peuvent maintenant etre alimentees par les evenements `PRODUCT_CREATED`, `THIRD_PARTY_CREATED`, `ORGANIZATION_CREATED` et `MATERIAL_RESOURCE_*`
+- les types actuellement emis couvrent notamment:
+- `SALES_ORDER_CREATED`
+- `SALES_ORDER_STOCK_DISPATCHED`
+- `SALES_ORDER_CONFIRMED`
+- `STOCK_MOVEMENT_RECORDED`
+- `PRODUCT_TRANSFORMATION_RECORDED`
+- `WAREHOUSE_TRANSFER_CREATED`
+- `WAREHOUSE_TRANSFER_COMPLETED`
+- `INVOICE_CREATED`
+- `INVOICE_POSTED`
+- `INVOICE_SETTLEMENT_REGISTERED`
+- `INVOICE_SETTLEMENT_APPLIED`
+- `BANK_STATEMENT_REGISTERED`
+- `CHECK_PAYMENT_ISSUED`
+- `CHECK_PAYMENT_CLEARED`
+- `RECONCILIATION_OPENED`
+- `RECONCILIATION_CLOSED`
+- `RESOURCE_RESERVED`
+- `RESOURCE_RESERVATION_RELEASED`
+- `RESOURCE_ASSIGNED`
+- `RESOURCE_UNASSIGNED`
+- `RESOURCE_DISPOSED`
+
+## Validation
+- build standard:
+  - `mvn -o -q test`
+- validation PostgreSQL reelle:
+  - demarrer PostgreSQL local, par exemple avec `postgres:16-alpine`
+  - executer:
+  - `mvn -o -q -pl RT-comops-bootstrap -am -Diwm.tests.r2dbc.enabled=true -Dtest=R2dbcApiIntegrationTests -Dsurefire.failIfNoSpecifiedTests=false test`
+- contrats PostgreSQL par module:
+  - `mvn -q -pl RT-comops-bootstrap -am -Diwm.tests.r2dbc.enabled=true -Dtest=IdentityAccessContractTests,OrganizationCatalogContractTests,SalesInventoryContractTests,AccountingTreasuryContractTests,ResourceContractTests -Dsurefire.failIfNoSpecifiedTests=false test`
+- integration Kafka:
+  - `mvn -q -Dtest=KafkaOutboxIntegrationTests -Diwm.tests.kafka.enabled=true -pl RT-comops-bootstrap -am -Dsurefire.failIfNoSpecifiedTests=false test`
+
+## Regles de qualite retenues
+- les adapters R2DBC rehydratent les agregats via des methodes de domaine explicites, sans reflexion
+- les tests d integration couvrent les flux transverses critiques en mode `test-memory`
+- les tests PostgreSQL reels sont gardes explicites et activables a la demande
+- les suites de contrat utilisent des changelogs Liquibase dedies avec nettoyage reseeding deterministe
+- les integrations cross-module passent par des ports applicatifs et des evenements d outbox, pas par des dependances metier cachees
+- `common-core` porte maintenant le catalogue partage `PlatformServiceCode`, consomme a la fois par `kernel-core` et `organization-core`
+- `common-core` expose maintenant les cas d usage et adaptateurs dedies aux adresses et contacts polymorphiques
+- `actor-core` stabilise le contrat canonique `BusinessActor` sans dupliquer la gouvernance existante de `BusinessActorProfile`
+- `organization-core` porte maintenant les abonnements de services par organisation
+- `organization-core` porte aussi le quota par abonnement de service (`requestQuotaLimit`, `requestQuotaWindowSeconds`)
+- `organization-core` expose aussi les structures secondaires canoniques (`BusinessDomain`, `Certification`, `ProposedActivity`, `OrganizationActor`, `OrganizationDomain`, `AgencyAffiliation`, `AgencyDomain`)
+- `auth-core` projette ces abonnements dans `login` et `users/me` sous la forme `organizations[].services`
+- `kernel-core` applique maintenant l ordre de controle suivant sur `/api/**`:
+- authentification `ClientApplication` + JWT eventuel
+- filtre `ClientApplication -> service` sur les prefixes routes connus
+- quota backend Redis sur `(tenantId, clientId, serviceCode, bucket)`
+- filtre `Organization -> service` sur les seuls modules abonables scopes organisation
+- quota metier Redis sur `(tenantId, organizationId, serviceCode, bucket)` a partir de l'abonnement de service
+- politiques et permissions utilisateur au bon scope
+- le filtre `ClientApplication -> service` retourne `CLIENT_APPLICATION_SERVICE_NOT_ALLOWED`
+- `kernel-core` applique ensuite un filtre d entitlement organisationnel sur les prefixes metier scopes organisation:
+- `COMMERCIAL` -> `clients/customers/suppliers/prospects/sales-agents/third-parties`
+- `PRODUCT` -> `products`
+- `INVENTORY` -> `inventory/inventories`
+- `SALES` -> `sales`
+- `ACCOUNTING` -> `accounting`
+- `TREASURY` -> `treasury/banking`
+- `RESOURCE` -> `resources`
+- les endpoints ainsi proteges exigent `X-Organization-Id`; l'absence de header retourne `ORGANIZATION_CONTEXT_REQUIRED`
+- une organisation non abonnee au service requis recoit `ORGANIZATION_SERVICE_NOT_SUBSCRIBED`
+- une organisation qui depasse son quota de service recoit `ORGANIZATION_SERVICE_QUOTA_EXCEEDED`
+- les routes `ORGANIZATION` et `SETTINGS` sont bornees par la `ClientApplication`, mais ne sont pas soumises au filtre d abonnement organisationnel
+- le quota backend Redis est maintenant calcule sur `(tenantId, clientId, serviceCode, bucket)` et expose les headers `X-IWM-Quota-*`
+- le quota metier Redis est maintenant calcule sur `(tenantId, organizationId, serviceCode, bucket)` et expose les headers `X-IWM-Organization-Quota-*`
+- `settings-core` applique maintenant une resolution explicite `organization -> agency` et persiste les champs `defaultCurrency`, `legalIdentity`, `taxIdentifier`, `requireSalesOrderApproval` et `requireReturnApproval`
+- `product-core` porte maintenant un catalogue riche: `ProductCategory`, `CategoryI18n`, `ProductSpec`, `Variant`, `VariantAttribute`, `VariantPrice`, `Batch` et `MediaAsset`
+- des tests directs par core completent la couverture d integration centralisee dans `bootstrap`
+- les permissions peuvent etre cachees dans Redis sans sortir la source de verite des roles de PostgreSQL
+- `auth-core` couvre maintenant aussi le self-service utilisateur (`users/me`, plan, onboarding)
+- `kernel-core` porte un audit systeme consultable, distinct de l audit admin
+- `tp-core` couvre maintenant:
+- clients, fournisseurs, prospects et agents commerciaux
+- comptes bancaires tiers et compte comptable tiers
+- conversion prospect -> client
+- statistiques commerciales par type de tiers
+- qualification commerciale au-dela du legacy via `segment` et `qualificationScore`
+- `file-core` applique un stockage local borne et verifie (`root path`, type MIME, taille max configurable)
+- le RBAC est maintenant multi-scope:
+- `Role.scopeType` dans `SYSTEM | TENANT | ORGANIZATION | AGENCY`
+- `UserRoleAssignment.scopeType/scopeId` pour lier un role a un tenant, une organisation ou une agence
+- la colonne legacy `scope` reste conservee comme representation canonique pour la compatibilite des APIs et des seeds SQL
+- les roles par defaut admin/metier sont provisionnables depuis `administration-core`
+- les options plateforme admin ne sont plus decoratives:
+- `requireBusinessActorApproval` et `requireOrganizationApproval` pilotent les creations amont
+- `allowOrganizationSelfServiceCreation` pilote `POST /api/organizations`
+- `allowAgencySelfServiceCreation` pilote `POST /api/organizations/{organizationId}/agencies` et `POST /api/warehouses`
+- `allowBusinessActorSelfReactivation` pilote `POST /api/actors/me/reactivate`
+- l'observabilite runtime expose maintenant un health group `operations`, des metriques Micrometer/Prometheus, et une vue applicative `/api/observability/runtime`
+- les endpoints `/actuator/**` hors `health` et `info` sont proteges par une cle management dediee `X-Management-Api-Key`
+- le port management peut etre isole via `MANAGEMENT_SERVER_PORT`
+- la confirmation d une commande commerciale n est plus permissive: elle valide le stock disponible et declenche les sorties de stock associees
+- les mouvements de stock portent maintenant la traçabilite du document source (`sourceDocumentType`, `sourceDocumentNumber`)
+- une facture `POSTED` peut maintenant etre reglee via `treasury`, avec propagation synchrone du reglement dans `accounting`
+- `resource-core` gere maintenant reservation, affectation, desaffectation et reforme avec historisation dediee
+- les cas d usage sensibles passent par des policies metier explicites (`BusinessAccessPolicy`), pas uniquement par des permissions de chemin
+- le schema n est plus initialise par bootstrap R2DBC maison
+- les migrations versionnees passent par `Liquibase`

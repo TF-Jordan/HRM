@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 026-canonical-secondary-entities
+      author: Blhack
+      changes:
+        - sqlFile:
+            path: db/r2dbc/V26__canonical_secondary_entities.sql
+            relativeToChangelogFile: false

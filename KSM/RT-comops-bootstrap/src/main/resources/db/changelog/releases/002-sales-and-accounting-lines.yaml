@@ -1,0 +1,7 @@
+databaseChangeLog:
+  - changeSet:
+      id: 002-sales-and-accounting-lines
+      author: Blhack
+      sqlFile:
+        path: ../../r2dbc/V2__sales_and_accounting_lines.sql
+        relativeToChangelogFile: true

@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 034-accounting-extension-snapshots
+      author: Blhack
+      changes:
+        - sqlFile:
+            path: ../../r2dbc/V34__accounting_extension_snapshots.sql
+            relativeToChangelogFile: true

@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 041-accounting-extension-reference-data
+      author: Blhack
+      changes:
+        - sqlFile:
+            path: db/r2dbc/V41__accounting_extension_reference_data.sql
+            relativeToChangelogFile: false

@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id: 011-resource-reservations-and-assignment-closure
+      author: Blhack
+      changes:
+        - sqlFile:
+            path: ../../r2dbc/V11__resource_reservations_and_assignment_closure.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: false

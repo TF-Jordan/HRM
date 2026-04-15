@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 040-accounting-extension-master-data
+      author: Blhack
+      changes:
+        - sqlFile:
+            path: db/r2dbc/V40__accounting_extension_master_data.sql
+            relativeToChangelogFile: false

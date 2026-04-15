@@ -1,0 +1,14 @@
+iwm:
+  management:
+    security:
+      api-key: test-management-key
+  security:
+    client-applications:
+      bootstrap:
+        enabled: true
+        client-id: test-client
+        name: Test Client
+        description: Test bootstrap client application.
+        secret: test-key
+    jwt:
+      auto-generate-key-pair: true

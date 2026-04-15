@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 016-rbac-multiscope
+      author: Blhack
+      changes:
+        - sqlFile:
+            path: db/r2dbc/V16__rbac_multiscope.sql
+            relativeToChangelogFile: false

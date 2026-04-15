@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id: 033-operational-excellence-axes
+      author: Blhack
+      changes:
+        - sqlFile:
+            path: ../../r2dbc/V33__operational_excellence_axes.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true

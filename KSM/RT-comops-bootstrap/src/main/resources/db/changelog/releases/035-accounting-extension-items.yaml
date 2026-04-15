@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 035-accounting-extension-items
+      author: Blhack
+      changes:
+        - sqlFile:
+            path: db/r2dbc/V35__accounting_extension_items.sql
+            relativeToChangelogFile: false

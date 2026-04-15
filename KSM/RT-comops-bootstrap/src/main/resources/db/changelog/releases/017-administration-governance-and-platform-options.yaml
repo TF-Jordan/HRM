@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 017-administration-governance-and-platform-options
+      author: Blhack
+      changes:
+        - sqlFile:
+            path: db/r2dbc/V17__administration_governance_and_platform_options.sql
+            relativeToChangelogFile: false

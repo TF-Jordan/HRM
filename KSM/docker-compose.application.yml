@@ -1,0 +1,115 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: r2dbc
+      IWM_BOOTSTRAP_CLIENT_ENABLED: "true"
+      IWM_BOOTSTRAP_CLIENT_ID: dev-platform-backend
+      IWM_BOOTSTRAP_CLIENT_NAME: Local Platform Backend
+      IWM_BOOTSTRAP_CLIENT_SECRET: dev-api-key
+      IWM_JWT_AUTO_GENERATE_KEY_PAIR: "true"
+      IWM_JWT_KEY_ID: iwm-key-local
+      IWM_JWT_ISSUER: iwm-backend-local
+      IWM_MANAGEMENT_API_KEY: dev-management-key
+      MANAGEMENT_SERVER_PORT: 8081
+      IWM_R2DBC_URL: r2dbc:postgresql://postgres:5432/iwm
+      IWM_R2DBC_USERNAME: iwm
+      IWM_R2DBC_PASSWORD: iwm
+      IWM_R2DBC_POOL_ENABLED: "${IWM_R2DBC_POOL_ENABLED:-true}"
+      IWM_R2DBC_POOL_INITIAL_SIZE: "${IWM_R2DBC_POOL_INITIAL_SIZE:-10}"
+      IWM_R2DBC_POOL_MAX_SIZE: "${IWM_R2DBC_POOL_MAX_SIZE:-50}"
+      IWM_R2DBC_POOL_MAX_IDLE_TIME: "${IWM_R2DBC_POOL_MAX_IDLE_TIME:-30m}"
+      IWM_R2DBC_POOL_MAX_ACQUIRE_TIME: "${IWM_R2DBC_POOL_MAX_ACQUIRE_TIME:-10s}"
+      IWM_R2DBC_POOL_MAX_CREATE_CONNECTION_TIME: "${IWM_R2DBC_POOL_MAX_CREATE_CONNECTION_TIME:-30s}"
+      IWM_R2DBC_POOL_VALIDATION_QUERY: "${IWM_R2DBC_POOL_VALIDATION_QUERY:-SELECT 1}"
+      IWM_LIQUIBASE_URL: jdbc:postgresql://postgres:5432/iwm
+      IWM_LIQUIBASE_USERNAME: iwm
+      IWM_LIQUIBASE_PASSWORD: iwm
+      IWM_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      IWM_OUTBOX_KAFKA_CONCURRENCY: "${IWM_OUTBOX_KAFKA_CONCURRENCY:-2}"
+      IWM_OUTBOX_RELAY_BATCH_SIZE: "${IWM_OUTBOX_RELAY_BATCH_SIZE:-100}"
+      IWM_OUTBOX_RELAY_DELIVERY_CONCURRENCY: "${IWM_OUTBOX_RELAY_DELIVERY_CONCURRENCY:-4}"
+      IWM_OUTBOX_REPLAY_ON_STARTUP_MAX_EVENTS: "${IWM_OUTBOX_REPLAY_ON_STARTUP_MAX_EVENTS:-5000}"
+      IWM_OUTBOX_REPLAY_ON_STARTUP_CONSUMER_CONCURRENCY: "${IWM_OUTBOX_REPLAY_ON_STARTUP_CONSUMER_CONCURRENCY:-4}"
+      IWM_REDIS_PERMISSION_CACHE_ENABLED: "true"
+      IWM_REDIS_HOST: redis
+      IWM_REDIS_PORT: "6379"
+      IWM_ELASTICSEARCH_SEARCH_ENABLED: "true"
+      IWM_ELASTICSEARCH_URIS: http://elasticsearch:9200
+      IWM_TENANT_REQUEST_QUOTA_ENABLED: "${IWM_TENANT_REQUEST_QUOTA_ENABLED:-false}"
+      IWM_TENANT_REQUEST_QUOTA_LIMIT: "${IWM_TENANT_REQUEST_QUOTA_LIMIT:-1200}"
+      IWM_TENANT_REQUEST_QUOTA_WINDOW: "${IWM_TENANT_REQUEST_QUOTA_WINDOW:-1m}"
+      IWM_TENANT_REQUEST_QUOTA_FAIL_OPEN: "${IWM_TENANT_REQUEST_QUOTA_FAIL_OPEN:-true}"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8081/actuator/health >/dev/null"]
+      interval: 15s
+      timeout: 10s
+      retries: 20
+      start_period: 60s
+    networks:
+      - iwm
+
+  gateway:
+    image: nginx:1.27-alpine
+    depends_on:
+      app:
+        condition: service_healthy
+    environment:
+      IWM_GATEWAY_UPSTREAM_HOST: app
+      IWM_GATEWAY_UPSTREAM_PORT: "8080"
+      IWM_GATEWAY_MANAGEMENT_PORT: "8081"
+      IWM_GATEWAY_HTTP_PORT: "8080"
+      IWM_GATEWAY_TLS_PORT: "8443"
+      IWM_GATEWAY_PUBLIC_HTTP_PORT: "${IWM_GATEWAY_PUBLIC_HTTP_PORT:-8080}"
+      IWM_GATEWAY_PUBLIC_HTTPS_PORT: "${IWM_GATEWAY_PUBLIC_HTTPS_PORT:-8443}"
+      IWM_GATEWAY_RATE_LIMIT: "${IWM_GATEWAY_RATE_LIMIT:-50r/s}"
+      IWM_GATEWAY_RATE_LIMIT_BURST: "${IWM_GATEWAY_RATE_LIMIT_BURST:-100}"
+      IWM_GATEWAY_TENANT_RATE_LIMIT: "${IWM_GATEWAY_TENANT_RATE_LIMIT:-120r/s}"
+      IWM_GATEWAY_TENANT_RATE_LIMIT_BURST: "${IWM_GATEWAY_TENANT_RATE_LIMIT_BURST:-240}"
+      IWM_GATEWAY_CONNECTION_LIMIT: "${IWM_GATEWAY_CONNECTION_LIMIT:-100}"
+      IWM_GATEWAY_TENANT_CONNECTION_LIMIT: "${IWM_GATEWAY_TENANT_CONNECTION_LIMIT:-200}"
+      IWM_GATEWAY_CLIENT_MAX_BODY_SIZE: "${IWM_GATEWAY_CLIENT_MAX_BODY_SIZE:-10m}"
+      IWM_GATEWAY_TLS_CERT_PATH: /etc/nginx/certs/server.crt
+      IWM_GATEWAY_TLS_KEY_PATH: /etc/nginx/certs/server.key
+    command: >
+      /bin/sh -c "envsubst '$$IWM_GATEWAY_UPSTREAM_HOST $$IWM_GATEWAY_UPSTREAM_PORT $$IWM_GATEWAY_MANAGEMENT_PORT
+      $$IWM_GATEWAY_HTTP_PORT $$IWM_GATEWAY_TLS_PORT $$IWM_GATEWAY_RATE_LIMIT $$IWM_GATEWAY_RATE_LIMIT_BURST
+      $$IWM_GATEWAY_TENANT_RATE_LIMIT $$IWM_GATEWAY_TENANT_RATE_LIMIT_BURST $$IWM_GATEWAY_CONNECTION_LIMIT
+      $$IWM_GATEWAY_TENANT_CONNECTION_LIMIT $$IWM_GATEWAY_CLIENT_MAX_BODY_SIZE $$IWM_GATEWAY_TLS_CERT_PATH
+      $$IWM_GATEWAY_TLS_KEY_PATH' < /etc/nginx/templates/gateway.conf.template > /etc/nginx/nginx.conf
+      && exec nginx -g 'daemon off;'"
+    ports:
+      - "${IWM_GATEWAY_PUBLIC_HTTP_PORT:-8080}:8080"
+      - "${IWM_GATEWAY_PUBLIC_HTTPS_PORT:-8443}:8443"
+    volumes:
+      - ./ops/nginx/templates/gateway.conf.template:/etc/nginx/templates/gateway.conf.template:ro
+      - ./ops/nginx/certs/local/server.crt:/etc/nginx/certs/server.crt:ro
+      - ./ops/nginx/certs/local/server.key:/etc/nginx/certs/server.key:ro
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/healthz >/dev/null"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 10s
+    networks:
+      - iwm
+
+  prometheus:
+    depends_on:
+      app:
+        condition: service_healthy
+    volumes:
+      - ./ops/prometheus/prometheus.compose.yml:/etc/prometheus/prometheus.yml:ro
+      - ./ops/prometheus/alerts:/etc/prometheus/alerts:ro
+      - iwm-prometheus-data:/prometheus

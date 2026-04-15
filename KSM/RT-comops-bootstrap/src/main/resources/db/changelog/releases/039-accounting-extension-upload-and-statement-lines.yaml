@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 039-accounting-extension-upload-and-statement-lines
+      author: Blhack
+      changes:
+        - sqlFile:
+            path: db/r2dbc/V39__accounting_extension_upload_and_statement_lines.sql
+            relativeToChangelogFile: false
