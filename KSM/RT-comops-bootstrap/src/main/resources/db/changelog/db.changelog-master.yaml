@@ -150,3 +150,6 @@ databaseChangeLog:
   - include:
       file: releases/050-split-service-codes-compatibility.yaml
       relativeToChangelogFile: true
+  - include:
+      file: releases/051-hrm-employee-subdomain.yaml
+      relativeToChangelogFile: true
