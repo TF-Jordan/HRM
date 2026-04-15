@@ -156,3 +156,6 @@ databaseChangeLog:
   - include:
       file: releases/052-hrm-leave-request.yaml
       relativeToChangelogFile: true
+  - include:
+      file: releases/053-hrm-loan-advance.yaml
+      relativeToChangelogFile: true
