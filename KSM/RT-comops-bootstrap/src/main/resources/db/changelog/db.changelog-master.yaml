@@ -162,3 +162,6 @@ databaseChangeLog:
   - include:
       file: releases/054-hrm-timesheet.yaml
       relativeToChangelogFile: true
+  - include:
+      file: releases/055-hrm-payroll.yaml
+      relativeToChangelogFile: true
