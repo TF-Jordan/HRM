@@ -159,3 +159,6 @@ databaseChangeLog:
   - include:
       file: releases/053-hrm-loan-advance.yaml
       relativeToChangelogFile: true
+  - include:
+      file: releases/054-hrm-timesheet.yaml
+      relativeToChangelogFile: true

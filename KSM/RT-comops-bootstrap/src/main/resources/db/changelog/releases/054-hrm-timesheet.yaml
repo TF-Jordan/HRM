@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 054-hrm-timesheet
+      author: claude
+      changes:
+        - sqlFile:
+            path: db/r2dbc/V54__hrm_timesheet.sql
+            relativeToChangelogFile: false
