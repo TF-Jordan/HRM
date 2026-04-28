@@ -165,3 +165,6 @@ databaseChangeLog:
   - include:
       file: releases/055-hrm-payroll.yaml
       relativeToChangelogFile: true
+  - include:
+      file: releases/056-hrm-training-reviews.yaml
+      relativeToChangelogFile: true
