@@ -174,3 +174,6 @@ databaseChangeLog:
   - include:
       file: releases/058-hrm-expenses-missions.yaml
       relativeToChangelogFile: true
+  - include:
+      file: releases/059-hrm-medical-hse.yaml
+      relativeToChangelogFile: true
