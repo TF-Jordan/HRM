@@ -171,3 +171,6 @@ databaseChangeLog:
   - include:
       file: releases/057-hrm-recruitment-onboarding.yaml
       relativeToChangelogFile: true
+  - include:
+      file: releases/058-hrm-expenses-missions.yaml
+      relativeToChangelogFile: true
