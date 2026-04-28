@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 057-hrm-recruitment-onboarding
+      author: claude
+      changes:
+        - sqlFile:
+            path: db/r2dbc/V57__hrm_recruitment_onboarding.sql
+            relativeToChangelogFile: false
