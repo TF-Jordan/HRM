@@ -79,7 +79,8 @@ public final class PlatformServiceRouteResolver {
             new RouteServiceMapping("/api/reports/audit", PlatformServiceCode.CASHIER.code()),
             new RouteServiceMapping("/api/sessions", PlatformServiceCode.CASHIER.code()),
             new RouteServiceMapping("/api/notify-unauthorized", PlatformServiceCode.CASHIER.code()),
-            new RouteServiceMapping("/api/resources", PlatformServiceCode.RESOURCE.code()));
+            new RouteServiceMapping("/api/resources", PlatformServiceCode.RESOURCE.code()),
+            new RouteServiceMapping("/api/v1/hrm", PlatformServiceCode.HRM.code()));
 
     private static final List<RouteServiceMapping> ORGANIZATION_ENTITLEMENT_MAPPINGS = CLIENT_APPLICATION_MAPPINGS.stream()
             .filter(mapping -> !PlatformServiceCode.ORGANIZATION.code().equals(mapping.serviceCode())

@@ -30,7 +30,9 @@ public enum PlatformServiceCode {
     CASHIER("Cashier", "Cash registers, cashier sessions, cash movements and cashier operations.", false, true,
             Set.of("CASHIER", "CAISSE", "CASH")),
     RESOURCE("Resource", "Material resource lifecycle, reservations and assignments.", false, true,
-            Set.of("RESOURCE", "RESOURCES", "RESSOURCE", "RESSOURCES"));
+            Set.of("RESOURCE", "RESOURCES", "RESSOURCE", "RESSOURCES")),
+    HRM("HRM", "Human resources management, payroll, leave, training and compliance.", false, true,
+            Set.of("HRM", "RH", "HUMAN_RESOURCES"));
 
     private final String displayName;
     private final String description;
