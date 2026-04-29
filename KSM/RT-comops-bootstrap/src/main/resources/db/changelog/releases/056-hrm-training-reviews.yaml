@@ -1,7 +1,7 @@
 databaseChangeLog:
   - changeSet:
       id: 056-hrm-training-reviews
-      author: claude
+      author: jordan
       changes:
         - sqlFile:
             path: db/r2dbc/V56__hrm_training_reviews.sql

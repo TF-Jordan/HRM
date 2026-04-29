@@ -1,7 +1,7 @@
 databaseChangeLog:
   - changeSet:
       id: 059-hrm-medical-hse
-      author: claude
+      author: jordan
       changes:
         - sqlFile:
             path: db/r2dbc/V59__hrm_medical_hse.sql

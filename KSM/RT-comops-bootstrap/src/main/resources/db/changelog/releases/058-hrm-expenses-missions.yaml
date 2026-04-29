@@ -1,7 +1,7 @@
 databaseChangeLog:
   - changeSet:
       id: 058-hrm-expenses-missions
-      author: claude
+      author: jordan
       changes:
         - sqlFile:
             path: db/r2dbc/V58__hrm_expenses_missions.sql

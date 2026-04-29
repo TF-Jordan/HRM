@@ -1,7 +1,7 @@
 databaseChangeLog:
   - changeSet:
       id: 055-hrm-payroll
-      author: claude
+      author: jordan
       changes:
         - sqlFile:
             path: db/r2dbc/V55__hrm_payroll.sql
