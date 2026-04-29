@@ -177,3 +177,9 @@ databaseChangeLog:
   - include:
       file: releases/059-hrm-medical-hse.yaml
       relativeToChangelogFile: true
+  - include:
+      file: releases/060-hrm-skills-gpec-budget.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: releases/061-hrm-declarations-kpi.yaml
+      relativeToChangelogFile: true
