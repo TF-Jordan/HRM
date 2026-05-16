@@ -1,0 +1,94 @@
+@startuml dc-payroll
+!theme plain
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+package "common-core" #EEEEEE {
+    abstract class BaseEntity {
+        # id : UUID
+        # tenantId : UUID
+        # organizationId : UUID
+        # agencyId : UUID
+        # createdBy : UUID
+        # createdAt : Instant
+        # updatedBy : UUID
+        # updatedAt : Instant
+        # version : Long
+    }
+}
+
+package "hrm-core / domain — Paie" #FFF5F5 {
+
+    class PayrollRun extends BaseEntity {
+        - periode : YearMonth
+        - status : PayrollStatus
+        - totalBrut : BigDecimal
+        - totalNet : BigDecimal
+        - totalCnpsEmploye : BigDecimal
+        - totalCnpsEmployeur : BigDecimal
+        - totalIrpp : BigDecimal
+        - nbEmployes : int
+        - calculatedAt : Instant
+        - validatedBy : UUID
+        - validatedAt : Instant
+        + calculate(employees, rules) : void
+        + validate(validatorId) : void
+        + reject(reason) : void
+        + generatePaymentOrders() : List<PaymentOrder>
+    }
+
+    class PayrollEntry extends BaseEntity {
+        - payrollRunId : UUID
+        - employeeId : UUID
+        - salaireBase : BigDecimal
+        - brut : BigDecimal
+        - net : BigDecimal
+        - cnpsEmploye : BigDecimal
+        - cnpsEmployeur : BigDecimal
+        - irpp : BigDecimal
+        - cac : BigDecimal
+        - primes : BigDecimal
+        - retenues : BigDecimal
+        - avancesDeduites : BigDecimal
+        - paymentStatus : PaymentStatus
+        - paymentChannel : PaymentChannel
+        + addLine(line) : void
+        + getLines() : List<PayslipLine>
+    }
+
+    class PayslipLine <<Value Object>> {
+        - libelle : String
+        - type : PayslipLineType
+        - base : BigDecimal
+        - taux : BigDecimal
+        - montant : BigDecimal
+        - ordreAffichage : int
+    }
+
+    enum PayrollStatus {
+        DRAFT
+        CALCULATED
+        VALIDATED
+        PAID
+    }
+
+    enum PaymentStatus {
+        PENDING
+        PROCESSING
+        COMPLETED
+        FAILED
+    }
+
+    enum PayslipLineType {
+        EARNING
+        DEDUCTION
+    }
+
+    PayrollRun *-- "0..*" PayrollEntry
+    PayrollEntry *-- "1..*" PayslipLine
+    PayrollRun --> PayrollStatus
+    PayrollEntry --> PaymentStatus
+    PayslipLine --> PayslipLineType
+}
+
+@enduml

@@ -1,0 +1,197 @@
+{
+  "info": {
+    "name": "Comops Blockchain Core Flow",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "End-to-end blockchain flow: wallet generation, ECDSA signing, signed transaction, document anchor, proof-of-work mining and chain validation."
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "accessToken", "value": "" },
+    { "key": "organizationId", "value": "00000000-0000-0000-0000-000000000001" },
+    { "key": "chainCode", "value": "COMOPS_MAIN" },
+    { "key": "publicKey", "value": "" },
+    { "key": "privateKey", "value": "" },
+    { "key": "signingPayload", "value": "" },
+    { "key": "signature", "value": "" },
+    { "key": "transactionId", "value": "" },
+    { "key": "blockId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "01 - Generate blockchain wallet",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "url": "{{baseUrl}}/api/v1/blockchain/wallets",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"organizationId\": \"{{organizationId}}\",\n  \"label\": \"Treasury signer\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const body = pm.response.json();",
+              "pm.collectionVariables.set('publicKey', body.data.publicKey);",
+              "pm.collectionVariables.set('privateKey', body.data.privateKey);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 - Build signing payload",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "url": "{{baseUrl}}/api/v1/blockchain/transactions/signing-payload",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"organizationId\": \"{{organizationId}}\",\n  \"chainCode\": \"{{chainCode}}\",\n  \"transactionType\": \"INVOICE_SETTLEMENT\",\n  \"sourceService\": \"BILLING\",\n  \"sourceReference\": \"FAC-POSTMAN-001\",\n  \"payload\": \"{\\\"invoice\\\":\\\"FAC-POSTMAN-001\\\",\\\"amount\\\":12500}\",\n  \"senderPublicKey\": \"{{publicKey}}\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const body = pm.response.json();",
+              "pm.collectionVariables.set('signingPayload', body.data.payload);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 - Sign payload",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "url": "{{baseUrl}}/api/v1/blockchain/crypto/sign",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"privateKey\": \"{{privateKey}}\",\n  \"payload\": \"{{signingPayload}}\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const body = pm.response.json();",
+              "pm.collectionVariables.set('signature', body.data.signature);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 - Submit signed transaction",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "url": "{{baseUrl}}/api/v1/blockchain/transactions",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"organizationId\": \"{{organizationId}}\",\n  \"chainCode\": \"{{chainCode}}\",\n  \"transactionType\": \"INVOICE_SETTLEMENT\",\n  \"sourceService\": \"BILLING\",\n  \"sourceReference\": \"FAC-POSTMAN-001\",\n  \"payload\": \"{\\\"invoice\\\":\\\"FAC-POSTMAN-001\\\",\\\"amount\\\":12500}\",\n  \"senderPublicKey\": \"{{publicKey}}\",\n  \"signature\": \"{{signature}}\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const body = pm.response.json();",
+              "pm.collectionVariables.set('transactionId', body.data.id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 - Anchor document hash",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "url": "{{baseUrl}}/api/v1/blockchain/anchors",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"organizationId\": \"{{organizationId}}\",\n  \"chainCode\": \"{{chainCode}}\",\n  \"sourceService\": \"FILE\",\n  \"sourceReference\": \"PAYSLIP-POSTMAN-001\",\n  \"documentHash\": \"8ab62d4416d4ad8d83673756c9f1d9b41bb4b12718c8b5b3149e8fb68f938d8e\",\n  \"metadata\": \"{\\\"documentType\\\":\\\"PAYSLIP\\\",\\\"period\\\":\\\"2026-04\\\"}\"\n}"
+        }
+      }
+    },
+    {
+      "name": "06 - Mine pending block",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "url": "{{baseUrl}}/api/v1/blockchain/mine",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"organizationId\": \"{{organizationId}}\",\n  \"chainCode\": \"{{chainCode}}\",\n  \"minedBy\": \"postman-miner\",\n  \"difficulty\": 2\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const body = pm.response.json();",
+              "pm.collectionVariables.set('blockId', body.data.id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "07 - List blocks",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+        ],
+        "url": "{{baseUrl}}/api/v1/blockchain/blocks?organizationId={{organizationId}}&chainCode={{chainCode}}"
+      }
+    },
+    {
+      "name": "08 - List transactions",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+        ],
+        "url": "{{baseUrl}}/api/v1/blockchain/transactions?organizationId={{organizationId}}&chainCode={{chainCode}}"
+      }
+    },
+    {
+      "name": "09 - Validate chain",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+        ],
+        "url": "{{baseUrl}}/api/v1/blockchain/validate?organizationId={{organizationId}}&chainCode={{chainCode}}"
+      }
+    }
+  ]
+}

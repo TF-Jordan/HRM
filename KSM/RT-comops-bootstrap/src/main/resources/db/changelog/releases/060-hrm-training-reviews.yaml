@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 060-hrm-training-reviews
+      author: jordan
+      changes:
+        - sqlFile:
+            path: db/r2dbc/V60__hrm_training_reviews.sql
+            relativeToChangelogFile: false

@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 053-auth-email-verification
+      author: Codex
+      changes:
+        - sqlFile:
+            path: ../../r2dbc/V53__auth_email_verification.sql
+            relativeToChangelogFile: true

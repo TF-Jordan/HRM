@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 020-third-party-follow-up
+      author: Blhack
+      changes:
+        - sqlFile:
+            path: db/r2dbc/V20__third_party_follow_up.sql
+            relativeToChangelogFile: false

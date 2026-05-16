@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 063-hrm-medical-hse
+      author: jordan
+      changes:
+        - sqlFile:
+            path: db/r2dbc/V63__hrm_medical_hse.sql
+            relativeToChangelogFile: false

@@ -1,0 +1,7 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-baseline
+      author: Blhack
+      sqlFile:
+        path: ../../r2dbc/V1__baseline.sql
+        relativeToChangelogFile: true

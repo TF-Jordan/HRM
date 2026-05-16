@@ -1,0 +1,115 @@
+@startuml uc-hrm-global
+!theme plain
+left to right direction
+skinparam actorStyle awesome
+skinparam packageStyle rectangle
+
+actor "Admin RH" as adminrh
+actor "Manager" as manager
+actor "Employé" as employe
+actor "Comptable / DAF" as comptable
+actor "Recruteur" as recruteur
+actor "DRH" as drh
+
+rectangle "hrm-core" {
+
+    package "Gestion du Personnel" {
+        usecase "Créer un employé\n(lié à un Actor existant)" as UC_EMP_CREATE
+        usecase "Modifier les données RH\nd'un employé" as UC_EMP_UPDATE
+        usecase "Résilier / Terminer\nun employé" as UC_EMP_TERMINATE
+        usecase "Gérer les contrats\nde travail" as UC_CONTRACT
+        usecase "Gérer les personnes\nà charge" as UC_DEPENDENT
+    }
+
+    package "Gestion de la Paie" {
+        usecase "Lancer le calcul\nde paie mensuel" as UC_PAYROLL_RUN
+        usecase "Consulter les\nbulletins de paie" as UC_PAYROLL_READ
+        usecase "Valider la paie" as UC_PAYROLL_VALIDATE
+        usecase "Générer les ordres\nde paiement" as UC_PAYMENT_ORDER
+        usecase "Produire la déclaration\nCNPS mensuelle" as UC_CNPS
+    }
+
+    package "Gestion des Congés" {
+        usecase "Soumettre une\ndemande de congé" as UC_LEAVE_SUBMIT
+        usecase "Approuver / Rejeter\nun congé" as UC_LEAVE_APPROVE
+        usecase "Consulter le solde\nde congés" as UC_LEAVE_BALANCE
+        usecase "Consulter le planning\néquipe" as UC_LEAVE_PLANNING
+    }
+
+    package "Avances & Prêts" {
+        usecase "Demander une avance\nsur salaire" as UC_LOAN_REQUEST
+        usecase "Approuver une avance" as UC_LOAN_APPROVE
+    }
+
+    package "Formations & Évaluations" {
+        usecase "Planifier une\nformation" as UC_TRAINING_PLAN
+        usecase "S'inscrire à\nune formation" as UC_TRAINING_ENROLL
+        usecase "Réaliser une\névaluation" as UC_REVIEW
+    }
+
+    package "Conformité" {
+        usecase "Consulter les alertes\nde conformité" as UC_COMPLIANCE
+        usecase "Consulter les CDD\nexpirants" as UC_CDD_EXPIRY
+    }
+}
+
+' --- Relations Admin RH ---
+adminrh --> UC_EMP_CREATE
+adminrh --> UC_EMP_UPDATE
+adminrh --> UC_EMP_TERMINATE
+adminrh --> UC_CONTRACT
+adminrh --> UC_DEPENDENT
+adminrh --> UC_PAYROLL_RUN
+adminrh --> UC_CNPS
+adminrh --> UC_COMPLIANCE
+adminrh --> UC_CDD_EXPIRY
+
+' --- Relations Comptable ---
+comptable --> UC_PAYROLL_VALIDATE
+comptable --> UC_PAYMENT_ORDER
+comptable --> UC_PAYROLL_READ
+comptable --> UC_LOAN_APPROVE
+
+' --- Relations Manager ---
+manager --> UC_LEAVE_APPROVE
+manager --> UC_LEAVE_PLANNING
+manager --> UC_REVIEW
+
+' --- Relations Employé ---
+employe --> UC_LEAVE_SUBMIT
+employe --> UC_LEAVE_BALANCE
+employe --> UC_PAYROLL_READ
+employe --> UC_LOAN_REQUEST
+employe --> UC_TRAINING_ENROLL
+
+' --- Relations DRH ---
+drh --> UC_TRAINING_PLAN
+drh --> UC_REVIEW
+drh --> UC_COMPLIANCE
+
+' --- Relations Recruteur ---
+recruteur --> UC_EMP_CREATE
+
+' --- Acteurs externes (autres cores) ---
+rectangle "accounting-core" as ACC <<external>>
+rectangle "treasury-core" as TRE <<external>>
+rectangle "actor-core" as ACT <<external>>
+rectangle "settings-core" as SET <<external>>
+rectangle "file-core" as FIL <<external>>
+rectangle "roles-core" as ROL <<external>>
+
+UC_PAYROLL_VALIDATE ..> ACC : <<événement>>\nPAYROLL_VALIDATED
+UC_PAYMENT_ORDER ..> TRE : <<événement>>\nPAYMENT_ORDER_CREATED
+UC_EMP_CREATE ..> ACT : <<port/out>>\nrésolution PartyRef
+UC_PAYROLL_RUN ..> SET : <<port/out>>\nlecture paramètres paie
+UC_CONTRACT ..> FIL : <<port/out>>\nstockage documents
+
+note bottom of ROL
+  roles-core gère toute
+  la logique RBAC.
+  hrm-core annote ses
+  endpoints avec
+  @Secured("hrm:...")
+end note
+
+@enduml

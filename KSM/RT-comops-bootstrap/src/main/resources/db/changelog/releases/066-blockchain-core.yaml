@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 066-blockchain-core
+      author: codex
+      changes:
+        - sqlFile:
+            path: db/r2dbc/V66__blockchain_core.sql
+            relativeToChangelogFile: false

@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 055-hrm-employee-subdomain
+      author: jordan
+      changes:
+        - sqlFile:
+            path: db/r2dbc/V55__hrm_employee_subdomain.sql
+            relativeToChangelogFile: false

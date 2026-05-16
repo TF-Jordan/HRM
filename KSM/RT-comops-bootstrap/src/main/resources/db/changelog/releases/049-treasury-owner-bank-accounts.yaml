@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 049-treasury-owner-bank-accounts
+      author: Blhack
+      changes:
+        - sqlFile:
+            path: ../../r2dbc/V49__treasury_owner_bank_accounts.sql
+            relativeToChangelogFile: true

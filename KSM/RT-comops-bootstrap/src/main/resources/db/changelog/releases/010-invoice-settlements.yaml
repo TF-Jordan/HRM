@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id: 010-invoice-settlements
+      author: Blhack
+      changes:
+        - sqlFile:
+            path: ../../r2dbc/V10__invoice_settlements.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: false

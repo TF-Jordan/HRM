@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 054-auth-full-iam-fields
+      author: codex
+      changes:
+        - sqlFile:
+            path: db/r2dbc/V54__auth_full_iam_fields.sql
+            relativeToChangelogFile: false

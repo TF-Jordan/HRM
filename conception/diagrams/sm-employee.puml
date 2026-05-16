@@ -1,0 +1,43 @@
+@startuml sm-employee
+!theme plain
+skinparam stateFontSize 12
+
+title Machine à états — Employee
+
+[*] --> ACTIVE : hire(actorRef, contrat)
+
+ACTIVE --> ON_LEAVE : congé approuvé\n(événement LEAVE_APPROVED)
+ACTIVE --> SUSPENDED : suspend(reason)\n[décision disciplinaire]
+ACTIVE --> TERMINATED : terminate(date, reason)\n[démission / licenciement / fin CDD]
+
+ON_LEAVE --> ACTIVE : retour de congé\n(date fin congé atteinte)
+
+SUSPENDED --> ACTIVE : reactivate()\n[levée de suspension]
+SUSPENDED --> TERMINATED : terminate(date, reason)
+
+TERMINATED --> [*]
+
+note right of ACTIVE
+  L'employé participe
+  au calcul de paie.
+  Il peut soumettre des
+  demandes (congés, avances).
+end note
+
+note right of ON_LEAVE
+  Le statut est mis à jour
+  automatiquement par un job
+  planifié (cron quotidien).
+  L'employé reste inclus
+  dans le calcul de paie.
+end note
+
+note right of TERMINATED
+  L'employé n'est plus
+  inclus dans les cycles
+  de paie futurs.
+  Son historique reste
+  consultable.
+end note
+
+@enduml

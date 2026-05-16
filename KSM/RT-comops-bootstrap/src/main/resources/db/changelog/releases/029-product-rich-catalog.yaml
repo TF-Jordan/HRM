@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - changeSet:
+      id: 029-product-rich-catalog
+      author: Blhack
+      changes:
+        - sqlFile:
+            path: ../../r2dbc/V29__product_rich_catalog.sql
+            relativeToChangelogFile: true
+            splitStatements: false

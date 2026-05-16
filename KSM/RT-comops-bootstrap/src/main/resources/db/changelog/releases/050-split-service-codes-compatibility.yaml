@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 050-split-service-codes-compatibility
+      author: Blhack
+      changes:
+        - sqlFile:
+            path: ../../r2dbc/V50__split_service_codes_compatibility.sql
+            relativeToChangelogFile: true

@@ -1,0 +1,60 @@
+@startuml deploy-hrm
+!theme plain
+skinparam nodeStyle rectangle
+
+title Diagramme de déploiement — hrm-core dans RT-Comops
+
+node "Client" as client {
+    component [Navigateur Web\n(Angular / React)] as browser
+}
+
+node "Load Balancer" as lb {
+    component [Nginx / Traefik] as proxy
+}
+
+node "Application Server" as appServer {
+    node "JVM — Spring Boot (WebFlux)" as jvm {
+        component [kernel-core\n(Security filter,\nTenant routing,\nOutbox scheduler)] as kernel
+        component [auth-core] as auth
+        component [roles-core] as rolesC
+        component [actor-core] as actorC
+        component [organization-core] as orgC
+        component [settings-core] as settC
+        component [file-core] as fileC
+        component [administration-core] as adminC
+        component [accounting-core] as accC
+        component [treasury-core] as treC
+        component [**hrm-core**] as hrmC #7986CB
+        component [common-core] as commonC
+    }
+}
+
+node "Message Broker" as broker {
+    component [Apache Kafka\nTopic: iwm.events.business] as kafka
+}
+
+database "PostgreSQL" as pg {
+    storage "Schema: tenant_001" as s1
+    storage "Schema: tenant_002" as s2
+    storage "Schema: kernel\n(outbox_event, audit)" as sk
+}
+
+database "MinIO / S3" as minio {
+    storage "Bucket: hrm-documents\n(contrats, attestations,\njustificatifs)" as bucket
+}
+
+browser -down-> proxy : HTTPS
+proxy -down-> jvm : HTTP (reverse proxy)
+
+kernel -down-> pg : R2DBC\n(tenant routing)
+kernel -right-> kafka : Outbox relay
+
+hrmC -down-> pg : R2DBC
+hrmC -right-> kafka : Events (via outbox)
+hrmC -down-> minio : via file-core
+
+kafka -down-> accC : consume PAYROLL_VALIDATED
+kafka -down-> treC : consume PAYMENT_ORDER_CREATED
+kafka -down-> hrmC : consume PAYMENT_COMPLETED\nconsume ACTOR_UPDATED
+
+@enduml

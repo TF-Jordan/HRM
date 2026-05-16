@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 065-hrm-declarations-kpi
+      author: jordan
+      changes:
+        - sqlFile:
+            path: db/r2dbc/V65__hrm_declarations_kpi.sql
+            relativeToChangelogFile: false

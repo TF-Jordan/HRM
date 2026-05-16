@@ -1,0 +1,2652 @@
+{
+  "info": {
+    "_postman_id": "4a7b27fe-8453-4ee8-aef5-6b0c8768f141",
+    "name": "IWM Backend - Flows 11-15 API First",
+    "description": "Code-first Postman flows for core 11 (cashier), core 12 (billing), core 13 (accounting), core 14 (treasury), and core 15 (administration). Built from the implemented controllers, DTOs, security filters, and integration tests in iwm-backend.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "managementBaseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "clientId",
+      "value": "erp-backend"
+    },
+    {
+      "key": "apiKey",
+      "value": "change-me"
+    },
+    {
+      "key": "managementApiKey",
+      "value": "dev-management-api-key"
+    },
+    {
+      "key": "tenantId",
+      "value": "change-me"
+    },
+    {
+      "key": "adminUsername",
+      "value": "change-me"
+    },
+    {
+      "key": "adminPassword",
+      "value": "change-me"
+    },
+    {
+      "key": "operatorUsername",
+      "value": "change-me"
+    },
+    {
+      "key": "operatorPassword",
+      "value": "change-me"
+    },
+    {
+      "key": "candidateUsername",
+      "value": "change-me"
+    },
+    {
+      "key": "candidatePassword",
+      "value": "change-me"
+    },
+    {
+      "key": "adminToken",
+      "value": ""
+    },
+    {
+      "key": "operatorToken",
+      "value": ""
+    },
+    {
+      "key": "candidateToken",
+      "value": ""
+    },
+    {
+      "key": "adminUserId",
+      "value": ""
+    },
+    {
+      "key": "operatorUserId",
+      "value": ""
+    },
+    {
+      "key": "candidateUserId",
+      "value": ""
+    },
+    {
+      "key": "adminOrganizationId",
+      "value": ""
+    },
+    {
+      "key": "operatorBusinessActorId",
+      "value": ""
+    },
+    {
+      "key": "candidateBusinessActorId",
+      "value": ""
+    },
+    {
+      "key": "organizationId",
+      "value": ""
+    },
+    {
+      "key": "bankAccountId",
+      "value": ""
+    },
+    {
+      "key": "statementId",
+      "value": ""
+    },
+    {
+      "key": "reconciliationId",
+      "value": ""
+    },
+    {
+      "key": "transactionId",
+      "value": ""
+    },
+    {
+      "key": "checkPaymentId",
+      "value": ""
+    },
+    {
+      "key": "invoiceId",
+      "value": ""
+    },
+    {
+      "key": "customerThirdPartyId",
+      "value": ""
+    },
+    {
+      "key": "productId",
+      "value": ""
+    },
+    {
+      "key": "agencyId",
+      "value": ""
+    },
+    {
+      "key": "cashierEmail",
+      "value": "change-me@example.com"
+    },
+    {
+      "key": "cashierCustomerId",
+      "value": ""
+    },
+    {
+      "key": "cashierId",
+      "value": ""
+    },
+    {
+      "key": "cashRegisterId",
+      "value": ""
+    },
+    {
+      "key": "cashierSessionId",
+      "value": ""
+    },
+    {
+      "key": "cashierBillId",
+      "value": ""
+    },
+    {
+      "key": "billingDocumentId",
+      "value": ""
+    },
+    {
+      "key": "paymentId",
+      "value": ""
+    },
+    {
+      "key": "journalId",
+      "value": ""
+    },
+    {
+      "key": "accountReceivableId",
+      "value": ""
+    },
+    {
+      "key": "accountRevenueId",
+      "value": ""
+    },
+    {
+      "key": "accountingEntryId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "00 - Authentication",
+      "description": "All /api/** routes are authenticated. The implemented security chain requires X-Client-Id, X-Api-Key, X-Tenant-Id, and for permissioned routes a Bearer JWT carrying userId.",
+      "item": [
+        {
+          "name": "Admin Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Client-Id",
+                "value": "{{clientId}}"
+              },
+              {
+                "key": "X-Api-Key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenantId}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"principal\": \"{{adminUsername}}\",\n  \"password\": \"{{adminPassword}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Real login endpoint from AuthController. Stores admin Bearer token and the first organizationId returned by the login response when present."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Admin login returns 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set('adminToken', json.data.accessToken);",
+                  "pm.collectionVariables.set('adminUserId', json.data.id);",
+                  "if (Array.isArray(json.data.organizations) && json.data.organizations.length > 0) {",
+                  "  pm.collectionVariables.set('adminOrganizationId', json.data.organizations[0].organizationId);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Operator Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Client-Id",
+                "value": "{{clientId}}"
+              },
+              {
+                "key": "X-Api-Key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenantId}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"principal\": \"{{operatorUsername}}\",\n  \"password\": \"{{operatorPassword}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Operator user should at least have organizations:write and treasury:manage."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Operator login returns 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set('operatorToken', json.data.accessToken);",
+                  "pm.collectionVariables.set('operatorUserId', json.data.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Candidate Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Client-Id",
+                "value": "{{clientId}}"
+              },
+              {
+                "key": "X-Api-Key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenantId}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"principal\": \"{{candidateUsername}}\",\n  \"password\": \"{{candidatePassword}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Second business user used to generate a business actor that will be rejected by administration."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Candidate login returns 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set('candidateToken', json.data.accessToken);",
+                  "pm.collectionVariables.set('candidateUserId', json.data.id);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "15 - Administration Core",
+      "description": "Code-first administration flow. Uses real admin endpoints from AdministrationController plus real prerequisite endpoints from ActorController and OrganizationController.",
+      "item": [
+        {
+          "name": "15.01 - Get Platform Options",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Client-Id",
+                "value": "{{clientId}}"
+              },
+              {
+                "key": "X-Api-Key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenantId}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/administration/settings/platform-options",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "administration",
+                "settings",
+                "platform-options"
+              ]
+            },
+            "description": "Real GET endpoint from AdministrationController."
+          }
+        },
+        {
+          "name": "15.02 - Update Platform Options",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Client-Id",
+                "value": "{{clientId}}"
+              },
+              {
+                "key": "X-Api-Key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenantId}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"requireBusinessActorApproval\": true,\n  \"requireOrganizationApproval\": true,\n  \"allowOrganizationSelfServiceCreation\": true,\n  \"allowAgencySelfServiceCreation\": false,\n  \"allowRoleCloning\": true,\n  \"allowAgencyScopedCustomRoles\": true,\n  \"allowOrganizationAdminsToGovernAgencies\": true,\n  \"allowBusinessActorSelfReactivation\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/administration/settings/platform-options",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "administration",
+                "settings",
+                "platform-options"
+              ]
+            },
+            "description": "Real request body from UpdateAdministrativePlatformOptionsRequest. This matches the integration-tested happy path for approval-driven governance."
+          }
+        },
+        {
+          "name": "15.03 - Onboard Operator Business Actor",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Client-Id",
+                "value": "{{clientId}}"
+              },
+              {
+                "key": "X-Api-Key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenantId}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{operatorToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Operator Business Actor\",\n  \"businessId\": \"BA-POSTMAN-OP-01\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/actors/onboarding",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "actors",
+                "onboarding"
+              ]
+            },
+            "description": "Real onboarding endpoint from ActorController. Minimal code-proven payload from integration tests."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Operator business actor is created', function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set('operatorBusinessActorId', json.data.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "15.04 - List Pending Business Actors",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Client-Id",
+                "value": "{{clientId}}"
+              },
+              {
+                "key": "X-Api-Key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenantId}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/administration/governance/business-actors?status=PENDING_REVIEW",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "administration",
+                "governance",
+                "business-actors"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "PENDING_REVIEW"
+                }
+              ]
+            },
+            "description": "Real list endpoint. Query parameter status is implemented and case-insensitive."
+          }
+        },
+        {
+          "name": "15.05 - Approve Operator Business Actor",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Client-Id",
+                "value": "{{clientId}}"
+              },
+              {
+                "key": "X-Api-Key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenantId}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"approve\",\n  \"reason\": \"kyc approved\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/administration/governance/business-actors/{{operatorBusinessActorId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "administration",
+                "governance",
+                "business-actors",
+                "{{operatorBusinessActorId}}"
+              ]
+            },
+            "description": "Real governance endpoint with GovernanceActionRequest body. Action values are normalized server-side."
+          }
+        },
+        {
+          "name": "15.06 - Onboard Candidate Business Actor",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Client-Id",
+                "value": "{{clientId}}"
+              },
+              {
+                "key": "X-Api-Key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenantId}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{candidateToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Candidate Business Actor\",\n  \"businessId\": \"BA-POSTMAN-CAND-01\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/actors/onboarding",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "actors",
+                "onboarding"
+              ]
+            },
+            "description": "Creates a second pending business actor to exercise the reject flow."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Candidate business actor is created', function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set('candidateBusinessActorId', json.data.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "15.07 - Reject Candidate Business Actor",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Client-Id",
+                "value": "{{clientId}}"
+              },
+              {
+                "key": "X-Api-Key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenantId}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"reject\",\n  \"reason\": \"missing documents\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/administration/governance/business-actors/{{candidateBusinessActorId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "administration",
+                "governance",
+                "business-actors",
+                "{{candidateBusinessActorId}}"
+              ]
+            },
+            "description": "Real business actor rejection through administration-core. The code supports APPROVE, REJECT, SUSPEND, BLOCK, and REACTIVATE."
+          }
+        },
+        {
+          "name": "15.08 - Create Organization Pending Approval",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Client-Id",
+                "value": "{{clientId}}"
+              },
+              {
+                "key": "X-Api-Key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenantId}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{operatorToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"businessActorId\": \"{{operatorBusinessActorId}}\",\n  \"code\": \"ORG-POSTMAN-01\",\n  \"legalName\": \"Postman Legal Name\",\n  \"displayName\": \"Postman Display Name\",\n  \"organizationType\": \"PRIVATE_COMPANY\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/organizations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "organizations"
+              ]
+            },
+            "description": "Real CreateOrganizationRequest body. organizationType is accepted through the JsonAlias bound to the service field."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Organization is created', function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set('organizationId', json.data.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "15.09 - List Pending Organizations",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Client-Id",
+                "value": "{{clientId}}"
+              },
+              {
+                "key": "X-Api-Key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenantId}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/administration/governance/organizations?status=PENDING_APPROVAL",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "administration",
+                "governance",
+                "organizations"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "PENDING_APPROVAL"
+                }
+              ]
+            },
+            "description": "Real organization governance listing endpoint."
+          }
+        },
+        {
+          "name": "15.10 - Approve Organization",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Client-Id",
+                "value": "{{clientId}}"
+              },
+              {
+                "key": "X-Api-Key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenantId}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"approve\",\n  \"reason\": \"governance approved\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/administration/governance/organizations/{{organizationId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "administration",
+                "governance",
+                "organizations",
+                "{{organizationId}}"
+              ]
+            },
+            "description": "Real administration organization governance endpoint."
+          }
+        },
+        {
+          "name": "15.11 - Read Administration Audit",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Client-Id",
+                "value": "{{clientId}}"
+              },
+              {
+                "key": "X-Api-Key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenantId}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/administration/audit?limit=50",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "administration",
+                "audit"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "50"
+                }
+              ]
+            },
+            "description": "Real implemented audit endpoint. Unlike the outdated documentation diagrams, the code only exposes the limit query parameter here."
+          }
+        },
+        {
+          "name": "15.12 - Management Health Operations",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Management-Api-Key",
+                "value": "{{managementApiKey}}"
+              }
+            ],
+            "url": {
+              "raw": "{{managementBaseUrl}}/actuator/health/operations",
+              "host": [
+                "{{managementBaseUrl}}"
+              ],
+              "path": [
+                "actuator",
+                "health",
+                "operations"
+              ]
+            },
+            "description": "Real management endpoint. application.yml exposes the operations health group and the management filter authenticates with X-Management-Api-Key."
+          }
+        },
+        {
+          "name": "15.13 - Management Prometheus",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "text/plain"
+              },
+              {
+                "key": "X-Management-Api-Key",
+                "value": "{{managementApiKey}}"
+              }
+            ],
+            "url": {
+              "raw": "{{managementBaseUrl}}/actuator/prometheus",
+              "host": [
+                "{{managementBaseUrl}}"
+              ],
+              "path": [
+                "actuator",
+                "prometheus"
+              ]
+            },
+            "description": "Real management metrics endpoint. Exposed in application.yml."
+          }
+        }
+      ]
+    },
+    {
+      "name": "11 - Cashier Core",
+      "description": "Code-first cashier flow. Uses the real endpoints from CashierOperationsController. Requires an existing agencyId and cashierCustomerId.",
+      "item": [
+        {
+          "name": "11.01 - Create Cashier Profile",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Organization-Id",
+                "value": "{{organizationId}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{operatorToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{cashierEmail}}\",\n  \"fullName\": \"Collection Cashier\",\n  \"agencyId\": \"{{agencyId}}\",\n  \"kind\": \"CASHIER\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/cashiers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cashiers"
+              ]
+            },
+            "description": "Real CreateCashierProfileRequest from CashierRequests. kernelUserId is optional, so this request creates an operational cashier profile without bootstrapping a new kernel user."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Create cashier profile returns 201', function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set('cashierId', json.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "11.02 - Create Cash Register",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Organization-Id",
+                "value": "{{organizationId}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{operatorToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"REG-01\",\n  \"label\": \"Main cash register\",\n  \"agencyId\": \"{{agencyId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/cash-registers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cash-registers"
+              ]
+            },
+            "description": "Real CreateCashRegisterRequest from CashierRequests."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Create cash register returns 201', function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set('cashRegisterId', json.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "11.03 - Assign Cash Register",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Organization-Id",
+                "value": "{{organizationId}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{operatorToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cashierId\": \"{{cashierId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/cash-registers/{{cashRegisterId}}/assign",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cash-registers",
+                "{{cashRegisterId}}",
+                "assign"
+              ]
+            },
+            "description": "Real AssignCashRegisterRequest. Binds the created register to the created cashier profile."
+          }
+        },
+        {
+          "name": "11.04 - Open Cashier Session",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Organization-Id",
+                "value": "{{organizationId}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{operatorToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"registerId\": \"{{cashRegisterId}}\",\n  \"cashierId\": \"{{cashierId}}\",\n  \"openingAmount\": 10000,\n  \"currency\": \"XAF\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/sessions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sessions"
+              ]
+            },
+            "description": "Real CreateSessionRequest from CashierRequests."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Open cashier session returns 201', function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set('cashierSessionId', json.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "11.05 - Create Bill",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Organization-Id",
+                "value": "{{organizationId}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{operatorToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerId\": \"{{cashierCustomerId}}\",\n  \"reference\": \"BILL-001\",\n  \"totalAmount\": 1500,\n  \"currency\": \"XAF\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/bills",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "bills"
+              ]
+            },
+            "description": "Real CreateBillRequest from CashierRequests."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Create bill returns 201', function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set('cashierBillId', json.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "11.06 - Pay Bill",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Organization-Id",
+                "value": "{{organizationId}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{operatorToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 1500,\n  \"sessionId\": \"{{cashierSessionId}}\",\n  \"registerId\": \"{{cashRegisterId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/bills/pay?billId={{cashierBillId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "bills",
+                "pay"
+              ],
+              "query": [
+                {
+                  "key": "billId",
+                  "value": "{{cashierBillId}}"
+                }
+              ]
+            },
+            "description": "Real PayBillRequest from CashierRequests. Reuses the opened session and created register."
+          }
+        },
+        {
+          "name": "11.07 - Dashboard Stats",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Organization-Id",
+                "value": "{{organizationId}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{operatorToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/stats",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "stats"
+              ]
+            },
+            "description": "Real cashier dashboard endpoint from CashierOperationsController."
+          }
+        },
+        {
+          "name": "11.08 - List Sessions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Organization-Id",
+                "value": "{{organizationId}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{operatorToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/sessions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sessions"
+              ]
+            },
+            "description": "Lists real cashier sessions after the open-session request."
+          }
+        }
+      ]
+    },
+    {
+      "name": "12 - Billing Core",
+      "description": "Code-first billing flow. Uses the real legacy billing document and payment endpoints. Requires an existing customerThirdPartyId and productId.",
+      "item": [
+        {
+          "name": "12.01 - Create Delivery Note",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Organization-Id",
+                "value": "{{organizationId}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{operatorToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"counterpartyThirdPartyId\": \"{{customerThirdPartyId}}\",\n  \"documentNumber\": \"BL-001\",\n  \"currency\": \"XAF\",\n  \"lines\": [\n    {\n      \"productId\": \"{{productId}}\",\n      \"quantity\": 2,\n      \"unitPrice\": 1250\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/bons-livraison",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "bons-livraison"
+              ]
+            },
+            "description": "Real CreateCommercialDocumentRequest via BillingLegacyDocumentsController. The delivery-note document type is resolved from the request path."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Create delivery note returns 201', function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set('billingDocumentId', json.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "12.02 - List Delivery Notes",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Organization-Id",
+                "value": "{{organizationId}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{operatorToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/bons-livraison",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "bons-livraison"
+              ]
+            },
+            "description": "Lists commercial documents from the same legacy billing controller."
+          }
+        },
+        {
+          "name": "12.03 - Perform Delivery",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Organization-Id",
+                "value": "{{organizationId}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{operatorToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/bons-livraison/{{billingDocumentId}}/effectuer",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "bons-livraison",
+                "{{billingDocumentId}}",
+                "effectuer"
+              ]
+            },
+            "description": "Real delivery transition endpoint. Moves the document to FULFILLED in billing-core."
+          }
+        },
+        {
+          "name": "12.04 - Create Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Organization-Id",
+                "value": "{{organizationId}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{operatorToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"invoiceId\": \"{{invoiceId}}\",\n  \"counterpartyThirdPartyId\": \"{{customerThirdPartyId}}\",\n  \"reference\": \"PAY-001\",\n  \"amount\": 2500,\n  \"currency\": \"XAF\",\n  \"paidAt\": \"2026-03-07T09:30:00Z\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/paiement",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "paiement"
+              ]
+            },
+            "description": "Real CreatePaymentRequest from BillingLegacyPaymentsController. Can target the invoice created and posted in accounting-core."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Create payment returns 201', function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set('paymentId', json.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "12.05 - List Payments",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Organization-Id",
+                "value": "{{organizationId}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{operatorToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/paiement",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "paiement"
+              ]
+            },
+            "description": "Lists billing payments through the real legacy payment controller."
+          }
+        },
+        {
+          "name": "12.06 - List Payments By Invoice",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Organization-Id",
+                "value": "{{organizationId}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{operatorToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/paiement/facture/{{invoiceId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "paiement",
+                "facture",
+                "{{invoiceId}}"
+              ]
+            },
+            "description": "Real invoice-filtered payment lookup from BillingLegacyPaymentsController."
+          }
+        }
+      ]
+    },
+    {
+      "name": "13 - Accounting Core",
+      "description": "Code-first accounting flow. Uses the implemented invoice controller plus the bookkeeping and workflow endpoints. Requires an existing customerThirdPartyId and productId.",
+      "item": [
+        {
+          "name": "13.01 - Create Sales Invoice",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Organization-Id",
+                "value": "{{organizationId}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{operatorToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"organizationId\": \"{{organizationId}}\",\n  \"customerThirdPartyId\": \"{{customerThirdPartyId}}\",\n  \"invoiceNumber\": \"INV-001\",\n  \"lines\": [\n    {\n      \"productId\": \"{{productId}}\",\n      \"quantity\": 2,\n      \"unitPrice\": 1250\n    }\n  ],\n  \"currency\": \"XAF\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/accounting/invoices",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "accounting",
+                "invoices"
+              ]
+            },
+            "description": "Real CreateInvoiceRequest from AccountingController. Stores invoiceId for billing and treasury flows."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Create sales invoice returns 201', function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set('invoiceId', json.data.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "13.02 - List Invoices",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Organization-Id",
+                "value": "{{organizationId}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{operatorToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/accounting/invoices?organizationId={{organizationId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "accounting",
+                "invoices"
+              ],
+              "query": [
+                {
+                  "key": "organizationId",
+                  "value": "{{organizationId}}"
+                }
+              ]
+            },
+            "description": "Real listInvoices endpoint from AccountingController."
+          }
+        },
+        {
+          "name": "13.03 - Post Invoice",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Organization-Id",
+                "value": "{{organizationId}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{operatorToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/accounting/invoices/{{invoiceId}}/post",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "accounting",
+                "invoices",
+                "{{invoiceId}}",
+                "post"
+              ]
+            },
+            "description": "Real postInvoice endpoint from AccountingController. This is the accounting step needed before treasury settlement."
+          }
+        },
+        {
+          "name": "13.04 - Get Invoice",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Organization-Id",
+                "value": "{{organizationId}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{operatorToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/accounting/invoices/{{invoiceId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "accounting",
+                "invoices",
+                "{{invoiceId}}"
+              ]
+            },
+            "description": "Reads back the invoice created and posted through AccountingController."
+          }
+        },
+        {
+          "name": "13.05 - Create Journal",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Organization-Id",
+                "value": "{{organizationId}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{operatorToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"GEN\",\n  \"label\": \"Journal General\",\n  \"type\": \"GENERAL\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/accounting-service/journals",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "accounting-service",
+                "journals"
+              ]
+            },
+            "description": "Real CreateJournalRequest from AccountingBookkeepingRequests."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Create journal returns 201', function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set('journalId', json.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "13.06 - Create Receivable Account",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Organization-Id",
+                "value": "{{organizationId}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{operatorToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"accountNumber\": \"411901\",\n  \"label\": \"Client collection receivable\",\n  \"accountType\": \"CUSTOMER\",\n  \"notes\": \"Created by Postman flow\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/accounting-service/accounts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "accounting-service",
+                "accounts"
+              ]
+            },
+            "description": "Real CreateAccountRequest. CUSTOMER is a normalized account type explicitly handled in AccountingBookkeepingService."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Create receivable account returns 201', function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set('accountReceivableId', json.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "13.07 - Create Revenue Account",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Organization-Id",
+                "value": "{{organizationId}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{operatorToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"accountNumber\": \"701901\",\n  \"label\": \"Collection revenue account\",\n  \"accountType\": \"REVENUE\",\n  \"notes\": \"Created by Postman flow\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/accounting-service/accounts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "accounting-service",
+                "accounts"
+              ]
+            },
+            "description": "Second CreateAccountRequest used to create a balanced accounting entry."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Create revenue account returns 201', function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set('accountRevenueId', json.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "13.08 - Create Accounting Entry",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Organization-Id",
+                "value": "{{organizationId}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{operatorToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"journalId\": \"{{journalId}}\",\n  \"reference\": \"ENTRY-001\",\n  \"entryDate\": \"2026-03-09T10:00:00Z\",\n  \"lines\": [\n    {\n      \"accountId\": \"{{accountReceivableId}}\",\n      \"debit\": 2500,\n      \"credit\": 0,\n      \"label\": \"Customer receivable\"\n    },\n    {\n      \"accountId\": \"{{accountRevenueId}}\",\n      \"debit\": 0,\n      \"credit\": 2500,\n      \"label\": \"Sales revenue\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/accounting-service/entries",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "accounting-service",
+                "entries"
+              ]
+            },
+            "description": "Real CreateEntryRequest from AccountingBookkeepingRequests."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Create accounting entry returns 201', function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set('accountingEntryId', json.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "13.09 - Validate Accounting Entry",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Organization-Id",
+                "value": "{{organizationId}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{operatorToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/accounting-service/entries/{{accountingEntryId}}/validate",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "accounting-service",
+                "entries",
+                "{{accountingEntryId}}",
+                "validate"
+              ]
+            },
+            "description": "Validates the created accounting entry through AccountingBookkeepingController."
+          }
+        },
+        {
+          "name": "13.10 - List Open Receivables",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Organization-Id",
+                "value": "{{organizationId}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{operatorToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/accounting/open-items/receivables?organizationId={{organizationId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "accounting",
+                "open-items",
+                "receivables"
+              ],
+              "query": [
+                {
+                  "key": "organizationId",
+                  "value": "{{organizationId}}"
+                }
+              ]
+            },
+            "description": "Real open-receivables endpoint from AccountingReadController."
+          }
+        },
+        {
+          "name": "13.11 - Closing Preview",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Organization-Id",
+                "value": "{{organizationId}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{operatorToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/accounting-service/workflows/closing/preview",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "accounting-service",
+                "workflows",
+                "closing",
+                "preview"
+              ]
+            },
+            "description": "Real previewClosing endpoint from AccountingWorkflowController."
+          }
+        }
+      ]
+    },
+    {
+      "name": "14 - Treasury Core",
+      "description": "Code-first treasury flow. Uses the canonical /api/treasury routes implemented in TreasuryController, BankStatementController, and BankTransactionController.",
+      "item": [
+        {
+          "name": "14.01 - Create Bank Account",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Client-Id",
+                "value": "{{clientId}}"
+              },
+              {
+                "key": "X-Api-Key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenantId}}"
+              },
+              {
+                "key": "X-Organization-Id",
+                "value": "{{organizationId}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{operatorToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"organizationId\": \"{{organizationId}}\",\n  \"bankName\": \"Treasury Bank\",\n  \"accountNumber\": \"ACC-TRS-01\",\n  \"iban\": \"FR7630006000011234567890189\",\n  \"currency\": \"EUR\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/treasury/bank-accounts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "treasury",
+                "bank-accounts"
+              ]
+            },
+            "description": "Real RegisterBankAccountRequest. X-Organization-Id is required in practice for /api/treasury/** because the route is organization-service scoped."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Bank account created', function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set('bankAccountId', json.data.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "14.02 - Create Bank Statement",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Client-Id",
+                "value": "{{clientId}}"
+              },
+              {
+                "key": "X-Api-Key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenantId}}"
+              },
+              {
+                "key": "X-Organization-Id",
+                "value": "{{organizationId}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{operatorToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"organizationId\": \"{{organizationId}}\",\n  \"bankAccountId\": \"{{bankAccountId}}\",\n  \"statementNumber\": \"STM-TRS-01\",\n  \"statementDate\": \"2026-03-08\",\n  \"openingBalance\": 100.0,\n  \"closingBalance\": 120.0\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/treasury/statements",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "treasury",
+                "statements"
+              ]
+            },
+            "description": "Real RegisterBankStatementRequest body from the implemented API, not the outdated diagram."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Statement created', function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set('statementId', json.data.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "14.03 - Open Reconciliation",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Client-Id",
+                "value": "{{clientId}}"
+              },
+              {
+                "key": "X-Api-Key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenantId}}"
+              },
+              {
+                "key": "X-Organization-Id",
+                "value": "{{organizationId}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{operatorToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"organizationId\": \"{{organizationId}}\",\n  \"bankAccountId\": \"{{bankAccountId}}\",\n  \"statementId\": \"{{statementId}}\",\n  \"referenceNumber\": \"REC-TRS-01\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/treasury/bank-accounts/reconciliations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "treasury",
+                "bank-accounts",
+                "reconciliations"
+              ]
+            },
+            "description": "Real OpenReconciliationRequest body and real canonical endpoint from TreasuryController."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Reconciliation opened', function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set('reconciliationId', json.data.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "14.04 - Register Bank Transaction",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Client-Id",
+                "value": "{{clientId}}"
+              },
+              {
+                "key": "X-Api-Key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenantId}}"
+              },
+              {
+                "key": "X-Organization-Id",
+                "value": "{{organizationId}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{operatorToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"organizationId\": \"{{organizationId}}\",\n  \"bankAccountId\": \"{{bankAccountId}}\",\n  \"referenceNumber\": \"TX-TRS-01\",\n  \"transactionType\": \"BANK_TRANSFER\",\n  \"transactionDate\": \"2026-03-08\",\n  \"amount\": 20.0,\n  \"description\": \"Manual treasury transaction\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/treasury/transactions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "treasury",
+                "transactions"
+              ]
+            },
+            "description": "Real RegisterBankTransactionRequest body."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Bank transaction recorded', function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set('transactionId', json.data.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "14.05 - Manual Reconcile Transaction",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Client-Id",
+                "value": "{{clientId}}"
+              },
+              {
+                "key": "X-Api-Key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenantId}}"
+              },
+              {
+                "key": "X-Organization-Id",
+                "value": "{{organizationId}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{operatorToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"transactionId\": \"{{transactionId}}\",\n  \"statementId\": \"{{statementId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/treasury/reconciliations/manual",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "treasury",
+                "reconciliations",
+                "manual"
+              ]
+            },
+            "description": "Real ManualReconcileBankTransactionRequest. The implementation ultimately resolves to a statementId, not a statement-line-centric contract."
+          }
+        },
+        {
+          "name": "14.06 - Close Reconciliation",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Client-Id",
+                "value": "{{clientId}}"
+              },
+              {
+                "key": "X-Api-Key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenantId}}"
+              },
+              {
+                "key": "X-Organization-Id",
+                "value": "{{organizationId}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{operatorToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/treasury/bank-accounts/reconciliations/{{reconciliationId}}/close",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "treasury",
+                "bank-accounts",
+                "reconciliations",
+                "{{reconciliationId}}",
+                "close"
+              ]
+            },
+            "description": "Real close endpoint from TreasuryController. The implemented close logic does not enforce the outdated statement-line precondition from the old diagram."
+          }
+        },
+        {
+          "name": "14.07 - Register Check Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Client-Id",
+                "value": "{{clientId}}"
+              },
+              {
+                "key": "X-Api-Key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenantId}}"
+              },
+              {
+                "key": "X-Organization-Id",
+                "value": "{{organizationId}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{operatorToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"organizationId\": \"{{organizationId}}\",\n  \"bankAccountId\": \"{{bankAccountId}}\",\n  \"checkNumber\": \"CHK-TRS-01\",\n  \"amount\": 55.0,\n  \"beneficiary\": \"Treasury Supplier\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/treasury/bank-accounts/checks",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "treasury",
+                "bank-accounts",
+                "checks"
+              ]
+            },
+            "description": "Real RegisterCheckPaymentRequest body."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Check payment registered', function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set('checkPaymentId', json.data.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "14.08 - Clear Check Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Client-Id",
+                "value": "{{clientId}}"
+              },
+              {
+                "key": "X-Api-Key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenantId}}"
+              },
+              {
+                "key": "X-Organization-Id",
+                "value": "{{organizationId}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{operatorToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/treasury/bank-accounts/checks/{{checkPaymentId}}/clear",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "treasury",
+                "bank-accounts",
+                "checks",
+                "{{checkPaymentId}}",
+                "clear"
+              ]
+            },
+            "description": "Real check clearing endpoint."
+          }
+        },
+        {
+          "name": "14.09 - Register Invoice Settlement",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Client-Id",
+                "value": "{{clientId}}"
+              },
+              {
+                "key": "X-Api-Key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenantId}}"
+              },
+              {
+                "key": "X-Organization-Id",
+                "value": "{{organizationId}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{operatorToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"organizationId\": \"{{organizationId}}\",\n  \"bankAccountId\": \"{{bankAccountId}}\",\n  \"invoiceId\": \"{{invoiceId}}\",\n  \"paymentMethod\": \"BANK_TRANSFER\",\n  \"amount\": 50.0\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/treasury/bank-accounts/invoice-settlements",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "treasury",
+                "bank-accounts",
+                "invoice-settlements"
+              ]
+            },
+            "description": "Real RegisterInvoiceSettlementRequest. Reuse the posted invoiceId produced by 13.01 and 13.03 in this same collection before running the treasury settlement."
+          }
+        }
+      ]
+    }
+  ]
+}

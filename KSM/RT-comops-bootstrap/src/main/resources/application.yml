@@ -1,0 +1,136 @@
+spring:
+  application:
+    name: iwm-backend
+  profiles:
+    default: r2dbc
+  elasticsearch:
+    uris: ${IWM_ELASTICSEARCH_URIS:http://localhost:9200}
+  kafka:
+    bootstrap-servers: ${IWM_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      acks: all
+      retries: 10
+      compression-type: zstd
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      properties:
+        enable.idempotence: true
+        delivery.timeout.ms: 120000
+        max.in.flight.requests.per.connection: 5
+    consumer:
+      enable-auto-commit: false
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      properties:
+        isolation.level: read_committed
+  data:
+    redis:
+      host: ${IWM_REDIS_HOST:localhost}
+      port: ${IWM_REDIS_PORT:6379}
+      password: ${IWM_REDIS_PASSWORD:}
+      timeout: 2s
+
+management:
+  server:
+    port: ${MANAGEMENT_SERVER_PORT:${server.port:8080}}
+  health:
+    elasticsearch:
+      enabled: ${IWM_ELASTICSEARCH_HEALTH_ENABLED:false}
+    redis:
+      enabled: ${IWM_REDIS_HEALTH_ENABLED:false}
+  endpoint:
+    health:
+      show-details: when_authorized
+      show-components: when_authorized
+      group:
+        operations:
+          include: outboxRuntime,projectionRuntime,ping
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+
+iwm:
+  management:
+    security:
+      api-key: ${IWM_MANAGEMENT_API_KEY:dev-management-api-key}
+  persistence:
+    mode: r2dbc
+  outbox:
+    delivery:
+      type: kafka
+      kafka:
+        topic-prefix: ${IWM_OUTBOX_KAFKA_TOPIC_PREFIX:iwm.events.business}
+        create-per-aggregate-topic: ${IWM_OUTBOX_KAFKA_PER_AGGREGATE_TOPIC:false}
+        dead-letter-topic: ${IWM_OUTBOX_KAFKA_DEAD_LETTER_TOPIC:iwm.events.dead-letter}
+    consumers:
+      mode: kafka
+      kafka:
+        group-id: ${IWM_OUTBOX_KAFKA_GROUP_ID:iwm-outbox-consumers}
+        topic-pattern: ${IWM_OUTBOX_KAFKA_TOPIC_PATTERN:^iwm\\.events\\..+$}
+        topics:
+          - ${IWM_OUTBOX_KAFKA_TOPIC:iwm.events.business}
+        concurrency: ${IWM_OUTBOX_KAFKA_CONCURRENCY:1}
+    relay:
+      enabled: true
+      fixed-delay: ${IWM_OUTBOX_RELAY_FIXED_DELAY:5s}
+      batch-size: ${IWM_OUTBOX_RELAY_BATCH_SIZE:100}
+      delivery-concurrency: ${IWM_OUTBOX_RELAY_DELIVERY_CONCURRENCY:4}
+      max-attempts: ${IWM_OUTBOX_RELAY_MAX_ATTEMPTS:5}
+      initial-backoff: ${IWM_OUTBOX_RELAY_INITIAL_BACKOFF:5s}
+      backoff-multiplier: ${IWM_OUTBOX_RELAY_BACKOFF_MULTIPLIER:2.0}
+      max-backoff: ${IWM_OUTBOX_RELAY_MAX_BACKOFF:5m}
+    replay-on-startup:
+      enabled: ${IWM_OUTBOX_REPLAY_ON_STARTUP_ENABLED:true}
+      max-events: ${IWM_OUTBOX_REPLAY_ON_STARTUP_MAX_EVENTS:5000}
+      consumer-concurrency: ${IWM_OUTBOX_REPLAY_ON_STARTUP_CONSUMER_CONCURRENCY:4}
+    allow-manual-relay-only: ${IWM_OUTBOX_ALLOW_MANUAL_RELAY_ONLY:false}
+  security:
+    client-applications:
+      bootstrap:
+        enabled: ${IWM_BOOTSTRAP_CLIENT_ENABLED:false}
+        client-id: ${IWM_BOOTSTRAP_CLIENT_ID:}
+        name: ${IWM_BOOTSTRAP_CLIENT_NAME:Bootstrap Client}
+        description: ${IWM_BOOTSTRAP_CLIENT_DESCRIPTION:Bootstrap server-to-server client application.}
+        secret: ${IWM_BOOTSTRAP_CLIENT_SECRET:}
+        allowed-services: ${IWM_BOOTSTRAP_CLIENT_ALLOWED_SERVICES:}
+    jwt:
+      private-key-path: ${IWM_JWT_PRIVATE_KEY_PATH:}
+      key-id: ${IWM_JWT_KEY_ID:iwm-key-1}
+      issuer: ${IWM_JWT_ISSUER:iwm-backend}
+      access-token-ttl: ${IWM_JWT_ACCESS_TOKEN_TTL:15m}
+      auto-generate-key-pair: ${IWM_JWT_AUTO_GENERATE_KEY_PAIR:true}
+  redis:
+    permission-cache:
+      enabled: ${IWM_REDIS_PERMISSION_CACHE_ENABLED:false}
+      key-prefix: ${IWM_REDIS_PERMISSION_CACHE_PREFIX:iwm:permissions}
+      ttl: ${IWM_REDIS_PERMISSION_CACHE_TTL:15m}
+  search:
+    elasticsearch:
+      enabled: ${IWM_ELASTICSEARCH_SEARCH_ENABLED:false}
+  observability:
+    outbox:
+      pending-warning-threshold: ${IWM_OBSERVABILITY_OUTBOX_PENDING_WARNING_THRESHOLD:100}
+      dead-letter-critical-threshold: ${IWM_OBSERVABILITY_OUTBOX_DEADLETTER_CRITICAL_THRESHOLD:1}
+      max-pending-age: ${IWM_OBSERVABILITY_OUTBOX_MAX_PENDING_AGE:15m}
+    projections:
+      max-silence: ${IWM_OBSERVABILITY_PROJECTIONS_MAX_SILENCE:30m}
+    metrics:
+      refresh-interval: ${IWM_OBSERVABILITY_METRICS_REFRESH_INTERVAL:30s}
+  quotas:
+    tenant-requests:
+      enabled: ${IWM_TENANT_REQUEST_QUOTA_ENABLED:false}
+      limit: ${IWM_TENANT_REQUEST_QUOTA_LIMIT:1200}
+      window: ${IWM_TENANT_REQUEST_QUOTA_WINDOW:1m}
+      fail-open: ${IWM_TENANT_REQUEST_QUOTA_FAIL_OPEN:true}
+      key-prefix: ${IWM_TENANT_REQUEST_QUOTA_KEY_PREFIX:iwm:quotas:tenant-requests}
+      core-service-code: ${IWM_TENANT_REQUEST_QUOTA_CORE_SERVICE_CODE:CORE}
+    organization-service-requests:
+      enabled: ${IWM_ORGANIZATION_SERVICE_REQUEST_QUOTA_ENABLED:false}
+      fail-open: ${IWM_ORGANIZATION_SERVICE_REQUEST_QUOTA_FAIL_OPEN:true}
+      key-prefix: ${IWM_ORGANIZATION_SERVICE_REQUEST_QUOTA_KEY_PREFIX:iwm:quotas:organization-service-requests}
+  organization:
+    service-subscriptions:
+      default-request-quota-limit: ${IWM_ORGANIZATION_SERVICE_DEFAULT_REQUEST_QUOTA_LIMIT:10000}
+      default-request-quota-window: ${IWM_ORGANIZATION_SERVICE_DEFAULT_REQUEST_QUOTA_WINDOW:1m}
+      provision-subscribable-services-on-create: ${IWM_ORGANIZATION_SERVICE_PROVISION_ON_CREATE:false}

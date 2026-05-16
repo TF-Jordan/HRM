@@ -1,0 +1,1126 @@
+{
+  "info": {
+    "_postman_id": "7df07d9e-4b02-4b7e-b1d6-7a90189c5a10",
+    "name": "IWM Backend - AuthCore Full IAM + Central OIDC",
+    "description": "Executable Postman flow for YowAuth0/AuthCore: captcha, strong sign-up, typed onboarding, phone verification, generic OTP, MFA/2FA, MFA login, profile onboarding update, OIDC discovery, userinfo, token exchange and introspection.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "clientId",
+      "value": "test-client"
+    },
+    {
+      "key": "apiKey",
+      "value": "dev-api-key"
+    },
+    {
+      "key": "tenantId",
+      "value": "11111111-1111-1111-1111-111111111111"
+    },
+    {
+      "key": "authCoreUsername",
+      "value": "postman-full-auth-user"
+    },
+    {
+      "key": "authCoreEmail",
+      "value": "postman-full-auth@example.com"
+    },
+    {
+      "key": "authCorePhone",
+      "value": "+237699000001"
+    },
+    {
+      "key": "authCorePassword",
+      "value": "StrongPass!123"
+    },
+    {
+      "key": "oidcClientId",
+      "value": "test-client"
+    },
+    {
+      "key": "oidcClientSecret",
+      "value": "test-secret"
+    },
+    {
+      "key": "oidcServiceCode",
+      "value": "ORGANIZATION"
+    },
+    {
+      "key": "authCoreAccessToken",
+      "value": ""
+    },
+    {
+      "key": "authCoreSharedSessionToken",
+      "value": ""
+    },
+    {
+      "key": "authCoreCaptchaToken",
+      "value": ""
+    },
+    {
+      "key": "authCoreCaptchaAnswer",
+      "value": ""
+    },
+    {
+      "key": "authCoreCaptchaVerificationToken",
+      "value": ""
+    },
+    {
+      "key": "authCorePhoneChallengeToken",
+      "value": ""
+    },
+    {
+      "key": "authCorePhoneCode",
+      "value": ""
+    },
+    {
+      "key": "authCoreGenericOtpToken",
+      "value": ""
+    },
+    {
+      "key": "authCoreGenericOtpCode",
+      "value": ""
+    },
+    {
+      "key": "authCoreMfaChallengeToken",
+      "value": ""
+    },
+    {
+      "key": "authCoreMfaCode",
+      "value": ""
+    },
+    {
+      "key": "authCoreLoginMfaToken",
+      "value": ""
+    },
+    {
+      "key": "authCoreLoginMfaCode",
+      "value": ""
+    },
+    {
+      "key": "authCoreOidcContextId",
+      "value": ""
+    },
+    {
+      "key": "authCoreOidcOrganizationId",
+      "value": ""
+    },
+    {
+      "key": "authCoreOidcAccessToken",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "00 - OIDC Discovery Metadata",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/.well-known/openid-configuration",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            ".well-known",
+            "openid-configuration"
+          ]
+        },
+        "description": "Central provider metadata. Run first to validate the OIDC provider is exposed."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('OIDC metadata is exposed', function () {",
+              "  pm.response.to.have.status(200);",
+              "  pm.expect(pm.response.json()).to.have.property('token_endpoint');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "01 - Issue Captcha",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "X-Client-Id",
+            "value": "{{clientId}}"
+          },
+          {
+            "key": "X-Api-Key",
+            "value": "{{apiKey}}"
+          },
+          {
+            "key": "X-Tenant-Id",
+            "value": "{{tenantId}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/captcha",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "captcha"
+          ]
+        },
+        "description": "Creates a captcha challenge. In dev/test the answerPreview is returned so the flow is executable."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Captcha issued', function () { pm.response.to.have.status(200); });",
+              "const json = pm.response.json();",
+              "pm.collectionVariables.set('authCoreCaptchaToken', json.data.captchaToken);",
+              "pm.collectionVariables.set('authCoreCaptchaAnswer', json.data.answerPreview);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 - Verify Captcha",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "X-Client-Id",
+            "value": "{{clientId}}"
+          },
+          {
+            "key": "X-Api-Key",
+            "value": "{{apiKey}}"
+          },
+          {
+            "key": "X-Tenant-Id",
+            "value": "{{tenantId}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"captchaToken\": \"{{authCoreCaptchaToken}}\",\n  \"answer\": \"{{authCoreCaptchaAnswer}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/captcha/verify",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "captcha",
+            "verify"
+          ]
+        },
+        "description": "Converts the solved captcha challenge into a captchaVerificationToken usable by sign-up."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Captcha verified', function () { pm.response.to.have.status(200); });",
+              "const json = pm.response.json();",
+              "pm.collectionVariables.set('authCoreCaptchaVerificationToken', json.data.captchaVerificationToken);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 - Sign Up Business Freelance User",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "X-Client-Id",
+            "value": "{{clientId}}"
+          },
+          {
+            "key": "X-Api-Key",
+            "value": "{{apiKey}}"
+          },
+          {
+            "key": "X-Tenant-Id",
+            "value": "{{tenantId}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"firstName\": \"Full\",\n  \"lastName\": \"Auth\",\n  \"tenantId\": \"{{tenantId}}\",\n  \"username\": \"{{authCoreUsername}}\",\n  \"email\": \"{{authCoreEmail}}\",\n  \"phoneNumber\": \"{{authCorePhone}}\",\n  \"password\": \"{{authCorePassword}}\",\n  \"captchaVerificationToken\": \"{{authCoreCaptchaVerificationToken}}\",\n  \"accountType\": \"BUSINESS\",\n  \"businessType\": \"FREELANCE\",\n  \"onboardingData\": {\n    \"businessName\": \"Full Auth Freelance\",\n    \"deliveryAddress\": \"Douala\",\n    \"niu\": \"NIU-POSTMAN-001\"\n  }\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/sign-up",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "sign-up"
+          ]
+        },
+        "description": "Creates a typed BUSINESS/FREELANCE account with strong password and onboarding payload."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('User signed up', function () { pm.response.to.have.status(201); });",
+              "const json = pm.response.json();",
+              "pm.collectionVariables.set('authCoreAccessToken', json.data.accessToken);",
+              "if (json.data.sharedSession && json.data.sharedSession.token) {",
+              "  pm.collectionVariables.set('authCoreSharedSessionToken', json.data.sharedSession.token);",
+              "}",
+              "pm.test('Typed onboarding saved', function () {",
+              "  pm.expect(json.data.accountType).to.eql('BUSINESS');",
+              "  pm.expect(json.data.businessType).to.eql('FREELANCE');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 - Request Phone Verification OTP",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "X-Client-Id",
+            "value": "{{clientId}}"
+          },
+          {
+            "key": "X-Api-Key",
+            "value": "{{apiKey}}"
+          },
+          {
+            "key": "X-Tenant-Id",
+            "value": "{{tenantId}}"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authCoreAccessToken}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"channel\": \"SMS\",\n  \"recipient\": \"{{authCorePhone}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/phone-verification/request",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "phone-verification",
+            "request"
+          ]
+        },
+        "description": "Issues an SMS OTP for the signed-in user's phone number."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Phone OTP issued', function () { pm.response.to.have.status(200); });",
+              "const json = pm.response.json();",
+              "pm.collectionVariables.set('authCorePhoneChallengeToken', json.data.challengeToken);",
+              "pm.collectionVariables.set('authCorePhoneCode', json.data.codePreview);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 - Confirm Phone Verification OTP",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "X-Client-Id",
+            "value": "{{clientId}}"
+          },
+          {
+            "key": "X-Api-Key",
+            "value": "{{apiKey}}"
+          },
+          {
+            "key": "X-Tenant-Id",
+            "value": "{{tenantId}}"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authCoreAccessToken}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"challengeToken\": \"{{authCorePhoneChallengeToken}}\",\n  \"code\": \"{{authCorePhoneCode}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/phone-verification/confirm",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "phone-verification",
+            "confirm"
+          ]
+        },
+        "description": "Marks phoneVerified=true after successful OTP verification."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Phone verified', function () {",
+              "  pm.response.to.have.status(200);",
+              "  pm.expect(pm.response.json().data.phoneVerified).to.eql(true);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "06 - Issue Generic WhatsApp OTP",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "X-Client-Id",
+            "value": "{{clientId}}"
+          },
+          {
+            "key": "X-Api-Key",
+            "value": "{{apiKey}}"
+          },
+          {
+            "key": "X-Tenant-Id",
+            "value": "{{tenantId}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"channel\": \"WHATSAPP\",\n  \"recipient\": \"{{authCorePhone}}\",\n  \"purpose\": \"SIGN_UP\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/otp",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "otp"
+          ]
+        },
+        "description": "Generic OTP endpoint, usable for EMAIL/SMS/WHATSAPP challenge flows."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('WhatsApp OTP issued', function () { pm.response.to.have.status(200); });",
+              "const json = pm.response.json();",
+              "pm.collectionVariables.set('authCoreGenericOtpToken', json.data.challengeToken);",
+              "pm.collectionVariables.set('authCoreGenericOtpCode', json.data.codePreview);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "07 - Verify Generic WhatsApp OTP",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "X-Client-Id",
+            "value": "{{clientId}}"
+          },
+          {
+            "key": "X-Api-Key",
+            "value": "{{apiKey}}"
+          },
+          {
+            "key": "X-Tenant-Id",
+            "value": "{{tenantId}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"challengeToken\": \"{{authCoreGenericOtpToken}}\",\n  \"code\": \"{{authCoreGenericOtpCode}}\",\n  \"purpose\": \"SIGN_UP\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/otp/verify",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "otp",
+            "verify"
+          ]
+        },
+        "description": "Verifies the generic WhatsApp OTP challenge."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('WhatsApp OTP verified', function () {",
+              "  pm.response.to.have.status(200);",
+              "  pm.expect(pm.response.json().data.verified).to.eql(true);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "08 - Enable MFA Challenge",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "X-Client-Id",
+            "value": "{{clientId}}"
+          },
+          {
+            "key": "X-Api-Key",
+            "value": "{{apiKey}}"
+          },
+          {
+            "key": "X-Tenant-Id",
+            "value": "{{tenantId}}"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authCoreAccessToken}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"channel\": \"SMS\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/mfa/enable",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "mfa",
+            "enable"
+          ]
+        },
+        "description": "Issues an OTP challenge before enabling 2FA/MFA."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('MFA challenge issued', function () { pm.response.to.have.status(200); });",
+              "const json = pm.response.json();",
+              "pm.collectionVariables.set('authCoreMfaChallengeToken', json.data.challengeToken);",
+              "pm.collectionVariables.set('authCoreMfaCode', json.data.codePreview);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "09 - Confirm MFA Enable",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "X-Client-Id",
+            "value": "{{clientId}}"
+          },
+          {
+            "key": "X-Api-Key",
+            "value": "{{apiKey}}"
+          },
+          {
+            "key": "X-Tenant-Id",
+            "value": "{{tenantId}}"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authCoreAccessToken}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"challengeToken\": \"{{authCoreMfaChallengeToken}}\",\n  \"code\": \"{{authCoreMfaCode}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/mfa/confirm",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "mfa",
+            "confirm"
+          ]
+        },
+        "description": "Enables MFA/2FA on the current account."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('MFA enabled', function () {",
+              "  pm.response.to.have.status(200);",
+              "  pm.expect(pm.response.json().data.mfaEnabled).to.eql(true);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "10 - Login By Phone Requires MFA",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "X-Client-Id",
+            "value": "{{clientId}}"
+          },
+          {
+            "key": "X-Api-Key",
+            "value": "{{apiKey}}"
+          },
+          {
+            "key": "X-Tenant-Id",
+            "value": "{{tenantId}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"principal\": \"{{authCorePhone}}\",\n  \"password\": \"{{authCorePassword}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/login",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "login"
+          ]
+        },
+        "description": "After MFA is enabled, login returns 202 and an MFA challenge instead of a direct access token."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('MFA required', function () { pm.response.to.have.status(202); });",
+              "const json = pm.response.json();",
+              "pm.collectionVariables.set('authCoreLoginMfaToken', json.data.mfaToken);",
+              "pm.collectionVariables.set('authCoreLoginMfaCode', json.data.codePreview);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "11 - Confirm MFA Login",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "X-Client-Id",
+            "value": "{{clientId}}"
+          },
+          {
+            "key": "X-Api-Key",
+            "value": "{{apiKey}}"
+          },
+          {
+            "key": "X-Tenant-Id",
+            "value": "{{tenantId}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"mfaToken\": \"{{authCoreLoginMfaToken}}\",\n  \"code\": \"{{authCoreLoginMfaCode}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/login/mfa/confirm",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "login",
+            "mfa",
+            "confirm"
+          ]
+        },
+        "description": "Completes MFA login and refreshes authCoreAccessToken/shared SSO session token."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('MFA login completed', function () { pm.response.to.have.status(200); });",
+              "const json = pm.response.json();",
+              "pm.collectionVariables.set('authCoreAccessToken', json.data.accessToken);",
+              "if (json.data.sharedSession && json.data.sharedSession.token) {",
+              "  pm.collectionVariables.set('authCoreSharedSessionToken', json.data.sharedSession.token);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "12 - Complete Organization Onboarding",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "X-Client-Id",
+            "value": "{{clientId}}"
+          },
+          {
+            "key": "X-Api-Key",
+            "value": "{{apiKey}}"
+          },
+          {
+            "key": "X-Tenant-Id",
+            "value": "{{tenantId}}"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authCoreAccessToken}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"accountType\": \"BUSINESS\",\n  \"businessType\": \"ORGANIZATION\",\n  \"step\": 4,\n  \"status\": \"COMPLETED\",\n  \"data\": {\n    \"businessName\": \"Full Organization\",\n    \"businessOwnerName\": \"Full Auth\",\n    \"niu\": \"NIU-FULL\",\n    \"logo\": \"logo.png\",\n    \"headerPhoto\": \"header.png\"\n  }\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/users/me/identity-onboarding",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "users",
+            "me",
+            "identity-onboarding"
+          ]
+        },
+        "description": "Switches the account onboarding profile from FREELANCE to ORGANIZATION and marks onboarding completed."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Organization onboarding completed', function () {",
+              "  pm.response.to.have.status(200);",
+              "  const data = pm.response.json().data;",
+              "  pm.expect(data.businessType).to.eql('ORGANIZATION');",
+              "  pm.expect(data.onboardingStatus).to.eql('COMPLETED');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "13 - OIDC UserInfo From Shared SSO Session",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authCoreSharedSessionToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/oauth2/userinfo",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "oauth2",
+            "userinfo"
+          ]
+        },
+        "description": "Reads central SSO contexts from the sharedSession.token returned by login/sign-up."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('SSO userinfo returned', function () { pm.response.to.have.status(200); });",
+              "const json = pm.response.json();",
+              "if (json.contexts && json.contexts.length > 0) {",
+              "  pm.collectionVariables.set('authCoreOidcContextId', json.contexts[0].contextId);",
+              "  if (json.contexts[0].organizations && json.contexts[0].organizations.length > 0) {",
+              "    pm.collectionVariables.set('authCoreOidcOrganizationId', json.contexts[0].organizations[0].organizationId);",
+              "  }",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "14 - OIDC Token Exchange",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/x-www-form-urlencoded"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "grant_type",
+              "value": "urn:ietf:params:oauth:grant-type:token-exchange",
+              "type": "text"
+            },
+            {
+              "key": "subject_token_type",
+              "value": "urn:ietf:params:oauth:token-type:jwt",
+              "type": "text"
+            },
+            {
+              "key": "subject_token",
+              "value": "{{authCoreSharedSessionToken}}",
+              "type": "text"
+            },
+            {
+              "key": "context_id",
+              "value": "{{authCoreOidcContextId}}",
+              "type": "text"
+            },
+            {
+              "key": "organization_id",
+              "value": "{{authCoreOidcOrganizationId}}",
+              "type": "text",
+              "disabled": true
+            },
+            {
+              "key": "service_code",
+              "value": "{{oidcServiceCode}}",
+              "type": "text"
+            },
+            {
+              "key": "requested_token_type",
+              "value": "urn:ietf:params:oauth:token-type:access_token",
+              "type": "text"
+            },
+            {
+              "key": "client_id",
+              "value": "{{oidcClientId}}",
+              "type": "text"
+            },
+            {
+              "key": "client_secret",
+              "value": "{{oidcClientSecret}}",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/oauth2/token",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "oauth2",
+            "token"
+          ]
+        },
+        "description": "Exchanges the central shared SSO token for a service-scoped access token. Enable organization_id if the selected context has an organization."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('OIDC token exchanged', function () { pm.response.to.have.status(200); });",
+              "const json = pm.response.json();",
+              "pm.collectionVariables.set('authCoreOidcAccessToken', json.access_token);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "15 - OIDC UserInfo From Exchanged Access Token",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authCoreOidcAccessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/oauth2/userinfo",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "oauth2",
+            "userinfo"
+          ]
+        },
+        "description": "Validates the service-scoped access token and returns JWT/OIDC user claims."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('OIDC access token userinfo returned', function () {",
+              "  pm.response.to.have.status(200);",
+              "  pm.expect(pm.response.json()).to.have.property('serviceCode');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "16 - OIDC Introspect Access Token",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/x-www-form-urlencoded"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "token",
+              "value": "{{authCoreOidcAccessToken}}",
+              "type": "text"
+            },
+            {
+              "key": "token_type_hint",
+              "value": "access_token",
+              "type": "text"
+            },
+            {
+              "key": "client_id",
+              "value": "{{oidcClientId}}",
+              "type": "text"
+            },
+            {
+              "key": "client_secret",
+              "value": "{{oidcClientSecret}}",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/oauth2/introspect",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "oauth2",
+            "introspect"
+          ]
+        },
+        "description": "RFC 7662 introspection for the exchanged access token."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('OIDC token is active', function () {",
+              "  pm.response.to.have.status(200);",
+              "  pm.expect(pm.response.json().active).to.eql(true);",
+              "});"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 046-cashier-relational-core
+      author: Blhack
+      changes:
+        - sqlFile:
+            path: db/r2dbc/V46__cashier_relational_core.sql
+            relativeToChangelogFile: false

@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 059-hrm-payroll
+      author: jordan
+      changes:
+        - sqlFile:
+            path: db/r2dbc/V59__hrm_payroll.sql
+            relativeToChangelogFile: false
