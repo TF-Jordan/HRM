@@ -198,3 +198,6 @@ databaseChangeLog:
   - include:
       file: releases/066-blockchain-core.yaml
       relativeToChangelogFile: true
+  - include:
+      file: releases/067-dev-seed.yaml
+      relativeToChangelogFile: true

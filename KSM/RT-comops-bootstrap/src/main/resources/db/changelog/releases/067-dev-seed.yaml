@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 067-dev-seed
+      author: claude
+      changes:
+        - sqlFile:
+            path: db/r2dbc/V67__dev_seed.sql
+            relativeToChangelogFile: false
