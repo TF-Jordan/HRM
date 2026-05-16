@@ -18,7 +18,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           user={{
             displayName: session.user.displayName,
             email: session.user.email,
-            role: session.permissions[0],
+            role: "Admin RH",
           }}
         />
         <main className="mx-auto w-full max-w-[1440px] grow px-9 pb-20 pt-8">{children}</main>

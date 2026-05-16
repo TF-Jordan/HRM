@@ -1,10 +1,20 @@
 import { NextResponse } from "next/server";
-import { ksmLogin } from "@/server/ksm/modules/auth";
+import {
+  ksmDiscoverContexts,
+  ksmSelectContext,
+  type KsmDiscoveredContext,
+} from "@/server/ksm/modules/auth";
 import { setSession, ensureCsrfToken } from "@/server/session";
 import { loginSchema } from "@/lib/validation/auth.schema";
 import { HttpError } from "@/lib/types/api";
 import { logger } from "@/lib/log";
 
+/**
+ * BFF login endpoint. Drives the KSM multi-tenant auth flow:
+ *  1. discover-contexts -> list of tenants × organizations
+ *  2. if exactly one context with one organization -> auto select-context + create session
+ *  3. otherwise -> return the discovery payload so the client can route to /select-context
+ */
 export async function POST(request: Request) {
   let body: unknown;
   try {
@@ -30,67 +40,52 @@ export async function POST(request: Request) {
   }
 
   try {
-    const result = await ksmLogin({
-      principal: parsed.data.email,
-      password: parsed.data.password,
-    });
+    const discovery = await ksmDiscoverContexts(parsed.data.email, parsed.data.password);
 
-    if (result.kind === "mfa") {
-      return NextResponse.json({
-        success: true,
-        kind: "mfa",
-        mfaToken: result.mfaToken,
-        channel: result.channel,
-        redirectTo: "/mfa",
-      });
-    }
-
-    if (result.contexts.length > 1) {
-      // Multi-org user: persist preliminary token and bounce to context selection.
-      // For Phase 0 we store the basic session and let the user re-select.
-      const sessionTtlMs = result.expiresInSeconds * 1000;
-      await setSession({
-        user: result.user,
-        // Will be overridden once a context is chosen.
-        context: {
-          tenantId: result.contexts[0]!.tenantId,
-          organizationId: result.contexts[0]!.organizationId,
-          agencyId: result.contexts[0]!.agencyId ?? null,
+    if (discovery.contexts.length === 0) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "No tenant access found for this account.",
+          errorCode: "NO_CONTEXT",
         },
-        permissions: result.permissions,
-        accessToken: result.accessToken,
-        refreshToken: result.refreshToken ?? null,
-        expiresAt: Date.now() + sessionTtlMs,
+        { status: 401 },
+      );
+    }
+
+    const autoSelected = pickAutoContext(discovery.contexts);
+    if (autoSelected) {
+      const { context, organization } = autoSelected;
+      const contextual = await ksmSelectContext({
+        selectionToken: discovery.selectionToken,
+        contextId: context.contextId,
+        organizationId: organization.organizationId,
       });
+
+      await persistSession(contextual);
       await ensureCsrfToken();
+
       return NextResponse.json({
         success: true,
-        kind: "select-context",
-        contexts: result.contexts,
-        redirectTo: "/select-context",
+        kind: "success",
+        user: {
+          userId: contextual.session.id,
+          actorId: contextual.session.actorId,
+          email: contextual.session.email,
+          displayName: contextual.session.username,
+        },
+        redirectTo: "/dashboard",
       });
     }
 
-    const ctx = result.contexts[0];
-    await setSession({
-      user: result.user,
-      context: {
-        tenantId: ctx?.tenantId ?? "",
-        organizationId: ctx?.organizationId ?? "",
-        agencyId: ctx?.agencyId ?? null,
-      },
-      permissions: result.permissions,
-      accessToken: result.accessToken,
-      refreshToken: result.refreshToken ?? null,
-      expiresAt: Date.now() + result.expiresInSeconds * 1000,
-    });
-    await ensureCsrfToken();
-
+    // Multiple tenants or multiple organisations — defer to client.
     return NextResponse.json({
       success: true,
-      kind: "success",
-      user: result.user,
-      redirectTo: "/dashboard",
+      kind: "select-context",
+      selectionToken: discovery.selectionToken,
+      expiresInSeconds: discovery.expiresInSeconds,
+      contexts: discovery.contexts,
+      redirectTo: "/select-context",
     });
   } catch (err) {
     if (err instanceof HttpError) {
@@ -100,7 +95,7 @@ export async function POST(request: Request) {
       );
       return NextResponse.json(
         { success: false, message: err.message, errorCode: err.errorCode ?? "AUTH_FAILED" },
-        { status: err.status === 401 ? 401 : 400 },
+        { status: err.status === 401 ? 401 : err.status >= 500 ? 502 : 400 },
       );
     }
     logger.error({ err: String(err) }, "login failed (unexpected)");
@@ -109,4 +104,33 @@ export async function POST(request: Request) {
       { status: 500 },
     );
   }
+}
+
+function pickAutoContext(contexts: KsmDiscoveredContext[]):
+  | { context: KsmDiscoveredContext; organization: KsmDiscoveredContext["organizations"][number] }
+  | null {
+  if (contexts.length !== 1) return null;
+  const context = contexts[0]!;
+  if (context.organizations.length !== 1) return null;
+  return { context, organization: context.organizations[0]! };
+}
+
+async function persistSession(contextual: Awaited<ReturnType<typeof ksmSelectContext>>) {
+  const session = contextual.session;
+  await setSession({
+    user: {
+      userId: session.id,
+      actorId: session.actorId,
+      email: session.email,
+      displayName: session.username,
+    },
+    context: {
+      tenantId: contextual.selectedTenantId,
+      organizationId: contextual.selectedOrganizationId ?? "",
+      agencyId: null,
+    },
+    accessToken: session.accessToken,
+    refreshToken: null,
+    expiresAt: Date.now() + session.expiresInSeconds * 1000,
+  });
 }

@@ -110,10 +110,10 @@ export function Sidebar() {
         </div>
         <div className="flex flex-col leading-tight">
           <span className="font-display text-[15px] font-bold tracking-tight text-ink">
-            {tCommon("settings") /* placeholder, real app name from common.appName */}
+            {tCommon("appName")}
           </span>
           <span className="text-[10px] font-semibold uppercase tracking-widest text-ink-3">
-            HR Core
+            {tCommon("appTagline")}
           </span>
         </div>
       </div>

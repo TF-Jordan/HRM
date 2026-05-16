@@ -11,8 +11,8 @@ const serverSchema = z.object({
     .string()
     .min(32, "SESSION_SECRET must be at least 32 bytes (base64) — generate via openssl rand -base64 48")
     .default("dev-only-secret-please-replace-in-prod-dev-only-secret-please-replace"),
-  SESSION_COOKIE_NAME: z.string().default("__Host-hrm_session"),
-  WORKSPACE_COOKIE_NAME: z.string().default("__Host-hrm_workspace"),
+  SESSION_COOKIE_NAME: z.string().default("hrm_session"),
+  WORKSPACE_COOKIE_NAME: z.string().default("hrm_workspace"),
   CSRF_COOKIE_NAME: z.string().default("hrm_csrf"),
   SESSION_TTL_SECONDS: z.coerce.number().int().positive().default(3600),
 });

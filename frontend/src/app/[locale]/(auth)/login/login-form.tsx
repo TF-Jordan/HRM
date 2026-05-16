@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
-import { useRouter } from "@/i18n/navigation";
 
 const schema = z.object({
   email: z.string().email(),
@@ -23,7 +22,6 @@ export function LoginForm() {
   const t = useTranslations("auth.login");
   const tValidation = useTranslations("validation");
   const tErrors = useTranslations("errors");
-  const router = useRouter();
   const [serverError, setServerError] = React.useState<string | null>(null);
   const [submitting, setSubmitting] = React.useState(false);
 
@@ -53,7 +51,9 @@ export function LoginForm() {
       }
       const json = await res.json();
       const redirectTo = (json?.redirectTo as string | undefined) ?? "/dashboard";
-      router.push(redirectTo as never);
+      // Full reload — Next router would not re-evaluate the proxy auth guard
+      // against the freshly set HttpOnly session cookie.
+      window.location.assign(redirectTo);
     } catch {
       setServerError(tErrors("network"));
     } finally {

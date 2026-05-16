@@ -15,7 +15,6 @@ export type SessionContext = {
 export type Session = {
   user: SessionUser;
   context: SessionContext;
-  permissions: string[];
   accessToken: string;
   refreshToken?: string | null;
   expiresAt: number; // epoch ms

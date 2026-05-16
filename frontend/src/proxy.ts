@@ -31,7 +31,7 @@ export function proxy(request: NextRequest) {
   if (pathname.startsWith("/api/")) {
     if (isPublicPath(pathname)) return NextResponse.next();
     const sessionCookie = request.cookies.get(
-      process.env.SESSION_COOKIE_NAME ?? "__Host-hrm_session",
+      process.env.SESSION_COOKIE_NAME ?? "hrm_session",
     );
     if (!sessionCookie?.value) {
       return NextResponse.json(
@@ -47,7 +47,7 @@ export function proxy(request: NextRequest) {
 
   if (!isPublicPath(pathname)) {
     const sessionCookie = request.cookies.get(
-      process.env.SESSION_COOKIE_NAME ?? "__Host-hrm_session",
+      process.env.SESSION_COOKIE_NAME ?? "hrm_session",
     );
     if (!sessionCookie?.value) {
       const url = request.nextUrl.clone();

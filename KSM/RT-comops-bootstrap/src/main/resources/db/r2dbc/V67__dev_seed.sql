@@ -141,3 +141,24 @@ VALUES (
     NULL
 )
 ON CONFLICT (id) DO NOTHING;
+
+-- =========================================================================
+-- Employee membership: ties admin user to the seeded organisation so that
+-- auth discover-contexts surfaces it under his accessible organisations.
+-- =========================================================================
+
+INSERT INTO organization.employee_membership (
+    id, tenant_id, created_at, updated_at, organization_id, user_id, actor_id,
+    email, status
+)
+VALUES (
+    '00000001-0000-0000-0000-000000000009'::uuid,
+    '00000001-0000-0000-0000-000000000001'::uuid,
+    now(), now(),
+    '00000001-0000-0000-0000-000000000002'::uuid,
+    '00000001-0000-0000-0000-000000000004'::uuid,
+    '00000001-0000-0000-0000-000000000003'::uuid,
+    'admin@hrcore.local',
+    'ACTIVE'
+)
+ON CONFLICT (id) DO NOTHING;
