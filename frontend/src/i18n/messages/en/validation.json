@@ -1,0 +1,15 @@
+{
+  "required": "This field is required",
+  "email": "Invalid email address",
+  "minLength": "At least {min} characters",
+  "maxLength": "At most {max} characters",
+  "passwordWeak": "Password too weak",
+  "uuid": "Invalid identifier",
+  "number": "Must be a number",
+  "integer": "Must be an integer",
+  "positive": "Must be positive",
+  "date": "Invalid date",
+  "dateFuture": "Date must be in the future",
+  "datePast": "Date must be in the past",
+  "phone": "Invalid phone number"
+}

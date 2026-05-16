@@ -1,0 +1,23 @@
+{
+  "welcome": "Welcome, {name}",
+  "subtitle": "Your human resources dashboard",
+  "kpi": {
+    "activeEmployees": "Active workforce",
+    "monthlyPayroll": "Monthly payroll",
+    "pendingLeaves": "Pending leaves",
+    "complianceAlerts": "Compliance alerts",
+    "newApplications": "New applications",
+    "openPositions": "Open positions",
+    "trainingBudgetUsed": "Training budget used",
+    "pendingExpenses": "Expenses to approve"
+  },
+  "sections": {
+    "quickActions": "Quick actions",
+    "recentActivity": "Recent activity",
+    "alerts": "Alerts & due dates"
+  },
+  "empty": {
+    "title": "No data to display",
+    "subtitle": "Sign in to your workspace to get started."
+  }
+}

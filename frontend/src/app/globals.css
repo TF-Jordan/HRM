@@ -1,0 +1,292 @@
+@import "tailwindcss";
+
+/* ==========================================================
+   HR Core — Design tokens ported from HR Core v2
+   ========================================================== */
+
+@theme inline {
+  /* Brand orange */
+  --color-brand-50: #fff1e6;
+  --color-brand-100: #ffdcc2;
+  --color-brand-200: #ffc299;
+  --color-brand-300: #ffa366;
+  --color-brand-400: #fb8533;
+  --color-brand-500: #f26b0f;
+  --color-brand-600: #dc560a;
+  --color-brand-700: #b0420a;
+  --color-brand-800: #7a2d08;
+
+  /* Warm neutrals */
+  --color-cream: #f8f5ef;
+  --color-cream-2: #f1ece0;
+  --color-cream-elev: #ffffff;
+  --color-cream-soft: #f2ebdb;
+  --color-cream-dim: #efe7d2;
+
+  /* Dark surfaces */
+  --color-dark: #110d08;
+  --color-dark-2: #1c1610;
+  --color-dark-3: #2b2218;
+  --color-dark-line: #3a2f22;
+
+  /* Borders */
+  --color-line: #e8dec6;
+  --color-line-soft: #f0e8d4;
+  --color-line-strong: #d5c8aa;
+
+  /* Ink (text) */
+  --color-ink: #0f0b05;
+  --color-ink-2: #2e281e;
+  --color-ink-3: #6b6253;
+  --color-ink-4: #9a9283;
+  --color-ink-5: #c4bcae;
+
+  /* Status colors */
+  --color-status-green-50: #e8f8f0;
+  --color-status-green-500: #10b981;
+  --color-status-green-600: #059669;
+  --color-status-blue-50: #e8f0fe;
+  --color-status-blue-500: #3b82f6;
+  --color-status-blue-600: #2563eb;
+  --color-status-red-50: #feecec;
+  --color-status-red-500: #ef4444;
+  --color-status-red-600: #dc2626;
+  --color-status-amber-50: #fff6e0;
+  --color-status-amber-500: #f59e0b;
+  --color-status-amber-600: #d97706;
+  --color-status-violet-50: #f1ecfe;
+  --color-status-violet-500: #8b5cf6;
+  --color-status-violet-600: #7c3aed;
+  --color-status-teal-50: #dcfce7;
+  --color-status-teal-500: #14b8a6;
+  --color-status-teal-600: #0d9488;
+
+  /* Semantic mappings (shadcn-style) */
+  --color-background: var(--color-cream);
+  --color-foreground: var(--color-ink);
+  --color-card: var(--color-cream-elev);
+  --color-card-foreground: var(--color-ink);
+  --color-popover: var(--color-cream-elev);
+  --color-popover-foreground: var(--color-ink);
+  --color-primary: var(--color-brand-500);
+  --color-primary-foreground: #ffffff;
+  --color-secondary: var(--color-cream-soft);
+  --color-secondary-foreground: var(--color-ink-2);
+  --color-muted: var(--color-cream-2);
+  --color-muted-foreground: var(--color-ink-3);
+  --color-accent: var(--color-brand-50);
+  --color-accent-foreground: var(--color-brand-700);
+  --color-destructive: var(--color-status-red-500);
+  --color-destructive-foreground: #ffffff;
+  --color-border: var(--color-line);
+  --color-input: var(--color-line);
+  --color-ring: var(--color-brand-400);
+
+  /* Radii */
+  --radius-xs: 8px;
+  --radius-sm: 12px;
+  --radius-md: 16px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+  --radius-2xl: 36px;
+
+  /* Fonts */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-display: var(--font-inter-tight), var(--font-inter), system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, "Courier New", monospace;
+}
+
+/* ============== Base reset ============== */
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  html,
+  body {
+    background: var(--color-cream);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: "cv11", "ss01";
+    letter-spacing: -0.005em;
+  }
+
+  /* Ambient warm backdrop */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(1000px circle at 70% -10%, rgba(242, 107, 15, 0.1) 0%, transparent 45%),
+      radial-gradient(800px circle at 10% 30%, rgba(252, 211, 77, 0.06) 0%, transparent 50%),
+      radial-gradient(900px circle at 90% 100%, rgba(220, 86, 10, 0.08) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Subtle grain */
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image: radial-gradient(
+      circle at 1px 1px,
+      rgba(15, 11, 5, 0.025) 1px,
+      transparent 0
+    );
+    background-size: 22px 22px;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.6;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    color: var(--color-ink);
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--color-brand-400);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+/* ============== Custom gradients & shadows ============== */
+
+@layer utilities {
+  .bg-grad-orange {
+    background: linear-gradient(135deg, #fb8533 0%, #f26b0f 50%, #dc560a 100%);
+  }
+  .bg-grad-orange-soft {
+    background: linear-gradient(135deg, #ffc299 0%, #f26b0f 100%);
+  }
+  .bg-grad-amber {
+    background: linear-gradient(135deg, #fcd34d 0%, #f59e0b 100%);
+  }
+  .bg-grad-green {
+    background: linear-gradient(135deg, #34d399 0%, #059669 100%);
+  }
+  .bg-grad-blue {
+    background: linear-gradient(135deg, #60a5fa 0%, #2563eb 100%);
+  }
+  .bg-grad-violet {
+    background: linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%);
+  }
+  .bg-grad-teal {
+    background: linear-gradient(135deg, #2dd4bf 0%, #0d9488 100%);
+  }
+  .bg-grad-dark {
+    background: linear-gradient(135deg, #2b2218 0%, #0f0b05 100%);
+  }
+  .bg-grad-ambient {
+    background:
+      radial-gradient(ellipse at top left, rgba(242, 107, 15, 0.08) 0%, transparent 40%),
+      radial-gradient(ellipse at bottom right, rgba(252, 211, 77, 0.06) 0%, transparent 50%),
+      linear-gradient(180deg, #f8f5ef 0%, #f1ece0 100%);
+  }
+
+  .shadow-brand {
+    box-shadow:
+      0 8px 24px -4px rgba(242, 107, 15, 0.35),
+      0 2px 4px rgba(242, 107, 15, 0.2);
+  }
+  .shadow-brand-lg {
+    box-shadow:
+      0 16px 48px -8px rgba(242, 107, 15, 0.45),
+      0 4px 8px rgba(242, 107, 15, 0.25);
+  }
+  .shadow-inset-top {
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  }
+  .shadow-elev-sm {
+    box-shadow:
+      0 1px 2px rgba(15, 11, 5, 0.05),
+      0 2px 4px rgba(15, 11, 5, 0.03);
+  }
+  .shadow-elev-md {
+    box-shadow:
+      0 4px 12px -2px rgba(15, 11, 5, 0.06),
+      0 2px 4px rgba(15, 11, 5, 0.03);
+  }
+  .shadow-elev-lg {
+    box-shadow:
+      0 12px 32px -8px rgba(15, 11, 5, 0.12),
+      0 4px 8px rgba(15, 11, 5, 0.04);
+  }
+  .shadow-elev-xl {
+    box-shadow:
+      0 24px 60px -16px rgba(15, 11, 5, 0.2),
+      0 8px 16px rgba(15, 11, 5, 0.06);
+  }
+
+  .text-glow-orange {
+    background: linear-gradient(135deg, #fb8533 0%, #f26b0f 50%, #dc560a 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Scrollbar — subtle warm */
+  *::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  *::-webkit-scrollbar-thumb {
+    background: var(--color-line-strong);
+    border-radius: 4px;
+  }
+  *::-webkit-scrollbar-thumb:hover {
+    background: var(--color-ink-4);
+  }
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
+
+/* ============== Smooth fade-in animation ============== */
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(242, 107, 15, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(242, 107, 15, 0);
+  }
+}
+
+.animate-pulse-brand {
+  animation: pulse-glow 2s infinite;
+}

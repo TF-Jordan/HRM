@@ -1,0 +1,40 @@
+{
+  "sections": {
+    "pilotage": "Pilotage",
+    "personnel": "Personnel",
+    "activity": "Activity",
+    "compensation": "Compensation",
+    "development": "Development",
+    "compliance": "Compliance",
+    "system": "System"
+  },
+  "items": {
+    "dashboard": "Dashboard",
+    "analytics": "HR Analytics",
+    "employees": "Employees",
+    "contracts": "Contracts",
+    "skills": "Skills",
+    "recruitment": "Recruitment",
+    "timesheets": "Timesheets",
+    "leaves": "Leaves",
+    "missionOrders": "Mission orders",
+    "payroll": "Payroll",
+    "loans": "Loans & Advances",
+    "expenses": "Expenses",
+    "reviews": "Reviews",
+    "trainings": "Trainings",
+    "trainingBudgets": "Training budget",
+    "medical": "Medical follow-up",
+    "declarations": "Declarations",
+    "settings": "Settings",
+    "profile": "My profile",
+    "myLeaves": "My leaves",
+    "myLoans": "My advances",
+    "myExpenses": "My expenses",
+    "myTimesheets": "My time",
+    "myPayroll": "My payslips",
+    "myTrainings": "My trainings",
+    "myMedical": "My medical",
+    "myReviews": "My reviews"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "generic": "Une erreur est survenue",
+  "network": "Problème de réseau — vérifiez votre connexion",
+  "timeout": "Le serveur a mis trop de temps à répondre",
+  "unauthorized": "Vous devez vous connecter pour accéder à cette ressource",
+  "forbidden": "Vous n'avez pas les permissions nécessaires",
+  "notFound": "Ressource introuvable",
+  "conflict": "Conflit — cette action n'est pas autorisée dans l'état actuel",
+  "validation": "Les données saisies ne sont pas valides",
+  "rateLimited": "Trop de requêtes — veuillez patienter",
+  "serverError": "Erreur serveur — veuillez réessayer",
+  "organizationContextRequired": "Aucune organisation sélectionnée — choisissez un espace de travail",
+  "organizationServiceNotSubscribed": "Cette organisation n'a pas accès au module HRM",
+  "insufficientLeaveBalance": "Solde de congés insuffisant",
+  "duplicateEmployee": "Un employé existe déjà pour cet acteur",
+  "invalidState": "Action non autorisée dans l'état actuel",
+  "page": {
+    "title": "Oups, une erreur est survenue",
+    "subtitle": "Nos équipes ont été notifiées. Réessayez dans quelques instants.",
+    "backHome": "Retour à l'accueil"
+  },
+  "notFoundPage": {
+    "title": "Page introuvable",
+    "subtitle": "La page que vous cherchez n'existe pas ou a été déplacée.",
+    "backHome": "Retour à l'accueil"
+  }
+}

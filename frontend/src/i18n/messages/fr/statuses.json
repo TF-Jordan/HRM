@@ -1,0 +1,110 @@
+{
+  "employee": {
+    "ACTIVE": "Actif",
+    "ON_LEAVE": "En congé",
+    "SUSPENDED": "Suspendu",
+    "TERMINATED": "Sorti"
+  },
+  "contract": {
+    "ACTIVE": "Actif",
+    "EXPIRED": "Expiré",
+    "TERMINATED": "Rompu",
+    "RENEWED": "Renouvelé"
+  },
+  "contractType": {
+    "CDD": "CDD",
+    "CDI": "CDI",
+    "STAGE": "Stage",
+    "INTERIM": "Intérim"
+  },
+  "leave": {
+    "PENDING": "En attente",
+    "APPROVED": "Approuvé",
+    "REJECTED": "Rejeté",
+    "CANCELLED": "Annulé"
+  },
+  "leaveType": {
+    "ANNUAL": "Congé annuel",
+    "SICK": "Maladie",
+    "MATERNITY": "Maternité",
+    "PATERNITY": "Paternité",
+    "UNPAID": "Sans solde",
+    "SPECIAL": "Congé spécial"
+  },
+  "loan": {
+    "PENDING": "En attente",
+    "REJECTED": "Rejeté",
+    "IN_REPAYMENT": "En remboursement",
+    "FULLY_REPAID": "Soldé"
+  },
+  "payrollRun": {
+    "CALCULATED": "Calculé",
+    "VALIDATED": "Validé",
+    "PAID": "Payé"
+  },
+  "expense": {
+    "DRAFT": "Brouillon",
+    "SUBMITTED": "Soumis",
+    "APPROVED": "Approuvé",
+    "REJECTED": "Rejeté",
+    "REIMBURSED": "Remboursé"
+  },
+  "mission": {
+    "DRAFT": "Brouillon",
+    "APPROVED": "Approuvé",
+    "IN_PROGRESS": "En cours",
+    "COMPLETED": "Terminé",
+    "CANCELLED": "Annulé"
+  },
+  "application": {
+    "NEW": "Nouvelle",
+    "SHORTLISTED": "Présélectionnée",
+    "INTERVIEWING": "En entretien",
+    "OFFERED": "Offre envoyée",
+    "HIRED": "Embauchée",
+    "REJECTED": "Rejetée"
+  },
+  "interview": {
+    "PENDING": "En attente",
+    "PASS": "Réussi",
+    "FAIL": "Échoué"
+  },
+  "onboardingTask": {
+    "PENDING": "En attente",
+    "IN_PROGRESS": "En cours",
+    "COMPLETED": "Terminée"
+  },
+  "jobOffer": {
+    "DRAFT": "Brouillon",
+    "PUBLISHED": "Publiée",
+    "CLOSED": "Clôturée"
+  },
+  "training": {
+    "PLANNED": "Planifiée",
+    "IN_PROGRESS": "En cours",
+    "COMPLETED": "Terminée",
+    "CANCELLED": "Annulée"
+  },
+  "trainingEnrollment": {
+    "ENROLLED": "Inscrit",
+    "COMPLETED": "Terminé",
+    "CANCELLED": "Annulé"
+  },
+  "review": {
+    "DRAFT": "Brouillon",
+    "SUBMITTED": "Soumise",
+    "ACKNOWLEDGED": "Acquittée",
+    "FINALIZED": "Finalisée"
+  },
+  "timesheet": {
+    "DRAFT": "Brouillon",
+    "SUBMITTED": "Soumis",
+    "VALIDATED": "Validé"
+  },
+  "socialDeclaration": {
+    "DRAFT": "Brouillon",
+    "GENERATED": "Générée",
+    "SUBMITTED": "Soumise",
+    "ACKNOWLEDGED": "Acquittée"
+  }
+}

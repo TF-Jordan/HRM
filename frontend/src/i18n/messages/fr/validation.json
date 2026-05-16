@@ -1,0 +1,15 @@
+{
+  "required": "Ce champ est obligatoire",
+  "email": "Adresse e-mail invalide",
+  "minLength": "Au moins {min} caractères",
+  "maxLength": "Au plus {max} caractères",
+  "passwordWeak": "Mot de passe trop faible",
+  "uuid": "Identifiant invalide",
+  "number": "Doit être un nombre",
+  "integer": "Doit être un entier",
+  "positive": "Doit être positif",
+  "date": "Date invalide",
+  "dateFuture": "La date doit être future",
+  "datePast": "La date doit être passée",
+  "phone": "Numéro de téléphone invalide"
+}

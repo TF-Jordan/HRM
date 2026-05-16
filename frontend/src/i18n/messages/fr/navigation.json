@@ -1,0 +1,40 @@
+{
+  "sections": {
+    "pilotage": "Pilotage",
+    "personnel": "Personnel",
+    "activity": "Activité",
+    "compensation": "Rémunération",
+    "development": "Développement",
+    "compliance": "Conformité",
+    "system": "Système"
+  },
+  "items": {
+    "dashboard": "Tableau de bord",
+    "analytics": "Analytics RH",
+    "employees": "Employés",
+    "contracts": "Contrats",
+    "skills": "Compétences",
+    "recruitment": "Recrutement",
+    "timesheets": "Temps & Présences",
+    "leaves": "Congés",
+    "missionOrders": "Ordres de mission",
+    "payroll": "Paie",
+    "loans": "Avances & Prêts",
+    "expenses": "Notes de frais",
+    "reviews": "Évaluations",
+    "trainings": "Formations",
+    "trainingBudgets": "Budget formation",
+    "medical": "Suivi médical",
+    "declarations": "Déclarations",
+    "settings": "Paramètres",
+    "profile": "Mon profil",
+    "myLeaves": "Mes congés",
+    "myLoans": "Mes avances",
+    "myExpenses": "Mes notes de frais",
+    "myTimesheets": "Mes temps",
+    "myPayroll": "Mes bulletins",
+    "myTrainings": "Mes formations",
+    "myMedical": "Mon suivi médical",
+    "myReviews": "Mes évaluations"
+  }
+}

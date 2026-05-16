@@ -1,0 +1,110 @@
+{
+  "employee": {
+    "ACTIVE": "Active",
+    "ON_LEAVE": "On leave",
+    "SUSPENDED": "Suspended",
+    "TERMINATED": "Terminated"
+  },
+  "contract": {
+    "ACTIVE": "Active",
+    "EXPIRED": "Expired",
+    "TERMINATED": "Terminated",
+    "RENEWED": "Renewed"
+  },
+  "contractType": {
+    "CDD": "Fixed-term",
+    "CDI": "Permanent",
+    "STAGE": "Internship",
+    "INTERIM": "Temp"
+  },
+  "leave": {
+    "PENDING": "Pending",
+    "APPROVED": "Approved",
+    "REJECTED": "Rejected",
+    "CANCELLED": "Cancelled"
+  },
+  "leaveType": {
+    "ANNUAL": "Annual leave",
+    "SICK": "Sick leave",
+    "MATERNITY": "Maternity",
+    "PATERNITY": "Paternity",
+    "UNPAID": "Unpaid",
+    "SPECIAL": "Special leave"
+  },
+  "loan": {
+    "PENDING": "Pending",
+    "REJECTED": "Rejected",
+    "IN_REPAYMENT": "Repaying",
+    "FULLY_REPAID": "Repaid"
+  },
+  "payrollRun": {
+    "CALCULATED": "Calculated",
+    "VALIDATED": "Validated",
+    "PAID": "Paid"
+  },
+  "expense": {
+    "DRAFT": "Draft",
+    "SUBMITTED": "Submitted",
+    "APPROVED": "Approved",
+    "REJECTED": "Rejected",
+    "REIMBURSED": "Reimbursed"
+  },
+  "mission": {
+    "DRAFT": "Draft",
+    "APPROVED": "Approved",
+    "IN_PROGRESS": "In progress",
+    "COMPLETED": "Completed",
+    "CANCELLED": "Cancelled"
+  },
+  "application": {
+    "NEW": "New",
+    "SHORTLISTED": "Shortlisted",
+    "INTERVIEWING": "Interviewing",
+    "OFFERED": "Offer sent",
+    "HIRED": "Hired",
+    "REJECTED": "Rejected"
+  },
+  "interview": {
+    "PENDING": "Pending",
+    "PASS": "Passed",
+    "FAIL": "Failed"
+  },
+  "onboardingTask": {
+    "PENDING": "Pending",
+    "IN_PROGRESS": "In progress",
+    "COMPLETED": "Completed"
+  },
+  "jobOffer": {
+    "DRAFT": "Draft",
+    "PUBLISHED": "Published",
+    "CLOSED": "Closed"
+  },
+  "training": {
+    "PLANNED": "Planned",
+    "IN_PROGRESS": "In progress",
+    "COMPLETED": "Completed",
+    "CANCELLED": "Cancelled"
+  },
+  "trainingEnrollment": {
+    "ENROLLED": "Enrolled",
+    "COMPLETED": "Completed",
+    "CANCELLED": "Cancelled"
+  },
+  "review": {
+    "DRAFT": "Draft",
+    "SUBMITTED": "Submitted",
+    "ACKNOWLEDGED": "Acknowledged",
+    "FINALIZED": "Finalized"
+  },
+  "timesheet": {
+    "DRAFT": "Draft",
+    "SUBMITTED": "Submitted",
+    "VALIDATED": "Validated"
+  },
+  "socialDeclaration": {
+    "DRAFT": "Draft",
+    "GENERATED": "Generated",
+    "SUBMITTED": "Submitted",
+    "ACKNOWLEDGED": "Acknowledged"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "generic": "An error occurred",
+  "network": "Network issue — check your connection",
+  "timeout": "The server took too long to respond",
+  "unauthorized": "You need to sign in to access this resource",
+  "forbidden": "You do not have the required permissions",
+  "notFound": "Resource not found",
+  "conflict": "Conflict — this action is not allowed in the current state",
+  "validation": "The data entered is not valid",
+  "rateLimited": "Too many requests — please wait",
+  "serverError": "Server error — please try again",
+  "organizationContextRequired": "No organisation selected — choose a workspace",
+  "organizationServiceNotSubscribed": "This organisation has no access to the HRM module",
+  "insufficientLeaveBalance": "Insufficient leave balance",
+  "duplicateEmployee": "An employee already exists for this actor",
+  "invalidState": "Action not allowed in the current state",
+  "page": {
+    "title": "Something went wrong",
+    "subtitle": "Our team has been notified. Try again in a moment.",
+    "backHome": "Back to home"
+  },
+  "notFoundPage": {
+    "title": "Page not found",
+    "subtitle": "The page you're looking for doesn't exist or has been moved.",
+    "backHome": "Back to home"
+  }
+}

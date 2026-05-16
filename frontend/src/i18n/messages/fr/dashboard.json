@@ -1,0 +1,23 @@
+{
+  "welcome": "Bienvenue, {name}",
+  "subtitle": "Votre tableau de bord ressources humaines",
+  "kpi": {
+    "activeEmployees": "Effectif actif",
+    "monthlyPayroll": "Masse salariale",
+    "pendingLeaves": "Congés en attente",
+    "complianceAlerts": "Alertes conformité",
+    "newApplications": "Nouvelles candidatures",
+    "openPositions": "Postes ouverts",
+    "trainingBudgetUsed": "Budget formation utilisé",
+    "pendingExpenses": "Frais à approuver"
+  },
+  "sections": {
+    "quickActions": "Actions rapides",
+    "recentActivity": "Activité récente",
+    "alerts": "Alertes & échéances"
+  },
+  "empty": {
+    "title": "Aucune donnée à afficher",
+    "subtitle": "Connectez-vous à votre espace pour commencer."
+  }
+}
