@@ -89,14 +89,16 @@ public class EmployeeService implements ManageEmployeeUseCase {
                                                     return employeeRepository.save(employee);
                                                 })
                                                 .flatMap(savedEmployee -> {
-                                                    Contract contract = Contract.create(
-                                                            context.tenantId(), context.organizationId(), context.agencyId(),
-                                                            savedEmployee.id(), ContractType.valueOf(command.contractType()),
-                                                            command.contractDateDebut(), command.contractDateFin(),
-                                                            command.salaireBase(), command.avantagesNature(),
-                                                            command.periodeEssai());
                                                     int currentYear = LocalDate.now().getYear();
-                                                    return contractRepository.save(contract)
+                                                    Mono<Void> contractStep = command.contractType() == null
+                                                            ? Mono.empty()
+                                                            : contractRepository.save(Contract.create(
+                                                                    context.tenantId(), context.organizationId(), context.agencyId(),
+                                                                    savedEmployee.id(), ContractType.valueOf(command.contractType()),
+                                                                    command.contractDateDebut(), command.contractDateFin(),
+                                                                    command.salaireBase(), command.avantagesNature(),
+                                                                    command.periodeEssai())).then();
+                                                    return contractStep
                                                             .then(leaveBalanceRepository.save(
                                                                     LeaveBalance.initialize(context.tenantId(), context.organizationId(),
                                                                             savedEmployee.id(), LeaveType.ANNUAL, currentYear)))

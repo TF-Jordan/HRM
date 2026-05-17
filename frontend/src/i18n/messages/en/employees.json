@@ -1,0 +1,138 @@
+{
+  "list": {
+    "title": "Employees",
+    "subtitle": "Manage your organisation's active workforce",
+    "newButton": "New employee",
+    "empty": "No employees yet",
+    "emptySubtitle": "Start by adding your organisation's first team member."
+  },
+  "table": {
+    "matricule": "ID",
+    "name": "Name",
+    "department": "Department",
+    "category": "Category",
+    "echelon": "Step",
+    "hireDate": "Hire date",
+    "status": "Status",
+    "paymentMode": "Payment method",
+    "actions": "Actions"
+  },
+  "form": {
+    "sections": {
+      "identity": "Identity",
+      "employment": "HR data",
+      "payment": "Payment",
+      "firstContract": "First contract (optional)"
+    },
+    "firstName": "First name",
+    "lastName": "Last name",
+    "email": "Email",
+    "phoneNumber": "Phone",
+    "numCnps": "CNPS number",
+    "categorie": "Category",
+    "echelon": "Step",
+    "dateEmbauche": "Hire date",
+    "departmentCode": "Department",
+    "modePaiement": "Payment method",
+    "compteBancaire": "Bank account",
+    "numMobileMoney": "Mobile Money number",
+    "operateurMm": "Operator",
+    "contractType": "Contract type",
+    "contractDateDebut": "Start date",
+    "contractDateFin": "End date",
+    "salaireBase": "Base salary (XAF)",
+    "avantagesNature": "Benefits in kind (XAF)",
+    "periodeEssai": "Trial period (months)",
+    "submit": "Create employee",
+    "submitting": "Creating..."
+  },
+  "detail": {
+    "tabs": {
+      "identity": "Identity",
+      "contracts": "Contracts",
+      "dependents": "Dependents",
+      "leaves": "Leave balances",
+      "skills": "Skills"
+    },
+    "fields": {
+      "matricule": "ID",
+      "actor": "Actor",
+      "hireDate": "Hire date",
+      "department": "Department",
+      "category": "Category",
+      "echelon": "Step",
+      "cnps": "CNPS",
+      "paymentMode": "Payment method",
+      "bankAccount": "Bank account",
+      "mobileMoney": "Mobile money",
+      "operator": "Operator"
+    },
+    "actions": {
+      "edit": "Edit",
+      "terminate": "Terminate",
+      "suspend": "Suspend",
+      "reactivate": "Reactivate",
+      "addContract": "New contract",
+      "addDependent": "Add dependent"
+    }
+  },
+  "transitions": {
+    "terminateTitle": "Terminate employment",
+    "terminateDescription": "This action is final. The employee will move to TERMINATED.",
+    "terminationDate": "End date",
+    "terminationReason": "Reason",
+    "suspendTitle": "Suspend employee",
+    "suspendDescription": "The employee will be marked SUSPENDED until reactivation.",
+    "suspendReason": "Reason",
+    "reactivateTitle": "Reactivate employee",
+    "reactivateDescription": "The employee will return to ACTIVE."
+  },
+  "contracts": {
+    "empty": "No contracts",
+    "type": "Type",
+    "dateDebut": "Start",
+    "dateFin": "End",
+    "salaireBase": "Salary (XAF)",
+    "avantagesNature": "Benefits",
+    "periodeEssai": "Trial",
+    "status": "Status",
+    "newTitle": "Add a contract",
+    "submit": "Create contract"
+  },
+  "dependents": {
+    "empty": "No dependents",
+    "newTitle": "Add a dependent",
+    "nom": "Last name",
+    "prenom": "First name",
+    "dateNaissance": "Date of birth",
+    "lienParente": "Relationship",
+    "submit": "Add",
+    "relationships": {
+      "SPOUSE": "Spouse",
+      "CHILD": "Child",
+      "PARENT": "Parent",
+      "SIBLING": "Sibling",
+      "OTHER": "Other"
+    }
+  },
+  "leaves": {
+    "empty": "No balances for this year",
+    "type": "Type",
+    "annee": "Year",
+    "acquis": "Accrued",
+    "pris": "Taken",
+    "solde": "Remaining"
+  },
+  "paymentModes": {
+    "BANK_TRANSFER": "Bank transfer",
+    "MOBILE_MONEY": "Mobile money",
+    "CASH": "Cash",
+    "CHECK": "Check"
+  },
+  "operators": {
+    "MTN": "MTN Mobile Money",
+    "ORANGE": "Orange Money",
+    "EU_MOBILE": "EU Mobile",
+    "YOOMEE": "Yoomee Cash"
+  }
+}

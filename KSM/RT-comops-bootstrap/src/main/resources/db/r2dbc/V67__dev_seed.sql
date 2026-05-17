@@ -162,3 +162,23 @@ VALUES (
     'ACTIVE'
 )
 ON CONFLICT (id) DO NOTHING;
+
+-- =========================================================================
+-- HRM matricule sequence required by EmployeeService to assign matricules.
+-- =========================================================================
+
+INSERT INTO settings.document_sequence (
+    id, tenant_id, created_at, updated_at, organization_id, document_type,
+    prefix, padding_width, next_number
+)
+VALUES (
+    '00000001-0000-0000-0000-00000000000a'::uuid,
+    '00000001-0000-0000-0000-000000000001'::uuid,
+    now(), now(),
+    '00000001-0000-0000-0000-000000000002'::uuid,
+    'HRM_MATRICULE',
+    'HRC-',
+    5,
+    1
+)
+ON CONFLICT (id) DO NOTHING;

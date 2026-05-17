@@ -1,0 +1,138 @@
+{
+  "list": {
+    "title": "Employés",
+    "subtitle": "Gérer le personnel actif de votre organisation",
+    "newButton": "Nouvel employé",
+    "empty": "Aucun employé pour le moment",
+    "emptySubtitle": "Commencez par ajouter le premier collaborateur de l'organisation."
+  },
+  "table": {
+    "matricule": "Matricule",
+    "name": "Nom",
+    "department": "Département",
+    "category": "Catégorie",
+    "echelon": "Échelon",
+    "hireDate": "Date d'embauche",
+    "status": "Statut",
+    "paymentMode": "Mode de paiement",
+    "actions": "Actions"
+  },
+  "form": {
+    "sections": {
+      "identity": "Identité",
+      "employment": "Données RH",
+      "payment": "Paiement",
+      "firstContract": "Premier contrat (optionnel)"
+    },
+    "firstName": "Prénom",
+    "lastName": "Nom",
+    "email": "Email",
+    "phoneNumber": "Téléphone",
+    "numCnps": "N° CNPS",
+    "categorie": "Catégorie",
+    "echelon": "Échelon",
+    "dateEmbauche": "Date d'embauche",
+    "departmentCode": "Département",
+    "modePaiement": "Mode de paiement",
+    "compteBancaire": "Compte bancaire",
+    "numMobileMoney": "N° Mobile Money",
+    "operateurMm": "Opérateur",
+    "contractType": "Type de contrat",
+    "contractDateDebut": "Date de début",
+    "contractDateFin": "Date de fin",
+    "salaireBase": "Salaire de base (XAF)",
+    "avantagesNature": "Avantages en nature (XAF)",
+    "periodeEssai": "Période d'essai (mois)",
+    "submit": "Créer l'employé",
+    "submitting": "Création..."
+  },
+  "detail": {
+    "tabs": {
+      "identity": "Identité",
+      "contracts": "Contrats",
+      "dependents": "Personnes à charge",
+      "leaves": "Soldes de congés",
+      "skills": "Compétences"
+    },
+    "fields": {
+      "matricule": "Matricule",
+      "actor": "Acteur",
+      "hireDate": "Date d'embauche",
+      "department": "Département",
+      "category": "Catégorie",
+      "echelon": "Échelon",
+      "cnps": "N° CNPS",
+      "paymentMode": "Mode de paiement",
+      "bankAccount": "Compte bancaire",
+      "mobileMoney": "Mobile money",
+      "operator": "Opérateur"
+    },
+    "actions": {
+      "edit": "Modifier",
+      "terminate": "Résilier",
+      "suspend": "Suspendre",
+      "reactivate": "Réactiver",
+      "addContract": "Nouveau contrat",
+      "addDependent": "Ajouter une personne à charge"
+    }
+  },
+  "transitions": {
+    "terminateTitle": "Résilier le contrat",
+    "terminateDescription": "Cette action est définitive. L'employé passera au statut TERMINATED.",
+    "terminationDate": "Date de fin",
+    "terminationReason": "Motif",
+    "suspendTitle": "Suspendre l'employé",
+    "suspendDescription": "L'employé sera marqué SUSPENDED jusqu'à réactivation.",
+    "suspendReason": "Motif",
+    "reactivateTitle": "Réactiver l'employé",
+    "reactivateDescription": "L'employé reviendra au statut ACTIVE."
+  },
+  "contracts": {
+    "empty": "Aucun contrat",
+    "type": "Type",
+    "dateDebut": "Début",
+    "dateFin": "Fin",
+    "salaireBase": "Salaire (XAF)",
+    "avantagesNature": "Avantages",
+    "periodeEssai": "Essai",
+    "status": "Statut",
+    "newTitle": "Ajouter un contrat",
+    "submit": "Créer le contrat"
+  },
+  "dependents": {
+    "empty": "Aucune personne à charge",
+    "newTitle": "Ajouter une personne à charge",
+    "nom": "Nom",
+    "prenom": "Prénom",
+    "dateNaissance": "Date de naissance",
+    "lienParente": "Lien de parenté",
+    "submit": "Ajouter",
+    "relationships": {
+      "SPOUSE": "Conjoint(e)",
+      "CHILD": "Enfant",
+      "PARENT": "Parent",
+      "SIBLING": "Frère / Sœur",
+      "OTHER": "Autre"
+    }
+  },
+  "leaves": {
+    "empty": "Aucun solde pour cette année",
+    "type": "Type",
+    "annee": "Année",
+    "acquis": "Acquis",
+    "pris": "Pris",
+    "solde": "Solde restant"
+  },
+  "paymentModes": {
+    "BANK_TRANSFER": "Virement bancaire",
+    "MOBILE_MONEY": "Mobile money",
+    "CASH": "Espèces",
+    "CHECK": "Chèque"
+  },
+  "operators": {
+    "MTN": "MTN Mobile Money",
+    "ORANGE": "Orange Money",
+    "EU_MOBILE": "EU Mobile",
+    "YOOMEE": "Yoomee Cash"
+  }
+}
