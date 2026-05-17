@@ -113,4 +113,33 @@ test.describe("Visual snapshots", () => {
     await page.waitForLoadState("networkidle");
     await page.screenshot({ path: "tests/e2e/screenshots/expenses-approve.png", fullPage: true });
   });
+
+  test("FR payroll runs (Phase 5)", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await login(page);
+    await page.goto("/payroll");
+    await page.waitForLoadState("networkidle");
+    await page.screenshot({ path: "tests/e2e/screenshots/payroll-runs.png", fullPage: true });
+  });
+
+  test("FR payroll run detail (Phase 5)", async ({ page, request }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await login(page);
+    const runs = await page.request.get("/api/hrm/payroll/runs");
+    const data = await runs.json();
+    const valid = data.data?.find((r: { nbEmployes: number }) => r.nbEmployes > 0);
+    if (valid) {
+      await page.goto(`/payroll/runs/${valid.id}`);
+      await page.waitForLoadState("networkidle");
+      await page.screenshot({ path: "tests/e2e/screenshots/payroll-run-detail.png", fullPage: true });
+    }
+  });
+
+  test("FR approve loans (Phase 5)", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await login(page);
+    await page.goto("/loans/approve");
+    await page.waitForLoadState("networkidle");
+    await page.screenshot({ path: "tests/e2e/screenshots/approve-loans.png", fullPage: true });
+  });
 });

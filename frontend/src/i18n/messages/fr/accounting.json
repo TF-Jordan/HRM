@@ -1,0 +1,68 @@
+{
+  "payroll": {
+    "title": "Cycles de paie",
+    "subtitle": "Lancer, valider et suivre les cycles de paie de l'organisation",
+    "newButton": "Lancer un cycle",
+    "empty": "Aucun cycle de paie",
+    "table": {
+      "periode": "Période",
+      "nbEmployes": "Employés",
+      "totalBrut": "Total brut",
+      "totalNet": "Total net",
+      "status": "Statut",
+      "calculatedAt": "Calculé le"
+    },
+    "form": {
+      "periode": "Période (YYYY-MM)",
+      "submit": "Lancer le calcul"
+    },
+    "detail": {
+      "validate": "Valider la paie",
+      "summary": "Récapitulatif",
+      "totalBrut": "Total brut",
+      "totalNet": "Total net",
+      "totalCnpsEmploye": "CNPS salarié",
+      "totalCnpsEmployeur": "CNPS employeur",
+      "totalIrpp": "IRPP",
+      "nbEmployes": "Effectif paie",
+      "entries": "Bulletins individuels",
+      "entryTable": {
+        "employee": "Employé",
+        "salaireBase": "Salaire base",
+        "brut": "Brut",
+        "cotisations": "Cotisations",
+        "impots": "Impôts",
+        "primes": "Primes",
+        "retenues": "Retenues",
+        "avances": "Avances",
+        "net": "Net",
+        "paymentStatus": "Paiement"
+      }
+    }
+  },
+  "payslip": {
+    "title": "Bulletin de paie",
+    "type": {
+      "EARNING": "Gain",
+      "DEDUCTION": "Retenue",
+      "EMPLOYER_CHARGE": "Charge employeur",
+      "TAX": "Impôt",
+      "INFO": "Info"
+    },
+    "table": {
+      "libelle": "Libellé",
+      "base": "Base",
+      "taux": "Taux",
+      "montant": "Montant"
+    }
+  },
+  "pendingLoans": {
+    "title": "Avances à approuver",
+    "subtitle": "Demandes d'avances sur salaire en attente",
+    "empty": "Aucune demande en attente",
+    "approve": "Approuver",
+    "reject": "Rejeter",
+    "rejectTitle": "Rejeter la demande",
+    "motif": "Motif"
+  }
+}

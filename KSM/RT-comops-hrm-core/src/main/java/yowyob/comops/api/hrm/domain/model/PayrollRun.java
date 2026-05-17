@@ -48,8 +48,16 @@ public final class PayrollRun extends BaseEntity {
                                      BigDecimal totalBrut, BigDecimal totalNet,
                                      BigDecimal totalCnpsEmploye, BigDecimal totalCnpsEmployeur,
                                      BigDecimal totalIrpp, int nbEmployes) {
+        return create(UUID.randomUUID(), tenantId, organizationId, agencyId, periode, totalBrut,
+                totalNet, totalCnpsEmploye, totalCnpsEmployeur, totalIrpp, nbEmployes);
+    }
+
+    public static PayrollRun create(UUID id, UUID tenantId, UUID organizationId, UUID agencyId,
+                                     String periode, BigDecimal totalBrut, BigDecimal totalNet,
+                                     BigDecimal totalCnpsEmploye, BigDecimal totalCnpsEmployeur,
+                                     BigDecimal totalIrpp, int nbEmployes) {
         Instant now = Instant.now();
-        return new PayrollRun(UUID.randomUUID(), tenantId, now, now, organizationId, agencyId, periode,
+        return new PayrollRun(id, tenantId, now, now, organizationId, agencyId, periode,
                 PayrollRunStatus.CALCULATED, totalBrut, totalNet, totalCnpsEmploye, totalCnpsEmployeur,
                 totalIrpp, nbEmployes, now, null, null);
     }
@@ -62,6 +70,14 @@ public final class PayrollRun extends BaseEntity {
                                         UUID validatedBy, Instant validatedAt) {
         return new PayrollRun(id, tenantId, createdAt, updatedAt, organizationId, agencyId, periode,
                 status, totalBrut, totalNet, totalCnpsEmploye, totalCnpsEmployeur, totalIrpp,
+                nbEmployes, calculatedAt, validatedBy, validatedAt);
+    }
+
+    public PayrollRun withTotals(BigDecimal totalBrut, BigDecimal totalNet,
+                                   BigDecimal totalCnpsEmploye, BigDecimal totalCnpsEmployeur,
+                                   BigDecimal totalIrpp, int nbEmployes) {
+        return new PayrollRun(id(), tenantId(), createdAt(), Instant.now(), organizationId, agencyId,
+                periode, status, totalBrut, totalNet, totalCnpsEmploye, totalCnpsEmployeur, totalIrpp,
                 nbEmployes, calculatedAt, validatedBy, validatedAt);
     }
 

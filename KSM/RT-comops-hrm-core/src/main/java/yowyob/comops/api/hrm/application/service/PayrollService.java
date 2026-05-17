@@ -89,10 +89,23 @@ public class PayrollService implements RunPayrollUseCase {
 
                             UUID runId = UUID.randomUUID();
 
-                            return Flux.fromIterable(empList)
-                                    .flatMap(emp -> calculateForEmployee(tenantId, orgId, runId, emp))
-                                    .collectList()
-                                    .flatMap(entries -> {
+                            // Persist the run first (with zero totals) so child PayrollEntry
+                            // inserts satisfy the foreign key constraint, then update totals
+                            // after all entries have been calculated.
+                            PayrollRun draftRun = PayrollRun.create(runId, tenantId, orgId, agencyId, periode,
+                                    BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO,
+                                    BigDecimal.ZERO, 0);
+
+                            return payrollRunRepository.save(draftRun)
+                                    .flatMap(savedDraft -> Flux.fromIterable(empList)
+                                            .concatMap(emp -> calculateForEmployee(tenantId, orgId, runId, emp))
+                                            .collectList()
+                                            .map(entries -> new Object() {
+                                                final PayrollRun run = savedDraft;
+                                                final java.util.List<PayrollEntry> e = entries;
+                                            }))
+                                    .flatMap(ctx -> {
+                                        var entries = ctx.e;
                                         BigDecimal totalBrut = entries.stream().map(PayrollEntry::brut)
                                                 .reduce(BigDecimal.ZERO, BigDecimal::add);
                                         BigDecimal totalNet = entries.stream().map(PayrollEntry::net)
@@ -104,8 +117,8 @@ public class PayrollService implements RunPayrollUseCase {
                                         BigDecimal totalIrpp = entries.stream().map(PayrollEntry::irpp)
                                                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-                                        PayrollRun run = PayrollRun.create(tenantId, orgId, agencyId, periode,
-                                                totalBrut, totalNet, totalCnpsE, totalCnpsR, totalIrpp, entries.size());
+                                        PayrollRun run = ctx.run.withTotals(totalBrut, totalNet,
+                                                totalCnpsE, totalCnpsR, totalIrpp, entries.size());
 
                                         return payrollRunRepository.save(run)
                                                 .flatMap(saved -> businessEventPublisher.publish(

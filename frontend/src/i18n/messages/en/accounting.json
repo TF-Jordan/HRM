@@ -1,0 +1,68 @@
+{
+  "payroll": {
+    "title": "Payroll cycles",
+    "subtitle": "Launch, validate and track the organisation's payroll cycles",
+    "newButton": "Launch cycle",
+    "empty": "No payroll cycle",
+    "table": {
+      "periode": "Period",
+      "nbEmployes": "Employees",
+      "totalBrut": "Total gross",
+      "totalNet": "Total net",
+      "status": "Status",
+      "calculatedAt": "Calculated"
+    },
+    "form": {
+      "periode": "Period (YYYY-MM)",
+      "submit": "Launch calculation"
+    },
+    "detail": {
+      "validate": "Validate payroll",
+      "summary": "Summary",
+      "totalBrut": "Total gross",
+      "totalNet": "Total net",
+      "totalCnpsEmploye": "CNPS employee",
+      "totalCnpsEmployeur": "CNPS employer",
+      "totalIrpp": "Income tax",
+      "nbEmployes": "Payroll headcount",
+      "entries": "Individual payslips",
+      "entryTable": {
+        "employee": "Employee",
+        "salaireBase": "Base salary",
+        "brut": "Gross",
+        "cotisations": "Contributions",
+        "impots": "Taxes",
+        "primes": "Bonuses",
+        "retenues": "Deductions",
+        "avances": "Advances",
+        "net": "Net",
+        "paymentStatus": "Payment"
+      }
+    }
+  },
+  "payslip": {
+    "title": "Payslip",
+    "type": {
+      "EARNING": "Earning",
+      "DEDUCTION": "Deduction",
+      "EMPLOYER_CHARGE": "Employer charge",
+      "TAX": "Tax",
+      "INFO": "Info"
+    },
+    "table": {
+      "libelle": "Label",
+      "base": "Base",
+      "taux": "Rate",
+      "montant": "Amount"
+    }
+  },
+  "pendingLoans": {
+    "title": "Advances to approve",
+    "subtitle": "Pending salary advance requests",
+    "empty": "No pending request",
+    "approve": "Approve",
+    "reject": "Reject",
+    "rejectTitle": "Reject request",
+    "motif": "Reason"
+  }
+}

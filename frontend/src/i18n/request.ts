@@ -17,6 +17,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
     employees,
     selfService,
     manager,
+    accounting,
   ] = await Promise.all([
     import(`./messages/${locale}/common.json`).then((m) => m.default),
     import(`./messages/${locale}/auth.json`).then((m) => m.default),
@@ -28,6 +29,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
     import(`./messages/${locale}/employees.json`).then((m) => m.default),
     import(`./messages/${locale}/self-service.json`).then((m) => m.default),
     import(`./messages/${locale}/manager.json`).then((m) => m.default),
+    import(`./messages/${locale}/accounting.json`).then((m) => m.default),
   ]);
 
   return {
@@ -43,6 +45,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
       employees,
       selfService,
       manager,
+      accounting,
     },
     timeZone: "Africa/Douala",
   };

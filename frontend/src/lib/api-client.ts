@@ -64,10 +64,12 @@ export const queryKeys = {
     employeeTimesheets: (employeeId: string, periode: string | null) =>
       ["hrm", "employees", employeeId, "timesheets", periode] as const,
     payrollRuns: () => ["hrm", "payroll", "runs"] as const,
+    payrollRun: (id: string) => ["hrm", "payroll", "runs", id] as const,
     payrollEntries: (runId: string) =>
       ["hrm", "payroll", "runs", runId, "entries"] as const,
     payslipLines: (entryId: string) =>
       ["hrm", "payroll", "entries", entryId, "payslip"] as const,
+    pendingLoans: () => ["hrm", "loans", "pending"] as const,
     pendingLeaves: () => ["hrm", "leaves", "pending"] as const,
     orgTimesheets: (periode: string | null) => ["hrm", "timesheets", "org", periode] as const,
     employeeMissions: (employeeId: string) =>
