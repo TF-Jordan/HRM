@@ -46,8 +46,39 @@ test.describe("Visual snapshots", () => {
     await page.locator("table tbody tr").first().waitFor({ state: "visible" });
     await page.locator("table tbody tr").first().click();
     await page.waitForURL(/\/employees\/[0-9a-f-]+$/);
-    // Wait for the matricule (mono font) to appear — proves data loaded
     await page.locator("text=/HRC-[0-9]+/").first().waitFor({ state: "visible" });
     await page.screenshot({ path: "tests/e2e/screenshots/employee-detail.png", fullPage: true });
+  });
+
+  test("FR my leaves (Phase 3)", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await login(page);
+    await page.goto("/leaves/my");
+    await page.waitForLoadState("networkidle");
+    await page.screenshot({ path: "tests/e2e/screenshots/my-leaves.png", fullPage: true });
+  });
+
+  test("FR my loans (Phase 3)", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await login(page);
+    await page.goto("/loans/my");
+    await page.waitForLoadState("networkidle");
+    await page.screenshot({ path: "tests/e2e/screenshots/my-loans.png", fullPage: true });
+  });
+
+  test("FR my expenses (Phase 3)", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await login(page);
+    await page.goto("/expenses/my");
+    await page.waitForLoadState("networkidle");
+    await page.screenshot({ path: "tests/e2e/screenshots/my-expenses.png", fullPage: true });
+  });
+
+  test("FR my profile (Phase 3)", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await login(page);
+    await page.goto("/me/profile");
+    await page.waitForLoadState("networkidle");
+    await page.screenshot({ path: "tests/e2e/screenshots/my-profile.png", fullPage: true });
   });
 });

@@ -25,9 +25,11 @@ export async function GET() {
   }
   return NextResponse.json({
     success: true,
-    user: session.user,
-    context: session.context,
-    permissions,
-    expiresAt: session.expiresAt,
+    data: {
+      user: session.user,
+      context: session.context,
+      permissions,
+      expiresAt: session.expiresAt,
+    },
   });
 }

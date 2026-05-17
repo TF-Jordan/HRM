@@ -52,5 +52,21 @@ export const queryKeys = {
       ["hrm", "employees", employeeId, "dependents"] as const,
     leaveBalances: (employeeId: string, annee: number) =>
       ["hrm", "employees", employeeId, "leave-balances", annee] as const,
+    meEmployee: () => ["hrm", "me", "employee"] as const,
+    employeeLeaves: (employeeId: string) =>
+      ["hrm", "employees", employeeId, "leaves"] as const,
+    employeeLoans: (employeeId: string) =>
+      ["hrm", "employees", employeeId, "loans"] as const,
+    employeeExpenses: (employeeId: string) =>
+      ["hrm", "expenses", "by-employee", employeeId] as const,
+    expense: (id: string) => ["hrm", "expenses", id] as const,
+    expenseLines: (id: string) => ["hrm", "expenses", id, "lines"] as const,
+    employeeTimesheets: (employeeId: string, periode: string | null) =>
+      ["hrm", "employees", employeeId, "timesheets", periode] as const,
+    payrollRuns: () => ["hrm", "payroll", "runs"] as const,
+    payrollEntries: (runId: string) =>
+      ["hrm", "payroll", "runs", runId, "entries"] as const,
+    payslipLines: (entryId: string) =>
+      ["hrm", "payroll", "entries", entryId, "payslip"] as const,
   },
 };

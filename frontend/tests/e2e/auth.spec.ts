@@ -26,8 +26,8 @@ test.describe("Phase 1 — auth flow", () => {
     expect(meRes.status()).toBe(200);
     const body = await meRes.json();
     expect(body.success).toBe(true);
-    expect(body.user.email).toBe("admin@hrcore.local");
-    expect(body.permissions.length).toBeGreaterThan(40);
+    expect(body.data.user.email).toBe("admin@hrcore.local");
+    expect(body.data.permissions.length).toBeGreaterThan(40);
   });
 
   test("logout clears the session", async ({ page }) => {

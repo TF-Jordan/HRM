@@ -1,0 +1,111 @@
+{
+  "notEmployee": {
+    "title": "Pas de fiche employé",
+    "subtitle": "Votre compte n'est rattaché à aucune fiche employé dans cette organisation. Contactez un administrateur RH."
+  },
+  "leaves": {
+    "title": "Mes congés",
+    "subtitle": "Soumettre, suivre et annuler vos demandes de congés",
+    "newButton": "Nouvelle demande",
+    "empty": "Aucune demande de congé",
+    "table": {
+      "type": "Type",
+      "dateDebut": "Début",
+      "dateFin": "Fin",
+      "jours": "Jours",
+      "motif": "Motif",
+      "status": "Statut",
+      "actions": ""
+    },
+    "form": {
+      "type": "Type de congé",
+      "dateDebut": "Date de début",
+      "dateFin": "Date de fin",
+      "motif": "Motif (optionnel)",
+      "submit": "Soumettre la demande",
+      "cancel": "Annuler",
+      "cancelTitle": "Annuler la demande",
+      "cancelDescription": "Cette demande sera marquée CANCELLED."
+    }
+  },
+  "loans": {
+    "title": "Mes avances & prêts",
+    "subtitle": "Demander une avance sur salaire et suivre le remboursement",
+    "newButton": "Nouvelle demande",
+    "empty": "Aucune demande d'avance",
+    "table": {
+      "montant": "Montant",
+      "nbMois": "Étalement",
+      "motif": "Motif",
+      "soldeRestant": "Solde restant",
+      "status": "Statut"
+    },
+    "form": {
+      "montant": "Montant demandé (XAF)",
+      "nbMois": "Nombre de mois d'étalement",
+      "motif": "Motif",
+      "submit": "Soumettre la demande"
+    }
+  },
+  "expenses": {
+    "title": "Mes notes de frais",
+    "subtitle": "Saisir vos notes de frais et joindre les justificatifs",
+    "newButton": "Nouvelle note",
+    "empty": "Aucune note de frais",
+    "table": {
+      "titre": "Titre",
+      "total": "Total",
+      "dateSoumission": "Soumission",
+      "status": "Statut"
+    },
+    "form": {
+      "titre": "Titre",
+      "submit": "Créer le brouillon"
+    },
+    "detail": {
+      "addLine": "Ajouter une ligne",
+      "submit": "Soumettre la note",
+      "linesEmpty": "Aucune ligne de dépense",
+      "category": "Catégorie",
+      "description": "Description",
+      "date": "Date",
+      "montant": "Montant (XAF)"
+    },
+    "categories": {
+      "TRANSPORT": "Transport",
+      "MEAL": "Repas",
+      "HOTEL": "Hôtel",
+      "SUPPLIES": "Fournitures",
+      "MEDICAL": "Médical",
+      "OTHER": "Autre"
+    }
+  },
+  "timesheets": {
+    "title": "Mes temps",
+    "subtitle": "Saisir vos heures travaillées et soumettre vos feuilles de temps",
+    "newButton": "Nouvelle feuille",
+    "empty": "Aucune feuille de temps",
+    "table": {
+      "periode": "Période",
+      "totalHeures": "Heures",
+      "totalHeuresSup": "Heures sup.",
+      "status": "Statut"
+    }
+  },
+  "payroll": {
+    "title": "Mes bulletins de paie",
+    "subtitle": "Consulter et télécharger vos bulletins",
+    "empty": "Aucun bulletin disponible",
+    "table": {
+      "periode": "Période",
+      "brut": "Brut",
+      "cotisations": "Cotisations",
+      "impots": "Impôts",
+      "net": "Net"
+    }
+  },
+  "profile": {
+    "title": "Mon profil",
+    "subtitle": "Vos informations personnelles et professionnelles"
+  }
+}

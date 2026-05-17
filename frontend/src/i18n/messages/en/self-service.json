@@ -1,0 +1,111 @@
+{
+  "notEmployee": {
+    "title": "No employee record",
+    "subtitle": "Your account is not linked to an employee in this organisation. Contact your HR administrator."
+  },
+  "leaves": {
+    "title": "My leaves",
+    "subtitle": "Submit, track and cancel your leave requests",
+    "newButton": "New request",
+    "empty": "No leave request",
+    "table": {
+      "type": "Type",
+      "dateDebut": "Start",
+      "dateFin": "End",
+      "jours": "Days",
+      "motif": "Reason",
+      "status": "Status",
+      "actions": ""
+    },
+    "form": {
+      "type": "Leave type",
+      "dateDebut": "Start date",
+      "dateFin": "End date",
+      "motif": "Reason (optional)",
+      "submit": "Submit request",
+      "cancel": "Cancel",
+      "cancelTitle": "Cancel request",
+      "cancelDescription": "This request will be marked CANCELLED."
+    }
+  },
+  "loans": {
+    "title": "My advances & loans",
+    "subtitle": "Request a salary advance and track repayment",
+    "newButton": "New request",
+    "empty": "No loan request",
+    "table": {
+      "montant": "Amount",
+      "nbMois": "Months",
+      "motif": "Reason",
+      "soldeRestant": "Remaining",
+      "status": "Status"
+    },
+    "form": {
+      "montant": "Requested amount (XAF)",
+      "nbMois": "Repayment months",
+      "motif": "Reason",
+      "submit": "Submit request"
+    }
+  },
+  "expenses": {
+    "title": "My expense reports",
+    "subtitle": "Submit expense reports with receipts",
+    "newButton": "New report",
+    "empty": "No expense report",
+    "table": {
+      "titre": "Title",
+      "total": "Total",
+      "dateSoumission": "Submitted",
+      "status": "Status"
+    },
+    "form": {
+      "titre": "Title",
+      "submit": "Create draft"
+    },
+    "detail": {
+      "addLine": "Add line",
+      "submit": "Submit report",
+      "linesEmpty": "No expense line",
+      "category": "Category",
+      "description": "Description",
+      "date": "Date",
+      "montant": "Amount (XAF)"
+    },
+    "categories": {
+      "TRANSPORT": "Transport",
+      "MEAL": "Meal",
+      "HOTEL": "Hotel",
+      "SUPPLIES": "Supplies",
+      "MEDICAL": "Medical",
+      "OTHER": "Other"
+    }
+  },
+  "timesheets": {
+    "title": "My timesheets",
+    "subtitle": "Enter your worked hours and submit timesheets",
+    "newButton": "New timesheet",
+    "empty": "No timesheet",
+    "table": {
+      "periode": "Period",
+      "totalHeures": "Hours",
+      "totalHeuresSup": "Overtime",
+      "status": "Status"
+    }
+  },
+  "payroll": {
+    "title": "My payslips",
+    "subtitle": "View and download your payslips",
+    "empty": "No payslip yet",
+    "table": {
+      "periode": "Period",
+      "brut": "Gross",
+      "cotisations": "Contributions",
+      "impots": "Taxes",
+      "net": "Net"
+    }
+  },
+  "profile": {
+    "title": "My profile",
+    "subtitle": "Your personal and professional information"
+  }
+}
