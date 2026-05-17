@@ -1,0 +1,91 @@
+{
+  "pendingLeaves": {
+    "title": "Pending leaves",
+    "subtitle": "Approve or reject your team's leave requests",
+    "empty": "No pending requests",
+    "table": {
+      "employee": "Employee",
+      "type": "Type",
+      "dateDebut": "Start",
+      "dateFin": "End",
+      "jours": "Days",
+      "motif": "Reason",
+      "actions": ""
+    },
+    "approve": "Approve",
+    "reject": "Reject",
+    "rejectTitle": "Reject request",
+    "rejectDescription": "Provide a clear reason for the employee.",
+    "commentaire": "Comment"
+  },
+  "orgTimesheets": {
+    "title": "Timesheets",
+    "subtitle": "Validate submitted timesheets",
+    "empty": "No timesheet",
+    "validate": "Validate"
+  },
+  "missions": {
+    "title": "Mission orders",
+    "subtitle": "Create and track mission orders",
+    "newButton": "New mission",
+    "empty": "No mission order",
+    "table": {
+      "destination": "Destination",
+      "objet": "Purpose",
+      "dateDebut": "Start",
+      "dateFin": "End",
+      "montantAvance": "Advance",
+      "status": "Status"
+    },
+    "form": {
+      "employeeId": "Employee (ID)",
+      "destination": "Destination",
+      "objet": "Purpose",
+      "dateDebut": "Start date",
+      "dateFin": "End date",
+      "montantAvance": "Advance (XAF)",
+      "centreCout": "Cost center",
+      "submit": "Create mission"
+    },
+    "actions": {
+      "approve": "Approve",
+      "start": "Start",
+      "complete": "Complete",
+      "cancel": "Cancel"
+    }
+  },
+  "expensesApprove": {
+    "title": "Expenses to approve",
+    "subtitle": "Review and approve submitted expense reports",
+    "empty": "No pending expense report",
+    "approve": "Approve",
+    "reject": "Reject",
+    "reimburse": "Reimburse"
+  },
+  "reviews": {
+    "title": "Performance reviews",
+    "subtitle": "Create and track your team's reviews",
+    "newButton": "New review",
+    "empty": "No review",
+    "table": {
+      "periode": "Period",
+      "note": "Global score",
+      "status": "Status"
+    },
+    "form": {
+      "employeeId": "Employee (ID)",
+      "periode": "Period (e.g. 2025-Q1)",
+      "submit": "Create"
+    },
+    "detail": {
+      "objectives": "Objectives",
+      "addObjective": "Add objective",
+      "submit": "Submit review",
+      "acknowledge": "Acknowledge",
+      "finalize": "Finalize",
+      "noteGlobale": "Global score (out of 20)",
+      "commentaires": "Comments",
+      "planAction": "Action plan"
+    }
+  }
+}

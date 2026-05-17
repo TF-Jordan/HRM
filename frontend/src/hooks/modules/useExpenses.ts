@@ -75,3 +75,12 @@ export function useSubmitExpense(employeeId: string | undefined) {
     },
   });
 }
+
+export function useExpenseTransition() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, action }: { id: string; action: "approve" | "reject" | "reimburse" }) =>
+      bffFetch<ExpenseReport>(`/api/hrm/expenses/${id}/${action}`, { method: "PUT" }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["hrm", "expenses"] }),
+  });
+}

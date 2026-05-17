@@ -1,0 +1,91 @@
+{
+  "pendingLeaves": {
+    "title": "Congés en attente",
+    "subtitle": "Approuver ou rejeter les demandes de congés de votre équipe",
+    "empty": "Aucune demande en attente",
+    "table": {
+      "employee": "Employé",
+      "type": "Type",
+      "dateDebut": "Début",
+      "dateFin": "Fin",
+      "jours": "Jours",
+      "motif": "Motif",
+      "actions": ""
+    },
+    "approve": "Approuver",
+    "reject": "Rejeter",
+    "rejectTitle": "Rejeter la demande",
+    "rejectDescription": "Indiquer un motif clair pour l'employé.",
+    "commentaire": "Commentaire"
+  },
+  "orgTimesheets": {
+    "title": "Feuilles de temps",
+    "subtitle": "Valider les feuilles de temps soumises",
+    "empty": "Aucune feuille de temps",
+    "validate": "Valider"
+  },
+  "missions": {
+    "title": "Ordres de mission",
+    "subtitle": "Créer et suivre les ordres de mission",
+    "newButton": "Nouvel ordre",
+    "empty": "Aucun ordre de mission",
+    "table": {
+      "destination": "Destination",
+      "objet": "Objet",
+      "dateDebut": "Début",
+      "dateFin": "Fin",
+      "montantAvance": "Avance",
+      "status": "Statut"
+    },
+    "form": {
+      "employeeId": "Employé (ID)",
+      "destination": "Destination",
+      "objet": "Objet",
+      "dateDebut": "Date de début",
+      "dateFin": "Date de fin",
+      "montantAvance": "Avance (XAF)",
+      "centreCout": "Centre de coût",
+      "submit": "Créer l'ordre"
+    },
+    "actions": {
+      "approve": "Approuver",
+      "start": "Démarrer",
+      "complete": "Terminer",
+      "cancel": "Annuler"
+    }
+  },
+  "expensesApprove": {
+    "title": "Notes de frais à approuver",
+    "subtitle": "Examiner et approuver les notes de frais soumises",
+    "empty": "Aucune note de frais en attente",
+    "approve": "Approuver",
+    "reject": "Rejeter",
+    "reimburse": "Rembourser"
+  },
+  "reviews": {
+    "title": "Évaluations",
+    "subtitle": "Créer et suivre les évaluations de votre équipe",
+    "newButton": "Nouvelle évaluation",
+    "empty": "Aucune évaluation",
+    "table": {
+      "periode": "Période",
+      "note": "Note globale",
+      "status": "Statut"
+    },
+    "form": {
+      "employeeId": "Employé (ID)",
+      "periode": "Période (ex: 2025-Q1)",
+      "submit": "Créer"
+    },
+    "detail": {
+      "objectives": "Objectifs",
+      "addObjective": "Ajouter un objectif",
+      "submit": "Soumettre l'évaluation",
+      "acknowledge": "Acquitter",
+      "finalize": "Finaliser",
+      "noteGlobale": "Note globale (sur 20)",
+      "commentaires": "Commentaires",
+      "planAction": "Plan d'action"
+    }
+  }
+}

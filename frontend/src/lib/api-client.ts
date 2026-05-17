@@ -68,5 +68,13 @@ export const queryKeys = {
       ["hrm", "payroll", "runs", runId, "entries"] as const,
     payslipLines: (entryId: string) =>
       ["hrm", "payroll", "entries", entryId, "payslip"] as const,
+    pendingLeaves: () => ["hrm", "leaves", "pending"] as const,
+    orgTimesheets: (periode: string | null) => ["hrm", "timesheets", "org", periode] as const,
+    employeeMissions: (employeeId: string) =>
+      ["hrm", "employees", employeeId, "missions"] as const,
+    mission: (id: string) => ["hrm", "missions", id] as const,
+    reviews: (periode: string | null) => ["hrm", "reviews", periode] as const,
+    review: (id: string) => ["hrm", "reviews", id] as const,
+    reviewObjectives: (id: string) => ["hrm", "reviews", id, "objectives"] as const,
   },
 };

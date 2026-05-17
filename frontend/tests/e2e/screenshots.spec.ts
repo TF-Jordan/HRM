@@ -81,4 +81,36 @@ test.describe("Visual snapshots", () => {
     await page.waitForLoadState("networkidle");
     await page.screenshot({ path: "tests/e2e/screenshots/my-profile.png", fullPage: true });
   });
+
+  test("FR pending leaves (Phase 4)", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await login(page);
+    await page.goto("/leaves/pending");
+    await page.waitForLoadState("networkidle");
+    await page.screenshot({ path: "tests/e2e/screenshots/pending-leaves.png", fullPage: true });
+  });
+
+  test("FR mission orders (Phase 4)", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await login(page);
+    await page.goto("/mission-orders");
+    await page.waitForLoadState("networkidle");
+    await page.screenshot({ path: "tests/e2e/screenshots/mission-orders.png", fullPage: true });
+  });
+
+  test("FR reviews (Phase 4)", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await login(page);
+    await page.goto("/reviews");
+    await page.waitForLoadState("networkidle");
+    await page.screenshot({ path: "tests/e2e/screenshots/reviews.png", fullPage: true });
+  });
+
+  test("FR expenses approve (Phase 4)", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await login(page);
+    await page.goto("/expenses/approve");
+    await page.waitForLoadState("networkidle");
+    await page.screenshot({ path: "tests/e2e/screenshots/expenses-approve.png", fullPage: true });
+  });
 });
