@@ -142,4 +142,12 @@ test.describe("Visual snapshots", () => {
     await page.waitForLoadState("networkidle");
     await page.screenshot({ path: "tests/e2e/screenshots/approve-loans.png", fullPage: true });
   });
+
+  test("FR declarations (Phase 6)", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await login(page);
+    await page.goto("/declarations");
+    await page.waitForLoadState("networkidle");
+    await page.screenshot({ path: "tests/e2e/screenshots/declarations.png", fullPage: true });
+  });
 });

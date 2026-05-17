@@ -1,0 +1,49 @@
+{
+  "declarations": {
+    "title": "Social declarations",
+    "subtitle": "Produce and track CNPS, DIPE, IRPP/CAC, FNE, CFC",
+    "newButton": "New declaration",
+    "empty": "No declaration",
+    "table": {
+      "type": "Type",
+      "periode": "Period",
+      "format": "Format",
+      "status": "Status",
+      "generatedAt": "Generated",
+      "submittedAt": "Submitted"
+    },
+    "form": {
+      "type": "Authority",
+      "periode": "Period (YYYY-MM)",
+      "format": "Output format",
+      "submit": "Create declaration"
+    },
+    "detail": {
+      "generate": "Generate file",
+      "submit": "Submit",
+      "acknowledge": "Acknowledge",
+      "fichierId": "Generated file"
+    },
+    "types": {
+      "CNPS": "CNPS",
+      "DIPE": "DIPE",
+      "IRPP_CAC": "IRPP + CAC",
+      "FNE": "FNE",
+      "CFC": "CFC"
+    },
+    "formats": {
+      "CSV": "CSV",
+      "XML": "XML",
+      "EDI": "EDI",
+      "PDF": "PDF"
+    }
+  },
+  "timeVariables": {
+    "title": "Time variables",
+    "subtitle": "Timesheet consolidation for payroll",
+    "periodLabel": "Period",
+    "empty": "No timesheet for this period",
+    "totalHours": "Total hours",
+    "overtime": "Overtime"
+  }
+}

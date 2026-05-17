@@ -78,5 +78,7 @@ export const queryKeys = {
     reviews: (periode: string | null) => ["hrm", "reviews", periode] as const,
     review: (id: string) => ["hrm", "reviews", id] as const,
     reviewObjectives: (id: string) => ["hrm", "reviews", id, "objectives"] as const,
+    declarations: () => ["hrm", "declarations"] as const,
+    declaration: (id: string) => ["hrm", "declarations", id] as const,
   },
 };
