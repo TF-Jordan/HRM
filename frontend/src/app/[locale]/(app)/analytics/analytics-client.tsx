@@ -297,6 +297,63 @@ export function AnalyticsClient() {
   );
 }
 
+function delta(a: string | number, b: string | number): number | null {
+  const na = Number(a);
+  const nb = Number(b);
+  if (!Number.isFinite(na) || !Number.isFinite(nb) || nb === 0) return null;
+  return ((na - nb) / Math.abs(nb)) * 100;
+}
+
+function DeltaCard({
+  label,
+  refValue,
+  curValue,
+  formatter,
+  invert,
+}: {
+  label: string;
+  refValue: string | number;
+  curValue: string | number;
+  formatter: (v: string | number) => string;
+  invert?: boolean;
+}) {
+  const d = delta(curValue, refValue);
+  const positive = d != null && (invert ? d < 0 : d > 0);
+  const negative = d != null && (invert ? d > 0 : d < 0);
+  return (
+    <Card>
+      <CardContent className="space-y-1 p-4">
+        <div className="text-[11px] font-semibold uppercase tracking-wide text-ink-4">
+          {label}
+        </div>
+        <div className="flex items-baseline gap-2">
+          <span className="font-display text-[22px] font-bold tabular text-ink">
+            {formatter(curValue)}
+          </span>
+          <span className="text-[11.5px] text-ink-3 tabular">
+            ({formatter(refValue)})
+          </span>
+        </div>
+        {d != null && (
+          <div
+            className={
+              "text-[12px] font-semibold tabular " +
+              (positive
+                ? "text-status-green-600"
+                : negative
+                  ? "text-status-red-600"
+                  : "text-ink-3")
+            }
+          >
+            {d > 0 ? "+" : ""}
+            {d.toFixed(2)}%
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 function ComparisonPanel({ snapshots }: { snapshots: RhKpiSnapshot[] }) {
   const t = useTranslations("analytics");
   const fmt = useFormat();
@@ -305,63 +362,6 @@ function ComparisonPanel({ snapshots }: { snapshots: RhKpiSnapshot[] }) {
 
   const ref = snapshots.find((s) => s.id === refId);
   const cur = snapshots.find((s) => s.id === curId);
-
-  const delta = (a: string | number, b: string | number) => {
-    const na = Number(a);
-    const nb = Number(b);
-    if (!Number.isFinite(na) || !Number.isFinite(nb) || nb === 0) return null;
-    return ((na - nb) / Math.abs(nb)) * 100;
-  };
-
-  const DeltaCard = ({
-    label,
-    refValue,
-    curValue,
-    formatter,
-    invert,
-  }: {
-    label: string;
-    refValue: string | number;
-    curValue: string | number;
-    formatter: (v: string | number) => string;
-    invert?: boolean;
-  }) => {
-    const d = delta(curValue, refValue);
-    const positive = d != null && (invert ? d < 0 : d > 0);
-    const negative = d != null && (invert ? d > 0 : d < 0);
-    return (
-      <Card>
-        <CardContent className="space-y-1 p-4">
-          <div className="text-[11px] font-semibold uppercase tracking-wide text-ink-4">
-            {label}
-          </div>
-          <div className="flex items-baseline gap-2">
-            <span className="font-display text-[22px] font-bold tabular text-ink">
-              {formatter(curValue)}
-            </span>
-            <span className="text-[11.5px] text-ink-3 tabular">
-              ({formatter(refValue)})
-            </span>
-          </div>
-          {d != null && (
-            <div
-              className={
-                "text-[12px] font-semibold tabular " +
-                (positive
-                  ? "text-status-green-600"
-                  : negative
-                    ? "text-status-red-600"
-                    : "text-ink-3")
-              }
-            >
-              {d > 0 ? "+" : ""}
-              {d.toFixed(2)}%
-            </div>
-          )}
-        </CardContent>
-      </Card>
-    );
-  };
 
   return (
     <Card>

@@ -76,11 +76,7 @@ export function RecruitmentClient() {
     },
   });
 
-  React.useEffect(() => {
-    if (offers.data && !selectedOffer && offers.data.length > 0) {
-      setSelectedOffer(offers.data[0]!.id);
-    }
-  }, [offers.data, selectedOffer]);
+  const effectiveOffer = selectedOffer || (offers.data?.[0]?.id ?? "");
 
   return (
     <div className="space-y-6 animate-fade-up">
@@ -196,7 +192,7 @@ export function RecruitmentClient() {
           <Card>
             <CardContent className="flex items-center gap-3">
               <Label className="shrink-0">{t("applications.selectOffer")}</Label>
-              <Select value={selectedOffer} onValueChange={setSelectedOffer}>
+              <Select value={effectiveOffer} onValueChange={setSelectedOffer}>
                 <SelectTrigger className="max-w-lg">
                   <SelectValue placeholder="—" />
                 </SelectTrigger>
@@ -211,7 +207,7 @@ export function RecruitmentClient() {
             </CardContent>
           </Card>
 
-          {selectedOffer && <ApplicationsKanban jobOfferId={selectedOffer} />}
+          {effectiveOffer && <ApplicationsKanban jobOfferId={effectiveOffer} />}
         </TabsContent>
       </Tabs>
 

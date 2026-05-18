@@ -136,6 +136,55 @@ src/
   (`openssl rand -base64 48`).
 - Aucun mock côté frontend : tous les appels passent par le vrai KSM.
 
+## Déploiement (pré-prod / prod)
+
+### Build Docker (Next.js standalone)
+
+```bash
+docker build -t hrm-frontend:latest .
+docker run --rm -p 3000:3000 \
+  -e KSM_BASE_URL=https://ksm.example.com \
+  -e KSM_CLIENT_ID=<client-id> \
+  -e KSM_API_KEY=<api-key> \
+  -e SESSION_SECRET="$(openssl rand -base64 48)" \
+  hrm-frontend:latest
+```
+
+L'image (~180 MiB) embarque uniquement `.next/standalone` + `.next/static`
++ `public`. Le serveur écoute sur `0.0.0.0:3000`.
+
+### Variables d'environnement obligatoires en prod
+
+| Variable | Description |
+|---|---|
+| `KSM_BASE_URL` | URL HTTPS de KSM (ex: `https://ksm.example.com`) |
+| `KSM_CLIENT_ID` | `ClientApplication.clientId` enregistré côté KSM |
+| `KSM_API_KEY` | `ClientApplication.apiKey` (secret) |
+| `SESSION_SECRET` | >= 48 octets aléatoires pour signer le cookie session (HS256) |
+| `NODE_ENV` | `production` |
+
+### Checklist pré-prod
+
+- [ ] Cookie session : préfixe `__Host-` activable dès que TLS terminé (HTTPS direct, pas de proxy en clair)
+- [ ] `SESSION_SECRET` rotation policy documentée (la rotation invalide tous les sessions actives)
+- [ ] CSP headers à ajouter via `next.config.ts` selon politique
+- [ ] Reverse proxy : transmettre `X-Forwarded-For` + `X-Forwarded-Proto`
+- [ ] Vérifier `/api/health` → `{ ksm: { ok: true } }`
+- [ ] Healthcheck Docker : `HEALTHCHECK CMD wget -q -O /dev/null http://localhost:3000/api/health || exit 1`
+- [ ] Backup régulier de la base KSM (Postgres) — le frontend est stateless
+- [ ] Sessions store en mémoire : sticky sessions OU partager via Redis (TODO si scale-out)
+
+### CI
+
+`.github/workflows/frontend-ci.yml` exécute à chaque push/PR sur `frontend/**` :
+- `pnpm install --frozen-lockfile`
+- `pnpm lint` + `pnpm typecheck` + `pnpm test` (unit Vitest)
+- `docker build` validation (sans push)
+
+Les tests e2e Playwright ne sont **pas** dans la CI car ils requièrent
+KSM + Postgres + Redis + ES. Les exécuter localement ou dans un environnement
+de pre-merge avec stack complète.
+
 ## Statut Phase 0
 
 Phase 0 — bootstrap & infrastructure — est complète :

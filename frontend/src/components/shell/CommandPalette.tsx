@@ -37,16 +37,13 @@ const ITEMS: CommandItem[] = [
   { labelKey: "items.profile", href: "/me/profile", group: "navigation" },
 ];
 
-export function CommandPalette({
-  open,
-  onOpenChange,
+function PaletteBody({
+  onSelect,
 }: {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+  onSelect: (href: string) => void;
 }) {
   const tNav = useTranslations("navigation");
   const tCommon = useTranslations("common");
-  const router = useRouter();
   const [query, setQuery] = React.useState("");
   const [activeIndex, setActiveIndex] = React.useState(0);
 
@@ -56,18 +53,78 @@ export function CommandPalette({
     return ITEMS.filter((item) => tNav(item.labelKey).toLowerCase().includes(q));
   }, [query, tNav]);
 
-  React.useEffect(() => {
+  const clampedIndex = Math.min(activeIndex, Math.max(0, filtered.length - 1));
+
+  const handleQueryChange = (v: string) => {
+    setQuery(v);
     setActiveIndex(0);
-  }, [query]);
+  };
 
-  React.useEffect(() => {
-    if (!open) {
-      setQuery("");
-      setActiveIndex(0);
+  const handleKey = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setActiveIndex(Math.min(filtered.length - 1, clampedIndex + 1));
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setActiveIndex(Math.max(0, clampedIndex - 1));
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      const target = filtered[clampedIndex];
+      if (target) onSelect(target.href);
     }
-  }, [open]);
+  };
 
-  const go = React.useCallback(
+  return (
+    <>
+      <div className="border-b border-line px-4 py-3" onKeyDown={handleKey}>
+        <div className="flex items-center gap-2">
+          <Search className="size-4 text-ink-3" />
+          <input
+            autoFocus
+            value={query}
+            onChange={(e) => handleQueryChange(e.target.value)}
+            placeholder={tCommon("search")}
+            aria-label={tCommon("search")}
+            className="grow border-none bg-transparent text-[14px] text-ink outline-none placeholder:text-ink-4"
+          />
+        </div>
+      </div>
+      <div className="max-h-[60vh] overflow-y-auto py-1" onKeyDown={handleKey} tabIndex={-1}>
+        {filtered.length === 0 && (
+          <div className="py-6 text-center text-sm text-ink-3">{tCommon("noResults")}</div>
+        )}
+        {filtered.map((item, i) => (
+          <button
+            key={item.href}
+            type="button"
+            onClick={() => onSelect(item.href)}
+            onMouseEnter={() => setActiveIndex(i)}
+            className={
+              "block w-full px-4 py-2.5 text-left text-[13.5px] transition-colors " +
+              (i === clampedIndex
+                ? "bg-brand-50 text-brand-700"
+                : "text-ink-2 hover:bg-cream-soft")
+            }
+          >
+            {tNav(item.labelKey)}
+          </button>
+        ))}
+      </div>
+    </>
+  );
+}
+
+export function CommandPalette({
+  open,
+  onOpenChange,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}) {
+  const tCommon = useTranslations("common");
+  const router = useRouter();
+
+  const handleSelect = React.useCallback(
     (href: string) => {
       onOpenChange(false);
       router.push(href as never);
@@ -75,64 +132,13 @@ export function CommandPalette({
     [onOpenChange, router],
   );
 
-  const handleKey = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    if (e.key === "ArrowDown") {
-      e.preventDefault();
-      setActiveIndex((i) => Math.min(filtered.length - 1, i + 1));
-    } else if (e.key === "ArrowUp") {
-      e.preventDefault();
-      setActiveIndex((i) => Math.max(0, i - 1));
-    } else if (e.key === "Enter") {
-      e.preventDefault();
-      const target = filtered[activeIndex];
-      if (target) go(target.href);
-    }
-  };
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg p-0">
         <DialogHeader className="sr-only">
           <DialogTitle>{tCommon("search")}</DialogTitle>
         </DialogHeader>
-        <div className="border-b border-line px-4 py-3" onKeyDown={handleKey}>
-          <div className="flex items-center gap-2">
-            <Search className="size-4 text-ink-3" />
-            <input
-              autoFocus
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder={tCommon("search")}
-              aria-label={tCommon("search")}
-              className="grow border-none bg-transparent text-[14px] text-ink outline-none placeholder:text-ink-4"
-            />
-          </div>
-        </div>
-        <div
-          className="max-h-[60vh] overflow-y-auto py-1"
-          onKeyDown={handleKey}
-          tabIndex={-1}
-        >
-          {filtered.length === 0 && (
-            <div className="py-6 text-center text-sm text-ink-3">{tCommon("noResults")}</div>
-          )}
-          {filtered.map((item, i) => (
-            <button
-              key={item.href}
-              type="button"
-              onClick={() => go(item.href)}
-              onMouseEnter={() => setActiveIndex(i)}
-              className={
-                "block w-full px-4 py-2.5 text-left text-[13.5px] transition-colors " +
-                (i === activeIndex
-                  ? "bg-brand-50 text-brand-700"
-                  : "text-ink-2 hover:bg-cream-soft")
-              }
-            >
-              {tNav(item.labelKey)}
-            </button>
-          ))}
-        </div>
+        {open && <PaletteBody key="palette" onSelect={handleSelect} />}
       </DialogContent>
     </Dialog>
   );

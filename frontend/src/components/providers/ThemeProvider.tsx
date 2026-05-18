@@ -24,21 +24,20 @@ function applyClass(theme: Theme) {
   }
 }
 
+function readInitialTheme(): Theme {
+  if (typeof localStorage === "undefined") return "light";
+  return localStorage.getItem(STORAGE_KEY) === "dark" ? "dark" : "light";
+}
+
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = React.useState<Theme>("light");
+  const [theme, setThemeState] = React.useState<Theme>(readInitialTheme);
 
   React.useEffect(() => {
-    const stored = (typeof localStorage !== "undefined"
-      ? (localStorage.getItem(STORAGE_KEY) as Theme | null)
-      : null);
-    const initial: Theme = stored ?? "light";
-    setThemeState(initial);
-    applyClass(initial);
-  }, []);
+    applyClass(theme);
+  }, [theme]);
 
   const setTheme = React.useCallback((next: Theme) => {
     setThemeState(next);
-    applyClass(next);
     try {
       localStorage.setItem(STORAGE_KEY, next);
     } catch {
