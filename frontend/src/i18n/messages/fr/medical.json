@@ -1,0 +1,50 @@
+{
+  "title": "Suivi médical",
+  "subtitle": "Visites médicales et certificats par employé",
+  "tabs": {
+    "visits": "Visites médicales",
+    "certificates": "Certificats"
+  },
+  "selectEmployee": "Sélectionnez un employé",
+  "visits": {
+    "newButton": "Nouvelle visite",
+    "empty": "Aucune visite enregistrée",
+    "table": {
+      "dateVisite": "Date",
+      "medecin": "Médecin",
+      "resultat": "Aptitude",
+      "restrictions": "Restrictions",
+      "prochaineEcheance": "Prochaine échéance"
+    },
+    "form": {
+      "dateVisite": "Date de visite",
+      "medecin": "Médecin",
+      "resultatAptitude": "Résultat d'aptitude",
+      "restrictions": "Restrictions",
+      "prochaineEcheance": "Prochaine échéance",
+      "submit": "Enregistrer la visite"
+    },
+    "aptitudes": {
+      "APTE": "Apte",
+      "APTE_AVEC_RESTRICTIONS": "Apte avec restrictions",
+      "INAPTE_TEMPORAIRE": "Inapte temporaire"
+    }
+  },
+  "certificates": {
+    "newButton": "Nouveau certificat",
+    "empty": "Aucun certificat",
+    "table": {
+      "typeCertificat": "Type",
+      "dateEmission": "Date d'émission",
+      "dateExpiration": "Date d'expiration",
+      "statut": "Statut"
+    },
+    "form": {
+      "typeCertificat": "Type de certificat",
+      "dateEmission": "Date d'émission",
+      "dateExpiration": "Date d'expiration",
+      "statut": "Statut",
+      "submit": "Créer le certificat"
+    }
+  }
+}

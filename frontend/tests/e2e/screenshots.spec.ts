@@ -199,4 +199,23 @@ test.describe("Visual snapshots", () => {
     await page.waitForLoadState("networkidle");
     await page.screenshot({ path: "tests/e2e/screenshots/analytics.png", fullPage: true });
   });
+
+  test("FR medical empty (Phase 9)", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await login(page);
+    await page.goto("/medical");
+    await page.waitForLoadState("networkidle");
+    await page.screenshot({ path: "tests/e2e/screenshots/medical.png", fullPage: true });
+  });
+
+  test("FR medical with visits (Phase 9)", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await login(page);
+    await page.goto("/medical");
+    await page.waitForLoadState("networkidle");
+    await page.getByRole("combobox").first().click();
+    await page.getByRole("option").first().click();
+    await page.waitForLoadState("networkidle");
+    await page.screenshot({ path: "tests/e2e/screenshots/medical-visits.png", fullPage: true });
+  });
 });

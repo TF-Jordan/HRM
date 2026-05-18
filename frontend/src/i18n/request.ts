@@ -24,6 +24,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
     trainingBudgets,
     skills,
     analytics,
+    medical,
   ] = await Promise.all([
     import(`./messages/${locale}/common.json`).then((m) => m.default),
     import(`./messages/${locale}/auth.json`).then((m) => m.default),
@@ -42,6 +43,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
     import(`./messages/${locale}/training-budgets.json`).then((m) => m.default),
     import(`./messages/${locale}/skills.json`).then((m) => m.default),
     import(`./messages/${locale}/analytics.json`).then((m) => m.default),
+    import(`./messages/${locale}/medical.json`).then((m) => m.default),
   ]);
 
   return {
@@ -64,6 +66,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
       trainingBudgets,
       skills,
       analytics,
+      medical,
     },
     timeZone: "Africa/Douala",
   };

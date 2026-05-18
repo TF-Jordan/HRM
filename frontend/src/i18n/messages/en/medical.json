@@ -1,0 +1,50 @@
+{
+  "title": "Occupational health",
+  "subtitle": "Medical visits and certificates per employee",
+  "tabs": {
+    "visits": "Medical visits",
+    "certificates": "Certificates"
+  },
+  "selectEmployee": "Select an employee",
+  "visits": {
+    "newButton": "New visit",
+    "empty": "No visit recorded",
+    "table": {
+      "dateVisite": "Date",
+      "medecin": "Doctor",
+      "resultat": "Fitness",
+      "restrictions": "Restrictions",
+      "prochaineEcheance": "Next due date"
+    },
+    "form": {
+      "dateVisite": "Visit date",
+      "medecin": "Doctor",
+      "resultatAptitude": "Fitness result",
+      "restrictions": "Restrictions",
+      "prochaineEcheance": "Next due date",
+      "submit": "Save visit"
+    },
+    "aptitudes": {
+      "APTE": "Fit",
+      "APTE_AVEC_RESTRICTIONS": "Fit with restrictions",
+      "INAPTE_TEMPORAIRE": "Temporarily unfit"
+    }
+  },
+  "certificates": {
+    "newButton": "New certificate",
+    "empty": "No certificate",
+    "table": {
+      "typeCertificat": "Type",
+      "dateEmission": "Issue date",
+      "dateExpiration": "Expiration date",
+      "statut": "Status"
+    },
+    "form": {
+      "typeCertificat": "Certificate type",
+      "dateEmission": "Issue date",
+      "dateExpiration": "Expiration date",
+      "statut": "Status",
+      "submit": "Create certificate"
+    }
+  }
+}

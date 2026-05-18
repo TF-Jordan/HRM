@@ -99,5 +99,11 @@ export const queryKeys = {
       ["hrm", "skills", "by-employee", employeeId] as const,
     kpiSnapshots: () => ["hrm", "kpi"] as const,
     kpiSnapshot: (id: string) => ["hrm", "kpi", id] as const,
+    employeeVisits: (employeeId: string) =>
+      ["hrm", "medical", "visits", "by-employee", employeeId] as const,
+    employeeCertificates: (employeeId: string) =>
+      ["hrm", "medical", "certificates", "by-employee", employeeId] as const,
+    medicalVisit: (id: string) => ["hrm", "medical", "visits", id] as const,
+    medicalCertificate: (id: string) => ["hrm", "medical", "certificates", id] as const,
   },
 };
