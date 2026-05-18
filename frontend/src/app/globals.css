@@ -96,6 +96,37 @@
   --font-mono: var(--font-jetbrains-mono), ui-monospace, "Courier New", monospace;
 }
 
+/* ============== Dark mode overrides ============== */
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+.dark {
+  --color-cream: #110d08;
+  --color-cream-2: #1c1610;
+  --color-cream-elev: #1c1610;
+  --color-cream-soft: #221b13;
+  --color-cream-dim: #2b2218;
+  --color-line: #3a2f22;
+  --color-line-soft: #2b2218;
+  --color-line-strong: #4a3d2d;
+  --color-ink: #f5efe1;
+  --color-ink-2: #d9d0bd;
+  --color-ink-3: #a89e8c;
+  --color-ink-4: #8a8071;
+  --color-ink-5: #5e5448;
+  --color-background: var(--color-cream);
+  --color-foreground: var(--color-ink);
+  --color-card: var(--color-cream-elev);
+  --color-card-foreground: var(--color-ink);
+  --color-popover: var(--color-cream-elev);
+  --color-popover-foreground: var(--color-ink);
+  --color-secondary: var(--color-cream-soft);
+  --color-secondary-foreground: var(--color-ink-2);
+  --color-muted: var(--color-cream-2);
+  --color-muted-foreground: var(--color-ink-3);
+  --color-border: var(--color-line);
+}
+
 /* ============== Base reset ============== */
 
 @layer base {

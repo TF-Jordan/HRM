@@ -4,10 +4,11 @@ import * as React from "react";
 import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Plus, Loader2, GitCompare, Download } from "lucide-react";
+import { Plus, Loader2, GitCompare, Download, FileText } from "lucide-react";
 import { toast } from "sonner";
 import { useKpiSnapshots, useCreateKpiSnapshot } from "@/hooks/modules/useKpi";
 import { useFormat } from "@/hooks/useFormat";
+import { exportPdf } from "@/lib/pdf";
 import { PageHeader } from "@/components/shell/PageHeader";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -97,6 +98,34 @@ export function AnalyticsClient() {
             >
               <Download className="size-4" />
               {tCommon("actions.exportCsv")}
+            </Button>
+            <Button
+              variant="secondary"
+              disabled={sorted.length === 0}
+              onClick={() =>
+                exportPdf(
+                  `analytics-kpi-${new Date().toISOString().slice(0, 10)}`,
+                  sorted,
+                  [
+                    { header: t("list.table.periode"), value: (s) => s.periode },
+                    { header: t("list.table.effectifTotal"), value: (s) => s.effectifTotal },
+                    { header: t("list.table.effectifActif"), value: (s) => s.effectifActif },
+                    {
+                      header: t("list.table.tauxTurnover"),
+                      value: (s) => `${(Number(s.tauxTurnover) * 100).toFixed(2)}%`,
+                    },
+                    {
+                      header: t("list.table.tauxAbsenteisme"),
+                      value: (s) => `${(Number(s.tauxAbsenteisme) * 100).toFixed(2)}%`,
+                    },
+                    { header: t("list.table.masseSalariale"), value: (s) => s.masseSalariale },
+                  ],
+                  { title: t("title"), subtitle: t("subtitle") },
+                )
+              }
+            >
+              <FileText className="size-4" />
+              {tCommon("actions.exportPdf")}
             </Button>
             <Button onClick={() => setOpen(true)}>
               <Plus className="size-4" />

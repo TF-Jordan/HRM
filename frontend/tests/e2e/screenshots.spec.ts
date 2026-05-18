@@ -250,4 +250,31 @@ test.describe("Visual snapshots", () => {
     await page.waitForLoadState("networkidle");
     await page.screenshot({ path: "tests/e2e/screenshots/employees-with-export.png", fullPage: true });
   });
+
+  test("FR dashboard dark mode (Phase 11)", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await login(page);
+    await page.waitForLoadState("networkidle");
+    await page.getByRole("button", { name: /Changer de thème/i }).click();
+    await page.waitForTimeout(150);
+    await page.screenshot({ path: "tests/e2e/screenshots/dashboard-dark.png", fullPage: true });
+  });
+
+  test("FR command palette open (Phase 11)", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await login(page);
+    await page.waitForLoadState("networkidle");
+    await page.keyboard.press("Control+K");
+    await page.waitForTimeout(200);
+    await page.screenshot({ path: "tests/e2e/screenshots/command-palette.png", fullPage: false });
+  });
+
+  test("FR mobile sidebar drawer (Phase 11)", async ({ page }) => {
+    await page.setViewportSize({ width: 600, height: 900 });
+    await login(page);
+    await page.waitForLoadState("networkidle");
+    await page.getByRole("button", { name: /Ouvrir le menu/i }).click();
+    await page.waitForTimeout(200);
+    await page.screenshot({ path: "tests/e2e/screenshots/mobile-sidebar.png", fullPage: true });
+  });
 });
