@@ -29,5 +29,10 @@
     "lastTurnover": "Last turnover",
     "lastAbsenteisme": "Last absenteeism",
     "lastMasseSalariale": "Last payroll mass"
+  },
+  "comparison": {
+    "title": "Period-to-period comparison",
+    "reference": "Reference period",
+    "current": "Current period"
   }
 }

@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useTranslations } from "next-intl";
-import { Plus, Users, AlertTriangle } from "lucide-react";
+import { Plus, Users, AlertTriangle, Download } from "lucide-react";
 import { Link, useRouter } from "@/i18n/navigation";
 import { PageHeader } from "@/components/shell/PageHeader";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,7 @@ import { DataTable, type Column } from "@/components/ui-tokens/DataTable";
 import { StatusBadge } from "@/components/ui-tokens/StatusBadge";
 import { useEmployees } from "@/hooks/modules/useEmployees";
 import { useFormat } from "@/hooks/useFormat";
+import { exportCsv } from "@/lib/csv";
 import type { Employee } from "@/lib/types/hrm/employee";
 
 export function EmployeesPageClient() {
@@ -19,6 +20,7 @@ export function EmployeesPageClient() {
   const tNav = useTranslations("navigation");
   const router = useRouter();
   const fmt = useFormat();
+  const tCommon = useTranslations("common");
   const { data, isLoading, isError, error, refetch } = useEmployees();
 
   const columns: Column<Employee>[] = React.useMemo(
@@ -76,12 +78,36 @@ export function EmployeesPageClient() {
         title={t("list.title")}
         subtitle={t("list.subtitle")}
         actions={
-          <Button asChild>
-            <Link href="/employees/new">
-              <Plus className="size-4" />
-              {t("list.newButton")}
-            </Link>
-          </Button>
+          <>
+            <Button
+              variant="secondary"
+              disabled={!data || data.length === 0}
+              onClick={() =>
+                exportCsv(
+                  `employees-${new Date().toISOString().slice(0, 10)}`,
+                  data ?? [],
+                  [
+                    { header: t("table.matricule"), value: (e) => e.matricule },
+                    { header: t("table.name"), value: (e) => e.actorDisplayName },
+                    { header: t("table.department"), value: (e) => e.departmentCode ?? "" },
+                    { header: t("table.category"), value: (e) => e.categorie },
+                    { header: t("table.hireDate"), value: (e) => e.dateEmbauche },
+                    { header: t("table.status"), value: (e) => e.status },
+                    { header: t("table.paymentMode"), value: (e) => e.modePaiement },
+                  ],
+                )
+              }
+            >
+              <Download className="size-4" />
+              {tCommon("actions.exportCsv")}
+            </Button>
+            <Button asChild>
+              <Link href="/employees/new">
+                <Plus className="size-4" />
+                {t("list.newButton")}
+              </Link>
+            </Button>
+          </>
         }
       />
 

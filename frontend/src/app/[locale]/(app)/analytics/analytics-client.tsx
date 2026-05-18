@@ -4,7 +4,7 @@ import * as React from "react";
 import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Plus, Loader2 } from "lucide-react";
+import { Plus, Loader2, GitCompare, Download } from "lucide-react";
 import { toast } from "sonner";
 import { useKpiSnapshots, useCreateKpiSnapshot } from "@/hooks/modules/useKpi";
 import { useFormat } from "@/hooks/useFormat";
@@ -21,7 +21,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { KpiCard } from "@/components/ui-tokens/KpiCard";
+import { exportCsv } from "@/lib/csv";
+import type { RhKpiSnapshot } from "@/lib/types/hrm/kpi";
 import {
   createKpiSnapshotSchema,
   type CreateKpiSnapshotFormValues,
@@ -63,10 +72,37 @@ export function AnalyticsClient() {
         title={t("title")}
         subtitle={t("subtitle")}
         actions={
-          <Button onClick={() => setOpen(true)}>
-            <Plus className="size-4" />
-            {t("list.newButton")}
-          </Button>
+          <>
+            <Button
+              variant="secondary"
+              onClick={() =>
+                exportCsv(
+                  `analytics-kpi-${new Date().toISOString().slice(0, 10)}`,
+                  sorted,
+                  [
+                    { header: t("list.table.periode"), value: (s) => s.periode },
+                    { header: t("list.table.effectifTotal"), value: (s) => s.effectifTotal },
+                    { header: t("list.table.effectifActif"), value: (s) => s.effectifActif },
+                    { header: t("list.table.tauxTurnover"), value: (s) => s.tauxTurnover },
+                    { header: t("list.table.tauxAbsenteisme"), value: (s) => s.tauxAbsenteisme },
+                    { header: t("list.table.masseSalariale"), value: (s) => s.masseSalariale },
+                    {
+                      header: t("list.table.couvertureCompetences"),
+                      value: (s) => s.couvertureCompetences,
+                    },
+                  ],
+                )
+              }
+              disabled={sorted.length === 0}
+            >
+              <Download className="size-4" />
+              {tCommon("actions.exportCsv")}
+            </Button>
+            <Button onClick={() => setOpen(true)}>
+              <Plus className="size-4" />
+              {t("list.newButton")}
+            </Button>
+          </>
         }
       />
 
@@ -88,6 +124,8 @@ export function AnalyticsClient() {
           value={last ? fmt.moneyShort(last.masseSalariale) : "—"}
         />
       </div>
+
+      {sorted.length >= 2 && <ComparisonPanel snapshots={sorted} />}
 
       {list.isLoading && <Skeleton className="h-32 w-full" />}
 
@@ -227,5 +265,157 @@ export function AnalyticsClient() {
         </DialogContent>
       </Dialog>
     </div>
+  );
+}
+
+function ComparisonPanel({ snapshots }: { snapshots: RhKpiSnapshot[] }) {
+  const t = useTranslations("analytics");
+  const fmt = useFormat();
+  const [refId, setRefId] = React.useState<string>(snapshots[1]?.id ?? "");
+  const [curId, setCurId] = React.useState<string>(snapshots[0]?.id ?? "");
+
+  const ref = snapshots.find((s) => s.id === refId);
+  const cur = snapshots.find((s) => s.id === curId);
+
+  const delta = (a: string | number, b: string | number) => {
+    const na = Number(a);
+    const nb = Number(b);
+    if (!Number.isFinite(na) || !Number.isFinite(nb) || nb === 0) return null;
+    return ((na - nb) / Math.abs(nb)) * 100;
+  };
+
+  const DeltaCard = ({
+    label,
+    refValue,
+    curValue,
+    formatter,
+    invert,
+  }: {
+    label: string;
+    refValue: string | number;
+    curValue: string | number;
+    formatter: (v: string | number) => string;
+    invert?: boolean;
+  }) => {
+    const d = delta(curValue, refValue);
+    const positive = d != null && (invert ? d < 0 : d > 0);
+    const negative = d != null && (invert ? d > 0 : d < 0);
+    return (
+      <Card>
+        <CardContent className="space-y-1 p-4">
+          <div className="text-[11px] font-semibold uppercase tracking-wide text-ink-4">
+            {label}
+          </div>
+          <div className="flex items-baseline gap-2">
+            <span className="font-display text-[22px] font-bold tabular text-ink">
+              {formatter(curValue)}
+            </span>
+            <span className="text-[11.5px] text-ink-3 tabular">
+              ({formatter(refValue)})
+            </span>
+          </div>
+          {d != null && (
+            <div
+              className={
+                "text-[12px] font-semibold tabular " +
+                (positive
+                  ? "text-status-green-600"
+                  : negative
+                    ? "text-status-red-600"
+                    : "text-ink-3")
+              }
+            >
+              {d > 0 ? "+" : ""}
+              {d.toFixed(2)}%
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    );
+  };
+
+  return (
+    <Card>
+      <CardContent className="space-y-4 p-5">
+        <div className="flex items-center gap-2 text-[13px] font-semibold text-ink">
+          <GitCompare className="size-4 text-brand-700" />
+          {t("comparison.title")}
+        </div>
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+          <div className="space-y-1.5">
+            <Label>{t("comparison.reference")}</Label>
+            <Select value={refId} onValueChange={setRefId}>
+              <SelectTrigger>
+                <SelectValue placeholder="—" />
+              </SelectTrigger>
+              <SelectContent>
+                {snapshots.map((s) => (
+                  <SelectItem key={s.id} value={s.id}>
+                    {s.periode}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5">
+            <Label>{t("comparison.current")}</Label>
+            <Select value={curId} onValueChange={setCurId}>
+              <SelectTrigger>
+                <SelectValue placeholder="—" />
+              </SelectTrigger>
+              <SelectContent>
+                {snapshots.map((s) => (
+                  <SelectItem key={s.id} value={s.id}>
+                    {s.periode}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+        {ref && cur && (
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
+            <DeltaCard
+              label={t("list.table.effectifTotal")}
+              refValue={ref.effectifTotal}
+              curValue={cur.effectifTotal}
+              formatter={(v) => fmt.integer(Number(v))}
+            />
+            <DeltaCard
+              label={t("list.table.effectifActif")}
+              refValue={ref.effectifActif}
+              curValue={cur.effectifActif}
+              formatter={(v) => fmt.integer(Number(v))}
+            />
+            <DeltaCard
+              label={t("list.table.tauxTurnover")}
+              refValue={ref.tauxTurnover}
+              curValue={cur.tauxTurnover}
+              formatter={(v) => `${(Number(v) * 100).toFixed(2)}%`}
+              invert
+            />
+            <DeltaCard
+              label={t("list.table.tauxAbsenteisme")}
+              refValue={ref.tauxAbsenteisme}
+              curValue={cur.tauxAbsenteisme}
+              formatter={(v) => `${(Number(v) * 100).toFixed(2)}%`}
+              invert
+            />
+            <DeltaCard
+              label={t("list.table.masseSalariale")}
+              refValue={ref.masseSalariale}
+              curValue={cur.masseSalariale}
+              formatter={(v) => fmt.moneyShort(v)}
+            />
+            <DeltaCard
+              label={t("list.table.couvertureCompetences")}
+              refValue={ref.couvertureCompetences}
+              curValue={cur.couvertureCompetences}
+              formatter={(v) => `${(Number(v) * 100).toFixed(1)}%`}
+            />
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }

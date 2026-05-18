@@ -31,6 +31,7 @@
     "search": "Search",
     "filter": "Filter",
     "export": "Export",
+    "exportCsv": "Export CSV",
     "import": "Import",
     "viewDetails": "View details",
     "close": "Close",

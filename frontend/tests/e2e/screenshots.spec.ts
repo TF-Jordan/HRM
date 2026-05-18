@@ -218,4 +218,36 @@ test.describe("Visual snapshots", () => {
     await page.waitForLoadState("networkidle");
     await page.screenshot({ path: "tests/e2e/screenshots/medical-visits.png", fullPage: true });
   });
+
+  test("FR analytics with comparison (Phase 10)", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await login(page);
+    // Seed 2 snapshots if needed
+    for (let i = 0; i < 2; i++) {
+      const periode = `${2070 + Math.floor(Math.random() * 30)}-${String(i + 1).padStart(2, "0")}`;
+      await page.request.post("/api/hrm/kpi", {
+        data: {
+          periode,
+          effectifTotal: 150 + i * 5,
+          effectifActif: 140 + i * 5,
+          tauxTurnover: i === 0 ? "0.04" : "0.06",
+          tauxAbsenteisme: i === 0 ? "0.025" : "0.03",
+          masseSalariale: i === 0 ? "75000000" : "80000000",
+          couvertureCompetences: i === 0 ? "0.72" : "0.78",
+        },
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    await page.goto("/analytics");
+    await page.waitForLoadState("networkidle");
+    await page.screenshot({ path: "tests/e2e/screenshots/analytics-comparison.png", fullPage: true });
+  });
+
+  test("FR employees with export CSV (Phase 10)", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await login(page);
+    await page.goto("/employees");
+    await page.waitForLoadState("networkidle");
+    await page.screenshot({ path: "tests/e2e/screenshots/employees-with-export.png", fullPage: true });
+  });
 });

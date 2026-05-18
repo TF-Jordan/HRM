@@ -4,10 +4,11 @@ import * as React from "react";
 import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Plus, Loader2 } from "lucide-react";
+import { Plus, Loader2, Download } from "lucide-react";
 import { toast } from "sonner";
 import { useDeclarations, useCreateDeclaration } from "@/hooks/modules/useDeclarations";
 import { useFormat } from "@/hooks/useFormat";
+import { exportCsv } from "@/lib/csv";
 import { PageHeader } from "@/components/shell/PageHeader";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -41,6 +42,7 @@ const FORMATS = ["CSV", "XML", "EDI", "PDF"] as const;
 export function DeclarationsClient() {
   const t = useTranslations("payrollOfficer.declarations");
   const tNav = useTranslations("navigation");
+  const tCommon = useTranslations("common");
   const fmt = useFormat();
   const list = useDeclarations();
   const create = useCreateDeclaration();
@@ -63,10 +65,33 @@ export function DeclarationsClient() {
         title={t("title")}
         subtitle={t("subtitle")}
         actions={
-          <Button onClick={() => setOpen(true)}>
-            <Plus className="size-4" />
-            {t("newButton")}
-          </Button>
+          <>
+            <Button
+              variant="secondary"
+              disabled={!list.data || list.data.length === 0}
+              onClick={() =>
+                exportCsv(
+                  `declarations-${new Date().toISOString().slice(0, 10)}`,
+                  list.data ?? [],
+                  [
+                    { header: t("table.type"), value: (d) => d.type },
+                    { header: t("table.periode"), value: (d) => d.periode },
+                    { header: t("table.format"), value: (d) => d.format },
+                    { header: t("table.status"), value: (d) => d.statut },
+                    { header: t("table.generatedAt"), value: (d) => d.generatedAt ?? "" },
+                    { header: t("table.submittedAt"), value: (d) => d.submittedAt ?? "" },
+                  ],
+                )
+              }
+            >
+              <Download className="size-4" />
+              {tCommon("actions.exportCsv")}
+            </Button>
+            <Button onClick={() => setOpen(true)}>
+              <Plus className="size-4" />
+              {t("newButton")}
+            </Button>
+          </>
         }
       />
 
