@@ -85,5 +85,19 @@ export const queryKeys = {
     applications: (jobOfferId: string) =>
       ["hrm", "job-offers", jobOfferId, "applications"] as const,
     application: (id: string) => ["hrm", "applications", id] as const,
+    trainings: () => ["hrm", "trainings"] as const,
+    training: (id: string) => ["hrm", "trainings", id] as const,
+    trainingEnrollments: (trainingId: string) =>
+      ["hrm", "trainings", trainingId, "enrollments"] as const,
+    employeeEnrollments: (employeeId: string) =>
+      ["hrm", "trainings", "by-employee", employeeId] as const,
+    trainingBudgets: (annee: number) => ["hrm", "training-budgets", annee] as const,
+    trainingBudget: (id: string) => ["hrm", "training-budgets", id] as const,
+    skills: () => ["hrm", "skills"] as const,
+    skill: (id: string) => ["hrm", "skills", id] as const,
+    employeeSkills: (employeeId: string) =>
+      ["hrm", "skills", "by-employee", employeeId] as const,
+    kpiSnapshots: () => ["hrm", "kpi"] as const,
+    kpiSnapshot: (id: string) => ["hrm", "kpi", id] as const,
   },
 };

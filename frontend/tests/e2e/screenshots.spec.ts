@@ -167,4 +167,36 @@ test.describe("Visual snapshots", () => {
     await page.waitForLoadState("networkidle");
     await page.screenshot({ path: "tests/e2e/screenshots/recruitment-kanban.png", fullPage: true });
   });
+
+  test("FR trainings list (Phase 8)", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await login(page);
+    await page.goto("/trainings");
+    await page.waitForLoadState("networkidle");
+    await page.screenshot({ path: "tests/e2e/screenshots/trainings.png", fullPage: true });
+  });
+
+  test("FR training budgets (Phase 8)", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await login(page);
+    await page.goto("/training-budgets");
+    await page.waitForLoadState("networkidle");
+    await page.screenshot({ path: "tests/e2e/screenshots/training-budgets.png", fullPage: true });
+  });
+
+  test("FR skills catalogue (Phase 8)", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await login(page);
+    await page.goto("/skills");
+    await page.waitForLoadState("networkidle");
+    await page.screenshot({ path: "tests/e2e/screenshots/skills.png", fullPage: true });
+  });
+
+  test("FR analytics (Phase 8)", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await login(page);
+    await page.goto("/analytics");
+    await page.waitForLoadState("networkidle");
+    await page.screenshot({ path: "tests/e2e/screenshots/analytics.png", fullPage: true });
+  });
 });

@@ -1,0 +1,33 @@
+{
+  "title": "HR Analytics",
+  "subtitle": "Periodic tracking of strategic HR KPIs",
+  "list": {
+    "newButton": "New snapshot",
+    "empty": "No snapshot recorded",
+    "table": {
+      "periode": "Period",
+      "effectifTotal": "Total headcount",
+      "effectifActif": "Active headcount",
+      "tauxTurnover": "Turnover",
+      "tauxAbsenteisme": "Absenteeism",
+      "masseSalariale": "Payroll mass",
+      "couvertureCompetences": "Skills coverage"
+    }
+  },
+  "form": {
+    "periode": "Period (YYYY-MM)",
+    "effectifTotal": "Total headcount",
+    "effectifActif": "Active headcount",
+    "tauxTurnover": "Turnover rate",
+    "tauxAbsenteisme": "Absenteeism rate",
+    "masseSalariale": "Payroll mass (XAF)",
+    "couvertureCompetences": "Skills coverage",
+    "submit": "Create snapshot"
+  },
+  "kpis": {
+    "snapshots": "Snapshots",
+    "lastTurnover": "Last turnover",
+    "lastAbsenteisme": "Last absenteeism",
+    "lastMasseSalariale": "Last payroll mass"
+  }
+}

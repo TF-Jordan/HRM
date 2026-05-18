@@ -1,0 +1,42 @@
+{
+  "title": "Skills",
+  "subtitle": "Reference catalogue and per-employee assessments",
+  "tabs": {
+    "catalogue": "Catalogue",
+    "evaluations": "Employee assessments"
+  },
+  "list": {
+    "newButton": "New skill",
+    "empty": "No skill",
+    "table": {
+      "name": "Name",
+      "categorie": "Category",
+      "description": "Description"
+    }
+  },
+  "form": {
+    "name": "Name",
+    "categorie": "Category",
+    "description": "Description",
+    "submit": "Create skill"
+  },
+  "evaluations": {
+    "selectEmployee": "Select an employee",
+    "newButton": "New assessment",
+    "empty": "No assessment",
+    "table": {
+      "skill": "Skill",
+      "actuel": "Current level",
+      "attendu": "Expected level",
+      "ecart": "Gap",
+      "date": "Date"
+    },
+    "form": {
+      "skill": "Skill",
+      "niveauActuel": "Current level (0-5)",
+      "niveauAttendu": "Expected level (0-5)",
+      "dateEvaluation": "Assessment date",
+      "submit": "Save"
+    }
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "title": "Training budget",
+  "subtitle": "Yearly envelope tracking: allocated, engaged, realized",
+  "list": {
+    "newButton": "New budget",
+    "empty": "No budget for the selected year",
+    "filterYear": "Year",
+    "table": {
+      "annee": "Year",
+      "alloue": "Allocated",
+      "engage": "Engaged",
+      "realise": "Realized",
+      "disponible": "Available",
+      "actions": "Actions"
+    }
+  },
+  "form": {
+    "annee": "Year",
+    "montantAlloue": "Allocated amount (XAF)",
+    "submit": "Create budget"
+  },
+  "actions": {
+    "engage": "Engage",
+    "realiser": "Realize"
+  },
+  "dialog": {
+    "engageTitle": "Engage an amount",
+    "realiserTitle": "Realize an amount",
+    "montant": "Amount (XAF)",
+    "submit": "Confirm"
+  }
+}

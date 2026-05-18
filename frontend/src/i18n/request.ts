@@ -20,6 +20,10 @@ export default getRequestConfig(async ({ requestLocale }) => {
     accounting,
     payrollOfficer,
     recruitment,
+    trainings,
+    trainingBudgets,
+    skills,
+    analytics,
   ] = await Promise.all([
     import(`./messages/${locale}/common.json`).then((m) => m.default),
     import(`./messages/${locale}/auth.json`).then((m) => m.default),
@@ -34,6 +38,10 @@ export default getRequestConfig(async ({ requestLocale }) => {
     import(`./messages/${locale}/accounting.json`).then((m) => m.default),
     import(`./messages/${locale}/payroll-officer.json`).then((m) => m.default),
     import(`./messages/${locale}/recruitment.json`).then((m) => m.default),
+    import(`./messages/${locale}/trainings.json`).then((m) => m.default),
+    import(`./messages/${locale}/training-budgets.json`).then((m) => m.default),
+    import(`./messages/${locale}/skills.json`).then((m) => m.default),
+    import(`./messages/${locale}/analytics.json`).then((m) => m.default),
   ]);
 
   return {
@@ -52,6 +60,10 @@ export default getRequestConfig(async ({ requestLocale }) => {
       accounting,
       payrollOfficer,
       recruitment,
+      trainings,
+      trainingBudgets,
+      skills,
+      analytics,
     },
     timeZone: "Africa/Douala",
   };

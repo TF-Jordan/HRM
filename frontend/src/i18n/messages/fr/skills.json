@@ -1,0 +1,42 @@
+{
+  "title": "Compétences",
+  "subtitle": "Référentiel et évaluations par employé",
+  "tabs": {
+    "catalogue": "Catalogue",
+    "evaluations": "Évaluations employés"
+  },
+  "list": {
+    "newButton": "Nouvelle compétence",
+    "empty": "Aucune compétence",
+    "table": {
+      "name": "Nom",
+      "categorie": "Catégorie",
+      "description": "Description"
+    }
+  },
+  "form": {
+    "name": "Nom",
+    "categorie": "Catégorie",
+    "description": "Description",
+    "submit": "Créer la compétence"
+  },
+  "evaluations": {
+    "selectEmployee": "Sélectionnez un employé",
+    "newButton": "Nouvelle évaluation",
+    "empty": "Aucune évaluation",
+    "table": {
+      "skill": "Compétence",
+      "actuel": "Niveau actuel",
+      "attendu": "Niveau attendu",
+      "ecart": "Écart",
+      "date": "Date"
+    },
+    "form": {
+      "skill": "Compétence",
+      "niveauActuel": "Niveau actuel (0-5)",
+      "niveauAttendu": "Niveau attendu (0-5)",
+      "dateEvaluation": "Date d'évaluation",
+      "submit": "Enregistrer"
+    }
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "title": "Formations",
+  "subtitle": "Catalogue, sessions, inscriptions et budgets de formation",
+  "list": {
+    "newButton": "Planifier une formation",
+    "empty": "Aucune formation planifiée",
+    "table": {
+      "intitule": "Intitulé",
+      "organisme": "Organisme",
+      "dates": "Dates",
+      "lieu": "Lieu",
+      "places": "Places",
+      "cout": "Coût",
+      "status": "Statut"
+    }
+  },
+  "form": {
+    "intitule": "Intitulé",
+    "organisme": "Organisme",
+    "dateDebut": "Date de début",
+    "dateFin": "Date de fin",
+    "cout": "Coût (XAF)",
+    "nbPlaces": "Nombre de places",
+    "lieu": "Lieu",
+    "submit": "Planifier"
+  },
+  "actions": {
+    "start": "Démarrer",
+    "complete": "Terminer",
+    "cancel": "Annuler",
+    "enroll": "Inscrire"
+  },
+  "enrollments": {
+    "title": "Inscriptions",
+    "table": {
+      "employee": "Employé",
+      "status": "Statut",
+      "note": "Note",
+      "actions": ""
+    },
+    "empty": "Aucune inscription",
+    "newButton": "Inscrire un employé",
+    "form": {
+      "employee": "Employé",
+      "submit": "Inscrire"
+    },
+    "actions": {
+      "complete": "Compléter",
+      "cancel": "Annuler"
+    },
+    "completeDialog": {
+      "title": "Compléter l'inscription",
+      "note": "Note d'évaluation (0-20)",
+      "attestation": "ID attestation (optionnel)",
+      "submit": "Valider"
+    }
+  },
+  "detail": {
+    "back": "Retour aux formations",
+    "tabs": {
+      "overview": "Aperçu",
+      "enrollments": "Inscriptions"
+    }
+  }
+}

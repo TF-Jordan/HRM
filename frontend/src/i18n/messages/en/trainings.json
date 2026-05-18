@@ -1,0 +1,65 @@
+{
+  "title": "Trainings",
+  "subtitle": "Catalogue, sessions, enrollments and training budgets",
+  "list": {
+    "newButton": "Plan a training",
+    "empty": "No training planned",
+    "table": {
+      "intitule": "Title",
+      "organisme": "Provider",
+      "dates": "Dates",
+      "lieu": "Location",
+      "places": "Seats",
+      "cout": "Cost",
+      "status": "Status"
+    }
+  },
+  "form": {
+    "intitule": "Title",
+    "organisme": "Provider",
+    "dateDebut": "Start date",
+    "dateFin": "End date",
+    "cout": "Cost (XAF)",
+    "nbPlaces": "Seats",
+    "lieu": "Location",
+    "submit": "Plan"
+  },
+  "actions": {
+    "start": "Start",
+    "complete": "Complete",
+    "cancel": "Cancel",
+    "enroll": "Enroll"
+  },
+  "enrollments": {
+    "title": "Enrollments",
+    "table": {
+      "employee": "Employee",
+      "status": "Status",
+      "note": "Score",
+      "actions": ""
+    },
+    "empty": "No enrollment",
+    "newButton": "Enroll an employee",
+    "form": {
+      "employee": "Employee",
+      "submit": "Enroll"
+    },
+    "actions": {
+      "complete": "Complete",
+      "cancel": "Cancel"
+    },
+    "completeDialog": {
+      "title": "Complete enrollment",
+      "note": "Evaluation score (0-20)",
+      "attestation": "Attestation ID (optional)",
+      "submit": "Confirm"
+    }
+  },
+  "detail": {
+    "back": "Back to trainings",
+    "tabs": {
+      "overview": "Overview",
+      "enrollments": "Enrollments"
+    }
+  }
+}

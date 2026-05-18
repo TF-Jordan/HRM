@@ -1,0 +1,32 @@
+{
+  "title": "Budget formation",
+  "subtitle": "Suivi des enveloppes annuelles : alloué, engagé, réalisé",
+  "list": {
+    "newButton": "Nouveau budget",
+    "empty": "Aucun budget pour l'année sélectionnée",
+    "filterYear": "Année",
+    "table": {
+      "annee": "Année",
+      "alloue": "Alloué",
+      "engage": "Engagé",
+      "realise": "Réalisé",
+      "disponible": "Disponible",
+      "actions": "Actions"
+    }
+  },
+  "form": {
+    "annee": "Année",
+    "montantAlloue": "Montant alloué (XAF)",
+    "submit": "Créer le budget"
+  },
+  "actions": {
+    "engage": "Engager",
+    "realiser": "Réaliser"
+  },
+  "dialog": {
+    "engageTitle": "Engager un montant",
+    "realiserTitle": "Réaliser un montant",
+    "montant": "Montant (XAF)",
+    "submit": "Valider"
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "title": "Analytics RH",
+  "subtitle": "Suivi périodique des KPI RH stratégiques",
+  "list": {
+    "newButton": "Nouveau snapshot",
+    "empty": "Aucun snapshot enregistré",
+    "table": {
+      "periode": "Période",
+      "effectifTotal": "Effectif total",
+      "effectifActif": "Effectif actif",
+      "tauxTurnover": "Turnover",
+      "tauxAbsenteisme": "Absentéisme",
+      "masseSalariale": "Masse salariale",
+      "couvertureCompetences": "Couverture compétences"
+    }
+  },
+  "form": {
+    "periode": "Période (YYYY-MM)",
+    "effectifTotal": "Effectif total",
+    "effectifActif": "Effectif actif",
+    "tauxTurnover": "Taux de turnover",
+    "tauxAbsenteisme": "Taux d'absentéisme",
+    "masseSalariale": "Masse salariale (XAF)",
+    "couvertureCompetences": "Couverture compétences",
+    "submit": "Créer le snapshot"
+  },
+  "kpis": {
+    "snapshots": "Snapshots",
+    "lastTurnover": "Dernier turnover",
+    "lastAbsenteisme": "Dernier absentéisme",
+    "lastMasseSalariale": "Dernière masse salariale"
+  }
+}
