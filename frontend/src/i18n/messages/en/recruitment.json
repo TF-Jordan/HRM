@@ -1,0 +1,57 @@
+{
+  "title": "Recruitment",
+  "subtitle": "Offers, applications, interviews, onboarding",
+  "offers": {
+    "tab": "Job offers",
+    "newButton": "New offer",
+    "empty": "No offer published",
+    "table": {
+      "poste": "Position",
+      "departement": "Department",
+      "localisation": "Location",
+      "dateLimite": "Deadline",
+      "status": "Status"
+    },
+    "form": {
+      "poste": "Position",
+      "departement": "Department",
+      "localisation": "Location",
+      "competencesRequises": "Required skills",
+      "dateLimite": "Deadline",
+      "packageSalarial": "Salary package",
+      "submit": "Create offer"
+    },
+    "actions": {
+      "publish": "Publish",
+      "close": "Close"
+    }
+  },
+  "applications": {
+    "tab": "Applications",
+    "selectOffer": "Pick an offer",
+    "newButton": "New application",
+    "empty": "No application",
+    "form": {
+      "candidatNom": "Last name",
+      "candidatPrenom": "First name",
+      "candidatEmail": "Email",
+      "candidatTelephone": "Phone",
+      "submit": "Add candidate"
+    },
+    "actions": {
+      "shortlist": "Shortlist",
+      "interview": "Move to interview",
+      "offer": "Make offer",
+      "hire": "Hire",
+      "reject": "Reject"
+    },
+    "columns": {
+      "NEW": "New",
+      "SHORTLISTED": "Shortlisted",
+      "INTERVIEWING": "Interviewing",
+      "OFFERED": "Offered",
+      "HIRED": "Hired",
+      "REJECTED": "Rejected"
+    }
+  }
+}

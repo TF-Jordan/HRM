@@ -150,4 +150,21 @@ test.describe("Visual snapshots", () => {
     await page.waitForLoadState("networkidle");
     await page.screenshot({ path: "tests/e2e/screenshots/declarations.png", fullPage: true });
   });
+
+  test("FR recruitment offers (Phase 7)", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await login(page);
+    await page.goto("/recruitment");
+    await page.waitForLoadState("networkidle");
+    await page.screenshot({ path: "tests/e2e/screenshots/recruitment-offers.png", fullPage: true });
+  });
+
+  test("FR recruitment kanban (Phase 7)", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await login(page);
+    await page.goto("/recruitment");
+    await page.getByRole("tab", { name: /Candidatures/i }).click();
+    await page.waitForLoadState("networkidle");
+    await page.screenshot({ path: "tests/e2e/screenshots/recruitment-kanban.png", fullPage: true });
+  });
 });

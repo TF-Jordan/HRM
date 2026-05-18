@@ -1,0 +1,57 @@
+{
+  "title": "Recrutement",
+  "subtitle": "Offres, candidatures, entretiens, onboarding",
+  "offers": {
+    "tab": "Offres d'emploi",
+    "newButton": "Nouvelle offre",
+    "empty": "Aucune offre publiée",
+    "table": {
+      "poste": "Poste",
+      "departement": "Département",
+      "localisation": "Lieu",
+      "dateLimite": "Date limite",
+      "status": "Statut"
+    },
+    "form": {
+      "poste": "Poste",
+      "departement": "Département",
+      "localisation": "Localisation",
+      "competencesRequises": "Compétences requises",
+      "dateLimite": "Date limite",
+      "packageSalarial": "Package salarial",
+      "submit": "Créer l'offre"
+    },
+    "actions": {
+      "publish": "Publier",
+      "close": "Clôturer"
+    }
+  },
+  "applications": {
+    "tab": "Candidatures",
+    "selectOffer": "Sélectionnez une offre",
+    "newButton": "Nouvelle candidature",
+    "empty": "Aucune candidature",
+    "form": {
+      "candidatNom": "Nom",
+      "candidatPrenom": "Prénom",
+      "candidatEmail": "Email",
+      "candidatTelephone": "Téléphone",
+      "submit": "Ajouter le candidat"
+    },
+    "actions": {
+      "shortlist": "Shortlister",
+      "interview": "Passer en entretien",
+      "offer": "Faire une offre",
+      "hire": "Embaucher",
+      "reject": "Rejeter"
+    },
+    "columns": {
+      "NEW": "Nouvelles",
+      "SHORTLISTED": "Présélectionnées",
+      "INTERVIEWING": "En entretien",
+      "OFFERED": "Offre envoyée",
+      "HIRED": "Embauchées",
+      "REJECTED": "Rejetées"
+    }
+  }
+}

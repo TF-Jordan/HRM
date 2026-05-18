@@ -80,5 +80,10 @@ export const queryKeys = {
     reviewObjectives: (id: string) => ["hrm", "reviews", id, "objectives"] as const,
     declarations: () => ["hrm", "declarations"] as const,
     declaration: (id: string) => ["hrm", "declarations", id] as const,
+    jobOffers: () => ["hrm", "job-offers"] as const,
+    jobOffer: (id: string) => ["hrm", "job-offers", id] as const,
+    applications: (jobOfferId: string) =>
+      ["hrm", "job-offers", jobOfferId, "applications"] as const,
+    application: (id: string) => ["hrm", "applications", id] as const,
   },
 };
