@@ -1,0 +1,54 @@
+{
+  "users": {
+    "title": "Users",
+    "subtitle": "Tenant sign-in accounts and assigned roles",
+    "empty": "No user",
+    "table": {
+      "username": "Identifier",
+      "email": "Email",
+      "status": "Status",
+      "roles": "Assigned roles",
+      "createdAt": "Created"
+    },
+    "actions": {
+      "manageRoles": "Manage roles"
+    }
+  },
+  "userDetail": {
+    "back": "Back to users",
+    "rolesTitle": "Assigned roles",
+    "noRoles": "No role assigned — the user cannot access any feature.",
+    "assignButton": "Assign role",
+    "revokeButton": "Revoke",
+    "assignDialog": {
+      "title": "Assign a role",
+      "role": "Role",
+      "submit": "Assign"
+    }
+  },
+  "roles": {
+    "title": "Roles & permissions",
+    "subtitle": "Define business roles and their permissions",
+    "newButton": "New role",
+    "empty": "No role",
+    "table": {
+      "code": "Code",
+      "name": "Name",
+      "scopeType": "Scope",
+      "permissionsCount": "Permissions"
+    },
+    "form": {
+      "code": "Code (e.g. DRH, MANAGER...)",
+      "name": "Display name",
+      "scopeType": "Scope",
+      "permissions": "Permissions",
+      "submit": "Create role"
+    }
+  },
+  "roleDetail": {
+    "back": "Back to roles",
+    "permissionsTitle": "Permissions",
+    "saveButton": "Save changes",
+    "deleteButton": "Delete this role"
+  }
+}

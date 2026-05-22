@@ -47,4 +47,6 @@ public interface UserAccountSpringDataRepository extends ReactiveCrudRepository<
     Flux<UserAccountEntity> findAllByEmailIgnoreCase(String email);
 
     Flux<UserAccountEntity> findAllByPhoneNumber(String phoneNumber);
+
+    Flux<UserAccountEntity> findAllByTenantId(UUID tenantId);
 }

@@ -1,7 +1,9 @@
 import { z } from "zod";
 
+// Principal can be an email (admin@hrcore.local) OR a matricule (HRC-00007).
+// Strict email validation is dropped; we only require a non-empty string.
 export const loginSchema = z.object({
-  email: z.email(),
+  email: z.string().trim().min(1).max(200),
   password: z.string().min(6).max(200),
 });
 export type LoginInput = z.infer<typeof loginSchema>;

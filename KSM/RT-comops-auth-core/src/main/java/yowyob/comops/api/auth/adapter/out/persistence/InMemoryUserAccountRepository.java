@@ -54,4 +54,10 @@ public class InMemoryUserAccountRepository implements UserAccountRepository {
             return userAccount;
         });
     }
+
+    @Override
+    public Flux<UserAccount> findByTenantId(UUID tenantId) {
+        return Flux.fromStream(users.values().stream()
+                .filter(user -> user.tenantId().equals(tenantId)));
+    }
 }

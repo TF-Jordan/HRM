@@ -8,7 +8,9 @@ import yowyob.comops.api.roles.domain.model.UserRoleAssignment;
 import yowyob.comops.api.roles.domain.model.RoleScopeType;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Service
@@ -33,5 +35,21 @@ public class UserRoleAssignmentService implements AssignRoleToUserUseCase {
         return repository.save(assignment)
                 .flatMap(saved -> permissionCache.map(cache -> cache.evict(command.tenantId(), command.userId())
                         .thenReturn(saved)).orElseGet(() -> Mono.just(saved)));
+    }
+
+    public Flux<UserRoleAssignment> listByUser(UUID tenantId, UUID userId) {
+        return repository.findByTenantIdAndUserId(tenantId, userId);
+    }
+
+    public Flux<UserRoleAssignment> listByRole(UUID tenantId, UUID roleId) {
+        return repository.findByTenantIdAndRoleId(tenantId, roleId);
+    }
+
+    public Mono<Void> revoke(UUID tenantId, UUID assignmentId) {
+        return repository.findById(tenantId, assignmentId)
+                .switchIfEmpty(Mono.error(new IllegalArgumentException("Assignment not found")))
+                .flatMap(assignment -> repository.deleteById(tenantId, assignmentId)
+                        .then(permissionCache.map(cache -> cache.evict(tenantId, assignment.userId()))
+                                .orElseGet(Mono::empty)));
     }
 }

@@ -1,11 +1,13 @@
 {
   "sections": {
-    "pilotage": "Pilotage",
-    "personnel": "Personnel",
+    "pilotage": "Overview",
+    "personnel": "People",
     "activity": "Activity",
     "compensation": "Compensation",
     "development": "Development",
     "compliance": "Compliance",
+    "selfService": "My space",
+    "administration": "Administration",
     "system": "System"
   },
   "items": {
@@ -35,6 +37,8 @@
     "myPayroll": "My payslips",
     "myTrainings": "My trainings",
     "myMedical": "My medical",
-    "myReviews": "My reviews"
+    "myReviews": "My reviews",
+    "adminUsers": "Users",
+    "adminRoles": "Roles & permissions"
   }
 }

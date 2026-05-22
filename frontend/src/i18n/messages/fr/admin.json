@@ -1,0 +1,54 @@
+{
+  "users": {
+    "title": "Utilisateurs",
+    "subtitle": "Comptes de connexion du tenant et leurs rôles assignés",
+    "empty": "Aucun utilisateur",
+    "table": {
+      "username": "Identifiant",
+      "email": "Email",
+      "status": "Statut",
+      "roles": "Rôles assignés",
+      "createdAt": "Créé le"
+    },
+    "actions": {
+      "manageRoles": "Gérer les rôles"
+    }
+  },
+  "userDetail": {
+    "back": "Retour aux utilisateurs",
+    "rolesTitle": "Rôles assignés",
+    "noRoles": "Aucun rôle assigné — l'utilisateur ne peut accéder à aucune fonctionnalité.",
+    "assignButton": "Assigner un rôle",
+    "revokeButton": "Révoquer",
+    "assignDialog": {
+      "title": "Assigner un rôle",
+      "role": "Rôle",
+      "submit": "Assigner"
+    }
+  },
+  "roles": {
+    "title": "Rôles & permissions",
+    "subtitle": "Définir les rôles métier et leurs permissions",
+    "newButton": "Nouveau rôle",
+    "empty": "Aucun rôle",
+    "table": {
+      "code": "Code",
+      "name": "Nom",
+      "scopeType": "Portée",
+      "permissionsCount": "Permissions"
+    },
+    "form": {
+      "code": "Code (ex: DRH, MANAGER...)",
+      "name": "Nom affiché",
+      "scopeType": "Portée",
+      "permissions": "Permissions",
+      "submit": "Créer le rôle"
+    }
+  },
+  "roleDetail": {
+    "back": "Retour aux rôles",
+    "permissionsTitle": "Permissions",
+    "saveButton": "Enregistrer les modifications",
+    "deleteButton": "Supprimer ce rôle"
+  }
+}

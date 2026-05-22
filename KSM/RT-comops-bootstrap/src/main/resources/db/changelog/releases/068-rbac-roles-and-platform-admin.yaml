@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 068-rbac-roles-and-platform-admin
+      author: claude
+      changes:
+        - sqlFile:
+            path: db/r2dbc/V68__rbac_roles_and_platform_admin.sql
+            relativeToChangelogFile: false

@@ -6,6 +6,8 @@
     "compensation": "Rémunération",
     "development": "Développement",
     "compliance": "Conformité",
+    "selfService": "Mon espace",
+    "administration": "Administration",
     "system": "Système"
   },
   "items": {
@@ -35,6 +37,8 @@
     "myPayroll": "Mes bulletins",
     "myTrainings": "Mes formations",
     "myMedical": "Mon suivi médical",
-    "myReviews": "Mes évaluations"
+    "myReviews": "Mes évaluations",
+    "adminUsers": "Utilisateurs",
+    "adminRoles": "Rôles & permissions"
   }
 }

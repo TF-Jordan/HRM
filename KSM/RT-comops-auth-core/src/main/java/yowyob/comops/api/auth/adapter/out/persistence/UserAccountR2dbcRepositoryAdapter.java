@@ -49,6 +49,11 @@ public class UserAccountR2dbcRepositoryAdapter implements UserAccountRepository 
         return repository.save(toEntity(userAccount)).map(this::toDomain);
     }
 
+    @Override
+    public Flux<UserAccount> findByTenantId(java.util.UUID tenantId) {
+        return repository.findAllByTenantId(tenantId).map(this::toDomain);
+    }
+
     private UserAccountEntity toEntity(UserAccount userAccount) {
         return new UserAccountEntity(userAccount.id(), userAccount.tenantId(), userAccount.createdAt(),
                 userAccount.updatedAt(), userAccount.actorId(), userAccount.username(), userAccount.email(),

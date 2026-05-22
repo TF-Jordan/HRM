@@ -16,8 +16,11 @@ export const createEmployeeSchema = z
   .object({
     firstName: z.string().trim().min(1).max(120),
     lastName: z.string().trim().min(1).max(120),
-    email: z.email().optional().nullable().or(z.literal("").transform(() => null)),
+    email: z.email(),
     phoneNumber: optionalTrimmed,
+    photoFileId: z.uuid().optional().nullable().or(z.literal("").transform(() => null)),
+    createAccount: z.boolean().optional().default(true),
+    sendWelcomeEmail: z.boolean().optional().default(true),
     numCnps: optionalTrimmed,
     categorie: z.coerce.number().int().min(1).max(20),
     echelon: optionalTrimmed,

@@ -5,6 +5,7 @@ import java.nio.charset.StandardCharsets;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Mono;
 import yowyob.comops.api.auth.config.AuthEmailProperties;
 
 @Component
@@ -34,6 +35,40 @@ public class AuthEmailDeliveryService {
                 This token expires in %d seconds.
                 """.formatted(link, token, expiresInSeconds);
         return deliver(recipientEmail, subject, body, token, expiresInSeconds);
+    }
+
+    public Mono<DeliveryResult> deliverWelcomeMail(String recipientEmail, String identifier, String temporaryPassword) {
+        return Mono.fromCallable(() -> {
+            String loginUrl = properties.getPublicBaseUrl() == null ? "" : properties.getPublicBaseUrl().replaceAll("/+$", "") + "/login";
+            String subject = prefix("Welcome to HR Core — your account is ready");
+            String body = """
+                    Welcome to HR Core!
+
+                    Your account has been created by your administrator.
+                    Here are your sign-in credentials:
+
+                      Identifier (matricule or email): %s
+                      Temporary password:              %s
+
+                    Sign in here:
+                      %s
+
+                    For security reasons please change your password
+                    after your first sign-in (Profile → Change password).
+                    """.formatted(identifier, temporaryPassword, loginUrl);
+
+            if (!properties.isEnabled() || mailSender == null
+                    || properties.getFrom() == null || properties.getFrom().isBlank()) {
+                return DeliveryResult.preview(temporaryPassword, 0L);
+            }
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom(properties.getFrom());
+            message.setTo(recipientEmail);
+            message.setSubject(subject);
+            message.setText(body);
+            mailSender.send(message);
+            return DeliveryResult.smtp(0L);
+        });
     }
 
     public DeliveryResult deliverEmailVerification(String recipientEmail, String token, long expiresInSeconds) {
