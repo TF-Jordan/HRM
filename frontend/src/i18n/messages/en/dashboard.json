@@ -1,6 +1,17 @@
 {
   "welcome": "Welcome, {name}",
-  "subtitle": "Your human resources dashboard",
+  "subtitle": "Your HR dashboard",
+  "subtitleByRole": {
+    "PLATFORM_ADMIN": "Platform overview",
+    "HRM_ADMIN": "HR overview",
+    "DRH": "Strategic HR pilot view",
+    "RESP_PAIE": "Payroll cycles & social declarations",
+    "COMPTABLE": "Payroll, loans & expenses validation",
+    "RECRUTEUR": "Recruitment & ongoing applications",
+    "MANAGER": "Your team & pending requests",
+    "MEDECIN": "Employee occupational health follow-up",
+    "EMPLOYE": "Your personal workspace"
+  },
   "kpi": {
     "activeEmployees": "Active workforce",
     "monthlyPayroll": "Monthly payroll",
@@ -9,12 +20,39 @@
     "newApplications": "New applications",
     "openPositions": "Open positions",
     "trainingBudgetUsed": "Training budget used",
-    "pendingExpenses": "Expenses to approve"
+    "pendingExpenses": "Expenses to approve",
+    "pendingLoans": "Loans to approve",
+    "payrollCycles": "Open cycles",
+    "declarationsDue": "Upcoming declarations",
+    "myLeaveBalance": "My leave balance",
+    "myPendingRequests": "My requests",
+    "upcomingVisits": "Upcoming visits",
+    "certificatesExpiring": "Certificates expiring",
+    "applicationsToReview": "Applications to review",
+    "activeJobOffers": "Active offers",
+    "missionsAssigned": "Mission orders",
+    "teamSize": "Team size"
   },
   "sections": {
     "quickActions": "Quick actions",
     "recentActivity": "Recent activity",
-    "alerts": "Alerts & due dates"
+    "alerts": "Alerts & due dates",
+    "myShortcuts": "Shortcuts"
+  },
+  "actions": {
+    "newLeave": "Request leave",
+    "newLoan": "Request loan",
+    "newExpense": "New expense",
+    "myProfile": "My profile",
+    "myPayslips": "My payslips",
+    "approveLeaves": "Approve leaves",
+    "approveExpenses": "Approve expenses",
+    "approveLoans": "Approve loans",
+    "runPayroll": "Run payroll",
+    "newDeclaration": "New declaration",
+    "newOffer": "New job offer",
+    "newVisit": "New medical visit",
+    "newCertificate": "New certificate"
   },
   "empty": {
     "title": "No data to display",

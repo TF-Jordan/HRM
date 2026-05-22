@@ -1,6 +1,17 @@
 {
   "welcome": "Bienvenue, {name}",
   "subtitle": "Votre tableau de bord ressources humaines",
+  "subtitleByRole": {
+    "PLATFORM_ADMIN": "Vue d'ensemble plateforme",
+    "HRM_ADMIN": "Vue d'ensemble RH",
+    "DRH": "Pilotage stratégique RH",
+    "RESP_PAIE": "Cycles de paie & déclarations sociales",
+    "COMPTABLE": "Validation paie, prêts & frais",
+    "RECRUTEUR": "Recrutement & candidatures en cours",
+    "MANAGER": "Votre équipe & demandes en attente",
+    "MEDECIN": "Suivi médical des employés",
+    "EMPLOYE": "Votre espace personnel"
+  },
   "kpi": {
     "activeEmployees": "Effectif actif",
     "monthlyPayroll": "Masse salariale",
@@ -9,12 +20,39 @@
     "newApplications": "Nouvelles candidatures",
     "openPositions": "Postes ouverts",
     "trainingBudgetUsed": "Budget formation utilisé",
-    "pendingExpenses": "Frais à approuver"
+    "pendingExpenses": "Frais à approuver",
+    "pendingLoans": "Prêts à approuver",
+    "payrollCycles": "Cycles ouverts",
+    "declarationsDue": "Déclarations à venir",
+    "myLeaveBalance": "Mon solde congés",
+    "myPendingRequests": "Mes demandes",
+    "upcomingVisits": "Visites à venir",
+    "certificatesExpiring": "Certificats à renouveler",
+    "applicationsToReview": "Candidatures à traiter",
+    "activeJobOffers": "Offres actives",
+    "missionsAssigned": "Ordres de mission",
+    "teamSize": "Taille équipe"
   },
   "sections": {
     "quickActions": "Actions rapides",
     "recentActivity": "Activité récente",
-    "alerts": "Alertes & échéances"
+    "alerts": "Alertes & échéances",
+    "myShortcuts": "Raccourcis"
+  },
+  "actions": {
+    "newLeave": "Demander un congé",
+    "newLoan": "Demander un prêt",
+    "newExpense": "Note de frais",
+    "myProfile": "Mon profil",
+    "myPayslips": "Mes bulletins",
+    "approveLeaves": "Approuver congés",
+    "approveExpenses": "Approuver frais",
+    "approveLoans": "Approuver prêts",
+    "runPayroll": "Lancer la paie",
+    "newDeclaration": "Nouvelle déclaration",
+    "newOffer": "Nouvelle offre",
+    "newVisit": "Nouvelle visite médicale",
+    "newCertificate": "Nouveau certificat"
   },
   "empty": {
     "title": "Aucune donnée à afficher",

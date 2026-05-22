@@ -51,7 +51,60 @@ const APTITUDE_TONE: Record<AptitudeResult, "green" | "amber" | "red"> = {
   INAPTE_TEMPORAIRE: "red",
 };
 
-export function MedicalClient() {
+export type MedicalClientProps = {
+  mode: "manager" | "self";
+  selfEmployeeId: string | null;
+};
+
+export function MedicalClient({ mode, selfEmployeeId }: MedicalClientProps) {
+  const t = useTranslations("medical");
+  const tNav = useTranslations("navigation");
+
+  if (mode === "self") {
+    return (
+      <div className="space-y-6 animate-fade-up">
+        <PageHeader
+          ucBadge="UC-23"
+          crumbs={[{ label: tNav("items.medical") }]}
+          title={t("title")}
+          subtitle={t("subtitle")}
+        />
+        <SelfMedicalView employeeId={selfEmployeeId} />
+      </div>
+    );
+  }
+
+  return <ManagerMedicalView />;
+}
+
+function SelfMedicalView({ employeeId }: { employeeId: string | null }) {
+  const t = useTranslations("medical");
+  if (!employeeId) {
+    return (
+      <Card>
+        <CardContent className="py-8 text-center text-sm text-ink-3">
+          {t("noEmployee")}
+        </CardContent>
+      </Card>
+    );
+  }
+  return (
+    <Tabs defaultValue="visits">
+      <TabsList>
+        <TabsTrigger value="visits">{t("tabs.visits")}</TabsTrigger>
+        <TabsTrigger value="certificates">{t("tabs.certificates")}</TabsTrigger>
+      </TabsList>
+      <TabsContent value="visits">
+        <VisitsPanel employeeId={employeeId} readOnly />
+      </TabsContent>
+      <TabsContent value="certificates">
+        <CertificatesPanel employeeId={employeeId} readOnly />
+      </TabsContent>
+    </Tabs>
+  );
+}
+
+function ManagerMedicalView() {
   const t = useTranslations("medical");
   const tNav = useTranslations("navigation");
   const employees = useEmployees();
@@ -102,7 +155,7 @@ export function MedicalClient() {
   );
 }
 
-function VisitsPanel({ employeeId }: { employeeId: string }) {
+function VisitsPanel({ employeeId, readOnly = false }: { employeeId: string; readOnly?: boolean }) {
   const t = useTranslations("medical");
   const tCommon = useTranslations("common");
   const fmt = useFormat();
@@ -129,12 +182,14 @@ function VisitsPanel({ employeeId }: { employeeId: string }) {
 
   return (
     <div className="space-y-3">
-      <div className="flex justify-end">
-        <Button onClick={() => setOpen(true)}>
-          <Plus className="size-4" />
-          {t("visits.newButton")}
-        </Button>
-      </div>
+      {!readOnly && (
+        <div className="flex justify-end">
+          <Button onClick={() => setOpen(true)}>
+            <Plus className="size-4" />
+            {t("visits.newButton")}
+          </Button>
+        </div>
+      )}
 
       {list.isLoading && <Skeleton className="h-32 w-full" />}
       {!list.isLoading && list.data && list.data.length === 0 && (
@@ -287,7 +342,13 @@ function VisitsPanel({ employeeId }: { employeeId: string }) {
   );
 }
 
-function CertificatesPanel({ employeeId }: { employeeId: string }) {
+function CertificatesPanel({
+  employeeId,
+  readOnly = false,
+}: {
+  employeeId: string;
+  readOnly?: boolean;
+}) {
   const t = useTranslations("medical");
   const tCommon = useTranslations("common");
   const fmt = useFormat();
@@ -313,12 +374,14 @@ function CertificatesPanel({ employeeId }: { employeeId: string }) {
 
   return (
     <div className="space-y-3">
-      <div className="flex justify-end">
-        <Button onClick={() => setOpen(true)}>
-          <Plus className="size-4" />
-          {t("certificates.newButton")}
-        </Button>
-      </div>
+      {!readOnly && (
+        <div className="flex justify-end">
+          <Button onClick={() => setOpen(true)}>
+            <Plus className="size-4" />
+            {t("certificates.newButton")}
+          </Button>
+        </div>
+      )}
 
       {list.isLoading && <Skeleton className="h-32 w-full" />}
       {!list.isLoading && list.data && list.data.length === 0 && (

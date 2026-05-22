@@ -17,10 +17,11 @@ import { Link, useRouter } from "@/i18n/navigation";
 export type UserChipProps = {
   displayName: string;
   email?: string;
+  matricule?: string | null;
   role?: string;
 };
 
-export function UserChip({ displayName, role }: UserChipProps) {
+export function UserChip({ displayName, matricule, role }: UserChipProps) {
   const tCommon = useTranslations("common");
   const tActions = useTranslations("common.actions" as never);
   const router = useRouter();
@@ -35,6 +36,9 @@ export function UserChip({ displayName, role }: UserChipProps) {
       <DropdownMenuTrigger className="flex items-center gap-2.5 rounded-full border border-line bg-white py-1 pl-3.5 pr-1 shadow-elev-sm transition-all hover:-translate-y-px hover:border-line-strong">
         <div className="hidden flex-col items-start leading-tight sm:flex">
           <span className="text-[13px] font-semibold text-ink">{displayName}</span>
+          {matricule && (
+            <span className="font-mono text-[10.5px] text-ink-4">{matricule}</span>
+          )}
           {role && <span className="text-[11px] text-ink-3">{role}</span>}
         </div>
         <Avatar name={displayName} />

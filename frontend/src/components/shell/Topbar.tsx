@@ -13,6 +13,7 @@ export type TopbarProps = {
   user?: {
     displayName: string;
     email?: string;
+    matricule?: string | null;
     role?: string;
   };
 };
@@ -66,7 +67,13 @@ export function Topbar({ user }: TopbarProps) {
 
       <LocaleSwitcher />
 
-      {user && <UserChip displayName={user.displayName} role={user.role} />}
+      {user && (
+        <UserChip
+          displayName={user.displayName}
+          matricule={user.matricule ?? null}
+          role={user.role}
+        />
+      )}
 
       <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} />
     </header>

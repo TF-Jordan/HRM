@@ -1,0 +1,11 @@
+{
+  "PLATFORM_ADMIN": "Administrateur Plateforme",
+  "HRM_ADMIN": "Administrateur RH",
+  "DRH": "Directeur RH",
+  "RESP_PAIE": "Responsable Paie",
+  "COMPTABLE": "Comptable",
+  "RECRUTEUR": "Recruteur",
+  "MANAGER": "Manager",
+  "MEDECIN": "Médecin du travail",
+  "EMPLOYE": "Employé"
+}

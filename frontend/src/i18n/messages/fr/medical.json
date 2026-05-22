@@ -6,6 +6,7 @@
     "certificates": "Certificats"
   },
   "selectEmployee": "Sélectionnez un employé",
+  "noEmployee": "Aucun dossier médical n'est rattaché à votre compte. Contactez votre administrateur RH.",
   "visits": {
     "newButton": "Nouvelle visite",
     "empty": "Aucune visite enregistrée",

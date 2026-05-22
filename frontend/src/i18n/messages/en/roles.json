@@ -1,0 +1,11 @@
+{
+  "PLATFORM_ADMIN": "Platform Administrator",
+  "HRM_ADMIN": "HR Administrator",
+  "DRH": "HR Director",
+  "RESP_PAIE": "Payroll Manager",
+  "COMPTABLE": "Accountant",
+  "RECRUTEUR": "Recruiter",
+  "MANAGER": "Team Manager",
+  "MEDECIN": "Occupational Doctor",
+  "EMPLOYE": "Employee"
+}

@@ -6,6 +6,7 @@
     "certificates": "Certificates"
   },
   "selectEmployee": "Select an employee",
+  "noEmployee": "No medical record is linked to your account. Contact your HR administrator.",
   "visits": {
     "newButton": "New visit",
     "empty": "No visit recorded",

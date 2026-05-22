@@ -1,8 +1,10 @@
 import * as React from "react";
+import { getTranslations } from "next-intl/server";
 import { Sidebar } from "@/components/shell/Sidebar";
 import { Topbar } from "@/components/shell/Topbar";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { getSession } from "@/server/session";
+import { getProfileSummary } from "@/server/profile";
 import { redirect } from "next/navigation";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
@@ -10,6 +12,16 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   if (!session) {
     redirect("/login");
   }
+
+  const [profile, tRoles] = await Promise.all([
+    getProfileSummary(),
+    getTranslations("roles"),
+  ]);
+
+  const fullName =
+    profile && profile.firstName
+      ? `${profile.firstName} ${profile.lastName}`.trim()
+      : session.user.displayName;
 
   return (
     <ThemeProvider>
@@ -20,9 +32,10 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         <div className="flex min-w-0 flex-col">
           <Topbar
             user={{
-              displayName: session.user.displayName,
+              displayName: fullName,
               email: session.user.email,
-              role: "Admin RH",
+              matricule: profile?.matricule ?? null,
+              role: profile ? (tRoles(profile.roleCode) as string) : undefined,
             }}
           />
           <main className="mx-auto w-full max-w-[1440px] grow px-4 pb-20 pt-6 md:px-9 md:pt-8">
