@@ -12,6 +12,7 @@
   "language": "Language",
   "workspace": "Workspace",
   "profile": "Profile",
+  "permissions": "Permissions",
   "settings": "Settings",
   "help": "Help",
   "toggleTheme": "Toggle theme",

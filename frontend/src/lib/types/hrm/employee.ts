@@ -1,6 +1,6 @@
 export type EmployeeStatus = "ACTIVE" | "ON_LEAVE" | "SUSPENDED" | "TERMINATED";
 
-export type PaymentMode = "BANK_TRANSFER" | "MOBILE_MONEY" | "CASH" | "CHECK";
+export type PaymentMode = "BANK_TRANSFER" | "MTN_MOBILE_MONEY" | "ORANGE_MONEY" | "CASH";
 
 export type MobileMoneyOperator = "MTN" | "ORANGE" | "EU_MOBILE" | "YOOMEE";
 

@@ -125,9 +125,9 @@
   },
   "paymentModes": {
     "BANK_TRANSFER": "Bank transfer",
-    "MOBILE_MONEY": "Mobile money",
-    "CASH": "Cash",
-    "CHECK": "Check"
+    "MTN_MOBILE_MONEY": "MTN Mobile Money",
+    "ORANGE_MONEY": "Orange Money",
+    "CASH": "Cash"
   },
   "operators": {
     "MTN": "MTN Mobile Money",

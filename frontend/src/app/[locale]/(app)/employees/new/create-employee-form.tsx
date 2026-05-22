@@ -166,7 +166,7 @@ export function CreateEmployeeForm() {
                       <SelectValue placeholder="—" />
                     </SelectTrigger>
                     <SelectContent>
-                      {(["BANK_TRANSFER", "MOBILE_MONEY", "CASH", "CHECK"] as const).map((v) => (
+                      {(["BANK_TRANSFER", "MTN_MOBILE_MONEY", "ORANGE_MONEY", "CASH"] as const).map((v) => (
                         <SelectItem key={v} value={v}>
                           {t(`paymentModes.${v}` as never)}
                         </SelectItem>
@@ -186,37 +186,15 @@ export function CreateEmployeeForm() {
                 <Input id="compteBancaire" {...form.register("compteBancaire")} />
               </Field>
             )}
-            {modePaiement === "MOBILE_MONEY" && (
-              <>
-                <Field
-                  id="numMobileMoney"
-                  label={t("form.numMobileMoney")}
-                  required
-                  error={form.formState.errors.numMobileMoney?.message}
-                >
-                  <Input id="numMobileMoney" {...form.register("numMobileMoney")} />
-                </Field>
-                <Field id="operateurMm" label={t("form.operateurMm")} required>
-                  <Controller
-                    control={form.control}
-                    name="operateurMm"
-                    render={({ field }) => (
-                      <Select value={field.value ?? ""} onValueChange={field.onChange}>
-                        <SelectTrigger id="operateurMm">
-                          <SelectValue placeholder="—" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {(["MTN", "ORANGE", "EU_MOBILE", "YOOMEE"] as const).map((v) => (
-                            <SelectItem key={v} value={v}>
-                              {t(`operators.${v}` as never)}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    )}
-                  />
-                </Field>
-              </>
+            {(modePaiement === "MTN_MOBILE_MONEY" || modePaiement === "ORANGE_MONEY") && (
+              <Field
+                id="numMobileMoney"
+                label={t("form.numMobileMoney")}
+                required
+                error={form.formState.errors.numMobileMoney?.message}
+              >
+                <Input id="numMobileMoney" {...form.register("numMobileMoney")} />
+              </Field>
             )}
           </FieldGrid>
         </Section>

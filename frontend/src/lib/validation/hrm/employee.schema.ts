@@ -8,7 +8,7 @@ const optionalTrimmed = z
   .nullable()
   .transform((v) => (v === "" ? null : (v ?? null)));
 
-const paymentModeEnum = z.enum(["BANK_TRANSFER", "MOBILE_MONEY", "CASH", "CHECK"]);
+const paymentModeEnum = z.enum(["BANK_TRANSFER", "MTN_MOBILE_MONEY", "ORANGE_MONEY", "CASH"]);
 const operatorEnum = z.enum(["MTN", "ORANGE", "EU_MOBILE", "YOOMEE"]).nullable().optional();
 const contractTypeEnum = z.enum(["CDD", "CDI", "STAGE", "INTERIM"]);
 
@@ -42,8 +42,11 @@ export const createEmployeeSchema = z
     { path: ["compteBancaire"], message: "Bank account required for BANK_TRANSFER" },
   )
   .refine(
-    (v) => (v.modePaiement !== "MOBILE_MONEY" ? true : !!v.numMobileMoney && !!v.operateurMm),
-    { path: ["numMobileMoney"], message: "Mobile money number + operator required" },
+    (v) =>
+      v.modePaiement === "MTN_MOBILE_MONEY" || v.modePaiement === "ORANGE_MONEY"
+        ? !!v.numMobileMoney
+        : true,
+    { path: ["numMobileMoney"], message: "Mobile money number required" },
   );
 
 export type CreateEmployeeFormValues = z.input<typeof createEmployeeSchema>;
