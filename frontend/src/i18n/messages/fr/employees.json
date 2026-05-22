@@ -134,5 +134,17 @@
     "ORANGE": "Orange Money",
     "EU_MOBILE": "EU Mobile",
     "YOOMEE": "Yoomee Cash"
+  },
+  "credentialsModal": {
+    "title": "Identifiants de connexion",
+    "warning": "Ces informations sont affichées une seule fois. Copiez-les ou notez-les avant de fermer cette fenêtre. Le mot de passe ne pourra plus être consulté ensuite.",
+    "matricule": "Identifiant (matricule)",
+    "password": "Mot de passe temporaire",
+    "sentTo": "Envoyé à",
+    "emailSent": "envoyé",
+    "emailPending": "en attente (SMTP non configuré)",
+    "roleAssigned": "Rôle assigné automatiquement :",
+    "membershipMissing": "L'appartenance organisationnelle n'a pas pu être créée — un administrateur doit la finaliser.",
+    "acknowledge": "J'ai noté ces informations"
   }
 }

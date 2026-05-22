@@ -24,6 +24,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useRouter } from "@/i18n/navigation";
+import { CredentialsModal } from "@/components/employees/CredentialsModal";
+import type { EmployeeAccountInfo } from "@/lib/types/hrm/employee";
 
 export function CreateEmployeeForm() {
   const t = useTranslations("employees");
@@ -31,6 +33,10 @@ export function CreateEmployeeForm() {
   const tCommon = useTranslations("common");
   const router = useRouter();
   const mutation = useCreateEmployee();
+  const [credModal, setCredModal] = React.useState<
+    | (EmployeeAccountInfo & { matricule: string; employeeId: string })
+    | null
+  >(null);
 
   const form = useForm<CreateEmployeeFormValues>({
     resolver: zodResolver(createEmployeeSchema),
@@ -61,12 +67,26 @@ export function CreateEmployeeForm() {
     mutation.mutate(values as never, {
       onSuccess: (employee) => {
         toast.success(`${employee.actorDisplayName} — ${employee.matricule}`);
-        router.push(`/employees/${employee.id}` as never);
+        if (employee.account) {
+          setCredModal({
+            ...employee.account,
+            matricule: employee.matricule,
+            employeeId: employee.id,
+          });
+        } else {
+          router.push(`/employees/${employee.id}` as never);
+        }
       },
       onError: (err) => {
         toast.error((err as Error).message);
       },
     });
+  };
+
+  const closeCredModal = () => {
+    const employeeId = credModal?.employeeId;
+    setCredModal(null);
+    if (employeeId) router.push(`/employees/${employeeId}` as never);
   };
 
   const modePaiement = form.watch("modePaiement");
@@ -105,7 +125,7 @@ export function CreateEmployeeForm() {
             <Field id="lastName" label={t("form.lastName")} required error={form.formState.errors.lastName?.message}>
               <Input id="lastName" {...form.register("lastName")} />
             </Field>
-            <Field id="email" label={t("form.email")} error={form.formState.errors.email?.message}>
+            <Field id="email" label={t("form.email")} required error={form.formState.errors.email?.message}>
               <Input id="email" type="email" {...form.register("email")} />
             </Field>
             <Field id="phoneNumber" label={t("form.phoneNumber")}>
@@ -250,6 +270,19 @@ export function CreateEmployeeForm() {
           </Button>
         </div>
       </form>
+
+      {credModal && (
+        <CredentialsModal
+          open={true}
+          onClose={closeCredModal}
+          matricule={credModal.matricule}
+          email={credModal.email}
+          temporaryPassword={credModal.temporaryPassword}
+          emailSent={credModal.emailSent}
+          roleAssigned={credModal.roleAssigned}
+          membershipCreated={credModal.membershipCreated}
+        />
+      )}
     </div>
   );
 }

@@ -4,6 +4,21 @@ export type PaymentMode = "BANK_TRANSFER" | "MOBILE_MONEY" | "CASH" | "CHECK";
 
 export type MobileMoneyOperator = "MTN" | "ORANGE" | "EU_MOBILE" | "YOOMEE";
 
+export type EmployeeAccountInfo = {
+  userId: string;
+  username: string;
+  email: string;
+  temporaryPassword: string;
+  emailSent: boolean;
+  roleAssigned: string | null;
+  membershipCreated: boolean;
+};
+
+export type EmployeeCreatedWithAccount = Employee & {
+  account: EmployeeAccountInfo | null;
+  accountError: string | null;
+};
+
 export type Employee = {
   id: string;
   organizationId: string;

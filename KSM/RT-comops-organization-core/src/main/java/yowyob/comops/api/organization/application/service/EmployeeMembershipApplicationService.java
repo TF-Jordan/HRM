@@ -1,6 +1,8 @@
 package yowyob.comops.api.organization.application.service;
 
 import yowyob.comops.api.kernel.application.service.ReactiveRequestContextHolder;
+import yowyob.comops.api.organization.application.port.in.AdminAddEmployeeMembershipCommand;
+import yowyob.comops.api.organization.application.port.in.AdminAddEmployeeMembershipUseCase;
 import yowyob.comops.api.organization.application.port.in.InviteEmployeeCommand;
 import yowyob.comops.api.organization.application.port.in.InviteEmployeeUseCase;
 import yowyob.comops.api.organization.application.port.in.ListEmployeesUseCase;
@@ -26,7 +28,8 @@ import reactor.core.publisher.Mono;
 
 @Service
 public class EmployeeMembershipApplicationService
-        implements InviteEmployeeUseCase, ListEmployeesUseCase, RemoveEmployeeUseCase, ListOrganizationRolesUseCase {
+        implements InviteEmployeeUseCase, ListEmployeesUseCase, RemoveEmployeeUseCase,
+        ListOrganizationRolesUseCase, AdminAddEmployeeMembershipUseCase {
 
     private final EmployeeMembershipRepository employeeMembershipRepository;
     private final OrganizationRepository organizationRepository;
@@ -69,6 +72,35 @@ public class EmployeeMembershipApplicationService
                                         command.organizationId(), userRecord.userId(), userRecord.actorId(),
                                         userRecord.email(), command.agencyId(), command.roleId()))))
                 .flatMap(membership -> assignRoleIfNeeded(command, membership));
+    }
+
+    @Override
+    public Mono<EmployeeMembership> addMembership(AdminAddEmployeeMembershipCommand command) {
+        Objects.requireNonNull(command, "command is required");
+        Mono<Void> organizationCheck = organizationRepository.findById(command.tenantId(), command.organizationId())
+                .switchIfEmpty(Mono.error(new OrganizationNotFoundException(command.organizationId())))
+                .then();
+        Mono<Void> agencyCheck = command.agencyId() == null
+                ? Mono.empty()
+                : agencyRepository.findById(command.tenantId(), command.agencyId())
+                        .filter(agency -> agency.organizationId().equals(command.organizationId()))
+                        .switchIfEmpty(Mono.error(new AgencyNotFoundException(command.agencyId())))
+                        .then();
+
+        return Mono.when(organizationCheck, agencyCheck)
+                .then(employeeMembershipRepository.existsByOrganizationAndUser(
+                        command.tenantId(), command.organizationId(), command.userId()))
+                .flatMap(exists -> exists
+                        ? Mono.<EmployeeMembership>error(new DuplicateEmployeeMembershipException(
+                                command.userId(), command.organizationId()))
+                        : employeeMembershipRepository.save(EmployeeMembership.invite(
+                                command.tenantId(),
+                                command.organizationId(),
+                                command.userId(),
+                                command.actorId(),
+                                command.email(),
+                                command.agencyId(),
+                                command.roleId())));
     }
 
     @Override

@@ -131,3 +131,32 @@ export async function ksmAdminCreateUser(
     organizationId: ctx.organizationId,
   });
 }
+
+export type AdminAddMembershipInput = {
+  organizationId: string;
+  userId: string;
+  actorId: string;
+  email: string;
+  agencyId?: string | null;
+  roleId?: string | null;
+};
+
+export type EmployeeMembershipSummary = {
+  id: string;
+  organizationId: string;
+  userId: string;
+  status: string;
+};
+
+export async function ksmAdminAddMembership(
+  input: AdminAddMembershipInput,
+  ctx: KsmCtx,
+): Promise<EmployeeMembershipSummary> {
+  return callKsm<EmployeeMembershipSummary>(`/api/employees/admin-membership`, {
+    method: "POST",
+    body: input,
+    bearer: ctx.bearer,
+    tenantId: ctx.tenantId,
+    organizationId: ctx.organizationId,
+  });
+}

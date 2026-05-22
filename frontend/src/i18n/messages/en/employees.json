@@ -134,5 +134,17 @@
     "ORANGE": "Orange Money",
     "EU_MOBILE": "EU Mobile",
     "YOOMEE": "Yoomee Cash"
+  },
+  "credentialsModal": {
+    "title": "Sign-in credentials",
+    "warning": "These details are shown only once. Copy or note them down before closing this dialog. The password will no longer be visible afterwards.",
+    "matricule": "Identifier (matricule)",
+    "password": "Temporary password",
+    "sentTo": "Sent to",
+    "emailSent": "delivered",
+    "emailPending": "pending (SMTP not configured)",
+    "roleAssigned": "Auto-assigned role:",
+    "membershipMissing": "The organisation membership could not be created — an administrator must finalise it.",
+    "acknowledge": "I have noted these credentials"
   }
 }

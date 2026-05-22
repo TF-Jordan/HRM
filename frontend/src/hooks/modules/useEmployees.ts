@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { bffFetch, queryKeys } from "@/lib/api-client";
 import type {
   Employee,
+  EmployeeCreatedWithAccount,
   CreateEmployeeInput,
   UpdateEmployeeInput,
   TerminateEmployeeInput,
@@ -32,7 +33,10 @@ export function useCreateEmployee() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (input: CreateEmployeeInput) =>
-      bffFetch<Employee>("/api/hrm/employees", { method: "POST", body: JSON.stringify(input) }),
+      bffFetch<EmployeeCreatedWithAccount>("/api/hrm/employees", {
+        method: "POST",
+        body: JSON.stringify(input),
+      }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.hrm.employees() });
       qc.invalidateQueries({ queryKey: queryKeys.hrm.dashboard() });

@@ -7,8 +7,13 @@ describe("loginSchema", () => {
     expect(result.success).toBe(true);
   });
 
-  it("rejects invalid email", () => {
-    const result = loginSchema.safeParse({ email: "not-an-email", password: "secret123" });
+  it("accepts a matricule as principal (login by matricule)", () => {
+    const result = loginSchema.safeParse({ email: "HRC-00007", password: "secret123" });
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects an empty principal", () => {
+    const result = loginSchema.safeParse({ email: "", password: "secret123" });
     expect(result.success).toBe(false);
   });
 

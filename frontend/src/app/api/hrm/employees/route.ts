@@ -3,6 +3,7 @@ import { withKsmHandler, parseBody } from "@/server/ksm/handler";
 import { ksmListEmployees, ksmCreateEmployee } from "@/server/ksm/modules/employees";
 import { ksmCreateActor } from "@/server/ksm/modules/actors";
 import {
+  ksmAdminAddMembership,
   ksmAdminCreateUser,
   ksmAssignRole,
   ksmListRoles,
@@ -98,33 +99,26 @@ export async function POST(request: Request) {
             // ignore — admin may lack iam:admin, account stays usable
           }
 
-          // Best-effort org membership so the new user can complete login.
-          // Failure is non-fatal: admin can complete it later from /admin/users.
+          // Organisation membership — uses the dedicated admin endpoint
+          // (POST /api/employees/admin-membership) which short-circuits the
+          // email lookup since we already have userId+actorId resolved.
+          // Required for the new user to complete select-context on login.
           let membershipCreated = false;
           try {
-            const inviteRes = await fetch(
-              `${process.env.KSM_BASE_URL?.replace(/\/$/, "")}/api/employees/invite?organizationId=${ctx.organizationId}`,
+            await ksmAdminAddMembership(
               {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                  "X-Client-Id": process.env.KSM_CLIENT_ID ?? "",
-                  "X-Api-Key": process.env.KSM_API_KEY ?? "",
-                  "X-Tenant-Id": ctx.tenantId,
-                  "X-Organization-Id": ctx.organizationId,
-                  Authorization: `Bearer ${ctx.bearer}`,
-                },
-                body: JSON.stringify({
-                  email: input.email,
-                  roleId: null,
-                  agencyId: null,
-                  permissions: [],
-                }),
+                organizationId: ctx.organizationId,
+                userId: created.id,
+                actorId: actor.id,
+                email: input.email,
+                agencyId: null,
+                roleId: null,
               },
+              ctx,
             );
-            membershipCreated = inviteRes.ok;
+            membershipCreated = true;
           } catch {
-            // ignore, not fatal
+            // Fall back gracefully — admin can fix later via /admin/users.
           }
 
           account = {
