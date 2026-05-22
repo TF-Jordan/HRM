@@ -9,7 +9,9 @@ import yowyob.comops.api.actor.application.port.in.ReactivateMyBusinessActorComm
 import yowyob.comops.api.actor.application.port.in.ReactivateMyBusinessActorUseCase;
 import yowyob.comops.api.actor.application.port.in.UpdateBusinessActorCommand;
 import yowyob.comops.api.actor.application.port.in.UpdateBusinessActorUseCase;
+import yowyob.comops.api.actor.application.port.out.ActorRepository;
 import yowyob.comops.api.common.domain.model.ApiResponse;
+import java.util.UUID;
 import yowyob.comops.api.kernel.application.service.ReactiveRequestContextHolder;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -34,17 +36,20 @@ public class ActorController {
     private final GetCurrentBusinessActorUseCase getCurrentBusinessActorUseCase;
     private final UpdateBusinessActorUseCase updateBusinessActorUseCase;
     private final ReactivateMyBusinessActorUseCase reactivateMyBusinessActorUseCase;
+    private final ActorRepository actorRepository;
 
     public ActorController(CreateActorUseCase createActorUseCase,
             OnboardBusinessActorUseCase onboardBusinessActorUseCase,
             GetCurrentBusinessActorUseCase getCurrentBusinessActorUseCase,
             UpdateBusinessActorUseCase updateBusinessActorUseCase,
-            ReactivateMyBusinessActorUseCase reactivateMyBusinessActorUseCase) {
+            ReactivateMyBusinessActorUseCase reactivateMyBusinessActorUseCase,
+            ActorRepository actorRepository) {
         this.createActorUseCase = createActorUseCase;
         this.onboardBusinessActorUseCase = onboardBusinessActorUseCase;
         this.getCurrentBusinessActorUseCase = getCurrentBusinessActorUseCase;
         this.updateBusinessActorUseCase = updateBusinessActorUseCase;
         this.reactivateMyBusinessActorUseCase = reactivateMyBusinessActorUseCase;
+        this.actorRepository = actorRepository;
     }
 
     @PostMapping
@@ -147,6 +152,27 @@ public class ActorController {
                         tuple.getT1().businessProfile())))
                 .map(BusinessActorResponse::from)
                 .map(response -> ResponseEntity.ok(ApiResponse.success(response, "Business actor profile updated.")));
+    }
+
+    /**
+     * Update the authenticated user's actor photo. The {@code photoId} is
+     * the {@code StoredFile.id} returned by {@code POST /api/files}.
+     * Pass {@code null} to clear.
+     */
+    @PutMapping("/me/photo")
+    @PreAuthorize("@businessAccessPolicy.hasUserContext(authentication)")
+    public Mono<ResponseEntity<ApiResponse<ActorResponse>>> updateMyPhoto(
+            @Valid @RequestBody Mono<UpdateActorPhotoRequest> requestMono) {
+        return requestMono.zipWith(ReactiveRequestContextHolder.getRequiredContext())
+                .flatMap(tuple -> actorRepository.findById(tuple.getT2().tenantId(), tuple.getT2().actorId())
+                        .switchIfEmpty(Mono.error(new IllegalArgumentException("Actor not found for current user")))
+                        .map(actor -> actor.withPhotoId(tuple.getT1().photoId()))
+                        .flatMap(actorRepository::save))
+                .map(ActorResponse::from)
+                .map(response -> ResponseEntity.ok(ApiResponse.success(response, "Profile photo updated.")));
+    }
+
+    public record UpdateActorPhotoRequest(UUID photoId) {
     }
 
     @PostMapping("/me/reactivate")

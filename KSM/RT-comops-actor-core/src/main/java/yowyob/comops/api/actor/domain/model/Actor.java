@@ -162,6 +162,17 @@ public final class Actor extends BaseEntity {
                 addresses, contacts, deletedAt);
     }
 
+    /**
+     * Returns a copy of this actor with the {@code photoId} replaced. Used
+     * by profile photo upload — the new value is the {@code StoredFile.id}
+     * returned by {@code POST /api/files}. Pass {@code null} to clear.
+     */
+    public Actor withPhotoId(UUID newPhotoId) {
+        return new Actor(id(), tenantId(), createdAt(), Instant.now(), organizationId, firstName, lastName, name,
+                phoneNumber, email, description, type, gender, photoUri, newPhotoId, nationality, birthDate,
+                profession, biography, addresses, contacts, deletedAt);
+    }
+
     public UUID organizationId() {
         return organizationId;
     }

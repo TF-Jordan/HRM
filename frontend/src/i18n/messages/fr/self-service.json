@@ -106,6 +106,23 @@
   },
   "profile": {
     "title": "Mon profil",
-    "subtitle": "Vos informations personnelles et professionnelles"
+    "subtitle": "Vos informations personnelles et professionnelles",
+    "photoSectionTitle": "Photo de profil",
+    "uploadPhoto": "Charger une photo",
+    "photoHint": "Format JPG ou PNG, 5 Mo maximum.",
+    "photoUpdated": "Photo de profil mise à jour",
+    "photoMustBeImage": "Le fichier doit être une image",
+    "photoTooLarge": "Le fichier dépasse 5 Mo",
+    "changePasswordTitle": "Changer le mot de passe",
+    "changePasswordHint": "Recommandé après la première connexion. Le nouveau mot de passe doit comporter au moins 10 caractères, une majuscule, une minuscule, un chiffre et un symbole.",
+    "oldPassword": "Mot de passe actuel",
+    "newPassword": "Nouveau mot de passe",
+    "confirmPassword": "Confirmer le nouveau mot de passe",
+    "savePassword": "Enregistrer le nouveau mot de passe",
+    "passwordChanged": "Mot de passe modifié",
+    "passwordMismatch": "Les mots de passe ne correspondent pas",
+    "passwordMatch": "Les mots de passe correspondent",
+    "passwordTooShort": "Le mot de passe doit faire au moins 10 caractères",
+    "passwordPolicy": "Min. 10 caractères, avec majuscule, minuscule, chiffre et symbole."
   }
 }

@@ -42,3 +42,30 @@ export async function ksmCreateActor(
     tenantId: ctx.tenantId,
   });
 }
+
+export async function ksmUpdateMyPhoto(
+  photoId: string | null,
+  ctx: { tenantId: string; organizationId: string; bearer: string },
+): Promise<KsmActorResponse> {
+  return callKsm<KsmActorResponse>("/api/actors/me/photo", {
+    method: "PUT",
+    body: { photoId },
+    bearer: ctx.bearer,
+    tenantId: ctx.tenantId,
+    organizationId: ctx.organizationId,
+  });
+}
+
+export async function ksmChangeMyPassword(
+  oldPassword: string,
+  newPassword: string,
+  ctx: { tenantId: string; organizationId: string; bearer: string },
+): Promise<unknown> {
+  return callKsm<unknown>("/api/users/me/change-password", {
+    method: "POST",
+    body: { oldPassword, newPassword },
+    bearer: ctx.bearer,
+    tenantId: ctx.tenantId,
+    organizationId: ctx.organizationId,
+  });
+}

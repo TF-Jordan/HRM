@@ -144,6 +144,28 @@ public class AuthApplicationService implements RegisterUserUseCase, LoginUseCase
                 .flatMap(context -> userAccountRepository.findById(context.tenantId(), context.userId()));
     }
 
+    /**
+     * Self-service password change for the authenticated user. Validates
+     * the supplied current password against the stored hash, then sets a
+     * new one (subject to the same strength policy as initial registration).
+     */
+    public Mono<UserAccount> changeCurrentUserPassword(String oldPassword, String newPassword) {
+        Objects.requireNonNull(oldPassword, "oldPassword is required");
+        Objects.requireNonNull(newPassword, "newPassword is required");
+        return ReactiveRequestContextHolder.getRequiredContext()
+                .flatMap(context -> userAccountRepository.findById(context.tenantId(), context.userId())
+                        .switchIfEmpty(Mono.error(new InvalidLoginCredentialsException()))
+                        .filter(userAccount -> passwordEncoder.matches(oldPassword, userAccount.passwordHash()))
+                        .switchIfEmpty(Mono.error(new InvalidLoginCredentialsException()))
+                        .map(userAccount -> userAccount.updatePassword(
+                                passwordEncoder.encode(resolvePassword(newPassword, false))))
+                        .flatMap(userAccountRepository::save)
+                        .flatMap(saved -> recordSystemAuditUseCase.record(saved.tenantId(),
+                                        context.organizationId(), context.userId(), "USER_PASSWORD_CHANGED",
+                                        "USER_ACCOUNT", saved.id().toString(), saved.username())
+                                .thenReturn(saved)));
+    }
+
     @Override
     public Mono<UserAccount> updateCurrentUserPlan(String plan) {
         return ReactiveRequestContextHolder.getRequiredContext()

@@ -139,6 +139,15 @@ public class UserController {
                 .map(response -> ResponseEntity.ok(ApiResponse.success(response, "User onboarding updated.")));
     }
 
+    @PostMapping("/me/change-password")
+    public Mono<ResponseEntity<ApiResponse<UserAccountResponse>>> changeMyPassword(
+            @Valid @RequestBody Mono<ChangePasswordRequest> requestMono) {
+        return requestMono.flatMap(request -> authApplicationService.changeCurrentUserPassword(
+                        request.oldPassword(), request.newPassword()))
+                .flatMap(authUserViewAssembler::toUserAccountResponse)
+                .map(response -> ResponseEntity.ok(ApiResponse.success(response, "Password changed.")));
+    }
+
     @PutMapping("/me/identity-onboarding")
     public Mono<ResponseEntity<ApiResponse<UserAccountResponse>>> updateIdentityOnboarding(
             @Valid @RequestBody Mono<UpdateIdentityOnboardingRequest> requestMono) {
@@ -187,6 +196,11 @@ public class UserController {
 
     public record UserSummaryResponse(UUID id, UUID actorId, String username, String email,
             String phoneNumber, String status, Instant createdAt) {
+    }
+
+    public record ChangePasswordRequest(
+            @NotBlank String oldPassword,
+            @NotBlank String newPassword) {
     }
 
     public record AdminCreateUserRequest(

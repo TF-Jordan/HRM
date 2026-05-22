@@ -106,6 +106,23 @@
   },
   "profile": {
     "title": "My profile",
-    "subtitle": "Your personal and professional information"
+    "subtitle": "Your personal and professional information",
+    "photoSectionTitle": "Profile picture",
+    "uploadPhoto": "Upload picture",
+    "photoHint": "JPG or PNG format, max 5 MB.",
+    "photoUpdated": "Profile picture updated",
+    "photoMustBeImage": "The file must be an image",
+    "photoTooLarge": "The file exceeds 5 MB",
+    "changePasswordTitle": "Change password",
+    "changePasswordHint": "Recommended after the first sign-in. The new password must be at least 10 characters, with upper and lower case, a digit and a symbol.",
+    "oldPassword": "Current password",
+    "newPassword": "New password",
+    "confirmPassword": "Confirm new password",
+    "savePassword": "Save new password",
+    "passwordChanged": "Password changed",
+    "passwordMismatch": "Passwords do not match",
+    "passwordMatch": "Passwords match",
+    "passwordTooShort": "Password must be at least 10 characters",
+    "passwordPolicy": "Min. 10 chars, with upper, lower, digit and symbol."
   }
 }
