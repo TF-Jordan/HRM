@@ -5,6 +5,7 @@ import yowyob.comops.api.hrm.domain.model.Dependent;
 import yowyob.comops.api.hrm.domain.model.Employee;
 import yowyob.comops.api.hrm.domain.model.LeaveBalance;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 import reactor.core.publisher.Flux;
@@ -29,6 +30,12 @@ public interface ManageEmployeeUseCase {
     Mono<Contract> addContract(UUID employeeId, AddContractCommand command);
 
     Flux<Contract> getContracts(UUID employeeId);
+
+    Mono<Contract> renewContract(UUID contractId, LocalDate newDateFin);
+
+    Mono<Contract> terminateContract(UUID contractId, String motif);
+
+    Mono<Contract> attachContractDocument(UUID contractId, UUID documentFileId);
 
     Mono<Dependent> addDependent(UUID employeeId, AddDependentCommand command);
 

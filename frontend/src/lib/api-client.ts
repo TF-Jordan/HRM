@@ -46,6 +46,7 @@ export const queryKeys = {
     dashboard: () => ["hrm", "dashboard"] as const,
     employees: () => ["hrm", "employees"] as const,
     employee: (id: string) => ["hrm", "employees", id] as const,
+    allContracts: () => ["hrm", "contracts"] as const,
     contracts: (employeeId: string) =>
       ["hrm", "employees", employeeId, "contracts"] as const,
     dependents: (employeeId: string) =>

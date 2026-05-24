@@ -18,7 +18,11 @@ export const submitLeaveSchema = z
   })
   .refine((v) => v.dateFin >= v.dateDebut, {
     path: ["dateFin"],
-    message: "End date must be after start date",
+    message: "End date must be on or after start date",
+  })
+  .refine((v) => v.dateDebut >= new Date().toISOString().slice(0, 10), {
+    path: ["dateDebut"],
+    message: "Leave start date must not be in the past",
   });
 
 export type SubmitLeaveFormValues = z.input<typeof submitLeaveSchema>;

@@ -41,6 +41,9 @@ public final class Training extends BaseEntity {
     public static Training create(UUID tenantId, UUID organizationId, UUID agencyId, String intitule,
                                    String organisme, LocalDate dateDebut, LocalDate dateFin,
                                    BigDecimal cout, Integer nbPlaces, String lieu) {
+        if (dateFin != null && dateFin.isBefore(dateDebut)) {
+            throw new IllegalArgumentException("Training end date must be on or after start date");
+        }
         Instant now = Instant.now();
         return new Training(UUID.randomUUID(), tenantId, now, now, organizationId, agencyId,
                 intitule, organisme, dateDebut, dateFin, cout, nbPlaces, lieu, TrainingStatus.PLANNED);

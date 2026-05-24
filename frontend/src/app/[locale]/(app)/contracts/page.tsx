@@ -1,5 +1,5 @@
 import { setRequestLocale } from "next-intl/server";
-import { ComingSoon } from "@/components/shell/ComingSoon";
+import { ContractsClient } from "./contracts-client";
 
 export default async function ContractsPage({
   params,
@@ -8,10 +8,5 @@ export default async function ContractsPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  return (
-    <ComingSoon
-      titleKey="items.contracts"
-      hint="Pour le moment, les contrats se consultent depuis la fiche employé (Employés → cliquer un employé → onglet Contrats)."
-    />
-  );
+  return <ContractsClient />;
 }

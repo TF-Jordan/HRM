@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { uuidLike } from "@/lib/validation/uuid";
 
 const optionalTrimmed = z
   .string()
@@ -18,7 +19,7 @@ export const createEmployeeSchema = z
     lastName: z.string().trim().min(1).max(120),
     email: z.email(),
     phoneNumber: optionalTrimmed,
-    photoFileId: z.uuid().optional().nullable().or(z.literal("").transform(() => null)),
+    photoFileId: uuidLike.optional().nullable().or(z.literal("").transform(() => null)),
     createAccount: z.boolean().optional().default(true),
     sendWelcomeEmail: z.boolean().optional().default(true),
     numCnps: optionalTrimmed,
@@ -47,6 +48,16 @@ export const createEmployeeSchema = z
         ? !!v.numMobileMoney
         : true,
     { path: ["numMobileMoney"], message: "Mobile money number required" },
+  )
+  .refine(
+    (v) =>
+      !v.contractDateDebut || !v.contractDateFin || v.contractDateFin >= v.contractDateDebut,
+    { path: ["contractDateFin"], message: "Contract end date must be on or after start date" },
+  )
+  .refine(
+    (v) =>
+      !v.contractDateDebut || v.contractDateDebut >= v.dateEmbauche,
+    { path: ["contractDateDebut"], message: "Contract start date must be on or after hire date" },
   );
 
 export type CreateEmployeeFormValues = z.input<typeof createEmployeeSchema>;

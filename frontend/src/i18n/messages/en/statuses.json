@@ -9,7 +9,9 @@
     "ACTIVE": "Active",
     "EXPIRED": "Expired",
     "TERMINATED": "Terminated",
-    "RENEWED": "Renewed"
+    "RENEWED": "Renewed",
+    "TRIAL": "trial",
+    "ENDING_SOON": "ending soon"
   },
   "contractType": {
     "CDD": "Fixed-term",

@@ -2,10 +2,11 @@ import { getKsmContext } from "@/server/ksm/context";
 import { withKsmHandler, parseBody } from "@/server/ksm/handler";
 import { ksmCreateReview, ksmListReviews } from "@/server/ksm/modules/reviews";
 import { z } from "zod";
+import { uuidLike } from "@/lib/validation/uuid";
 
 const createBody = z.object({
-  employeeId: z.uuid(),
-  evaluateurPartyId: z.uuid(),
+  employeeId: uuidLike,
+  evaluateurPartyId: uuidLike,
   evaluateurDisplayName: z.string().trim().min(1),
   periode: z.string().trim().min(4),
 });

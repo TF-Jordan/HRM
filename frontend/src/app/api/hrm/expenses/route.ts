@@ -2,9 +2,10 @@ import { getKsmContext } from "@/server/ksm/context";
 import { withKsmHandler, parseBody } from "@/server/ksm/handler";
 import { ksmCreateExpense, ksmListExpenses } from "@/server/ksm/modules/expenses";
 import { z } from "zod";
+import { uuidLike } from "@/lib/validation/uuid";
 import { createExpenseSchema } from "@/lib/validation/hrm/expense.schema";
 
-const createBody = z.object({ employeeId: z.uuid() }).and(createExpenseSchema);
+const createBody = z.object({ employeeId: uuidLike }).and(createExpenseSchema);
 
 export async function GET(request: Request) {
   const url = new URL(request.url);

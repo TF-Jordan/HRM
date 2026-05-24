@@ -11,7 +11,7 @@ import { Badge, type BadgeProps } from "@/components/ui/badge";
 type BadgeTone = NonNullable<BadgeProps["tone"]>;
 const STATUS_TONE_MAP: Record<string, Record<string, BadgeTone>> = {
   employee: { ACTIVE: "green", ON_LEAVE: "blue", SUSPENDED: "amber", TERMINATED: "red" },
-  contract: { ACTIVE: "green", EXPIRED: "amber", TERMINATED: "red", RENEWED: "blue" },
+  contract: { ACTIVE: "green", EXPIRED: "amber", TERMINATED: "red", RENEWED: "blue", TRIAL: "teal", ENDING_SOON: "amber" },
   leave: { PENDING: "amber", APPROVED: "green", REJECTED: "red", CANCELLED: "gray" },
   loan: {
     PENDING: "amber",

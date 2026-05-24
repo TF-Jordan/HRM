@@ -258,7 +258,7 @@ export function RecruitmentClient() {
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="dateLimite">{t("offers.form.dateLimite")}</Label>
-                <Input id="dateLimite" type="date" {...offerForm.register("dateLimite")} />
+                <Input id="dateLimite" type="date" min={new Date().toISOString().slice(0, 10)} {...offerForm.register("dateLimite")} />
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="packageSalarial">{t("offers.form.packageSalarial")}</Label>

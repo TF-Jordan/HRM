@@ -1,8 +1,9 @@
 import { z } from "zod";
+import { uuidLike } from "@/lib/validation/uuid";
 
 export const createMissionSchema = z
   .object({
-    employeeId: z.uuid(),
+    employeeId: uuidLike,
     destination: z.string().trim().min(1).max(160),
     objet: z.string().trim().min(1).max(500),
     dateDebut: z.iso.date(),

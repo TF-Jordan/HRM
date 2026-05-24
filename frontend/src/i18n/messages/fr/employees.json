@@ -93,11 +93,66 @@
     "dateDebut": "Début",
     "dateFin": "Fin",
     "salaireBase": "Salaire (XAF)",
-    "avantagesNature": "Avantages",
-    "periodeEssai": "Essai",
+    "avantagesNature": "Avantages en nature",
+    "periodeEssai": "Période d'essai",
     "status": "Statut",
     "newTitle": "Ajouter un contrat",
     "submit": "Créer le contrat"
+  },
+  "contractsPage": {
+    "title": "Contrats de travail",
+    "subtitle": "CDI, CDD, STAGE et INTERIM. Un seul contrat actif par employé à un instant donné.",
+    "newButton": "+ Nouveau contrat",
+    "employee": "Employé",
+    "kpi": {
+      "active": "Contrats actifs",
+      "trial": "Période d'essai",
+      "endingSoon": "Fin < 30 jours",
+      "renewed": "Renouvelés ce mois"
+    },
+    "table": {
+      "employee": "Employé",
+      "type": "Type",
+      "dateDebut": "Date début",
+      "dateFin": "Date fin",
+      "salaireBase": "Salaire base",
+      "status": "Statut"
+    },
+    "new": {
+      "title": "Nouveau contrat",
+      "subtitle": "Sélectionnez le type, renseignez le salaire de base, les avantages et créez le contrat.",
+      "sections": {
+        "employee": "Employé concerné",
+        "employeeHint": "Un seul contrat actif autorisé par employé",
+        "type": "Type de contrat",
+        "typeHint": "Le type conditionne les champs requis (durée, période d'essai)",
+        "remuneration": "Rémunération & avantages",
+        "remunerationHint": "Salaire de base et avantages en nature"
+      },
+      "selectEmployee": "Sélectionner un employé",
+      "submit": "Créer le contrat",
+      "submitting": "Création..."
+    },
+    "detail": {
+      "kpi": {
+        "dateDebut": "Date début",
+        "dateFin": "Date fin",
+        "remaining": "Jours restants",
+        "salary": "Salaire base"
+      },
+      "fields": {
+        "id": "Identifiant",
+        "type": "Type",
+        "periodeEssai": "Période d'essai",
+        "avantages": "Avantages en nature",
+        "status": "Statut",
+        "motifFin": "Motif de fin"
+      },
+      "detailsTitle": "Détails du contrat",
+      "days": "jours",
+      "cdiNotice": "Contrat à durée indéterminée — pas de date de fin.",
+      "cddNotice": "Contrat à durée déterminée arrivant à échéance dans {days} jours."
+    }
   },
   "dependents": {
     "empty": "Aucune personne à charge",

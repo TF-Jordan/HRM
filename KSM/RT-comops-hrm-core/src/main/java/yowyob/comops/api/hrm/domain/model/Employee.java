@@ -75,6 +75,9 @@ public final class Employee extends BaseEntity {
         if (this.status != EmployeeStatus.ACTIVE && this.status != EmployeeStatus.SUSPENDED) {
             throw new IllegalStateException("Cannot terminate employee in status " + this.status);
         }
+        if (terminationDate.isBefore(dateEmbauche)) {
+            throw new IllegalArgumentException("Termination date must be on or after hire date");
+        }
         return new Employee(id(), tenantId(), createdAt(), Instant.now(), organizationId, agencyId,
                 actorId, matricule, numCnps, categorie, echelon, dateEmbauche,
                 EmployeeStatus.TERMINATED, departmentCode, modePaiement, compteBancaire,

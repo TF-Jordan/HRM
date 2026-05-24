@@ -139,7 +139,7 @@ function AddDependentDialog({
             </div>
             <div className="space-y-1.5">
               <Label>{t("dependents.dateNaissance")}</Label>
-              <Input type="date" {...form.register("dateNaissance")} />
+              <Input type="date" max={new Date().toISOString().slice(0, 10)} {...form.register("dateNaissance")} />
             </div>
             <div className="space-y-1.5">
               <Label>{t("dependents.lienParente")}</Label>

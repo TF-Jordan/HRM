@@ -52,6 +52,12 @@ public final class LeaveRequest extends BaseEntity {
                                        LocalDate dateFin, BigDecimal nbJours, String motif,
                                        UUID valideurPartyId, String valideurDisplayName,
                                        UUID justificatifFileId) {
+        if (dateFin.isBefore(dateDebut)) {
+            throw new IllegalArgumentException("Leave end date must be on or after start date");
+        }
+        if (dateDebut.isBefore(LocalDate.now())) {
+            throw new IllegalArgumentException("Leave start date must not be in the past");
+        }
         Instant now = Instant.now();
         return new LeaveRequest(UUID.randomUUID(), tenantId, now, now, organizationId, agencyId,
                 employeeId, type, dateDebut, dateFin, nbJours, LeaveStatus.PENDING, motif,

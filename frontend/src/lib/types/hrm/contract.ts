@@ -23,3 +23,9 @@ export type AddContractInput = {
   avantagesNature?: number | null;
   periodeEssai?: number | null;
 };
+
+export type ContractWithEmployee = Contract & {
+  employeeName: string;
+  employeeMatricule: string;
+  employeeDepartment: string | null;
+};

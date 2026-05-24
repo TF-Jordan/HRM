@@ -31,6 +31,9 @@ public final class MedicalCertificate extends BaseEntity {
     public static MedicalCertificate create(UUID tenantId, UUID employeeId, String typeCertificat,
                                              LocalDate dateEmission, LocalDate dateExpiration,
                                              String statut, UUID fichierId) {
+        if (dateExpiration != null && !dateExpiration.isAfter(dateEmission)) {
+            throw new IllegalArgumentException("Certificate expiration must be after emission date");
+        }
         Instant now = Instant.now();
         return new MedicalCertificate(UUID.randomUUID(), tenantId, now, now, employeeId,
                 typeCertificat, dateEmission, dateExpiration, statut, fichierId);

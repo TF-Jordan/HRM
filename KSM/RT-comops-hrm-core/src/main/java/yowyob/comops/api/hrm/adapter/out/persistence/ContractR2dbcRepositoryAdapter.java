@@ -38,6 +38,11 @@ public class ContractR2dbcRepositoryAdapter implements ContractRepository {
         return repository.findAllByTenantIdAndEmployeeId(tenantId, employeeId).map(this::toDomain);
     }
 
+    @Override
+    public Mono<Contract> findById(UUID tenantId, UUID contractId) {
+        return repository.findByTenantIdAndId(tenantId, contractId).map(this::toDomain);
+    }
+
     private ContractEntity toEntity(Contract c) {
         return new ContractEntity(c.id(), c.tenantId(), c.createdAt(), c.updatedAt(), c.organizationId(),
                 c.agencyId(), c.employeeId(), c.type().name(), c.dateDebut(), c.dateFin(), c.salaireBase(),

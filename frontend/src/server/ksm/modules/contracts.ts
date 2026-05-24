@@ -31,3 +31,57 @@ export async function ksmAddContract(
     organizationId: ctx.organizationId,
   });
 }
+
+export async function ksmRenewContract(
+  employeeId: string,
+  contractId: string,
+  newDateFin: string,
+  ctx: KsmCtx,
+): Promise<Contract> {
+  return callKsm<Contract>(
+    `/api/v1/hrm/employees/${employeeId}/contracts/${contractId}/renew`,
+    {
+      method: "PUT",
+      body: { newDateFin },
+      bearer: ctx.bearer,
+      tenantId: ctx.tenantId,
+      organizationId: ctx.organizationId,
+    },
+  );
+}
+
+export async function ksmTerminateContract(
+  employeeId: string,
+  contractId: string,
+  motif: string,
+  ctx: KsmCtx,
+): Promise<Contract> {
+  return callKsm<Contract>(
+    `/api/v1/hrm/employees/${employeeId}/contracts/${contractId}/terminate`,
+    {
+      method: "PUT",
+      body: { motif },
+      bearer: ctx.bearer,
+      tenantId: ctx.tenantId,
+      organizationId: ctx.organizationId,
+    },
+  );
+}
+
+export async function ksmAttachContractDocument(
+  employeeId: string,
+  contractId: string,
+  documentFileId: string,
+  ctx: KsmCtx,
+): Promise<Contract> {
+  return callKsm<Contract>(
+    `/api/v1/hrm/employees/${employeeId}/contracts/${contractId}/document`,
+    {
+      method: "PUT",
+      body: { documentFileId },
+      bearer: ctx.bearer,
+      tenantId: ctx.tenantId,
+      organizationId: ctx.organizationId,
+    },
+  );
+}

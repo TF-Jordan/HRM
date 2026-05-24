@@ -2,9 +2,10 @@ import { getKsmContext } from "@/server/ksm/context";
 import { withKsmHandler, parseBody } from "@/server/ksm/handler";
 import { ksmAdminCreateUser, ksmListUsers } from "@/server/ksm/modules/admin";
 import { z } from "zod";
+import { uuidLike } from "@/lib/validation/uuid";
 
 const createUserSchema = z.object({
-  actorId: z.uuid(),
+  actorId: uuidLike,
   username: z.string().trim().min(1).max(160),
   email: z.email(),
   phoneNumber: z.string().trim().max(30).optional().nullable().or(z.literal("").transform(() => null)),

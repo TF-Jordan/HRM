@@ -47,6 +47,9 @@ public final class Contract extends BaseEntity {
     public static Contract create(UUID tenantId, UUID organizationId, UUID agencyId, UUID employeeId,
                                   ContractType type, LocalDate dateDebut, LocalDate dateFin,
                                   BigDecimal salaireBase, BigDecimal avantagesNature, Integer periodeEssai) {
+        if (dateFin != null && !dateFin.isAfter(dateDebut)) {
+            throw new IllegalArgumentException("Contract end date must be after start date");
+        }
         Instant now = Instant.now();
         return new Contract(UUID.randomUUID(), tenantId, now, now, organizationId, agencyId,
                 employeeId, type, dateDebut, dateFin, salaireBase, avantagesNature, periodeEssai,
@@ -75,6 +78,10 @@ public final class Contract extends BaseEntity {
     }
 
     public Contract renew(LocalDate newDateFin) {
+        LocalDate ref = this.dateFin != null ? this.dateFin : this.dateDebut;
+        if (!newDateFin.isAfter(ref)) {
+            throw new IllegalArgumentException("Renewal date must be after current end date");
+        }
         return new Contract(id(), tenantId(), createdAt(), Instant.now(), organizationId, agencyId,
                 employeeId, type, dateDebut, newDateFin, salaireBase, avantagesNature, periodeEssai,
                 ContractStatus.RENEWED, null, documentFileId);

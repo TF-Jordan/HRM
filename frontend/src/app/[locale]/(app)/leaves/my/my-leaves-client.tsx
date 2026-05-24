@@ -235,7 +235,7 @@ function SubmitLeaveDialog({
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label htmlFor="dateDebut">{t("form.dateDebut")}</Label>
-              <Input id="dateDebut" type="date" {...form.register("dateDebut")} />
+              <Input id="dateDebut" type="date" min={new Date().toISOString().slice(0, 10)} {...form.register("dateDebut")} />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="dateFin">{t("form.dateFin")}</Label>

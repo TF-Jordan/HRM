@@ -210,7 +210,7 @@ export function MissionOrdersClient() {
             <div className="grid grid-cols-3 gap-3">
               <div className="space-y-1.5">
                 <Label htmlFor="missionDebut">{t("form.dateDebut")}</Label>
-                <Input id="missionDebut" type="date" {...form.register("dateDebut")} />
+                <Input id="missionDebut" type="date" min={new Date().toISOString().slice(0, 10)} {...form.register("dateDebut")} />
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="missionFin">{t("form.dateFin")}</Label>

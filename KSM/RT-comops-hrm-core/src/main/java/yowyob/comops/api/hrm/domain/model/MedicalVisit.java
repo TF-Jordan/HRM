@@ -35,6 +35,9 @@ public final class MedicalVisit extends BaseEntity {
                                        String medecin, AptitudeResult resultatAptitude,
                                        String restrictions, LocalDate prochaineEcheance,
                                        UUID certificatFileId) {
+        if (prochaineEcheance != null && !prochaineEcheance.isAfter(dateVisite)) {
+            throw new IllegalArgumentException("Next checkup date must be after visit date");
+        }
         Instant now = Instant.now();
         return new MedicalVisit(UUID.randomUUID(), tenantId, now, now, employeeId, dateVisite,
                 medecin, resultatAptitude, restrictions, prochaineEcheance, certificatFileId);

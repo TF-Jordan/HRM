@@ -38,6 +38,9 @@ public final class JobOffer extends BaseEntity {
     public static JobOffer create(UUID tenantId, UUID organizationId, UUID agencyId, String poste,
                                    String departement, String localisation, String competencesRequises,
                                    LocalDate dateLimite, String packageSalarial) {
+        if (dateLimite != null && dateLimite.isBefore(LocalDate.now())) {
+            throw new IllegalArgumentException("Application deadline must not be in the past");
+        }
         Instant now = Instant.now();
         return new JobOffer(UUID.randomUUID(), tenantId, now, now, organizationId, agencyId,
                 poste, departement, localisation, competencesRequises, dateLimite, packageSalarial,

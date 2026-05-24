@@ -14,4 +14,6 @@ public interface ContractRepository {
     Mono<Contract> findActiveByEmployeeId(UUID tenantId, UUID employeeId);
 
     Flux<Contract> findByEmployeeId(UUID tenantId, UUID employeeId);
+
+    Mono<Contract> findById(UUID tenantId, UUID contractId);
 }

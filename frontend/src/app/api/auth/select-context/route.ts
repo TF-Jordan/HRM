@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { uuidLike } from "@/lib/validation/uuid";
 import { ksmSelectContext } from "@/server/ksm/modules/auth";
 import { setSession, ensureCsrfToken } from "@/server/session";
 import { HttpError } from "@/lib/types/api";
@@ -8,7 +9,7 @@ import { logger } from "@/lib/log";
 const schema = z.object({
   selectionToken: z.string().min(1),
   contextId: z.string().min(1),
-  organizationId: z.uuid().nullish(),
+  organizationId: uuidLike.nullish(),
 });
 
 export async function POST(request: Request) {

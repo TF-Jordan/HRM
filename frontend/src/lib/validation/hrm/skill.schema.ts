@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { uuidLike } from "@/lib/validation/uuid";
 
 export const createSkillSchema = z.object({
   name: z.string().trim().min(1).max(160),
@@ -9,8 +10,8 @@ export const createSkillSchema = z.object({
 export type CreateSkillFormValues = z.input<typeof createSkillSchema>;
 
 export const createEmployeeSkillSchema = z.object({
-  employeeId: z.uuid(),
-  skillId: z.uuid(),
+  employeeId: uuidLike,
+  skillId: uuidLike,
   niveauActuel: z.coerce.number().int().min(0).max(5),
   niveauAttendu: z.coerce.number().int().min(0).max(5),
   dateEvaluation: z.iso.date(),

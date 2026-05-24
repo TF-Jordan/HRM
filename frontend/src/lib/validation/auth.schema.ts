@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { uuidLike } from "@/lib/validation/uuid";
 
 // Principal can be an email (admin@hrcore.local) OR a matricule (HRC-00007).
 // Strict email validation is dropped; we only require a non-empty string.
@@ -15,8 +16,8 @@ export const mfaConfirmSchema = z.object({
 export type MfaConfirmInput = z.infer<typeof mfaConfirmSchema>;
 
 export const selectContextSchema = z.object({
-  tenantId: z.uuid(),
-  organizationId: z.uuid(),
-  agencyId: z.uuid().nullish(),
+  tenantId: uuidLike,
+  organizationId: uuidLike,
+  agencyId: uuidLike.nullish(),
 });
 export type SelectContextInput = z.infer<typeof selectContextSchema>;

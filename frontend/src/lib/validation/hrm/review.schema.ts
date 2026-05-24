@@ -1,7 +1,8 @@
 import { z } from "zod";
+import { uuidLike } from "@/lib/validation/uuid";
 
 export const createReviewSchema = z.object({
-  employeeId: z.uuid(),
+  employeeId: uuidLike,
   periode: z.string().trim().min(4).max(20),
 });
 

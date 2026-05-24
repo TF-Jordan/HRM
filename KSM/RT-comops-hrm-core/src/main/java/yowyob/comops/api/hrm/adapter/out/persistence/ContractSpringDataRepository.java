@@ -11,4 +11,6 @@ public interface ContractSpringDataRepository extends ReactiveCrudRepository<Con
     Mono<ContractEntity> findByTenantIdAndEmployeeIdAndStatus(UUID tenantId, UUID employeeId, String status);
 
     Flux<ContractEntity> findAllByTenantIdAndEmployeeId(UUID tenantId, UUID employeeId);
+
+    Mono<ContractEntity> findByTenantIdAndId(UUID tenantId, UUID id);
 }

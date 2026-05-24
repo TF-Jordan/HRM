@@ -37,6 +37,9 @@ public final class MissionOrder extends BaseEntity {
     public static MissionOrder create(UUID tenantId, UUID employeeId, String destination,
                                        String objet, LocalDate dateDebut, LocalDate dateFin,
                                        BigDecimal montantAvance, String centreCout) {
+        if (dateFin.isBefore(dateDebut)) {
+            throw new IllegalArgumentException("Mission end date must be on or after start date");
+        }
         Instant now = Instant.now();
         return new MissionOrder(UUID.randomUUID(), tenantId, now, now, employeeId, destination,
                 objet, dateDebut, dateFin, montantAvance, centreCout, MissionOrderStatus.DRAFT);

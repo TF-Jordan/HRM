@@ -15,6 +15,7 @@ import yowyob.comops.api.hrm.application.port.out.LeaveBalanceRepository;
 import yowyob.comops.api.hrm.application.port.out.SettingsPort;
 import yowyob.comops.api.hrm.application.port.out.ThirdPartyProfilePort;
 import yowyob.comops.api.hrm.domain.ActorNotFoundException;
+import yowyob.comops.api.hrm.domain.ContractNotFoundException;
 import yowyob.comops.api.hrm.domain.DuplicateEmployeeException;
 import yowyob.comops.api.hrm.domain.EmployeeNotFoundException;
 import yowyob.comops.api.hrm.domain.model.Contract;
@@ -204,6 +205,43 @@ public class EmployeeService implements ManageEmployeeUseCase {
     public Flux<Contract> getContracts(UUID employeeId) {
         return ReactiveRequestContextHolder.getRequiredContext()
                 .flatMapMany(context -> contractRepository.findByEmployeeId(context.tenantId(), employeeId));
+    }
+
+    @Override
+    public Mono<Contract> renewContract(UUID contractId, LocalDate newDateFin) {
+        return ReactiveRequestContextHolder.getRequiredContext()
+                .flatMap(context -> contractRepository.findById(context.tenantId(), contractId)
+                        .switchIfEmpty(Mono.error(new ContractNotFoundException(contractId)))
+                        .map(contract -> contract.renew(newDateFin))
+                        .flatMap(contractRepository::save)
+                        .flatMap(saved -> businessEventPublisher.publish(
+                                BusinessEvent.now(context.tenantId(), context.organizationId(),
+                                        "CONTRACT_RENEWED", "CONTRACT", saved.id(),
+                                        payload("employeeId", saved.employeeId(),
+                                                "newDateFin", newDateFin.toString()))).thenReturn(saved)));
+    }
+
+    @Override
+    public Mono<Contract> terminateContract(UUID contractId, String motif) {
+        return ReactiveRequestContextHolder.getRequiredContext()
+                .flatMap(context -> contractRepository.findById(context.tenantId(), contractId)
+                        .switchIfEmpty(Mono.error(new ContractNotFoundException(contractId)))
+                        .map(contract -> contract.terminate(motif))
+                        .flatMap(contractRepository::save)
+                        .flatMap(saved -> businessEventPublisher.publish(
+                                BusinessEvent.now(context.tenantId(), context.organizationId(),
+                                        "CONTRACT_TERMINATED", "CONTRACT", saved.id(),
+                                        payload("employeeId", saved.employeeId(),
+                                                "motif", motif))).thenReturn(saved)));
+    }
+
+    @Override
+    public Mono<Contract> attachContractDocument(UUID contractId, UUID documentFileId) {
+        return ReactiveRequestContextHolder.getRequiredContext()
+                .flatMap(context -> contractRepository.findById(context.tenantId(), contractId)
+                        .switchIfEmpty(Mono.error(new ContractNotFoundException(contractId)))
+                        .map(contract -> contract.attachDocument(documentFileId))
+                        .flatMap(contractRepository::save));
     }
 
     @Override

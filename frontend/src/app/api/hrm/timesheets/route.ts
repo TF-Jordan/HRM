@@ -3,9 +3,10 @@ import { withKsmHandler, parseBody } from "@/server/ksm/handler";
 import { ksmCreateTimesheet } from "@/server/ksm/modules/timesheets";
 import { ksmListOrgTimesheets } from "@/server/ksm/modules/timesheets-mgr";
 import { z } from "zod";
+import { uuidLike } from "@/lib/validation/uuid";
 import { createTimesheetSchema } from "@/lib/validation/hrm/timesheet.schema";
 
-const bodySchema = z.object({ employeeId: z.uuid() }).and(createTimesheetSchema);
+const bodySchema = z.object({ employeeId: uuidLike }).and(createTimesheetSchema);
 
 export async function GET(request: Request) {
   const url = new URL(request.url);

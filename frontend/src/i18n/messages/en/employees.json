@@ -93,11 +93,66 @@
     "dateDebut": "Start",
     "dateFin": "End",
     "salaireBase": "Salary (XAF)",
-    "avantagesNature": "Benefits",
-    "periodeEssai": "Trial",
+    "avantagesNature": "Benefits in kind",
+    "periodeEssai": "Trial period",
     "status": "Status",
     "newTitle": "Add a contract",
     "submit": "Create contract"
+  },
+  "contractsPage": {
+    "title": "Employment contracts",
+    "subtitle": "CDI, CDD, STAGE and INTERIM. One active contract per employee at a given time.",
+    "newButton": "+ New contract",
+    "employee": "Employee",
+    "kpi": {
+      "active": "Active contracts",
+      "trial": "Trial period",
+      "endingSoon": "Ending < 30 days",
+      "renewed": "Renewed this month"
+    },
+    "table": {
+      "employee": "Employee",
+      "type": "Type",
+      "dateDebut": "Start date",
+      "dateFin": "End date",
+      "salaireBase": "Base salary",
+      "status": "Status"
+    },
+    "new": {
+      "title": "New contract",
+      "subtitle": "Select the type, enter the base salary, benefits and create the contract.",
+      "sections": {
+        "employee": "Employee",
+        "employeeHint": "Only one active contract per employee is allowed",
+        "type": "Contract type",
+        "typeHint": "The type determines which fields are required (duration, trial period)",
+        "remuneration": "Salary & benefits",
+        "remunerationHint": "Base salary and benefits in kind"
+      },
+      "selectEmployee": "Select an employee",
+      "submit": "Create contract",
+      "submitting": "Creating..."
+    },
+    "detail": {
+      "kpi": {
+        "dateDebut": "Start date",
+        "dateFin": "End date",
+        "remaining": "Days remaining",
+        "salary": "Base salary"
+      },
+      "fields": {
+        "id": "Identifier",
+        "type": "Type",
+        "periodeEssai": "Trial period",
+        "avantages": "Benefits in kind",
+        "status": "Status",
+        "motifFin": "Termination reason"
+      },
+      "detailsTitle": "Contract details",
+      "days": "days",
+      "cdiNotice": "Permanent contract — no end date.",
+      "cddNotice": "Fixed-term contract expiring in {days} days."
+    }
   },
   "dependents": {
     "empty": "No dependents",

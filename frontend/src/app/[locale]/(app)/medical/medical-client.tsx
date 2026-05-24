@@ -322,6 +322,7 @@ function VisitsPanel({ employeeId, readOnly = false }: { employeeId: string; rea
                 <Input
                   id="prochaineEcheance"
                   type="date"
+                  min={new Date().toISOString().slice(0, 10)}
                   {...form.register("prochaineEcheance")}
                 />
               </div>
@@ -481,7 +482,7 @@ function CertificatesPanel({
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="dateExpiration">{t("certificates.form.dateExpiration")}</Label>
-                <Input id="dateExpiration" type="date" {...form.register("dateExpiration")} />
+                <Input id="dateExpiration" type="date" min={new Date().toISOString().slice(0, 10)} {...form.register("dateExpiration")} />
               </div>
             </div>
             <div className="space-y-1.5">

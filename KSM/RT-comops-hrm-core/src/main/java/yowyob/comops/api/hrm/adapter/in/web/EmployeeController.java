@@ -134,6 +134,28 @@ public class EmployeeController {
                 .map(list -> ResponseEntity.ok(ApiResponse.success(list, "Contracts fetched.")));
     }
 
+    @PutMapping("/{employeeId}/contracts/{contractId}/renew")
+    @PreAuthorize("@businessAccessPolicy.hasPermission(authentication, 'hrm:contract:create')")
+    public Mono<ResponseEntity<ApiResponse<ContractResponse>>> renewContract(
+            @PathVariable UUID employeeId,
+            @PathVariable UUID contractId,
+            @Valid @RequestBody Mono<RenewContractRequest> requestMono) {
+        return requestMono.flatMap(req -> manageEmployeeUseCase.renewContract(contractId, req.newDateFin()))
+                .map(ContractResponse::from)
+                .map(response -> ResponseEntity.ok(ApiResponse.success(response, "Contract renewed.")));
+    }
+
+    @PutMapping("/{employeeId}/contracts/{contractId}/terminate")
+    @PreAuthorize("@businessAccessPolicy.hasPermission(authentication, 'hrm:contract:create')")
+    public Mono<ResponseEntity<ApiResponse<ContractResponse>>> terminateContractEndpoint(
+            @PathVariable UUID employeeId,
+            @PathVariable UUID contractId,
+            @Valid @RequestBody Mono<TerminateContractRequest> requestMono) {
+        return requestMono.flatMap(req -> manageEmployeeUseCase.terminateContract(contractId, req.motif()))
+                .map(ContractResponse::from)
+                .map(response -> ResponseEntity.ok(ApiResponse.success(response, "Contract terminated.")));
+    }
+
     @PostMapping("/{employeeId}/dependents")
     @PreAuthorize("@businessAccessPolicy.hasPermission(authentication, 'hrm:dependent:create')")
     public Mono<ResponseEntity<ApiResponse<DependentResponse>>> addDependent(
@@ -193,6 +215,23 @@ public class EmployeeController {
     }
 
     public record SuspendRequest(String reason) {}
+
+    @PutMapping("/{employeeId}/contracts/{contractId}/document")
+    @PreAuthorize("@businessAccessPolicy.hasPermission(authentication, 'hrm:contract:create')")
+    public Mono<ResponseEntity<ApiResponse<ContractResponse>>> attachContractDocument(
+            @PathVariable UUID employeeId,
+            @PathVariable UUID contractId,
+            @Valid @RequestBody Mono<AttachDocumentRequest> requestMono) {
+        return requestMono.flatMap(req -> manageEmployeeUseCase.attachContractDocument(contractId, req.documentFileId()))
+                .map(ContractResponse::from)
+                .map(response -> ResponseEntity.ok(ApiResponse.success(response, "Document attached.")));
+    }
+
+    public record AttachDocumentRequest(UUID documentFileId) {}
+
+    public record RenewContractRequest(LocalDate newDateFin) {}
+
+    public record TerminateContractRequest(String motif) {}
 
     public record AddContractRequest(String type, LocalDate dateDebut, LocalDate dateFin,
             BigDecimal salaireBase, BigDecimal avantagesNature, Integer periodeEssai) {
