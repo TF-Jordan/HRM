@@ -31,6 +31,8 @@ public interface ManageEmployeeUseCase {
 
     Flux<Contract> getContracts(UUID employeeId);
 
+    Mono<Contract> getActiveContract(UUID employeeId);
+
     Mono<Contract> renewContract(UUID contractId, LocalDate newDateFin);
 
     Mono<Contract> terminateContract(UUID contractId, String motif);

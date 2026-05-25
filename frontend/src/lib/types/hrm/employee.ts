@@ -36,6 +36,12 @@ export type Employee = {
   numMobileMoney: string | null;
   operateurMm: MobileMoneyOperator | null;
   actorDisplayName: string;
+  // Active contract (enriched on list responses; null on single fetch)
+  contractType?: "CDD" | "CDI" | "STAGE" | "INTERIM" | null;
+  contractSalaireBase?: number | null;
+  contractDateFin?: string | null;
+  contractPeriodeEssai?: number | null;
+  contractStatus?: string | null;
 };
 
 export type CreateEmployeeInput = {

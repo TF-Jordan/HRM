@@ -208,6 +208,12 @@ public class EmployeeService implements ManageEmployeeUseCase {
     }
 
     @Override
+    public Mono<Contract> getActiveContract(UUID employeeId) {
+        return ReactiveRequestContextHolder.getRequiredContext()
+                .flatMap(context -> contractRepository.findActiveByEmployeeId(context.tenantId(), employeeId));
+    }
+
+    @Override
     public Mono<Contract> renewContract(UUID contractId, LocalDate newDateFin) {
         return ReactiveRequestContextHolder.getRequiredContext()
                 .flatMap(context -> contractRepository.findById(context.tenantId(), contractId)

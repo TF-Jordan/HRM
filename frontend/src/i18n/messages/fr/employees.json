@@ -1,10 +1,45 @@
 {
   "list": {
+    "eyebrow": "Capital humain",
     "title": "Employés",
     "subtitle": "Gérer le personnel actif de votre organisation",
-    "newButton": "Nouvel employé",
+    "summary": "{count} collaborateurs · {departments} départements · {sites} sites",
+    "newButton": "Ajouter",
+    "importButton": "Importer",
+    "exportButton": "Exporter",
     "empty": "Aucun employé pour le moment",
-    "emptySubtitle": "Commencez par ajouter le premier collaborateur de l'organisation."
+    "emptySubtitle": "Commencez par ajouter le premier collaborateur de l'organisation.",
+    "kpi": {
+      "total": "Effectif total",
+      "totalFooter": "{active} actifs",
+      "cdi": "CDI",
+      "cdiFooter": "{pct}% de l'effectif",
+      "cdd": "CDD & Stages",
+      "cddFooter": "{count} fins de contrat (90j)",
+      "trial": "En période d'essai",
+      "trialFooter": "contrats en cours d'essai"
+    },
+    "filters": {
+      "searchPlaceholder": "Nom, ID, email, poste...",
+      "all": "Tous",
+      "more": "+ {count} autres",
+      "moreFilters": "Plus de filtres",
+      "none": "Sans département"
+    },
+    "columns": {
+      "employee": "Employé",
+      "poste": "Poste",
+      "department": "Département",
+      "site": "Site",
+      "contract": "Contrat",
+      "status": "Statut",
+      "seniority": "Ancienneté"
+    },
+    "noContract": "Sans contrat",
+    "headOffice": "Siège",
+    "agency": "Agence",
+    "noResults": "Aucun employé ne correspond à votre recherche.",
+    "pagination": { "range": "{from}-{to} sur {total}" }
   },
   "table": {
     "matricule": "Matricule",

@@ -69,7 +69,9 @@ public class EmployeeController {
             @RequestParam UUID organizationId,
             @RequestParam(required = false) UUID agencyId) {
         return manageEmployeeUseCase.listEmployees(organizationId, agencyId)
-                .map(EmployeeResponse::from)
+                .flatMapSequential(employee -> manageEmployeeUseCase.getActiveContract(employee.id())
+                        .map(contract -> EmployeeResponse.from(employee, contract))
+                        .defaultIfEmpty(EmployeeResponse.from(employee)))
                 .collectList()
                 .map(list -> ResponseEntity.ok(ApiResponse.success(list, "Employees fetched.")));
     }
@@ -249,12 +251,23 @@ public class EmployeeController {
     public record EmployeeResponse(UUID id, UUID organizationId, UUID agencyId, UUID actorId, String matricule,
             String numCnps, int categorie, String echelon, LocalDate dateEmbauche, String status,
             String departmentCode, String modePaiement, String compteBancaire, String numMobileMoney,
-            String operateurMm, String actorDisplayName) {
+            String operateurMm, String actorDisplayName,
+            String contractType, BigDecimal contractSalaireBase, LocalDate contractDateFin,
+            Integer contractPeriodeEssai, String contractStatus) {
         static EmployeeResponse from(Employee e) {
             return new EmployeeResponse(e.id(), e.organizationId(), e.agencyId(), e.actorId(), e.matricule(),
                     e.numCnps(), e.categorie(), e.echelon(), e.dateEmbauche(), e.status().name(),
                     e.departmentCode(), e.modePaiement().name(), e.compteBancaire(), e.numMobileMoney(),
-                    e.operateurMm() != null ? e.operateurMm().name() : null, e.actorDisplayName());
+                    e.operateurMm() != null ? e.operateurMm().name() : null, e.actorDisplayName(),
+                    null, null, null, null, null);
+        }
+
+        static EmployeeResponse from(Employee e, Contract c) {
+            return new EmployeeResponse(e.id(), e.organizationId(), e.agencyId(), e.actorId(), e.matricule(),
+                    e.numCnps(), e.categorie(), e.echelon(), e.dateEmbauche(), e.status().name(),
+                    e.departmentCode(), e.modePaiement().name(), e.compteBancaire(), e.numMobileMoney(),
+                    e.operateurMm() != null ? e.operateurMm().name() : null, e.actorDisplayName(),
+                    c.type().name(), c.salaireBase(), c.dateFin(), c.periodeEssai(), c.status().name());
         }
     }
 

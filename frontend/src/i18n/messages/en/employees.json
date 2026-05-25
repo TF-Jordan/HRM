@@ -1,10 +1,45 @@
 {
   "list": {
+    "eyebrow": "Human capital",
     "title": "Employees",
     "subtitle": "Manage your organisation's active workforce",
-    "newButton": "New employee",
+    "summary": "{count} team members · {departments} departments · {sites} sites",
+    "newButton": "Add",
+    "importButton": "Import",
+    "exportButton": "Export",
     "empty": "No employees yet",
-    "emptySubtitle": "Start by adding your organisation's first team member."
+    "emptySubtitle": "Start by adding your organisation's first team member.",
+    "kpi": {
+      "total": "Total headcount",
+      "totalFooter": "{active} active",
+      "cdi": "Permanent",
+      "cdiFooter": "{pct}% of headcount",
+      "cdd": "Fixed-term & interns",
+      "cddFooter": "{count} ending (90d)",
+      "trial": "On probation",
+      "trialFooter": "contracts in trial period"
+    },
+    "filters": {
+      "searchPlaceholder": "Name, ID, email, role...",
+      "all": "All",
+      "more": "+ {count} more",
+      "moreFilters": "More filters",
+      "none": "No department"
+    },
+    "columns": {
+      "employee": "Employee",
+      "poste": "Role",
+      "department": "Department",
+      "site": "Site",
+      "contract": "Contract",
+      "status": "Status",
+      "seniority": "Seniority"
+    },
+    "noContract": "No contract",
+    "headOffice": "Head office",
+    "agency": "Agency",
+    "noResults": "No employee matches your search.",
+    "pagination": { "range": "{from}-{to} of {total}" }
   },
   "table": {
     "matricule": "ID",
