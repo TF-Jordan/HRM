@@ -5,9 +5,25 @@
   },
   "leaves": {
     "title": "Mes congés",
-    "subtitle": "Soumettre, suivre et annuler vos demandes de congés",
-    "newButton": "Nouvelle demande",
+    "subtitle": "Solde, demandes en cours et historique",
+    "newButton": "Demander un congé",
     "empty": "Aucune demande de congé",
+    "balances": {
+      "title": "Mes soldes",
+      "available": "jours disponibles",
+      "acquired": "Annuel acquis",
+      "remaining": "Annuel restant",
+      "sick": "Maladie",
+      "special": "Congés spéciaux",
+      "taken": "pris"
+    },
+    "history": "Historique des demandes",
+    "recap": {
+      "title": "Récapitulatif",
+      "requested": "Demandé",
+      "balanceAfter": "Solde après",
+      "days": "jours"
+    },
     "table": {
       "type": "Type",
       "dateDebut": "Début",

@@ -5,9 +5,25 @@
   },
   "leaves": {
     "title": "My leaves",
-    "subtitle": "Submit, track and cancel your leave requests",
-    "newButton": "New request",
+    "subtitle": "Balance, ongoing requests and history",
+    "newButton": "Request leave",
     "empty": "No leave request",
+    "balances": {
+      "title": "My balances",
+      "available": "days available",
+      "acquired": "Annual accrued",
+      "remaining": "Annual remaining",
+      "sick": "Sick",
+      "special": "Special leave",
+      "taken": "taken"
+    },
+    "history": "Request history",
+    "recap": {
+      "title": "Summary",
+      "requested": "Requested",
+      "balanceAfter": "Balance after",
+      "days": "days"
+    },
     "table": {
       "type": "Type",
       "dateDebut": "Start",
