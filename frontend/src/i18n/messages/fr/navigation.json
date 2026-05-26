@@ -39,6 +39,7 @@
     "myMedical": "Mon suivi médical",
     "myReviews": "Mes évaluations",
     "adminUsers": "Utilisateurs",
-    "adminRoles": "Rôles & permissions"
+    "adminRoles": "Rôles & permissions",
+    "payslips": "Mes bulletins"
   }
 }

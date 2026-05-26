@@ -39,6 +39,7 @@
     "myMedical": "My medical",
     "myReviews": "My reviews",
     "adminUsers": "Users",
-    "adminRoles": "Roles & permissions"
+    "adminRoles": "Roles & permissions",
+    "payslips": "My payslips"
   }
 }

@@ -98,6 +98,7 @@ const NAV: NavSection[] = [
     labelKey: "sections.selfService",
     items: [
       { href: "/me/profile", labelKey: "items.profile", icon: Settings },
+      { href: "/me/payslips", labelKey: "items.payslips", icon: Wallet, requiredAnyPerm: ["hrm:payroll:read"] },
       { href: "/leaves/my", labelKey: "items.myLeaves", icon: CalendarDays, requiredAnyPerm: ["hrm:leave:create"] },
       { href: "/loans/my", labelKey: "items.myLoans", icon: Coins, requiredAnyPerm: ["hrm:loan:create"] },
       { href: "/expenses/my", labelKey: "items.myExpenses", icon: Receipt, requiredAnyPerm: ["hrm:expense:create"] },

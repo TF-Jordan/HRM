@@ -63,3 +63,20 @@ export function useValidatePayrollRun() {
     },
   });
 }
+
+export type MyPayslip = {
+  entryId: string;
+  runId: string;
+  periode: string;
+  status: string;
+  brut: number;
+  net: number;
+  paymentStatus: string;
+};
+
+export function useMyPayslips() {
+  return useQuery({
+    queryKey: ["hrm", "me", "payslips"],
+    queryFn: () => bffFetch<MyPayslip[]>("/api/hrm/me/payslips"),
+  });
+}
