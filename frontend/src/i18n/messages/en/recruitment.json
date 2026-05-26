@@ -53,5 +53,15 @@
       "HIRED": "Hired",
       "REJECTED": "Rejected"
     }
+  },
+  "stats": {
+    "openOffers": "Open offers",
+    "openOffersFooter": "of {total} offers",
+    "inProgress": "Applications in progress",
+    "inProgressFooter": "{count} new",
+    "interviews": "Interviews",
+    "interviewsFooter": "candidates interviewing",
+    "totalApplications": "Total applications",
+    "totalApplicationsFooter": "all statuses"
   }
 }

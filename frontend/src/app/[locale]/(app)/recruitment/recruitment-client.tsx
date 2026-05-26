@@ -36,14 +36,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useQuery } from "@tanstack/react-query";
+import { bffFetch } from "@/lib/api-client";
 import { StatusBadge } from "@/components/ui-tokens/StatusBadge";
+import { StatCard } from "@/components/ui-tokens/StatCard";
 import {
   createJobOfferSchema,
   createApplicationSchema,
   type CreateJobOfferFormValues,
   type CreateApplicationFormValues,
 } from "@/lib/validation/hrm/recruitment.schema";
-import type { ApplicationStatus } from "@/lib/types/hrm/recruitment";
+import type { ApplicationStatus, Application } from "@/lib/types/hrm/recruitment";
 
 const COLUMNS: ApplicationStatus[] = [
   "NEW",
@@ -78,14 +81,52 @@ export function RecruitmentClient() {
 
   const effectiveOffer = selectedOffer || (offers.data?.[0]?.id ?? "");
 
+  const allApps = useQuery({
+    queryKey: ["hrm", "applications", "all"],
+    enabled: !!offers.data,
+    queryFn: async () => {
+      const list = offers.data ?? [];
+      const res = await Promise.all(
+        list.map((o) =>
+          bffFetch<Application[]>(`/api/hrm/job-offers/${o.id}/applications`).catch(() => [] as Application[]),
+        ),
+      );
+      return res.flat();
+    },
+  });
+
+  const apps = allApps.data ?? [];
+  const openOffers = (offers.data ?? []).filter((o) => o.status === "PUBLISHED").length;
+  const inProgress = apps.filter((a) => a.status !== "HIRED" && a.status !== "REJECTED").length;
+  const interviewing = apps.filter((a) => a.status === "INTERVIEWING").length;
+  const newApps = apps.filter((a) => a.status === "NEW").length;
+
   return (
-    <div className="space-y-6 animate-fade-up">
+    <div className="space-y-5 animate-fade-up">
       <PageHeader
-        ucBadge="UC-16/17"
         crumbs={[{ label: tNav("items.recruitment") }]}
         title={t("title")}
         subtitle={t("subtitle")}
+        actions={
+          <Button onClick={() => setOpenOffer(true)}>
+            <Plus className="size-4" />
+            {t("offers.newButton")}
+          </Button>
+        }
       />
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {offers.isLoading ? (
+          Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-[104px] rounded-[18px]" />)
+        ) : (
+          <>
+            <StatCard tone="orange" label={t("stats.openOffers")} value={openOffers} footer={t("stats.openOffersFooter", { total: offers.data?.length ?? 0 })} />
+            <StatCard tone="blue" label={t("stats.inProgress")} value={inProgress} footer={t("stats.inProgressFooter", { count: newApps })} />
+            <StatCard tone="amber" label={t("stats.interviews")} value={interviewing} footer={t("stats.interviewsFooter")} />
+            <StatCard tone="green" label={t("stats.totalApplications")} value={apps.length} footer={t("stats.totalApplicationsFooter")} />
+          </>
+        )}
+      </div>
 
       <Tabs defaultValue="offers">
         <TabsList>

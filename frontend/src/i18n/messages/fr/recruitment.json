@@ -53,5 +53,15 @@
       "HIRED": "Embauchées",
       "REJECTED": "Rejetées"
     }
+  },
+  "stats": {
+    "openOffers": "Offres ouvertes",
+    "openOffersFooter": "sur {total} offres",
+    "inProgress": "Candidatures en cours",
+    "inProgressFooter": "{count} nouvelles",
+    "interviews": "Entretiens",
+    "interviewsFooter": "candidats en entretien",
+    "totalApplications": "Total candidatures",
+    "totalApplicationsFooter": "tous statuts"
   }
 }
