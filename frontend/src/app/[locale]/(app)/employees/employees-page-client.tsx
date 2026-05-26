@@ -23,6 +23,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { StatusBadge } from "@/components/ui-tokens/StatusBadge";
 import { StatCard } from "@/components/ui-tokens/StatCard";
 import { useEmployees } from "@/hooks/modules/useEmployees";
+import { useAgencyNames } from "@/hooks/modules/useAgencies";
 import { exportCsv } from "@/lib/csv";
 import { cn } from "@/lib/utils";
 import type { Employee } from "@/lib/types/hrm/employee";
@@ -71,6 +72,7 @@ export function EmployeesPageClient() {
   const t = useTranslations("employees");
   const router = useRouter();
   const { data, isLoading, isError, error, refetch } = useEmployees();
+  const agencyNames = useAgencyNames();
 
   const [query, setQuery] = React.useState("");
   const [dept, setDept] = React.useState<string | null>(null);
@@ -340,7 +342,9 @@ export function EmployeesPageClient() {
                           )}
                         </td>
                         <td className="px-3 py-2.5 text-ink-3">
-                          {e.agencyId ? t("list.agency") : t("list.headOffice")}
+                          {e.agencyId
+                            ? (agencyNames.get(e.agencyId) ?? t("list.agency"))
+                            : t("list.headOffice")}
                         </td>
                         <td className="px-3 py-2.5">
                           {e.contractType ? (

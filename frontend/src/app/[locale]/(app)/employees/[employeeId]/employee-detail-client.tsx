@@ -15,6 +15,8 @@ import {
   MoreHorizontal,
 } from "lucide-react";
 import { useEmployee, useContracts, useDependents, useLeaveBalances } from "@/hooks/modules/useEmployees";
+import { useAgencyNames } from "@/hooks/modules/useAgencies";
+import { MapPin } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -65,6 +67,7 @@ export function EmployeeDetailClient({ employeeId }: { employeeId: string }) {
   const year = new Date().getFullYear();
 
   const { data, isLoading, isError, error } = useEmployee(employeeId);
+  const agencyNames = useAgencyNames();
   const contracts = useContracts(employeeId);
   const dependents = useDependents(employeeId);
   const balances = useLeaveBalances(employeeId, year);
@@ -154,6 +157,10 @@ export function EmployeeDetailClient({ employeeId }: { employeeId: string }) {
                 <span className="inline-flex items-center gap-1.5">
                   <Building2 className="size-3.5 text-ink-4" />
                   {data.matricule}
+                </span>
+                <span className="inline-flex items-center gap-1.5">
+                  <MapPin className="size-3.5 text-ink-4" />
+                  {data.agencyId ? (agencyNames.get(data.agencyId) ?? t("list.agency")) : t("list.headOffice")}
                 </span>
                 {data.numCnps && (
                   <span className="inline-flex items-center gap-1.5">
