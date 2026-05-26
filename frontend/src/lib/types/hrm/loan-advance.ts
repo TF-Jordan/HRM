@@ -13,6 +13,11 @@ export type LoanAdvance = {
   approvedBy: string | null;
 };
 
+export type LoanAdvanceWithEmployee = LoanAdvance & {
+  employeeName: string;
+  employeeMatricule: string;
+};
+
 export type RequestLoanInput = {
   employeeId: string;
   montant: number;

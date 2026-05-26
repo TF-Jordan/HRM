@@ -64,5 +64,48 @@
     "reject": "Reject",
     "rejectTitle": "Reject request",
     "motif": "Reason"
+  },
+  "loansAdmin": {
+    "eyebrow": "Compensation",
+    "title": "Advances & Loans",
+    "subtitle": "Manage salary advances and staff loans",
+    "newButton": "New request",
+    "amortization": "Amortization table",
+    "allLoans": "Advances & loans",
+    "distribution": "Distribution",
+    "all": "All",
+    "kpi": {
+      "pending": "Pending",
+      "pendingFooter": "to approve · {sum}",
+      "active": "Active loans",
+      "activeFooter": "{sum} outstanding",
+      "monthly": "Repayment (month)",
+      "monthlyFooter": "monthly deduction",
+      "incidents": "Incident rate",
+      "incidentsFooter": "no default · 12 months"
+    },
+    "table": {
+      "ref": "Ref.",
+      "employee": "Employee",
+      "total": "Total amount",
+      "echeances": "Instalments",
+      "mensualite": "Monthly",
+      "restant": "Outstanding",
+      "progression": "Progress",
+      "status": "Status",
+      "motif": "Reason"
+    },
+    "statusLabel": {
+      "PENDING": "Pending",
+      "IN_REPAYMENT": "Repaying",
+      "FULLY_REPAID": "Repaid",
+      "REJECTED": "Rejected"
+    },
+    "encours": "XAF outstanding",
+    "loans": "loans",
+    "approve": "Approve",
+    "reject": "Reject",
+    "rejectTitle": "Reject request",
+    "rejectReason": "Rejection reason"
   }
 }

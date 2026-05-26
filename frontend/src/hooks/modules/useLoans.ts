@@ -2,7 +2,18 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { bffFetch, queryKeys } from "@/lib/api-client";
-import type { LoanAdvance, RequestLoanInput } from "@/lib/types/hrm/loan-advance";
+import type {
+  LoanAdvance,
+  LoanAdvanceWithEmployee,
+  RequestLoanInput,
+} from "@/lib/types/hrm/loan-advance";
+
+export function useAllLoans() {
+  return useQuery({
+    queryKey: ["hrm", "loans", "all"],
+    queryFn: () => bffFetch<LoanAdvanceWithEmployee[]>("/api/hrm/loans"),
+  });
+}
 
 export function useEmployeeLoans(employeeId: string | undefined) {
   return useQuery({

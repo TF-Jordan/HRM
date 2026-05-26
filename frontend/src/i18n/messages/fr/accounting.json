@@ -64,5 +64,48 @@
     "reject": "Rejeter",
     "rejectTitle": "Rejeter la demande",
     "motif": "Motif"
+  },
+  "loansAdmin": {
+    "eyebrow": "Rémunération",
+    "title": "Avances & Prêts",
+    "subtitle": "Gestion des avances de salaire et prêts au personnel",
+    "newButton": "Nouvelle demande",
+    "amortization": "Tableau d'amortissement",
+    "allLoans": "Avances & prêts",
+    "distribution": "Répartition",
+    "all": "Tous",
+    "kpi": {
+      "pending": "En attente",
+      "pendingFooter": "à approuver · {sum}",
+      "active": "Prêts actifs",
+      "activeFooter": "{sum} en cours",
+      "monthly": "Remboursement (mois)",
+      "monthlyFooter": "prélèvement mensuel",
+      "incidents": "Taux d'incidents",
+      "incidentsFooter": "aucun défaut · 12 mois"
+    },
+    "table": {
+      "ref": "Réf.",
+      "employee": "Employé",
+      "total": "Montant total",
+      "echeances": "Échéances",
+      "mensualite": "Mensualité",
+      "restant": "Restant dû",
+      "progression": "Progression",
+      "status": "Statut",
+      "motif": "Motif"
+    },
+    "statusLabel": {
+      "PENDING": "En attente",
+      "IN_REPAYMENT": "En remboursement",
+      "FULLY_REPAID": "Remboursé",
+      "REJECTED": "Rejeté"
+    },
+    "encours": "XAF en cours",
+    "loans": "prêts",
+    "approve": "Approuver",
+    "reject": "Rejeter",
+    "rejectTitle": "Rejeter la demande",
+    "rejectReason": "Motif du rejet"
   }
 }
