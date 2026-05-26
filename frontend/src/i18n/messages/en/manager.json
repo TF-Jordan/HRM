@@ -87,5 +87,43 @@
       "commentaires": "Comments",
       "planAction": "Action plan"
     }
+  },
+  "expensesAdmin": {
+    "eyebrow": "Compensation",
+    "title": "Expense reports",
+    "subtitle": "Capture, validation and reimbursement of business expenses",
+    "newButton": "New report",
+    "exportButton": "Export",
+    "allNotes": "Expense reports",
+    "distribution": "Distribution",
+    "all": "All",
+    "kpi": {
+      "pending": "To approve",
+      "pendingFooter": "{sum} to validate",
+      "approved": "Approved",
+      "approvedFooter": "{sum}",
+      "reimbursed": "Reimbursed",
+      "reimbursedFooter": "paid",
+      "rejected": "Rejected",
+      "rejectedFooter": "to fix"
+    },
+    "table": {
+      "ref": "Ref.",
+      "author": "Author",
+      "periode": "Period",
+      "montant": "Amount",
+      "status": "Status"
+    },
+    "statusLabel": {
+      "DRAFT": "Draft",
+      "SUBMITTED": "To validate",
+      "APPROVED": "Approved",
+      "REJECTED": "Rejected",
+      "REIMBURSED": "Paid"
+    },
+    "approve": "Approve",
+    "reject": "Reject",
+    "reimburse": "Reimburse",
+    "total": "Total"
   }
 }

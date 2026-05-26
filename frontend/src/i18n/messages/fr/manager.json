@@ -87,5 +87,43 @@
       "commentaires": "Commentaires",
       "planAction": "Plan d'action"
     }
+  },
+  "expensesAdmin": {
+    "eyebrow": "Rémunération",
+    "title": "Notes de frais",
+    "subtitle": "Saisie, validation et remboursement des dépenses professionnelles",
+    "newButton": "Nouvelle note",
+    "exportButton": "Exporter",
+    "allNotes": "Notes de frais",
+    "distribution": "Répartition",
+    "all": "Tous",
+    "kpi": {
+      "pending": "À approuver",
+      "pendingFooter": "{sum} à valider",
+      "approved": "Approuvées",
+      "approvedFooter": "{sum}",
+      "reimbursed": "Remboursées",
+      "reimbursedFooter": "payées",
+      "rejected": "Refusées",
+      "rejectedFooter": "à corriger"
+    },
+    "table": {
+      "ref": "Réf.",
+      "author": "Auteur",
+      "periode": "Période",
+      "montant": "Montant",
+      "status": "Statut"
+    },
+    "statusLabel": {
+      "DRAFT": "Brouillon",
+      "SUBMITTED": "À valider",
+      "APPROVED": "Approuvée",
+      "REJECTED": "Refusée",
+      "REIMBURSED": "Payée"
+    },
+    "approve": "Approuver",
+    "reject": "Refuser",
+    "reimburse": "Rembourser",
+    "total": "Total"
   }
 }
