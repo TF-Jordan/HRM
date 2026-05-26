@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 069-hrm-employee-poste
+      author: jordan
+      changes:
+        - sqlFile:
+            path: db/r2dbc/V69__hrm_employee_poste.sql
+            relativeToChangelogFile: false

@@ -204,3 +204,9 @@ databaseChangeLog:
   - include:
       file: releases/068-rbac-roles-and-platform-admin.yaml
       relativeToChangelogFile: true
+  - include:
+      file: releases/069-hrm-employee-poste.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: releases/070-hrm-grant-org-read-to-hr.yaml
+      relativeToChangelogFile: true

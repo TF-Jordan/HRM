@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 070-hrm-grant-org-read-to-hr
+      author: jordan
+      changes:
+        - sqlFile:
+            path: db/r2dbc/V70__hrm_grant_org_read_to_hr.sql
+            relativeToChangelogFile: false
