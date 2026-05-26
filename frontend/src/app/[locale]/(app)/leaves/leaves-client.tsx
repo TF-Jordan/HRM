@@ -80,18 +80,19 @@ export function LeavesClient() {
   // All leave requests from the pending endpoint (these are the ones admins manage)
   const allLeaves = pendingQuery.data ?? [];
 
+  // Stable "now" captured once for this render lifecycle (avoids impure
+  // Date.now()/new Date() calls during render).
+  const [nowTs] = React.useState(() => Date.now());
+
   // Computed stats
   const pendingCount = allLeaves.filter((l) => l.status === "PENDING").length;
   const approvedOngoing = allLeaves.filter((l) => {
     if (l.status !== "APPROVED") return false;
-    const now = new Date();
-    return new Date(l.dateDebut) <= now && new Date(l.dateFin) >= now;
+    return new Date(l.dateDebut).getTime() <= nowTs && new Date(l.dateFin).getTime() >= nowTs;
   });
   const urgentCount = allLeaves.filter((l) => {
     if (l.status !== "PENDING") return false;
-    const daysDiff = Math.ceil(
-      (new Date(l.dateDebut).getTime() - Date.now()) / 86_400_000,
-    );
+    const daysDiff = Math.ceil((new Date(l.dateDebut).getTime() - nowTs) / 86_400_000);
     return daysDiff <= 3;
   }).length;
 
@@ -106,7 +107,7 @@ export function LeavesClient() {
   // Calendar state
   const [calendarDate, setCalendarDate] = React.useState(() => new Date());
 
-  // Filter tabs: Toutes, En attente, Approuvees
+  // Filter tabs: Toutes, En attente, Approuvées
   const filterFn = React.useCallback(
     (tab: string, leaves: LeaveRequest[]) => {
       switch (tab) {
@@ -129,10 +130,10 @@ export function LeavesClient() {
       <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-widest text-brand-500">
-            Activite
+            Absences
           </p>
           <h1 className="font-display text-[34px] font-extrabold leading-tight tracking-tight text-ink">
-            Conges
+            Congés
           </h1>
           <p className="mt-1 text-[14.5px] text-ink-3">
             Gestion des demandes, soldes et calendrier des absences
@@ -162,7 +163,7 @@ export function LeavesClient() {
           <>
             <StatCard
               tone="amber"
-              label="A APPROUVER"
+              label="À APPROUVER"
               value={pendingCount}
               footer={
                 urgentCount > 0
@@ -174,7 +175,7 @@ export function LeavesClient() {
               tone="blue"
               label="EN COURS"
               value={absentToday}
-              footer={`employe${absentToday !== 1 ? "s" : ""} absent${absentToday !== 1 ? "s" : ""} aujourd'hui`}
+              footer={`employé${absentToday !== 1 ? "s" : ""} absent${absentToday !== 1 ? "s" : ""} aujourd'hui`}
             />
             <StatCard
               tone="green"
@@ -184,7 +185,7 @@ export function LeavesClient() {
             />
             <StatCard
               tone="red"
-              label="TAUX D'ABSENTEISME"
+              label="TAUX D'ABSENTÉISME"
               value={`${absentRate.toFixed(1)}%`}
               footer={`${absentToday} absent${absentToday !== 1 ? "s" : ""} sur ${totalEmployees}`}
             />
@@ -210,7 +211,7 @@ export function LeavesClient() {
                     En attente ({allLeaves.filter((l) => l.status === "PENDING").length})
                   </TabsTrigger>
                   <TabsTrigger value="approved">
-                    Approuvees ({allLeaves.filter((l) => l.status === "APPROVED").length})
+                    Approuvées ({allLeaves.filter((l) => l.status === "APPROVED").length})
                   </TabsTrigger>
                 </TabsList>
               </div>
@@ -223,7 +224,7 @@ export function LeavesClient() {
                     tStatuses={tStatuses}
                     onApprove={(id) =>
                       approve.mutate(id, {
-                        onSuccess: () => toast.success("Demande approuvee"),
+                        onSuccess: () => toast.success("Demande approuvée"),
                         onError: (err) => toast.error((err as Error).message),
                       })
                     }
@@ -298,7 +299,7 @@ export function LeavesClient() {
             <CardContent>
               {approvedOngoing.length === 0 ? (
                 <p className="text-center text-[13px] text-ink-3">
-                  Aucun employe absent
+                  Aucun employé absent
                 </p>
               ) : (
                 <div className="space-y-2.5">
@@ -674,14 +675,6 @@ function LeaveBalancesTable({
   fmt: ReturnType<typeof useFormat>;
   isLoading: boolean;
 }) {
-  if (isLoading) {
-    return (
-      <div className="p-6">
-        <Skeleton className="h-32 w-full" />
-      </div>
-    );
-  }
-
   // Compute per-employee balance from the leave data we have
   const balances = React.useMemo(() => {
     const map = new Map<
@@ -713,6 +706,14 @@ function LeaveBalancesTable({
     return map;
   }, [leaves]);
 
+  if (isLoading) {
+    return (
+      <div className="p-6">
+        <Skeleton className="h-32 w-full" />
+      </div>
+    );
+  }
+
   // Only show employees who have leaves or active employees (limited to first 10)
   const activeEmployees = employees
     .filter((e) => e.status === "ACTIVE" || e.status === "ON_LEAVE")
@@ -721,7 +722,7 @@ function LeaveBalancesTable({
   if (activeEmployees.length === 0) {
     return (
       <div className="py-8 text-center text-sm text-ink-3">
-        Aucun employe
+        Aucun employé
       </div>
     );
   }
