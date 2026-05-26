@@ -14,8 +14,12 @@ import {
   useCreateMedicalCertificate,
 } from "@/hooks/modules/useMedical";
 import { useFormat } from "@/hooks/useFormat";
+import { useQuery } from "@tanstack/react-query";
+import { bffFetch } from "@/lib/api-client";
 import { PageHeader } from "@/components/shell/PageHeader";
-import { Card, CardContent } from "@/components/ui/card";
+import { StatCard } from "@/components/ui-tokens/StatCard";
+import { Avatar } from "@/components/ui/avatar";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -42,7 +46,7 @@ import {
   type CreateMedicalVisitFormValues,
   type CreateMedicalCertificateFormValues,
 } from "@/lib/validation/hrm/medical.schema";
-import type { AptitudeResult } from "@/lib/types/hrm/medical";
+import type { AptitudeResult, MedicalVisit } from "@/lib/types/hrm/medical";
 
 const APTITUDES: AptitudeResult[] = ["APTE", "APTE_AVEC_RESTRICTIONS", "INAPTE_TEMPORAIRE"];
 const APTITUDE_TONE: Record<AptitudeResult, "green" | "amber" | "red"> = {
@@ -104,20 +108,173 @@ function SelfMedicalView({ employeeId }: { employeeId: string | null }) {
   );
 }
 
+const APT_HEX: Record<AptitudeResult, string> = {
+  APTE: "#10b981",
+  APTE_AVEC_RESTRICTIONS: "#f59e0b",
+  INAPTE_TEMPORAIRE: "#ef4444",
+};
+
+type MedEmp = { id: string; actorDisplayName: string; matricule: string };
+
+function MedicalOverview({
+  employees,
+  t,
+  fmt,
+}: {
+  employees: MedEmp[];
+  t: (k: string) => string;
+  fmt: ReturnType<typeof useFormat>;
+}) {
+  const [nowTs] = React.useState(() => Date.now());
+  const visits = useQuery({
+    queryKey: ["hrm", "medical", "visits", "all"],
+    enabled: employees.length > 0,
+    queryFn: async () => {
+      const res = await Promise.all(
+        employees.map((e) =>
+          bffFetch<MedicalVisit[]>(`/api/hrm/medical/employees/${e.id}/visits`)
+            .then((v) => v.map((x) => ({ ...x, _emp: e })))
+            .catch(() => [] as (MedicalVisit & { _emp: MedEmp })[]),
+        ),
+      );
+      return res.flat();
+    },
+  });
+
+  const rows = visits.data ?? [];
+  const planning90 = rows.filter((v) => {
+    if (!v.prochaineEcheance) return false;
+    const d = (new Date(v.prochaineEcheance).getTime() - nowTs) / 86_400_000;
+    return d >= 0 && d <= 90;
+  }).length;
+  const byApt: Record<string, number> = {};
+  for (const v of rows) byApt[v.resultatAptitude] = (byApt[v.resultatAptitude] ?? 0) + 1;
+  const restrictions = (byApt.APTE_AVEC_RESTRICTIONS ?? 0) + (byApt.INAPTE_TEMPORAIRE ?? 0);
+  const total = rows.length || 1;
+  const aptePct = Math.round(((byApt.APTE ?? 0) / total) * 100);
+
+  let acc = 0;
+  const parts: string[] = [];
+  for (const a of ["APTE", "APTE_AVEC_RESTRICTIONS", "INAPTE_TEMPORAIRE"] as AptitudeResult[]) {
+    const n = byApt[a] ?? 0;
+    if (!n) continue;
+    const start = (acc / total) * 100;
+    acc += n;
+    parts.push(`${APT_HEX[a]} ${start}% ${(acc / total) * 100}%`);
+  }
+  const donut = parts.length ? `conic-gradient(${parts.join(", ")})` : "conic-gradient(var(--color-cream-2) 0 100%)";
+
+  const recent = [...rows]
+    .sort((a, b) => new Date(b.dateVisite).getTime() - new Date(a.dateVisite).getTime())
+    .slice(0, 8);
+
+  return (
+    <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+      <div className="space-y-4 lg:col-span-2">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+          {visits.isLoading ? (
+            Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-[104px] rounded-[18px]" />)
+          ) : (
+            <>
+              <StatCard tone="orange" label="À planifier (90j)" value={planning90} footer="échéances proches" />
+              <StatCard tone="blue" label="Visites" value={rows.length} footer="enregistrées" />
+              <StatCard tone="green" label="Aptes" value={byApt.APTE ?? 0} footer={`${aptePct}%`} />
+              <StatCard tone="red" label="Restrictions" value={restrictions} footer="à suivre" />
+            </>
+          )}
+        </div>
+
+        {!visits.isLoading && recent.length > 0 && (
+          <Card className="overflow-hidden p-0">
+            <div className="border-b border-line-soft p-3">
+              <h3 className="px-1 font-display text-[15px] font-bold text-ink">Visites médicales récentes</h3>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse text-[13px]">
+                <thead>
+                  <tr className="border-b border-line-soft text-[10.5px] uppercase tracking-[0.12em] text-ink-4">
+                    <th className="px-4 py-2.5 text-left font-semibold">Employé</th>
+                    <th className="px-3 py-2.5 text-left font-semibold">Date</th>
+                    <th className="px-3 py-2.5 text-left font-semibold">Prochaine</th>
+                    <th className="px-3 py-2.5 text-left font-semibold">Médecin</th>
+                    <th className="px-3 py-2.5 text-left font-semibold">Résultat</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {recent.map((v) => (
+                    <tr key={v.id} className="border-b border-line-soft/70 last:border-0">
+                      <td className="px-4 py-2.5">
+                        <div className="flex items-center gap-2.5">
+                          <Avatar name={v._emp.actorDisplayName} size="sm" />
+                          <span className="font-semibold text-ink">{v._emp.actorDisplayName}</span>
+                        </div>
+                      </td>
+                      <td className="px-3 py-2.5 text-ink-2 tabular">{fmt.date(v.dateVisite)}</td>
+                      <td className="px-3 py-2.5 text-ink-2 tabular">{v.prochaineEcheance ? fmt.date(v.prochaineEcheance) : "—"}</td>
+                      <td className="px-3 py-2.5 text-ink-2">{v.medecin}</td>
+                      <td className="px-3 py-2.5">
+                        <span
+                          className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-semibold"
+                          style={{ background: `${APT_HEX[v.resultatAptitude]}1a`, color: APT_HEX[v.resultatAptitude] }}
+                        >
+                          {t(`visits.aptitudes.${v.resultatAptitude}`)}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Card>
+        )}
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Statut d&apos;aptitude</CardTitle>
+        </CardHeader>
+        <CardContent className="flex items-center gap-5">
+          <div className="relative grid size-28 shrink-0 place-items-center rounded-full" style={{ background: donut }}>
+            <div className="grid size-20 place-items-center rounded-full bg-white text-center">
+              <div>
+                <div className="font-display text-[20px] font-extrabold leading-none text-ink tabular">{aptePct}%</div>
+                <div className="text-[9px] text-ink-4">aptes</div>
+              </div>
+            </div>
+          </div>
+          <ul className="flex-1 space-y-1.5 text-[12.5px]">
+            {(["APTE", "APTE_AVEC_RESTRICTIONS", "INAPTE_TEMPORAIRE"] as AptitudeResult[]).map((a) => (
+              <li key={a} className="flex items-center justify-between">
+                <span className="flex items-center gap-2 text-ink-2">
+                  <span className="size-2.5 rounded-full" style={{ background: APT_HEX[a] }} />
+                  {t(`visits.aptitudes.${a}`)}
+                </span>
+                <span className="font-semibold text-ink tabular">{byApt[a] ?? 0}</span>
+              </li>
+            ))}
+          </ul>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
 function ManagerMedicalView() {
   const t = useTranslations("medical");
   const tNav = useTranslations("navigation");
+  const fmt = useFormat();
   const employees = useEmployees();
   const [employeeId, setEmployeeId] = React.useState<string>("");
 
   return (
     <div className="space-y-6 animate-fade-up">
       <PageHeader
-        ucBadge="UC-23"
         crumbs={[{ label: tNav("items.medical") }]}
         title={t("title")}
         subtitle={t("subtitle")}
       />
+
+      <MedicalOverview employees={employees.data ?? []} t={t} fmt={fmt} />
 
       <Card>
         <CardContent className="flex items-center gap-3 p-4">
