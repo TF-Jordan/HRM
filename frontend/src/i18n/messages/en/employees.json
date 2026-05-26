@@ -83,7 +83,23 @@
     "submitting": "Creating..."
   },
   "detail": {
+    "back": "Back",
+    "overview": "Overview",
+    "personalInfo": "Personal information",
+    "noContract": "No active contract",
+    "toast": { "updated": "Changes saved" },
+    "stats": {
+      "salaireBrut": "Gross salary",
+      "salaireBrutFooter": "active contract",
+      "soldeConges": "Leave balance",
+      "soldeCongesFooter": "days · {year}",
+      "anciennete": "Seniority",
+      "ancienneteFooter": "since hire date",
+      "dependents": "Dependents",
+      "dependentsFooter": "declared"
+    },
     "tabs": {
+      "overview": "Overview",
       "identity": "Identity",
       "contracts": "Contracts",
       "dependents": "Dependents",
