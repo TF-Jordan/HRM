@@ -66,6 +66,7 @@
     "numCnps": "CNPS number",
     "categorie": "Category",
     "echelon": "Step",
+    "poste": "Job title",
     "dateEmbauche": "Hire date",
     "departmentCode": "Department",
     "modePaiement": "Payment method",

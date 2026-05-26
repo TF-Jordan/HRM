@@ -24,13 +24,14 @@ public final class Employee extends BaseEntity {
     private final String numMobileMoney;
     private final MobileOperator operateurMm;
     private final String actorDisplayName;
+    private final String poste;
 
     private Employee(UUID id, UUID tenantId, Instant createdAt, Instant updatedAt,
                      UUID organizationId, UUID agencyId, UUID actorId, String matricule,
                      String numCnps, int categorie, String echelon, LocalDate dateEmbauche,
                      EmployeeStatus status, String departmentCode, PaymentChannel modePaiement,
                      String compteBancaire, String numMobileMoney, MobileOperator operateurMm,
-                     String actorDisplayName) {
+                     String actorDisplayName, String poste) {
         super(id, tenantId, createdAt, updatedAt);
         this.organizationId = Objects.requireNonNull(organizationId, "organizationId is required");
         this.agencyId = agencyId;
@@ -47,17 +48,18 @@ public final class Employee extends BaseEntity {
         this.numMobileMoney = numMobileMoney;
         this.operateurMm = operateurMm;
         this.actorDisplayName = actorDisplayName;
+        this.poste = poste;
     }
 
     public static Employee hire(UUID tenantId, UUID organizationId, UUID agencyId, UUID actorId,
                                 String matricule, String numCnps, int categorie, String echelon,
                                 LocalDate dateEmbauche, String departmentCode, PaymentChannel modePaiement,
                                 String compteBancaire, String numMobileMoney, MobileOperator operateurMm,
-                                String actorDisplayName) {
+                                String actorDisplayName, String poste) {
         Instant now = Instant.now();
         return new Employee(UUID.randomUUID(), tenantId, now, now, organizationId, agencyId, actorId,
                 matricule, numCnps, categorie, echelon, dateEmbauche, EmployeeStatus.ACTIVE,
-                departmentCode, modePaiement, compteBancaire, numMobileMoney, operateurMm, actorDisplayName);
+                departmentCode, modePaiement, compteBancaire, numMobileMoney, operateurMm, actorDisplayName, poste);
     }
 
     public static Employee rehydrate(UUID id, UUID tenantId, Instant createdAt, Instant updatedAt,
@@ -65,10 +67,10 @@ public final class Employee extends BaseEntity {
                                      String numCnps, int categorie, String echelon, LocalDate dateEmbauche,
                                      EmployeeStatus status, String departmentCode, PaymentChannel modePaiement,
                                      String compteBancaire, String numMobileMoney, MobileOperator operateurMm,
-                                     String actorDisplayName) {
+                                     String actorDisplayName, String poste) {
         return new Employee(id, tenantId, createdAt, updatedAt, organizationId, agencyId, actorId,
                 matricule, numCnps, categorie, echelon, dateEmbauche, status, departmentCode,
-                modePaiement, compteBancaire, numMobileMoney, operateurMm, actorDisplayName);
+                modePaiement, compteBancaire, numMobileMoney, operateurMm, actorDisplayName, poste);
     }
 
     public Employee terminate(LocalDate terminationDate, String reason) {
@@ -81,7 +83,7 @@ public final class Employee extends BaseEntity {
         return new Employee(id(), tenantId(), createdAt(), Instant.now(), organizationId, agencyId,
                 actorId, matricule, numCnps, categorie, echelon, dateEmbauche,
                 EmployeeStatus.TERMINATED, departmentCode, modePaiement, compteBancaire,
-                numMobileMoney, operateurMm, actorDisplayName);
+                numMobileMoney, operateurMm, actorDisplayName, poste);
     }
 
     public Employee suspend(String reason) {
@@ -91,7 +93,7 @@ public final class Employee extends BaseEntity {
         return new Employee(id(), tenantId(), createdAt(), Instant.now(), organizationId, agencyId,
                 actorId, matricule, numCnps, categorie, echelon, dateEmbauche,
                 EmployeeStatus.SUSPENDED, departmentCode, modePaiement, compteBancaire,
-                numMobileMoney, operateurMm, actorDisplayName);
+                numMobileMoney, operateurMm, actorDisplayName, poste);
     }
 
     public Employee reactivate() {
@@ -101,7 +103,7 @@ public final class Employee extends BaseEntity {
         return new Employee(id(), tenantId(), createdAt(), Instant.now(), organizationId, agencyId,
                 actorId, matricule, numCnps, categorie, echelon, dateEmbauche,
                 EmployeeStatus.ACTIVE, departmentCode, modePaiement, compteBancaire,
-                numMobileMoney, operateurMm, actorDisplayName);
+                numMobileMoney, operateurMm, actorDisplayName, poste);
     }
 
     public Employee goOnLeave() {
@@ -111,7 +113,7 @@ public final class Employee extends BaseEntity {
         return new Employee(id(), tenantId(), createdAt(), Instant.now(), organizationId, agencyId,
                 actorId, matricule, numCnps, categorie, echelon, dateEmbauche,
                 EmployeeStatus.ON_LEAVE, departmentCode, modePaiement, compteBancaire,
-                numMobileMoney, operateurMm, actorDisplayName);
+                numMobileMoney, operateurMm, actorDisplayName, poste);
     }
 
     public Employee returnFromLeave() {
@@ -121,15 +123,15 @@ public final class Employee extends BaseEntity {
         return new Employee(id(), tenantId(), createdAt(), Instant.now(), organizationId, agencyId,
                 actorId, matricule, numCnps, categorie, echelon, dateEmbauche,
                 EmployeeStatus.ACTIVE, departmentCode, modePaiement, compteBancaire,
-                numMobileMoney, operateurMm, actorDisplayName);
+                numMobileMoney, operateurMm, actorDisplayName, poste);
     }
 
     public Employee update(String numCnps, int categorie, String echelon, String departmentCode,
                            PaymentChannel modePaiement, String compteBancaire, String numMobileMoney,
-                           MobileOperator operateurMm) {
+                           MobileOperator operateurMm, String poste) {
         return new Employee(id(), tenantId(), createdAt(), Instant.now(), organizationId, agencyId,
                 actorId, matricule, numCnps, categorie, echelon, dateEmbauche, status,
-                departmentCode, modePaiement, compteBancaire, numMobileMoney, operateurMm, actorDisplayName);
+                departmentCode, modePaiement, compteBancaire, numMobileMoney, operateurMm, actorDisplayName, poste);
     }
 
     public UUID organizationId() { return organizationId; }
@@ -147,4 +149,5 @@ public final class Employee extends BaseEntity {
     public String numMobileMoney() { return numMobileMoney; }
     public MobileOperator operateurMm() { return operateurMm; }
     public String actorDisplayName() { return actorDisplayName; }
+    public String poste() { return poste; }
 }

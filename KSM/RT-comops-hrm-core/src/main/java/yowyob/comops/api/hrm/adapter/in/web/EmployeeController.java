@@ -191,21 +191,22 @@ public class EmployeeController {
 
     // --- Request/Response DTOs ---
 
-    public record CreateEmployeeRequest(UUID actorId, String numCnps, int categorie, String echelon,
+    public record CreateEmployeeRequest(UUID actorId, String numCnps, int categorie, String echelon, String poste,
             LocalDate dateEmbauche, String departmentCode, String modePaiement, String compteBancaire,
             String numMobileMoney, String operateurMm, String contractType, LocalDate contractDateDebut,
             LocalDate contractDateFin, BigDecimal salaireBase, BigDecimal avantagesNature, Integer periodeEssai) {
         CreateEmployeeCommand toCommand() {
-            return new CreateEmployeeCommand(actorId, numCnps, categorie, echelon, dateEmbauche, departmentCode,
+            return new CreateEmployeeCommand(actorId, numCnps, categorie, echelon, poste, dateEmbauche, departmentCode,
                     modePaiement, compteBancaire, numMobileMoney, operateurMm, contractType, contractDateDebut,
                     contractDateFin, salaireBase, avantagesNature, periodeEssai);
         }
     }
 
-    public record UpdateEmployeeRequest(String numCnps, int categorie, String echelon, String departmentCode,
-            String modePaiement, String compteBancaire, String numMobileMoney, String operateurMm) {
+    public record UpdateEmployeeRequest(String numCnps, int categorie, String echelon, String poste,
+            String departmentCode, String modePaiement, String compteBancaire, String numMobileMoney,
+            String operateurMm) {
         UpdateEmployeeCommand toCommand() {
-            return new UpdateEmployeeCommand(numCnps, categorie, echelon, departmentCode, modePaiement,
+            return new UpdateEmployeeCommand(numCnps, categorie, echelon, poste, departmentCode, modePaiement,
                     compteBancaire, numMobileMoney, operateurMm);
         }
     }
@@ -251,14 +252,14 @@ public class EmployeeController {
     public record EmployeeResponse(UUID id, UUID organizationId, UUID agencyId, UUID actorId, String matricule,
             String numCnps, int categorie, String echelon, LocalDate dateEmbauche, String status,
             String departmentCode, String modePaiement, String compteBancaire, String numMobileMoney,
-            String operateurMm, String actorDisplayName,
+            String operateurMm, String actorDisplayName, String poste,
             String contractType, BigDecimal contractSalaireBase, LocalDate contractDateFin,
             Integer contractPeriodeEssai, String contractStatus) {
         static EmployeeResponse from(Employee e) {
             return new EmployeeResponse(e.id(), e.organizationId(), e.agencyId(), e.actorId(), e.matricule(),
                     e.numCnps(), e.categorie(), e.echelon(), e.dateEmbauche(), e.status().name(),
                     e.departmentCode(), e.modePaiement().name(), e.compteBancaire(), e.numMobileMoney(),
-                    e.operateurMm() != null ? e.operateurMm().name() : null, e.actorDisplayName(),
+                    e.operateurMm() != null ? e.operateurMm().name() : null, e.actorDisplayName(), e.poste(),
                     null, null, null, null, null);
         }
 
@@ -266,7 +267,7 @@ public class EmployeeController {
             return new EmployeeResponse(e.id(), e.organizationId(), e.agencyId(), e.actorId(), e.matricule(),
                     e.numCnps(), e.categorie(), e.echelon(), e.dateEmbauche(), e.status().name(),
                     e.departmentCode(), e.modePaiement().name(), e.compteBancaire(), e.numMobileMoney(),
-                    e.operateurMm() != null ? e.operateurMm().name() : null, e.actorDisplayName(),
+                    e.operateurMm() != null ? e.operateurMm().name() : null, e.actorDisplayName(), e.poste(),
                     c.type().name(), c.salaireBase(), c.dateFin(), c.periodeEssai(), c.status().name());
         }
     }

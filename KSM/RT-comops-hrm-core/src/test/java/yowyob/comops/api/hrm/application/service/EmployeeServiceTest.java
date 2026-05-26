@@ -70,6 +70,7 @@ class EmployeeServiceTest {
                 "CNPS-001",
                 1,
                 "A",
+                "Développeur",
                 LocalDate.of(2026, 1, 1),
                 "OPS",
                 "BANK_TRANSFER",

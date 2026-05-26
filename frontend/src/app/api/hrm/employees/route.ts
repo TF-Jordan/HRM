@@ -40,6 +40,7 @@ export async function POST(request: Request) {
           numCnps: input.numCnps,
           categorie: input.categorie,
           echelon: input.echelon,
+          poste: input.poste ?? null,
           dateEmbauche: input.dateEmbauche,
           departmentCode: input.departmentCode,
           modePaiement: input.modePaiement,

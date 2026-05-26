@@ -9,6 +9,7 @@ public record CreateEmployeeCommand(
         String numCnps,
         int categorie,
         String echelon,
+        String poste,
         LocalDate dateEmbauche,
         String departmentCode,
         String modePaiement,

@@ -48,6 +48,7 @@ export function CreateEmployeeForm() {
       numCnps: "",
       categorie: 1,
       echelon: "",
+      poste: "",
       dateEmbauche: new Date().toISOString().slice(0, 10),
       departmentCode: "",
       modePaiement: "BANK_TRANSFER",
@@ -144,6 +145,9 @@ export function CreateEmployeeForm() {
             </Field>
             <Field id="echelon" label={t("form.echelon")}>
               <Input id="echelon" {...form.register("echelon")} />
+            </Field>
+            <Field id="poste" label={t("form.poste")}>
+              <Input id="poste" {...form.register("poste")} />
             </Field>
             <Field id="dateEmbauche" label={t("form.dateEmbauche")} required error={form.formState.errors.dateEmbauche?.message}>
               <Input id="dateEmbauche" type="date" {...form.register("dateEmbauche")} />

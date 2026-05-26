@@ -4,6 +4,7 @@ public record UpdateEmployeeCommand(
         String numCnps,
         int categorie,
         String echelon,
+        String poste,
         String departmentCode,
         String modePaiement,
         String compteBancaire,

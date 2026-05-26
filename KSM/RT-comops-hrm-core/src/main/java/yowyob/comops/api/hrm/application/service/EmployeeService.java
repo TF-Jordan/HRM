@@ -86,7 +86,7 @@ public class EmployeeService implements ManageEmployeeUseCase {
                                                             PaymentChannel.valueOf(command.modePaiement()),
                                                             command.compteBancaire(), command.numMobileMoney(),
                                                             command.operateurMm() != null ? MobileOperator.valueOf(command.operateurMm()) : null,
-                                                            actorInfo.displayName());
+                                                            actorInfo.displayName(), command.poste());
                                                     return employeeRepository.save(employee);
                                                 })
                                                 .flatMap(savedEmployee -> {
@@ -129,7 +129,8 @@ public class EmployeeService implements ManageEmployeeUseCase {
                                 command.numCnps(), command.categorie(), command.echelon(),
                                 command.departmentCode(), PaymentChannel.valueOf(command.modePaiement()),
                                 command.compteBancaire(), command.numMobileMoney(),
-                                command.operateurMm() != null ? MobileOperator.valueOf(command.operateurMm()) : null))
+                                command.operateurMm() != null ? MobileOperator.valueOf(command.operateurMm()) : null,
+                                command.poste()))
                         .flatMap(employeeRepository::save)
                         .flatMap(saved -> businessEventPublisher.publish(
                                 BusinessEvent.now(context.tenantId(), context.organizationId(),

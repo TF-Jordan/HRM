@@ -28,6 +28,7 @@ export type Employee = {
   numCnps: string | null;
   categorie: number;
   echelon: string | null;
+  poste: string | null;
   dateEmbauche: string; // ISO date
   status: EmployeeStatus;
   departmentCode: string | null;
@@ -54,6 +55,7 @@ export type CreateEmployeeInput = {
   numCnps?: string | null;
   categorie: number;
   echelon?: string | null;
+  poste?: string | null;
   dateEmbauche: string;
   departmentCode?: string | null;
   modePaiement: PaymentMode;
@@ -73,6 +75,7 @@ export type UpdateEmployeeInput = {
   numCnps?: string | null;
   categorie: number;
   echelon?: string | null;
+  poste?: string | null;
   departmentCode?: string | null;
   modePaiement: PaymentMode;
   compteBancaire?: string | null;

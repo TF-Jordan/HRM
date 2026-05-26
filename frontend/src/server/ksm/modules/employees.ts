@@ -41,6 +41,7 @@ export type KsmCreateEmployeeBody = {
   numCnps: string | null;
   categorie: number;
   echelon: string | null;
+  poste: string | null;
   dateEmbauche: string;
   departmentCode: string | null;
   modePaiement: string;

@@ -7,7 +7,6 @@ import {
   Users,
   AlertTriangle,
   Download,
-  Upload,
   Search,
   SlidersHorizontal,
   ChevronLeft,
@@ -168,10 +167,6 @@ export function EmployeesPageClient() {
         })}
         actions={
           <>
-            <Button variant="secondary" disabled title={t("list.importButton")}>
-              <Upload className="size-4" />
-              {t("list.importButton")}
-            </Button>
             <Button variant="secondary" disabled={filtered.length === 0} onClick={handleExport}>
               <Download className="size-4" />
               {t("list.exportButton")}
@@ -333,7 +328,7 @@ export function EmployeesPageClient() {
                           </div>
                         </td>
                         <td className="px-3 py-2.5 text-ink-2">
-                          {e.echelon ?? `Cat. ${e.categorie}`}
+                          {e.poste ?? e.echelon ?? `Cat. ${e.categorie}`}
                         </td>
                         <td className="px-3 py-2.5">
                           {e.departmentCode ? (

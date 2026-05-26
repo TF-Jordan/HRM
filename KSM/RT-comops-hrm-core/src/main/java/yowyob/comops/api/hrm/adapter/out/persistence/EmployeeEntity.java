@@ -29,5 +29,6 @@ public record EmployeeEntity(
         String compteBancaire,
         String numMobileMoney,
         String operateurMm,
-        String actorDisplayName) implements PersistableEntity {
+        String actorDisplayName,
+        String poste) implements PersistableEntity {
 }
