@@ -61,7 +61,14 @@
       "nbMois": "Nombre de mois d'étalement",
       "motif": "Motif",
       "submit": "Soumettre la demande"
-    }
+    },
+    "summary": {
+      "active": "Prêts en cours",
+      "outstanding": "Restant dû",
+      "monthly": "Mensualité totale"
+    },
+    "estimated": "Mensualité estimée",
+    "progression": "Progression"
   },
   "expenses": {
     "title": "Mes notes de frais",

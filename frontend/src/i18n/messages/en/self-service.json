@@ -61,7 +61,14 @@
       "nbMois": "Repayment months",
       "motif": "Reason",
       "submit": "Submit request"
-    }
+    },
+    "summary": {
+      "active": "Active loans",
+      "outstanding": "Outstanding",
+      "monthly": "Total monthly"
+    },
+    "estimated": "Estimated monthly",
+    "progression": "Progress"
   },
   "expenses": {
     "title": "My expense reports",

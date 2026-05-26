@@ -25,6 +25,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { StatusBadge } from "@/components/ui-tokens/StatusBadge";
+import { StatCard } from "@/components/ui-tokens/StatCard";
 import {
   requestLoanSchema,
   type RequestLoanFormValues,
@@ -38,6 +39,10 @@ export function MyLoansClient() {
   const employeeId = me.data?.id;
   const loans = useEmployeeLoans(employeeId);
   const [open, setOpen] = React.useState(false);
+
+  const repaying = (loans.data ?? []).filter((l) => l.status === "IN_REPAYMENT");
+  const outstanding = repaying.reduce((s, l) => s + Number(l.soldeRestant), 0);
+  const monthly = repaying.reduce((s, l) => s + Number(l.mensualite), 0);
 
   if (me.isLoading) return <Skeleton className="h-40 w-full" />;
   if (me.isError) return <NotEmployeeCard />;
@@ -57,6 +62,14 @@ export function MyLoansClient() {
         }
       />
 
+      {!loans.isLoading && loans.data && loans.data.length > 0 && (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <StatCard tone="orange" label={t("summary.active")} value={repaying.length} footer={fmt.moneyShort(outstanding)} />
+          <StatCard tone="blue" label={t("summary.outstanding")} value={fmt.moneyShort(outstanding)} footer="" />
+          <StatCard tone="green" label={t("summary.monthly")} value={fmt.moneyShort(monthly)} footer="" />
+        </div>
+      )}
+
       {loans.isLoading && <Skeleton className="h-32 w-full" />}
 
       {!loans.isLoading && loans.data && loans.data.length === 0 && (
@@ -66,31 +79,46 @@ export function MyLoansClient() {
       )}
 
       {!loans.isLoading && loans.data && loans.data.length > 0 && (
-        <Card>
-          <CardContent className="p-0">
-            <table className="w-full border-separate border-spacing-0">
-              <thead>
-                <tr>
-                  {[t("table.montant"), t("table.nbMois"), t("table.motif"), t("table.soldeRestant"), t("table.status")].map((h, i) => (
-                    <th key={i} className="border-b border-line bg-gradient-to-b from-cream-dim to-cream-soft px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-ink-3">
-                      {h}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {loans.data.map((l) => (
-                  <tr key={l.id}>
-                    <td className="border-b border-line-soft px-4 py-3 text-[13.5px] font-medium text-ink tabular text-right">{fmt.money(l.montant)}</td>
-                    <td className="border-b border-line-soft px-4 py-3 text-[13.5px] text-ink-2 tabular text-center">{l.nbEcheances}</td>
-                    <td className="border-b border-line-soft px-4 py-3 text-[13.5px] text-ink-2">{l.motif ?? "—"}</td>
-                    <td className="border-b border-line-soft px-4 py-3 text-[13.5px] text-ink-2 tabular text-right">{fmt.money(l.soldeRestant)}</td>
-                    <td className="border-b border-line-soft px-4 py-3 text-[13.5px]"><StatusBadge kind="loan" status={l.status} /></td>
+        <Card className="overflow-hidden p-0">
+          <table className="w-full border-collapse text-[13px]">
+            <thead>
+              <tr className="border-b border-line-soft text-[10.5px] uppercase tracking-[0.12em] text-ink-4">
+                <th className="px-4 py-2.5 text-right font-semibold">{t("table.montant")}</th>
+                <th className="px-3 py-2.5 text-center font-semibold">{t("table.nbMois")}</th>
+                <th className="px-3 py-2.5 text-left font-semibold">{t("table.motif")}</th>
+                <th className="px-3 py-2.5 text-right font-semibold">{t("table.soldeRestant")}</th>
+                <th className="px-3 py-2.5 text-left font-semibold">{t("progression")}</th>
+                <th className="px-3 py-2.5 text-left font-semibold">{t("table.status")}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {loans.data.map((l) => {
+                const progress =
+                  Number(l.montant) > 0
+                    ? Math.round(((Number(l.montant) - Number(l.soldeRestant)) / Number(l.montant)) * 100)
+                    : 0;
+                return (
+                  <tr key={l.id} className="border-b border-line-soft/70 last:border-0">
+                    <td className="px-4 py-2.5 text-right font-semibold text-ink tabular">{fmt.money(l.montant)}</td>
+                    <td className="px-3 py-2.5 text-center text-ink-3 tabular">{l.nbEcheances}</td>
+                    <td className="px-3 py-2.5 text-ink-2">{l.motif ?? "—"}</td>
+                    <td className="px-3 py-2.5 text-right text-ink-2 tabular">{fmt.money(l.soldeRestant)}</td>
+                    <td className="px-3 py-2.5">
+                      <div className="flex items-center gap-2">
+                        <div className="h-1.5 w-20 overflow-hidden rounded-full bg-cream-2">
+                          <div className="h-full rounded-full bg-grad-orange" style={{ width: `${progress}%` }} />
+                        </div>
+                        <span className="text-[11px] tabular text-ink-4">{progress}%</span>
+                      </div>
+                    </td>
+                    <td className="px-3 py-2.5">
+                      <StatusBadge kind="loan" status={l.status} />
+                    </td>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </CardContent>
+                );
+              })}
+            </tbody>
+          </table>
         </Card>
       )}
 
@@ -111,10 +139,14 @@ function RequestLoanDialog({
   const t = useTranslations("selfService.loans");
   const tCommon = useTranslations("common");
   const mutation = useRequestLoan(employeeId);
+  const fmt = useFormat();
   const form = useForm<RequestLoanFormValues>({
     resolver: zodResolver(requestLoanSchema),
     defaultValues: { montant: 0, nbEcheances: 6, motif: "" },
   });
+  const montant = Number(form.watch("montant")) || 0;
+  const nbEcheances = Number(form.watch("nbEcheances")) || 1;
+  const estimated = nbEcheances > 0 ? montant / nbEcheances : 0;
 
   const onSubmit = (values: RequestLoanFormValues) => {
     if (!employeeId) return;
@@ -155,6 +187,10 @@ function RequestLoanDialog({
           <div className="space-y-1.5">
             <Label htmlFor="motif">{t("form.motif")}</Label>
             <Input id="motif" {...form.register("motif")} />
+          </div>
+          <div className="flex items-center justify-between rounded-[12px] bg-cream-soft/50 px-3 py-2.5">
+            <span className="text-[12px] text-ink-3">{t("estimated")}</span>
+            <span className="font-display text-[16px] font-extrabold text-ink tabular">{fmt.money(estimated)}</span>
           </div>
           {mutation.isError && (
             <div className="flex items-start gap-2 rounded-xl bg-status-red-50 px-3 py-2 text-status-red-600">
