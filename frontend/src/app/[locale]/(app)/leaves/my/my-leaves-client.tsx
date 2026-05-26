@@ -4,7 +4,7 @@ import * as React from "react";
 import { useTranslations } from "next-intl";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Plus, Loader2, X, AlertTriangle } from "lucide-react";
+import { Plus, Loader2, X, AlertTriangle, ChevronLeft, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import { useMyEmployee } from "@/hooks/modules/useMe";
 import {
@@ -74,7 +74,10 @@ export function MyLeavesClient() {
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[340px_1fr]">
         <BalancesCard balances={balances.data} isLoading={balances.isLoading} t={t} tStatuses={tStatuses} />
+        <LeaveCalendarCard absences={leaves.data ?? []} />
+      </div>
 
+      <div className="grid grid-cols-1 gap-4">
         <Card>
           <CardHeader>
             <CardTitle>{t("history")}</CardTitle>
@@ -201,6 +204,111 @@ function BalancesCard({
             </div>
           </>
         )}
+      </CardContent>
+    </Card>
+  );
+}
+
+function LeaveCalendarCard({ absences }: { absences: LeaveRequest[] }) {
+  const [cursor, setCursor] = React.useState(() => {
+    const d = new Date();
+    return new Date(d.getFullYear(), d.getMonth(), 1);
+  });
+  const [todayTs] = React.useState(() => Date.now());
+  const today = new Date(todayTs);
+  const year = cursor.getFullYear();
+  const month = cursor.getMonth();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const firstDay = new Date(year, month, 1).getDay();
+  const startOffset = firstDay === 0 ? 6 : firstDay - 1;
+
+  const absentDays = React.useMemo(() => {
+    const set = new Set<number>();
+    for (const l of absences) {
+      if (l.status === "REJECTED" || l.status === "CANCELLED") continue;
+      const monthStart = new Date(year, month, 1).getTime();
+      const end = new Date(l.dateFin);
+      for (
+        let d = new Date(Math.max(new Date(l.dateDebut).getTime(), monthStart));
+        d <= end && d.getMonth() === month && d.getFullYear() === year;
+        d.setDate(d.getDate() + 1)
+      ) {
+        set.add(d.getDate());
+      }
+    }
+    return set;
+  }, [absences, year, month]);
+
+  const weekDays = ["Lu", "Ma", "Me", "Je", "Ve", "Sa", "Di"];
+  const cells: React.ReactNode[] = [];
+  for (let i = 0; i < startOffset; i++) cells.push(<div key={`e-${i}`} />);
+  for (let day = 1; day <= daysInMonth; day++) {
+    const isToday =
+      day === today.getDate() && month === today.getMonth() && year === today.getFullYear();
+    const dow = new Date(year, month, day).getDay();
+    const isWeekend = dow === 0 || dow === 6;
+    const absent = absentDays.has(day);
+    cells.push(
+      <div
+        key={day}
+        className={cn(
+          "relative flex aspect-square items-center justify-center rounded-[10px] text-[12.5px]",
+          isToday
+            ? "bg-brand-500 font-bold text-white"
+            : absent
+              ? "bg-brand-50 font-semibold text-brand-700"
+              : isWeekend
+                ? "text-ink-4"
+                : "text-ink-2",
+        )}
+      >
+        {day}
+      </div>,
+    );
+  }
+
+  return (
+    <Card>
+      <CardHeader className="flex-row items-center justify-between">
+        <CardTitle className="capitalize">
+          {cursor.toLocaleDateString("fr-FR", { month: "long", year: "numeric" })}
+        </CardTitle>
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            aria-label="Mois précédent"
+            onClick={() => setCursor(new Date(year, month - 1, 1))}
+            className="grid size-7 place-items-center rounded-lg border border-line text-ink-2 hover:border-line-strong"
+          >
+            <ChevronLeft className="size-4" />
+          </button>
+          <button
+            type="button"
+            aria-label="Mois suivant"
+            onClick={() => setCursor(new Date(year, month + 1, 1))}
+            className="grid size-7 place-items-center rounded-lg border border-line text-ink-2 hover:border-line-strong"
+          >
+            <ChevronRight className="size-4" />
+          </button>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-2">
+        <div className="grid grid-cols-7 gap-1">
+          {weekDays.map((d) => (
+            <div key={d} className="py-1 text-center text-[10px] font-semibold uppercase text-ink-4">
+              {d}
+            </div>
+          ))}
+          {cells}
+        </div>
+        <div className="flex items-center gap-4 pt-1 text-[11px] text-ink-3">
+          <span className="flex items-center gap-1.5">
+            <span className="size-2.5 rounded bg-brand-50 ring-1 ring-brand-200" /> Mes congés
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="size-2.5 rounded bg-brand-500" /> Aujourd&apos;hui
+          </span>
+        </div>
       </CardContent>
     </Card>
   );
