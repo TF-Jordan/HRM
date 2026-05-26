@@ -101,6 +101,11 @@
       "SUPPLIES": "Fournitures",
       "MEDICAL": "Médical",
       "OTHER": "Autre"
+    },
+    "summary": {
+      "pending": "En attente",
+      "total": "Total soumis",
+      "reimbursed": "Remboursé"
     }
   },
   "timesheets": {

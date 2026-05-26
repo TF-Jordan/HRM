@@ -101,6 +101,11 @@
       "SUPPLIES": "Supplies",
       "MEDICAL": "Medical",
       "OTHER": "Other"
+    },
+    "summary": {
+      "pending": "Pending",
+      "total": "Total submitted",
+      "reimbursed": "Reimbursed"
     }
   },
   "timesheets": {

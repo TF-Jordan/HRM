@@ -25,6 +25,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { StatusBadge } from "@/components/ui-tokens/StatusBadge";
+import { StatCard } from "@/components/ui-tokens/StatCard";
 import {
   createExpenseSchema,
   type CreateExpenseFormValues,
@@ -82,6 +83,31 @@ export function MyExpensesClient() {
 
       {expenses.isLoading && <Skeleton className="h-32 w-full" />}
 
+      {!expenses.isLoading && expenses.data && expenses.data.length > 0 && (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <StatCard
+            tone="amber"
+            label={t("summary.pending")}
+            value={expenses.data.filter((e) => e.status === "SUBMITTED").length}
+            footer=""
+          />
+          <StatCard
+            tone="blue"
+            label={t("summary.total")}
+            value={fmt.moneyShort(expenses.data.reduce((s, e) => s + Number(e.totalMontant), 0))}
+            footer=""
+          />
+          <StatCard
+            tone="green"
+            label={t("summary.reimbursed")}
+            value={fmt.moneyShort(
+              expenses.data.filter((e) => e.status === "REIMBURSED").reduce((s, e) => s + Number(e.totalMontant), 0),
+            )}
+            footer=""
+          />
+        </div>
+      )}
+
       {!expenses.isLoading && expenses.data && expenses.data.length === 0 && (
         <Card>
           <CardContent className="py-8 text-center text-sm text-ink-3">{t("empty")}</CardContent>
@@ -89,34 +115,37 @@ export function MyExpensesClient() {
       )}
 
       {!expenses.isLoading && expenses.data && expenses.data.length > 0 && (
-        <Card>
-          <CardContent className="p-0">
-            <table className="w-full border-separate border-spacing-0">
-              <thead>
-                <tr>
-                  {[t("table.titre"), t("table.total"), t("table.dateSoumission"), t("table.status")].map((h, i) => (
-                    <th key={i} className="border-b border-line bg-gradient-to-b from-cream-dim to-cream-soft px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-ink-3">
-                      {h}
-                    </th>
-                  ))}
+        <Card className="overflow-hidden p-0">
+          <table className="w-full border-collapse text-[13px]">
+            <thead>
+              <tr className="border-b border-line-soft text-[10.5px] uppercase tracking-[0.12em] text-ink-4">
+                <th className="px-4 py-2.5 text-left font-semibold">{t("table.titre")}</th>
+                <th className="px-3 py-2.5 text-right font-semibold">{t("table.total")}</th>
+                <th className="px-3 py-2.5 text-left font-semibold">{t("table.dateSoumission")}</th>
+                <th className="px-3 py-2.5 text-left font-semibold">{t("table.status")}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {expenses.data.map((e) => (
+                <tr
+                  key={e.id}
+                  className="cursor-pointer border-b border-line-soft/70 last:border-0 hover:bg-brand-50/40"
+                  onClick={() => router.push(`/expenses/${e.id}` as never)}
+                >
+                  <td className="px-4 py-2.5 font-medium text-ink">
+                    <Link href={`/expenses/${e.id}` as never} className="hover:text-brand-700">
+                      {e.motif ?? "—"}
+                    </Link>
+                  </td>
+                  <td className="px-3 py-2.5 text-right tabular text-ink-2">{fmt.money(e.totalMontant)}</td>
+                  <td className="px-3 py-2.5 text-ink-2 tabular">{fmt.date(e.periode)}</td>
+                  <td className="px-3 py-2.5">
+                    <StatusBadge kind="expense" status={e.status} />
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {expenses.data.map((e) => (
-                  <tr key={e.id} className="cursor-pointer hover:bg-brand-50/40" onClick={() => router.push(`/expenses/${e.id}` as never)}>
-                    <td className="border-b border-line-soft px-4 py-3 text-[13.5px] font-medium text-ink">
-                      <Link href={`/expenses/${e.id}` as never} className="hover:text-brand-700">
-                        {e.motif ?? "—"}
-                      </Link>
-                    </td>
-                    <td className="border-b border-line-soft px-4 py-3 text-[13.5px] text-ink-2 tabular text-right">{fmt.money(e.totalMontant)}</td>
-                    <td className="border-b border-line-soft px-4 py-3 text-[13.5px] text-ink-2 tabular">{fmt.date(e.periode)}</td>
-                    <td className="border-b border-line-soft px-4 py-3 text-[13.5px]"><StatusBadge kind="expense" status={e.status} /></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </CardContent>
+              ))}
+            </tbody>
+          </table>
         </Card>
       )}
 
