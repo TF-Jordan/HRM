@@ -30,6 +30,8 @@ import { Link } from "@/i18n/navigation";
 import { useHrmDashboard } from "@/hooks/modules/useDashboard";
 import { useEmployeeLeaves, usePendingLeaves } from "@/hooks/modules/useLeaves";
 import { useEmployeeLoans, usePendingLoans } from "@/hooks/modules/useLoans";
+import { useAllContracts } from "@/hooks/modules/useContracts";
+import { useFormat } from "@/hooks/useFormat";
 import { useEmployeeExpenses } from "@/hooks/modules/useExpenses";
 import { useEmployeeMissions } from "@/hooks/modules/useMissions";
 import type { RoleCode } from "@/lib/roles";
@@ -87,8 +89,16 @@ function HRAdminDashboard() {
   const t = useTranslations("dashboard");
   const tNav = useTranslations("navigation");
   const tEmp = useTranslations("employees");
+  const fmt = useFormat();
   const { data, isLoading } = useHrmDashboard();
   const hc = data?.headcount;
+  const contracts = useAllContracts();
+  const pendingLeaves = usePendingLeaves();
+  const pendingLoans = usePendingLoans();
+
+  const masseSalariale = (contracts.data ?? [])
+    .filter((c) => c.status === "ACTIVE")
+    .reduce((s, c) => s + Number(c.salaireBase), 0);
 
   return (
     <>
@@ -113,13 +123,24 @@ function HRAdminDashboard() {
               value={hc?.active ?? 0}
               footer={`${hc?.total ?? 0} total`}
             />
-            <KpiCard tone="dark" icon={Wallet} label={t("kpi.monthlyPayroll")} value="—" />
-            <KpiCard tone="amber" icon={CalendarDays} label={t("kpi.pendingLeaves")} value="—" />
+            <KpiCard
+              tone="dark"
+              icon={Wallet}
+              label={t("kpi.monthlyPayroll")}
+              value={contracts.isLoading ? "…" : fmt.moneyShort(masseSalariale)}
+              footer={tNav("items.contracts")}
+            />
+            <KpiCard
+              tone="amber"
+              icon={CalendarDays}
+              label={t("kpi.pendingLeaves")}
+              value={pendingLeaves.isLoading ? "…" : (pendingLeaves.data?.length ?? 0)}
+            />
             <KpiCard
               tone="violet"
-              icon={AlertTriangle}
-              label={t("kpi.complianceAlerts")}
-              value="—"
+              icon={Coins}
+              label={t("kpi.pendingLoans")}
+              value={pendingLoans.isLoading ? "…" : (pendingLoans.data?.length ?? 0)}
             />
           </>
         )}
