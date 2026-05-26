@@ -55,10 +55,38 @@
   "form": {
     "sections": {
       "identity": "Identité",
+      "administrative": "Identification administrative",
       "employment": "Données RH",
-      "payment": "Paiement",
-      "firstContract": "Premier contrat (optionnel)"
+      "payment": "Mode de paiement du salaire",
+      "firstContract": "Premier contrat"
     },
+    "sectionHints": {
+      "administrative": "champs requis CNPS / DGI",
+      "firstContract": "généré automatiquement à la création",
+      "payment": "enum PaymentChannel"
+    },
+    "hints": {
+      "numCnps": "Format : 12 chiffres + lettre. Ex. 110428937H",
+      "categorie": "1 à 12 selon la grille de la convention collective",
+      "echelon": "A à E généralement",
+      "contractDateFin": "Laisser vide pour CDI",
+      "avantagesNature": "Logement, véhicule, etc. (mensuel)",
+      "periodeEssai": "Durée en jours (max 90j pour CDI cadre)",
+      "compteBancaire": "24 chiffres · si virement",
+      "numMobileMoney": "9 chiffres · format Cameroun"
+    },
+    "contractTypes": {
+      "CDI": "Indéterminé",
+      "CDD": "Avec terme",
+      "STAGE": "Convention",
+      "INTERIM": "Via agence"
+    },
+    "paymentChoice": {
+      "bank": "Virement bancaire",
+      "mobile": "Mobile Money",
+      "cash": "Espèces"
+    },
+    "draft": "Brouillon",
     "firstName": "Prénom",
     "lastName": "Nom",
     "email": "Email",
@@ -171,15 +199,37 @@
       "status": "Statut"
     },
     "new": {
-      "title": "Nouveau contrat",
-      "subtitle": "Sélectionnez le type, renseignez le salaire de base, les avantages et créez le contrat.",
+      "title": "Nouveau contrat / avenant",
+      "subtitle": "Ajouter un contrat ou un avenant à un employé existant",
       "sections": {
         "employee": "Employé concerné",
         "employeeHint": "Un seul contrat actif autorisé par employé",
+        "characteristics": "Caractéristiques du contrat",
         "type": "Type de contrat",
         "typeHint": "Le type conditionne les champs requis (durée, période d'essai)",
-        "remuneration": "Rémunération & avantages",
+        "remuneration": "Rémunération",
         "remunerationHint": "Salaire de base et avantages en nature"
+      },
+      "sidebar": {
+        "title": "Pour quel employé ?",
+        "currentContract": "Contrat actuel",
+        "currentSalary": "Salaire actuel",
+        "noActive": "Aucun contrat actif",
+        "since": "depuis le {date}"
+      },
+      "fields": {
+        "salaireBase": "Salaire de base mensuel",
+        "avantagesNature": "Avantages en nature mensuels",
+        "periodeEssai": "Période d'essai"
+      },
+      "hints": {
+        "dateFin": "Vide = CDI",
+        "periodeEssai": "Durée en jours · 0 si avenant"
+      },
+      "document": {
+        "title": "Document du contrat (optionnel)",
+        "cta": "Téléverser le contrat signé",
+        "hint": "PDF — max 10 Mo"
       },
       "selectEmployee": "Sélectionner un employé",
       "submit": "Créer le contrat",
@@ -209,6 +259,9 @@
   "dependents": {
     "empty": "Aucune personne à charge",
     "newTitle": "Ajouter une personne à charge",
+    "newSubtitle": "Conjoint(e) ou enfant déclaré(e) pour calcul IRPP et droits CNPS",
+    "fiscalImpactTitle": "Impact fiscal",
+    "fiscalImpactText": "Au Cameroun, chaque enfant à charge donne une déduction IRPP supplémentaire. Le conjoint sans revenu compte également comme une part fiscale.",
     "nom": "Nom",
     "prenom": "Prénom",
     "dateNaissance": "Date de naissance",

@@ -2,9 +2,9 @@
 
 import * as React from "react";
 import { useTranslations } from "next-intl";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, Save, AlertTriangle } from "lucide-react";
+import { Loader2, Send, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import {
   createEmployeeSchema,
@@ -15,17 +15,21 @@ import { PageHeader } from "@/components/shell/PageHeader";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  FormSection,
+  FieldGrid,
+  Field,
+  RadioCardGroup,
+  SuffixInput,
+  FormFooter,
+  type RadioCardOption,
+} from "@/components/ui-tokens/form-kit";
 import { useRouter } from "@/i18n/navigation";
 import { CredentialsModal } from "@/components/employees/CredentialsModal";
-import type { EmployeeAccountInfo } from "@/lib/types/hrm/employee";
+import type { EmployeeAccountInfo, MobileMoneyOperator } from "@/lib/types/hrm/employee";
+import type { ContractType } from "@/lib/types/hrm/contract";
+
+type PaymentChoice = "bank" | "mobile" | "cash";
 
 export function CreateEmployeeForm() {
   const t = useTranslations("employees");
@@ -34,8 +38,7 @@ export function CreateEmployeeForm() {
   const router = useRouter();
   const mutation = useCreateEmployee();
   const [credModal, setCredModal] = React.useState<
-    | (EmployeeAccountInfo & { matricule: string; employeeId: string })
-    | null
+    (EmployeeAccountInfo & { matricule: string; employeeId: string }) | null
   >(null);
 
   const form = useForm<CreateEmployeeFormValues>({
@@ -69,18 +72,12 @@ export function CreateEmployeeForm() {
       onSuccess: (employee) => {
         toast.success(`${employee.actorDisplayName} — ${employee.matricule}`);
         if (employee.account) {
-          setCredModal({
-            ...employee.account,
-            matricule: employee.matricule,
-            employeeId: employee.id,
-          });
+          setCredModal({ ...employee.account, matricule: employee.matricule, employeeId: employee.id });
         } else {
           router.push(`/employees/${employee.id}` as never);
         }
       },
-      onError: (err) => {
-        toast.error((err as Error).message);
-      },
+      onError: (err) => toast.error((err as Error).message),
     });
   };
 
@@ -90,12 +87,50 @@ export function CreateEmployeeForm() {
     if (employeeId) router.push(`/employees/${employeeId}` as never);
   };
 
+  const errors = form.formState.errors;
   const modePaiement = form.watch("modePaiement");
+  const operateurMm = form.watch("operateurMm");
+  const contractType = form.watch("contractType");
+  const paymentChoice: PaymentChoice =
+    modePaiement === "BANK_TRANSFER" ? "bank" : modePaiement === "CASH" ? "cash" : "mobile";
+
+  function choosePayment(choice: PaymentChoice) {
+    if (choice === "bank") {
+      form.setValue("modePaiement", "BANK_TRANSFER");
+      form.setValue("operateurMm", null);
+    } else if (choice === "cash") {
+      form.setValue("modePaiement", "CASH");
+      form.setValue("operateurMm", null);
+    } else {
+      const op: MobileMoneyOperator = operateurMm === "ORANGE" ? "ORANGE" : "MTN";
+      form.setValue("operateurMm", op);
+      form.setValue("modePaiement", op === "ORANGE" ? "ORANGE_MONEY" : "MTN_MOBILE_MONEY");
+    }
+  }
+
+  function chooseOperator(op: MobileMoneyOperator) {
+    form.setValue("operateurMm", op);
+    form.setValue("modePaiement", op === "ORANGE" ? "ORANGE_MONEY" : "MTN_MOBILE_MONEY");
+  }
+
+  const contractOptions: RadioCardOption<ContractType>[] = (
+    ["CDI", "CDD", "STAGE", "INTERIM"] as const
+  ).map((v) => ({
+    value: v,
+    label: v === "INTERIM" ? "Intérim" : v === "STAGE" ? "Stage" : v,
+    sublabel: t(`form.contractTypes.${v}` as never),
+    code: `enum: ${v}`,
+  }));
+
+  const paymentOptions: RadioCardOption<PaymentChoice>[] = [
+    { value: "bank", label: t("form.paymentChoice.bank"), code: "enum" },
+    { value: "mobile", label: t("form.paymentChoice.mobile"), code: "enum" },
+    { value: "cash", label: t("form.paymentChoice.cash"), code: "enum" },
+  ];
 
   return (
-    <div className="space-y-6 animate-fade-up">
+    <div className="space-y-5 animate-fade-up">
       <PageHeader
-        ucBadge="UC-01"
         crumbs={[
           { label: tNav("items.employees"), href: "/employees" },
           { label: t("list.newButton") },
@@ -104,153 +139,124 @@ export function CreateEmployeeForm() {
         subtitle={t("list.subtitle")}
       />
 
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
         {mutation.isError && (
           <Card>
             <CardContent className="flex items-start gap-3">
               <AlertTriangle className="size-5 shrink-0 text-status-red-500" />
-              <div className="text-sm">
-                <div className="font-semibold text-status-red-600">
-                  {(mutation.error as Error).message}
-                </div>
+              <div className="text-sm font-semibold text-status-red-600">
+                {(mutation.error as Error).message}
               </div>
             </CardContent>
           </Card>
         )}
 
-        <Section title={t("form.sections.identity")}>
+        <FormSection title={t("form.sections.identity")}>
           <FieldGrid>
-            <Field id="firstName" label={t("form.firstName")} required error={form.formState.errors.firstName?.message}>
+            <Field id="firstName" label={t("form.firstName")} code="firstName" required error={errors.firstName?.message}>
               <Input id="firstName" {...form.register("firstName")} />
             </Field>
-            <Field id="lastName" label={t("form.lastName")} required error={form.formState.errors.lastName?.message}>
+            <Field id="lastName" label={t("form.lastName")} code="lastName" required error={errors.lastName?.message}>
               <Input id="lastName" {...form.register("lastName")} />
             </Field>
-            <Field id="email" label={t("form.email")} required error={form.formState.errors.email?.message}>
+            <Field id="email" label={t("form.email")} code="email" required error={errors.email?.message}>
               <Input id="email" type="email" {...form.register("email")} />
             </Field>
-            <Field id="phoneNumber" label={t("form.phoneNumber")}>
+            <Field id="phoneNumber" label={t("form.phoneNumber")} code="phoneNumber">
               <Input id="phoneNumber" {...form.register("phoneNumber")} />
             </Field>
           </FieldGrid>
-        </Section>
+        </FormSection>
 
-        <Section title={t("form.sections.employment")}>
+        <FormSection title={t("form.sections.administrative")} hint={t("form.sectionHints.administrative")}>
           <FieldGrid>
-            <Field id="numCnps" label={t("form.numCnps")}>
+            <Field id="numCnps" label={t("form.numCnps")} code="numCnps" hint={t("form.hints.numCnps")}>
               <Input id="numCnps" {...form.register("numCnps")} />
             </Field>
-            <Field id="categorie" label={t("form.categorie")} required>
-              <Input id="categorie" type="number" min={1} max={20} {...form.register("categorie")} />
-            </Field>
-            <Field id="echelon" label={t("form.echelon")}>
-              <Input id="echelon" {...form.register("echelon")} />
-            </Field>
-            <Field id="poste" label={t("form.poste")}>
-              <Input id="poste" {...form.register("poste")} />
-            </Field>
-            <Field id="dateEmbauche" label={t("form.dateEmbauche")} required error={form.formState.errors.dateEmbauche?.message}>
+            <Field id="dateEmbauche" label={t("form.dateEmbauche")} code="dateEmbauche" required error={errors.dateEmbauche?.message}>
               <Input id="dateEmbauche" type="date" {...form.register("dateEmbauche")} />
             </Field>
-            <Field id="departmentCode" label={t("form.departmentCode")}>
+            <Field id="categorie" label={t("form.categorie")} code="categorie" required hint={t("form.hints.categorie")}>
+              <Input id="categorie" type="number" min={1} max={20} {...form.register("categorie")} />
+            </Field>
+            <Field id="echelon" label={t("form.echelon")} code="echelon" hint={t("form.hints.echelon")}>
+              <Input id="echelon" {...form.register("echelon")} />
+            </Field>
+            <Field id="poste" label={t("form.poste")} code="poste">
+              <Input id="poste" {...form.register("poste")} />
+            </Field>
+            <Field id="departmentCode" label={t("form.departmentCode")} code="departmentCode">
               <Input id="departmentCode" {...form.register("departmentCode")} />
             </Field>
           </FieldGrid>
-        </Section>
+        </FormSection>
 
-        <Section title={t("form.sections.payment")}>
+        <FormSection title={t("form.sections.firstContract")} hint={t("form.sectionHints.firstContract")}>
+          <Field label={t("form.contractType")} code="contractType">
+            <RadioCardGroup
+              value={contractType ?? undefined}
+              onChange={(v) => form.setValue("contractType", v)}
+              options={contractOptions}
+              cols={4}
+            />
+          </Field>
           <FieldGrid>
-            <Field id="modePaiement" label={t("form.modePaiement")} required>
-              <Controller
-                control={form.control}
-                name="modePaiement"
-                render={({ field }) => (
-                  <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger id="modePaiement">
-                      <SelectValue placeholder="—" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {(["BANK_TRANSFER", "MTN_MOBILE_MONEY", "ORANGE_MONEY", "CASH"] as const).map((v) => (
-                        <SelectItem key={v} value={v}>
-                          {t(`paymentModes.${v}` as never)}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-            </Field>
-            {modePaiement === "BANK_TRANSFER" && (
-              <Field
-                id="compteBancaire"
-                label={t("form.compteBancaire")}
-                required
-                error={form.formState.errors.compteBancaire?.message}
-              >
-                <Input id="compteBancaire" {...form.register("compteBancaire")} />
-              </Field>
-            )}
-            {(modePaiement === "MTN_MOBILE_MONEY" || modePaiement === "ORANGE_MONEY") && (
-              <Field
-                id="numMobileMoney"
-                label={t("form.numMobileMoney")}
-                required
-                error={form.formState.errors.numMobileMoney?.message}
-              >
-                <Input id="numMobileMoney" {...form.register("numMobileMoney")} />
-              </Field>
-            )}
-          </FieldGrid>
-        </Section>
-
-        <Section title={t("form.sections.firstContract")}>
-          <FieldGrid>
-            <Field id="contractType" label={t("form.contractType")}>
-              <Controller
-                control={form.control}
-                name="contractType"
-                render={({ field }) => (
-                  <Select value={field.value ?? ""} onValueChange={(v) => field.onChange(v || null)}>
-                    <SelectTrigger id="contractType">
-                      <SelectValue placeholder={tCommon("none")} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="CDI">CDI</SelectItem>
-                      <SelectItem value="CDD">CDD</SelectItem>
-                      <SelectItem value="STAGE">Stage</SelectItem>
-                      <SelectItem value="INTERIM">Intérim</SelectItem>
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-            </Field>
-            <Field id="contractDateDebut" label={t("form.contractDateDebut")}>
+            <Field id="contractDateDebut" label={t("form.contractDateDebut")} code="contractDateDebut" error={errors.contractDateDebut?.message}>
               <Input id="contractDateDebut" type="date" {...form.register("contractDateDebut")} />
             </Field>
-            <Field id="contractDateFin" label={t("form.contractDateFin")}>
+            <Field id="contractDateFin" label={t("form.contractDateFin")} code="contractDateFin" hint={t("form.hints.contractDateFin")} error={errors.contractDateFin?.message}>
               <Input id="contractDateFin" type="date" {...form.register("contractDateFin")} />
             </Field>
-            <Field id="salaireBase" label={t("form.salaireBase")}>
-              <Input id="salaireBase" type="number" step="1" min={0} {...form.register("salaireBase")} />
+            <Field id="salaireBase" label={t("form.salaireBase")} code="salaireBase">
+              <SuffixInput id="salaireBase" suffix="XAF" type="number" step="1" min={0} {...form.register("salaireBase")} />
             </Field>
-            <Field id="avantagesNature" label={t("form.avantagesNature")}>
-              <Input id="avantagesNature" type="number" step="1" min={0} {...form.register("avantagesNature")} />
+            <Field id="avantagesNature" label={t("form.avantagesNature")} code="avantagesNature" hint={t("form.hints.avantagesNature")}>
+              <SuffixInput id="avantagesNature" suffix="XAF" type="number" step="1" min={0} {...form.register("avantagesNature")} />
             </Field>
-            <Field id="periodeEssai" label={t("form.periodeEssai")}>
-              <Input id="periodeEssai" type="number" step="1" min={0} {...form.register("periodeEssai")} />
+            <Field id="periodeEssai" label={t("form.periodeEssai")} code="periodeEssai" hint={t("form.hints.periodeEssai")}>
+              <SuffixInput id="periodeEssai" suffix="jours" type="number" step="1" min={0} {...form.register("periodeEssai")} />
             </Field>
           </FieldGrid>
-        </Section>
+        </FormSection>
 
-        <div className="flex items-center justify-end gap-3">
-          <Button type="button" variant="secondary" onClick={() => router.push("/employees" as never)}>
+        <FormSection title={t("form.sections.payment")} hint={t("form.sectionHints.payment")}>
+          <Field label={t("form.modePaiement")} code="modePaiement" required>
+            <RadioCardGroup value={paymentChoice} onChange={choosePayment} options={paymentOptions} cols={3} />
+          </Field>
+          {paymentChoice === "bank" && (
+            <Field id="compteBancaire" label={t("form.compteBancaire")} code="compteBancaire" required hint={t("form.hints.compteBancaire")} error={errors.compteBancaire?.message}>
+              <Input id="compteBancaire" {...form.register("compteBancaire")} />
+            </Field>
+          )}
+          {paymentChoice === "mobile" && (
+            <FieldGrid>
+              <Field id="numMobileMoney" label={t("form.numMobileMoney")} code="numMobileMoney" required hint={t("form.hints.numMobileMoney")} error={errors.numMobileMoney?.message}>
+                <Input id="numMobileMoney" {...form.register("numMobileMoney")} />
+              </Field>
+              <Field label={t("form.operateurMm")} code="operateurMm">
+                <RadioCardGroup
+                  value={operateurMm === "ORANGE" ? "ORANGE" : "MTN"}
+                  onChange={chooseOperator}
+                  options={[
+                    { value: "MTN", label: "MTN MoMo", code: "enum: MTN" },
+                    { value: "ORANGE", label: "Orange Money", code: "enum: ORANGE" },
+                  ]}
+                  cols={2}
+                />
+              </Field>
+            </FieldGrid>
+          )}
+        </FormSection>
+
+        <FormFooter>
+          <Button type="button" variant="ghost" onClick={() => router.push("/employees" as never)}>
             {tCommon("actions.cancel" as never)}
           </Button>
           <Button type="submit" disabled={mutation.isPending}>
-            {mutation.isPending ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />}
+            {mutation.isPending ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />}
             {mutation.isPending ? t("form.submitting") : t("form.submit")}
           </Button>
-        </div>
+        </FormFooter>
       </form>
 
       {credModal && (
@@ -265,48 +271,6 @@ export function CreateEmployeeForm() {
           membershipCreated={credModal.membershipCreated}
         />
       )}
-    </div>
-  );
-}
-
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <Card>
-      <CardContent className="space-y-5">
-        <div className="border-b border-line-soft pb-3 font-display text-base font-bold text-ink">
-          {title}
-        </div>
-        {children}
-      </CardContent>
-    </Card>
-  );
-}
-
-function FieldGrid({ children }: { children: React.ReactNode }) {
-  return <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">{children}</div>;
-}
-
-function Field({
-  id,
-  label,
-  required,
-  error,
-  children,
-}: {
-  id: string;
-  label: string;
-  required?: boolean;
-  error?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="space-y-1.5">
-      <Label htmlFor={id} className="flex items-center gap-1">
-        <span>{label}</span>
-        {required && <span className="text-brand-500">*</span>}
-      </Label>
-      {children}
-      {error && <p className="text-[12px] text-status-red-600">{error}</p>}
     </div>
   );
 }

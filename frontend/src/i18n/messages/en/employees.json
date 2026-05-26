@@ -55,10 +55,38 @@
   "form": {
     "sections": {
       "identity": "Identity",
+      "administrative": "Administrative identification",
       "employment": "HR data",
-      "payment": "Payment",
-      "firstContract": "First contract (optional)"
+      "payment": "Salary payment method",
+      "firstContract": "First contract"
     },
+    "sectionHints": {
+      "administrative": "CNPS / DGI required fields",
+      "firstContract": "generated automatically on creation",
+      "payment": "PaymentChannel enum"
+    },
+    "hints": {
+      "numCnps": "Format: 12 digits + letter. Ex. 110428937H",
+      "categorie": "1 to 12 per the collective agreement grid",
+      "echelon": "A to E typically",
+      "contractDateFin": "Leave empty for permanent (CDI)",
+      "avantagesNature": "Housing, vehicle, etc. (monthly)",
+      "periodeEssai": "Duration in days (max 90d for senior CDI)",
+      "compteBancaire": "24 digits · if bank transfer",
+      "numMobileMoney": "9 digits · Cameroon format"
+    },
+    "contractTypes": {
+      "CDI": "Permanent",
+      "CDD": "Fixed term",
+      "STAGE": "Internship",
+      "INTERIM": "Via agency"
+    },
+    "paymentChoice": {
+      "bank": "Bank transfer",
+      "mobile": "Mobile Money",
+      "cash": "Cash"
+    },
+    "draft": "Draft",
     "firstName": "First name",
     "lastName": "Last name",
     "email": "Email",
@@ -171,15 +199,37 @@
       "status": "Status"
     },
     "new": {
-      "title": "New contract",
-      "subtitle": "Select the type, enter the base salary, benefits and create the contract.",
+      "title": "New contract / amendment",
+      "subtitle": "Add a contract or amendment to an existing employee",
       "sections": {
         "employee": "Employee",
         "employeeHint": "Only one active contract per employee is allowed",
+        "characteristics": "Contract characteristics",
         "type": "Contract type",
         "typeHint": "The type determines which fields are required (duration, trial period)",
-        "remuneration": "Salary & benefits",
+        "remuneration": "Remuneration",
         "remunerationHint": "Base salary and benefits in kind"
+      },
+      "sidebar": {
+        "title": "For which employee?",
+        "currentContract": "Current contract",
+        "currentSalary": "Current salary",
+        "noActive": "No active contract",
+        "since": "since {date}"
+      },
+      "fields": {
+        "salaireBase": "Monthly base salary",
+        "avantagesNature": "Monthly benefits in kind",
+        "periodeEssai": "Trial period"
+      },
+      "hints": {
+        "dateFin": "Empty = permanent (CDI)",
+        "periodeEssai": "Duration in days · 0 for an amendment"
+      },
+      "document": {
+        "title": "Contract document (optional)",
+        "cta": "Upload the signed contract",
+        "hint": "PDF — max 10 MB"
       },
       "selectEmployee": "Select an employee",
       "submit": "Create contract",
@@ -209,6 +259,9 @@
   "dependents": {
     "empty": "No dependents",
     "newTitle": "Add a dependent",
+    "newSubtitle": "Spouse or declared child for IRPP and CNPS computation",
+    "fiscalImpactTitle": "Tax impact",
+    "fiscalImpactText": "In Cameroon, each dependent child grants an additional IRPP deduction. A spouse without income also counts as a tax share.",
     "nom": "Last name",
     "prenom": "First name",
     "dateNaissance": "Date of birth",

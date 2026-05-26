@@ -11,7 +11,7 @@ import { useFormat } from "@/hooks/useFormat";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Field } from "@/components/ui-tokens/form-kit";
 import {
   Dialog,
   DialogContent,
@@ -122,27 +122,23 @@ function AddDependentDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="max-w-xl">
         <DialogHeader>
           <DialogTitle>{t("dependents.newTitle")}</DialogTitle>
-          <DialogDescription>{t("detail.tabs.dependents")}</DialogDescription>
+          <DialogDescription>{t("dependents.newSubtitle")}</DialogDescription>
         </DialogHeader>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <Label>{t("dependents.prenom")}</Label>
-              <Input {...form.register("prenom")} />
-            </div>
-            <div className="space-y-1.5">
-              <Label>{t("dependents.nom")}</Label>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <Field label={t("dependents.nom")} code="nom" required>
               <Input {...form.register("nom")} />
-            </div>
-            <div className="space-y-1.5">
-              <Label>{t("dependents.dateNaissance")}</Label>
+            </Field>
+            <Field label={t("dependents.prenom")} code="prenom" required>
+              <Input {...form.register("prenom")} />
+            </Field>
+            <Field label={t("dependents.dateNaissance")} code="dateNaissance" required>
               <Input type="date" max={new Date().toISOString().slice(0, 10)} {...form.register("dateNaissance")} />
-            </div>
-            <div className="space-y-1.5">
-              <Label>{t("dependents.lienParente")}</Label>
+            </Field>
+            <Field label={t("dependents.lienParente")} code="lienParente" required>
               <Controller
                 control={form.control}
                 name="lienParente"
@@ -161,7 +157,11 @@ function AddDependentDialog({
                   </Select>
                 )}
               />
-            </div>
+            </Field>
+          </div>
+          <div className="rounded-[12px] border border-status-amber-500/30 bg-status-amber-50 p-3 text-[12px] text-ink-2">
+            <div className="font-semibold text-status-amber-600">{t("dependents.fiscalImpactTitle")}</div>
+            <p className="mt-1 text-ink-3">{t("dependents.fiscalImpactText")}</p>
           </div>
           <DialogFooter>
             <Button type="button" variant="secondary" onClick={() => onOpenChange(false)}>
