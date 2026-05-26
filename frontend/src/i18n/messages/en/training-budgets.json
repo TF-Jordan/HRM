@@ -28,5 +28,11 @@
     "realiserTitle": "Realize an amount",
     "montant": "Amount (XAF)",
     "submit": "Confirm"
+  },
+  "hero": {
+    "annual": "Annual budget {year}",
+    "consumed": "consumed",
+    "available": "available",
+    "used": "used"
   }
 }

@@ -90,6 +90,47 @@ export function TrainingBudgetsClient() {
         </CardContent>
       </Card>
 
+      {!list.isLoading && list.data && list.data.length > 0 && (() => {
+        const alloue = list.data.reduce((s, b) => s + Number(b.montantAlloue), 0);
+        const engage = list.data.reduce((s, b) => s + Number(b.montantEngage), 0);
+        const realise = list.data.reduce((s, b) => s + Number(b.montantRealise), 0);
+        const consomme = engage + realise;
+        const dispo = alloue - consomme;
+        const pct = alloue > 0 ? Math.round((consomme / alloue) * 100) : 0;
+        return (
+          <Card>
+            <CardContent className="flex flex-col items-center gap-6 p-5 sm:flex-row">
+              <div className="flex-1">
+                <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-ink-4">
+                  {t("hero.annual", { year: annee })}
+                </div>
+                <div className="mt-1 font-display text-[34px] font-extrabold leading-none text-ink tabular">
+                  {fmt.moneyShort(alloue)}
+                </div>
+                <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[12.5px] text-ink-3">
+                  <span>{fmt.moneyShort(consomme)} {t("hero.consumed")}</span>
+                  <span>·</span>
+                  <span>{fmt.moneyShort(dispo)} {t("hero.available")}</span>
+                  <span>·</span>
+                  <span className="font-semibold text-brand-600">{pct}% {t("hero.used")}</span>
+                </div>
+                <div className="mt-3 h-2.5 overflow-hidden rounded-full bg-cream-2">
+                  <div className="h-full rounded-full bg-grad-orange" style={{ width: `${Math.min(100, pct)}%` }} />
+                </div>
+              </div>
+              <div
+                className="relative grid size-28 shrink-0 place-items-center rounded-full"
+                style={{ background: `conic-gradient(var(--color-brand-500) ${pct}%, var(--color-cream-2) 0)` }}
+              >
+                <div className="grid size-20 place-items-center rounded-full bg-white">
+                  <span className="font-display text-[20px] font-extrabold text-ink tabular">{pct}%</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        );
+      })()}
+
       {list.isLoading && <Skeleton className="h-32 w-full" />}
 
       {!list.isLoading && list.data && list.data.length === 0 && (

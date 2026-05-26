@@ -28,5 +28,11 @@
     "realiserTitle": "Réaliser un montant",
     "montant": "Montant (XAF)",
     "submit": "Valider"
+  },
+  "hero": {
+    "annual": "Budget annuel {year}",
+    "consumed": "consommé",
+    "available": "disponible",
+    "used": "utilisé"
   }
 }
