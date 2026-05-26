@@ -106,7 +106,7 @@ export function PayrollClient() {
         }
       />
 
-      {runs.isLoading && <Skeleton className="h-32 w-full" />}
+      {runs.isLoading && <Skeleton className="h-40 w-full rounded-[20px]" />}
 
       {!runs.isLoading && runs.data && runs.data.length === 0 && (
         <Card>
@@ -115,47 +115,78 @@ export function PayrollClient() {
       )}
 
       {!runs.isLoading && runs.data && runs.data.length > 0 && (
-        <Card>
-          <CardContent className="p-0">
-            <table className="w-full border-separate border-spacing-0">
-              <thead>
-                <tr>
-                  {[
-                    t("table.periode"),
-                    t("table.nbEmployes"),
-                    t("table.totalBrut"),
-                    t("table.totalNet"),
-                    t("table.status"),
-                    t("table.calculatedAt"),
-                  ].map((h, i) => (
-                    <th
-                      key={i}
-                      className="border-b border-line bg-gradient-to-b from-cream-dim to-cream-soft px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-ink-3"
-                    >
-                      {h}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {runs.data.map((r) => (
-                  <tr key={r.id} className="cursor-pointer hover:bg-brand-50/40">
-                    <td className="border-b border-line-soft px-4 py-3 text-[13.5px] font-medium text-ink">
-                      <Link href={`/payroll/runs/${r.id}` as never} className="hover:text-brand-700">
-                        {r.periode}
-                      </Link>
-                    </td>
-                    <td className="border-b border-line-soft px-4 py-3 text-[13.5px] text-ink-2 tabular text-center">{r.nbEmployes}</td>
-                    <td className="border-b border-line-soft px-4 py-3 text-[13.5px] text-ink-2 tabular text-right">{fmt.money(r.totalBrut)}</td>
-                    <td className="border-b border-line-soft px-4 py-3 text-[13.5px] text-ink-2 tabular text-right">{fmt.money(r.totalNet)}</td>
-                    <td className="border-b border-line-soft px-4 py-3 text-[13.5px]"><StatusBadge kind="payrollRun" status={r.status} /></td>
-                    <td className="border-b border-line-soft px-4 py-3 text-[13.5px] text-ink-2 tabular">{fmt.date(r.calculatedAt)}</td>
+        <>
+          {(() => {
+            const latest = [...runs.data].sort((a, b) => b.periode.localeCompare(a.periode))[0]!;
+            const cotis = Number(latest.totalBrut) - Number(latest.totalNet);
+            return (
+              <div className="overflow-hidden rounded-[20px] bg-grad-dark p-5 text-white shadow-elev-lg">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-white/55">
+                      {t("currentCycle")}
+                    </div>
+                    <div className="font-display text-[22px] font-extrabold tracking-tight">
+                      {t("title")} · {latest.periode}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <StatusBadge kind="payrollRun" status={latest.status} />
+                    <Button asChild variant="secondary">
+                      <Link href={`/payroll/runs/${latest.id}` as never}>{t("openCycle")}</Link>
+                    </Button>
+                  </div>
+                </div>
+                <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
+                  <HeroMetric label={t("table.nbEmployes")} value={String(latest.nbEmployes)} />
+                  <HeroMetric label={t("table.totalBrut")} value={fmt.moneyShort(latest.totalBrut)} />
+                  <HeroMetric label={t("cotisations")} value={fmt.moneyShort(cotis)} />
+                  <HeroMetric label={t("table.totalNet")} value={fmt.moneyShort(latest.totalNet)} />
+                </div>
+              </div>
+            );
+          })()}
+
+          <Card className="overflow-hidden p-0">
+            <div className="border-b border-line-soft p-3">
+              <h3 className="px-1 font-display text-[15px] font-bold text-ink">{t("cycles")}</h3>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse text-[13px]">
+                <thead>
+                  <tr className="border-b border-line-soft text-[10.5px] uppercase tracking-[0.12em] text-ink-4">
+                    <th className="px-4 py-2.5 text-left font-semibold">{t("table.periode")}</th>
+                    <th className="px-3 py-2.5 text-center font-semibold">{t("table.nbEmployes")}</th>
+                    <th className="px-3 py-2.5 text-right font-semibold">{t("table.totalBrut")}</th>
+                    <th className="px-3 py-2.5 text-right font-semibold">{t("table.totalNet")}</th>
+                    <th className="px-3 py-2.5 text-left font-semibold">{t("table.status")}</th>
+                    <th className="px-3 py-2.5 text-left font-semibold">{t("table.calculatedAt")}</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </CardContent>
-        </Card>
+                </thead>
+                <tbody>
+                  {[...runs.data]
+                    .sort((a, b) => b.periode.localeCompare(a.periode))
+                    .map((r) => (
+                      <tr key={r.id} className="border-b border-line-soft/70 last:border-0 hover:bg-brand-50/40">
+                        <td className="px-4 py-2.5 font-semibold text-ink">
+                          <Link href={`/payroll/runs/${r.id}` as never} className="hover:text-brand-700">
+                            {r.periode}
+                          </Link>
+                        </td>
+                        <td className="px-3 py-2.5 text-center tabular text-ink-2">{r.nbEmployes}</td>
+                        <td className="px-3 py-2.5 text-right tabular text-ink-2">{fmt.money(r.totalBrut)}</td>
+                        <td className="px-3 py-2.5 text-right tabular text-ink-2">{fmt.money(r.totalNet)}</td>
+                        <td className="px-3 py-2.5">
+                          <StatusBadge kind="payrollRun" status={r.status} />
+                        </td>
+                        <td className="px-3 py-2.5 tabular text-ink-2">{fmt.date(r.calculatedAt)}</td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </div>
+          </Card>
+        </>
       )}
 
       <Dialog open={open} onOpenChange={setOpen}>
@@ -201,6 +232,15 @@ export function PayrollClient() {
           </form>
         </DialogContent>
       </Dialog>
+    </div>
+  );
+}
+
+function HeroMetric({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-[14px] bg-white/5 p-3 ring-1 ring-white/10">
+      <div className="text-[10.5px] font-semibold uppercase tracking-[0.1em] text-white/50">{label}</div>
+      <div className="mt-1 font-display text-[20px] font-extrabold tabular">{value}</div>
     </div>
   );
 }

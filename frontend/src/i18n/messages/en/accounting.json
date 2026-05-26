@@ -38,7 +38,11 @@
         "net": "Net",
         "paymentStatus": "Payment"
       }
-    }
+    },
+    "currentCycle": "Current cycle",
+    "openCycle": "Open cycle",
+    "cotisations": "Contributions",
+    "cycles": "Payroll cycles"
   },
   "payslip": {
     "title": "Payslip",
