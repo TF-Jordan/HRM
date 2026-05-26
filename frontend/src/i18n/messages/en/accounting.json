@@ -58,7 +58,16 @@
       "base": "Base",
       "taux": "Rate",
       "montant": "Amount"
-    }
+    },
+    "remuneration": "Gross remuneration",
+    "retenuesSalariales": "Employee deductions",
+    "brutImposable": "Taxable gross",
+    "totalRetenues": "Total deductions",
+    "netAPayer": "Net pay",
+    "gain": "Earning",
+    "retenue": "Deduction",
+    "print": "Print",
+    "downloadPdf": "Download PDF"
   },
   "pendingLoans": {
     "title": "Advances to approve",

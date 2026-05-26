@@ -58,7 +58,16 @@
       "base": "Base",
       "taux": "Taux",
       "montant": "Montant"
-    }
+    },
+    "remuneration": "Rémunération brute",
+    "retenuesSalariales": "Retenues salariales",
+    "brutImposable": "Brut imposable",
+    "totalRetenues": "Total retenues",
+    "netAPayer": "Net à payer",
+    "gain": "Gain",
+    "retenue": "Retenue",
+    "print": "Imprimer",
+    "downloadPdf": "Télécharger PDF"
   },
   "pendingLoans": {
     "title": "Avances à approuver",
