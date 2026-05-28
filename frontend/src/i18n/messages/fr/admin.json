@@ -1,0 +1,115 @@
+{
+  "ucBadge": "ADMIN · SuperAdmin",
+  "landing": {
+    "title": "Administration",
+    "subtitle": "Configurez votre plateforme : organisation, utilisateurs, rôles et services.",
+    "cards": {
+      "organization": {
+        "title": "Organisation",
+        "description": "Informations légales, logo, statuts, contacts"
+      },
+      "agencies": {
+        "title": "Agences",
+        "description": "Créer et gérer les agences rattachées à votre organisation"
+      },
+      "users": {
+        "title": "Utilisateurs",
+        "description": "Créer, lister et attribuer des rôles aux utilisateurs"
+      },
+      "roles": {
+        "title": "Rôles & permissions",
+        "description": "Modèles de rôles, provisionnement et permissions"
+      },
+      "services": {
+        "title": "Services",
+        "description": "Modules activés pour votre organisation"
+      },
+      "audit": {
+        "title": "Audit",
+        "description": "Historique des actions d'administration"
+      },
+      "settings": {
+        "title": "Paramètres",
+        "description": "Séquences de documents, paie, jours fériés"
+      }
+    }
+  },
+  "organization": {
+    "title": "Organisation",
+    "subtitle": "Informations légales utilisées dans tous vos documents (bulletins, contrats, déclarations).",
+    "tabs": {
+      "general": "Général",
+      "legal": "Informations légales",
+      "branding": "Charte graphique"
+    },
+    "fields": {
+      "code": "Code interne",
+      "shortName": "Nom commercial",
+      "longName": "Raison sociale",
+      "service": "Type d'organisation",
+      "email": "Email",
+      "websiteUrl": "Site web",
+      "description": "Description",
+      "legalForm": "Forme juridique",
+      "businessRegistrationNumber": "RCCM",
+      "taxNumber": "NIU",
+      "capitalShare": "Capital social",
+      "ceoName": "Directeur général",
+      "yearFounded": "Année de création",
+      "numberOfEmployees": "Effectif"
+    },
+    "saved": "Organisation mise à jour"
+  },
+  "users": {
+    "title": "Utilisateurs",
+    "subtitle": "Les utilisateurs accèdent à HR Core avec leur email et le mot de passe que vous leur communiquez.",
+    "new": "Nouvel utilisateur",
+    "columns": {
+      "name": "Nom",
+      "email": "Email",
+      "status": "Statut",
+      "roles": "Rôles",
+      "createdAt": "Créé le",
+      "actions": "Actions"
+    },
+    "create": {
+      "title": "Créer un utilisateur",
+      "subtitle": "Identité + compte d'accès + rôle, en une étape.",
+      "firstName": "Prénom",
+      "lastName": "Nom",
+      "email": "Email",
+      "phone": "Téléphone",
+      "roleHint": "Au moins un rôle est requis pour que l'utilisateur puisse se connecter.",
+      "submit": "Créer l'utilisateur",
+      "success": "Utilisateur créé",
+      "tempPasswordTitle": "Mot de passe temporaire",
+      "tempPasswordHint": "Communiquez-le à {name}. Cette information n'est affichée qu'une seule fois.",
+      "copy": "Copier",
+      "copied": "Copié",
+      "openUsers": "Retour à la liste"
+    }
+  },
+  "roles": {
+    "title": "Rôles & permissions",
+    "subtitle": "Modèles de rôles disponibles et rôles activés sur votre tenant.",
+    "provisioned": "Rôles déjà provisionnés",
+    "templates": "Modèles disponibles",
+    "provisionDefaults": "Provisionner les rôles par défaut",
+    "provisioned_success": "Rôles provisionnés",
+    "scopeType": "Portée",
+    "permissionsCount": "Permissions",
+    "code": "Code",
+    "name": "Nom"
+  },
+  "audit": {
+    "title": "Audit",
+    "subtitle": "Dernières actions d'administration.",
+    "columns": {
+      "when": "Date",
+      "action": "Action",
+      "target": "Cible",
+      "actor": "Acteur",
+      "details": "Détails"
+    }
+  }
+}

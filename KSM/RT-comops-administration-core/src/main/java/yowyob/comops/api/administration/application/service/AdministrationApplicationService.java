@@ -35,6 +35,7 @@ import yowyob.comops.api.administration.application.port.in.UpdateAdministrative
 import yowyob.comops.api.administration.application.port.in.UpdateAdministrativePlatformOptionsUseCase;
 import yowyob.comops.api.administration.application.port.in.UpdateAdministrativeRoleCommand;
 import yowyob.comops.api.administration.application.port.in.UpdateAdministrativeRoleUseCase;
+import yowyob.comops.api.administration.application.port.in.ListTenantUsersUseCase;
 import yowyob.comops.api.administration.application.port.out.AdminAuditRepository;
 import yowyob.comops.api.administration.application.port.out.AdministrativePlatformOptionsRepository;
 import yowyob.comops.api.administration.domain.PermissionCatalogValidationException;
@@ -81,7 +82,8 @@ public class AdministrationApplicationService implements ListPermissionCatalogUs
         CloneAdministrativeRoleUseCase, GetAdministrativePlatformOptionsUseCase, UpdateAdministrativePlatformOptionsUseCase,
         ListBusinessActorGovernanceUseCase, GovernBusinessActorUseCase,
         ListGovernedOrganizationsUseCase, GovernOrganizationUseCase,
-        ListGovernedAgenciesUseCase, GovernAgencyUseCase {
+        ListGovernedAgenciesUseCase, GovernAgencyUseCase,
+        ListTenantUsersUseCase {
 
     private static final Set<String> RESERVED_ROLE_CODES = Set.of(
             "GENERAL_ADMIN", "SYSTEM_ADMIN", "IAM_ADMIN", "TENANT_ADMIN",
@@ -286,6 +288,11 @@ public class AdministrationApplicationService implements ListPermissionCatalogUs
     public Flux<AdministrativeRoleTemplate> listRoleTemplates() {
         return Flux.fromIterable(defaultRoleTemplates)
                 .sort(Comparator.comparing(AdministrativeRoleTemplate::code));
+    }
+
+    @Override
+    public Flux<yowyob.comops.api.auth.domain.model.UserAccount> listTenantUsers(UUID tenantId) {
+        return userAccountRepository.findAllByTenantId(tenantId);
     }
 
     @Override

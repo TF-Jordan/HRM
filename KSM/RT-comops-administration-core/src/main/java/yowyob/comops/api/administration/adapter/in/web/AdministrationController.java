@@ -90,6 +90,7 @@ public class AdministrationController {
     private final GovernAgencyUseCase governAgencyUseCase;
     private final GetAppBusinessSettingsUseCase getAppBusinessSettingsUseCase;
     private final UpdateAppBusinessSettingsUseCase updateAppBusinessSettingsUseCase;
+    private final yowyob.comops.api.administration.application.port.in.ListTenantUsersUseCase listTenantUsersUseCase;
 
     public AdministrationController(ListPermissionCatalogUseCase listPermissionCatalogUseCase,
             ListAdministrativeRoleTemplatesUseCase listAdministrativeRoleTemplatesUseCase,
@@ -114,7 +115,8 @@ public class AdministrationController {
             ListGovernedAgenciesUseCase listGovernedAgenciesUseCase,
             GovernAgencyUseCase governAgencyUseCase,
             GetAppBusinessSettingsUseCase getAppBusinessSettingsUseCase,
-            UpdateAppBusinessSettingsUseCase updateAppBusinessSettingsUseCase) {
+            UpdateAppBusinessSettingsUseCase updateAppBusinessSettingsUseCase,
+            yowyob.comops.api.administration.application.port.in.ListTenantUsersUseCase listTenantUsersUseCase) {
         this.listPermissionCatalogUseCase = listPermissionCatalogUseCase;
         this.listAdministrativeRoleTemplatesUseCase = listAdministrativeRoleTemplatesUseCase;
         this.listAdministrativeRolesUseCase = listAdministrativeRolesUseCase;
@@ -139,6 +141,17 @@ public class AdministrationController {
         this.governAgencyUseCase = governAgencyUseCase;
         this.getAppBusinessSettingsUseCase = getAppBusinessSettingsUseCase;
         this.updateAppBusinessSettingsUseCase = updateAppBusinessSettingsUseCase;
+        this.listTenantUsersUseCase = listTenantUsersUseCase;
+    }
+
+    @GetMapping("/users")
+    @PreAuthorize("@businessAccessPolicy.canManageAdministrativeRoles(authentication)")
+    public Mono<ResponseEntity<ApiResponse<java.util.List<AdministrationUserResponse>>>> listTenantUsers() {
+        return ReactiveRequestContextHolder.getRequiredContext()
+                .flatMap(context -> listTenantUsersUseCase.listTenantUsers(context.tenantId())
+                        .map(AdministrationUserResponse::from)
+                        .collectList()
+                        .map(response -> ResponseEntity.ok(ApiResponse.success(response, "Tenant users retrieved."))));
     }
 
     @GetMapping("/permissions")

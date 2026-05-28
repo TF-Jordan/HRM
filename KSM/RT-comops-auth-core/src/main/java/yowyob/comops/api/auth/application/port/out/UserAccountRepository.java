@@ -15,5 +15,7 @@ public interface UserAccountRepository {
 
     Flux<UserAccount> findAllByPrincipal(String principal);
 
+    Flux<UserAccount> findAllByTenantId(UUID tenantId);
+
     Mono<UserAccount> save(UserAccount userAccount);
 }

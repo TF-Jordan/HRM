@@ -48,6 +48,13 @@ public class InMemoryUserAccountRepository implements UserAccountRepository {
     }
 
     @Override
+    public Flux<UserAccount> findAllByTenantId(UUID tenantId) {
+        return Flux.fromStream(users.values().stream()
+                .filter(user -> user.tenantId().equals(tenantId))
+                .sorted((a, b) -> b.createdAt().compareTo(a.createdAt())));
+    }
+
+    @Override
     public Mono<UserAccount> save(UserAccount userAccount) {
         return Mono.fromSupplier(() -> {
             users.put(userAccount.id(), userAccount);

@@ -1,0 +1,115 @@
+{
+  "ucBadge": "ADMIN · SuperAdmin",
+  "landing": {
+    "title": "Administration",
+    "subtitle": "Set up your platform: organization, users, roles and services.",
+    "cards": {
+      "organization": {
+        "title": "Organization",
+        "description": "Legal info, logo, status, contacts"
+      },
+      "agencies": {
+        "title": "Agencies",
+        "description": "Create and manage agencies attached to your organization"
+      },
+      "users": {
+        "title": "Users",
+        "description": "Create, list and assign roles"
+      },
+      "roles": {
+        "title": "Roles & permissions",
+        "description": "Role templates, provisioning and permissions"
+      },
+      "services": {
+        "title": "Services",
+        "description": "Modules enabled for your organization"
+      },
+      "audit": {
+        "title": "Audit",
+        "description": "Administrative action history"
+      },
+      "settings": {
+        "title": "Settings",
+        "description": "Document sequences, payroll, holidays"
+      }
+    }
+  },
+  "organization": {
+    "title": "Organization",
+    "subtitle": "Legal info used in every document (payslips, contracts, declarations).",
+    "tabs": {
+      "general": "General",
+      "legal": "Legal information",
+      "branding": "Branding"
+    },
+    "fields": {
+      "code": "Internal code",
+      "shortName": "Trade name",
+      "longName": "Legal name",
+      "service": "Organization type",
+      "email": "Email",
+      "websiteUrl": "Website",
+      "description": "Description",
+      "legalForm": "Legal form",
+      "businessRegistrationNumber": "RCCM (Trade registry)",
+      "taxNumber": "NIU (Tax ID)",
+      "capitalShare": "Share capital",
+      "ceoName": "CEO",
+      "yearFounded": "Year founded",
+      "numberOfEmployees": "Headcount"
+    },
+    "saved": "Organization updated"
+  },
+  "users": {
+    "title": "Users",
+    "subtitle": "Users sign in to HR Core with their email and the password you communicate to them.",
+    "new": "New user",
+    "columns": {
+      "name": "Name",
+      "email": "Email",
+      "status": "Status",
+      "roles": "Roles",
+      "createdAt": "Created at",
+      "actions": "Actions"
+    },
+    "create": {
+      "title": "Create a user",
+      "subtitle": "Identity + login account + role, all in one step.",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "email": "Email",
+      "phone": "Phone",
+      "roleHint": "At least one role is required for the user to sign in.",
+      "submit": "Create user",
+      "success": "User created",
+      "tempPasswordTitle": "Temporary password",
+      "tempPasswordHint": "Share this with {name}. It is displayed only once.",
+      "copy": "Copy",
+      "copied": "Copied",
+      "openUsers": "Back to list"
+    }
+  },
+  "roles": {
+    "title": "Roles & permissions",
+    "subtitle": "Available role templates and roles enabled on your tenant.",
+    "provisioned": "Roles already provisioned",
+    "templates": "Available templates",
+    "provisionDefaults": "Provision default roles",
+    "provisioned_success": "Roles provisioned",
+    "scopeType": "Scope",
+    "permissionsCount": "Permissions",
+    "code": "Code",
+    "name": "Name"
+  },
+  "audit": {
+    "title": "Audit",
+    "subtitle": "Latest administrative actions.",
+    "columns": {
+      "when": "When",
+      "action": "Action",
+      "target": "Target",
+      "actor": "Actor",
+      "details": "Details"
+    }
+  }
+}

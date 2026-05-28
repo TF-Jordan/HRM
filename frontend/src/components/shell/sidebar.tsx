@@ -3,12 +3,14 @@
 import {
   Bell,
   Briefcase,
+  Building2,
   CalendarRange,
   ChartLine,
   ChartPie,
   ClipboardList,
   Clock,
   Coins,
+  FileSearch,
   FileText,
   GraduationCap,
   HeartPulse,
@@ -96,6 +98,25 @@ const SECTIONS: NavSection[] = [
   {
     labelKey: "sections.system",
     items: [{ href: "/settings", labelKey: "nav.settings", icon: Settings }],
+  },
+  {
+    labelKey: "sections.administration",
+    items: [
+      { href: "/admin", labelKey: "nav.administration", icon: Building2, permission: "tenant:admin" },
+      { href: "/admin/users", labelKey: "nav.users", icon: Users, permission: "tenant:admin" },
+      {
+        href: "/admin/roles",
+        labelKey: "nav.roles",
+        icon: ShieldCheck,
+        permission: "administration:roles:read",
+      },
+      {
+        href: "/admin/audit",
+        labelKey: "nav.audit",
+        icon: FileSearch,
+        permission: "administration:audit:read",
+      },
+    ],
   },
 ];
 

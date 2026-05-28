@@ -31,7 +31,9 @@
     "users": "Utilisateurs",
     "services": "Services",
     "audit": "Audit",
-    "organization": "Entreprise"
+    "organization": "Entreprise",
+    "administration": "Administration",
+    "roles": "Rôles & permissions"
   },
   "topbar": {
     "searchPlaceholder": "Rechercher employés, congés, paie…",

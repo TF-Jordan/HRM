@@ -31,7 +31,9 @@
     "users": "Users",
     "services": "Services",
     "audit": "Audit",
-    "organization": "Organization"
+    "organization": "Organization",
+    "administration": "Administration",
+    "roles": "Roles & permissions"
   },
   "topbar": {
     "searchPlaceholder": "Search employees, leaves, payroll…",
