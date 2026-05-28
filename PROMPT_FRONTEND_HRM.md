@@ -1407,6 +1407,9 @@ Un UC est considéré **terminé** si et seulement si :
 #Tu y vas module par module , par exemple la gestion de la paie est un module a part si tu dois le faire ce module, tu gere toutes les pages concernés et ceux pour tous les roles avant de passer a un autre module et a la fin de chaque module, ce dernier doit etre testable directement 
 
 #pour les design des formulaire fichier ("forms.html") tu vas voir que a droite de chaque champs de formulaire il y un nom marqué il faut les ignorer je voulais juste faire un corespondance entre les colonnes en BD   et les champs du formaulire
+
+#toutes les pages n'on pas pu etre desgné, mais apartir de l'esprit de design des pages existantes et du niveau de desing tu devras les proposer et les coder
+
 ## 15. Rôle SuperAdmin — Gestionnaire de la plateforme
 
 ### 15.1 Nature du rôle
