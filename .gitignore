@@ -1,0 +1,14 @@
+# Maven build outputs (KSM backend, all cores)
+KSM/**/target/
+
+# IDE / editor
+.idea/
+.vscode/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
