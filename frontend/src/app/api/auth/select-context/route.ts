@@ -5,7 +5,7 @@ import type { NextRequest } from "next/server";
 import { handleRoute } from "@/server/api-response";
 import { buildSessionFromContextual, logAuthEvent } from "@/server/auth-flow";
 import * as authApi from "@/server/ksm/modules/auth";
-import { getSession } from "@/server/session";
+import { writeSession } from "@/server/session";
 
 export async function POST(request: NextRequest) {
   return handleRoute(async () => {
@@ -29,9 +29,7 @@ export async function POST(request: NextRequest) {
       organizationId: body.organizationId,
     });
     const appSession = buildSessionFromContextual(contextual);
-    const session = await getSession();
-    Object.assign(session, appSession);
-    await session.save();
+    await writeSession(appSession);
 
     logAuthEvent("context_selected", {
       userId: appSession.user.userId,

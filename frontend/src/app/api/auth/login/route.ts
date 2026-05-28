@@ -10,7 +10,7 @@ import {
   logAuthEvent,
 } from "@/server/auth-flow";
 import * as authApi from "@/server/ksm/modules/auth";
-import { getSession } from "@/server/session";
+import { writeSession } from "@/server/session";
 
 export async function POST(request: NextRequest) {
   return handleRoute(async () => {
@@ -36,9 +36,6 @@ export async function POST(request: NextRequest) {
     }
 
     if (decision.kind === "needsSelection") {
-      const session = await getSession();
-      session.csrfToken = crypto.randomUUID();
-      await session.save();
       logAuthEvent("login_needs_selection", { principal, contextCount: decision.contexts.length });
       return Response.json({
         ok: true,
@@ -58,9 +55,7 @@ export async function POST(request: NextRequest) {
     });
 
     const appSession = buildSessionFromContextual(contextual);
-    const session = await getSession();
-    Object.assign(session, appSession);
-    await session.save();
+    await writeSession(appSession);
 
     logAuthEvent("login_success", {
       userId: appSession.user.userId,

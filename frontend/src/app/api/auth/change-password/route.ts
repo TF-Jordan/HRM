@@ -5,7 +5,7 @@ import type { NextRequest } from "next/server";
 import { handleRoute } from "@/server/api-response";
 import { logAuthEvent } from "@/server/auth-flow";
 import * as authApi from "@/server/ksm/modules/auth";
-import { readSession, getSession } from "@/server/session";
+import { patchSession, readSession } from "@/server/session";
 
 export async function POST(request: NextRequest) {
   return handleRoute(async () => {
@@ -35,9 +35,7 @@ export async function POST(request: NextRequest) {
     );
 
     // Clear the flag from the session
-    const ironSession = await getSession();
-    ironSession.forcePasswordChange = false;
-    await ironSession.save();
+    await patchSession({ forcePasswordChange: false });
 
     logAuthEvent("password_changed", { userId: session.user.userId });
 
