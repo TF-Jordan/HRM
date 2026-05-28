@@ -1,0 +1,183 @@
+{
+  "ucBadge": "UC-01..05 · Employés",
+  "list": {
+    "title": "Employés",
+    "subtitle": "Gérez votre personnel : identités, contrats, dépendants et cycle de vie.",
+    "new": "Nouvel employé",
+    "search": "Rechercher (nom, matricule, email)…",
+    "filters": {
+      "all": "Tous",
+      "active": "Actifs",
+      "onLeave": "En congé",
+      "suspended": "Suspendus",
+      "terminated": "Résiliés"
+    },
+    "columns": {
+      "employee": "Employé",
+      "department": "Département",
+      "matricule": "Matricule",
+      "hireDate": "Embauche",
+      "status": "Statut",
+      "categoryEchelon": "Cat. / Éch."
+    },
+    "empty": "Aucun employé pour l'instant. Cliquez sur \"Nouvel employé\" pour commencer."
+  },
+  "status": {
+    "ACTIVE": "Actif",
+    "ON_LEAVE": "En congé",
+    "SUSPENDED": "Suspendu",
+    "TERMINATED": "Résilié"
+  },
+  "contractType": {
+    "CDI": "CDI",
+    "CDD": "CDD",
+    "STAGE": "Stage",
+    "INTERIM": "Intérim"
+  },
+  "contractStatus": {
+    "ACTIVE": "Actif",
+    "EXPIRED": "Expiré",
+    "TERMINATED": "Résilié",
+    "RENEWED": "Renouvelé"
+  },
+  "paymentChannel": {
+    "BANK_TRANSFER": "Virement bancaire",
+    "MTN_MOBILE_MONEY": "MTN Mobile Money",
+    "ORANGE_MONEY": "Orange Money",
+    "CASH": "Espèces"
+  },
+  "leaveType": {
+    "ANNUAL": "Congés annuels",
+    "SICK": "Maladie",
+    "MATERNITY": "Maternité",
+    "PATERNITY": "Paternité",
+    "UNPAID": "Sans solde",
+    "SPECIAL": "Exceptionnel"
+  },
+  "create": {
+    "title": "Créer un employé",
+    "subtitle": "4 étapes : identité, RH, rémunération, récap.",
+    "steps": {
+      "identity": "Identité",
+      "hr": "RH",
+      "compensation": "Rémunération",
+      "summary": "Récapitulatif"
+    },
+    "fields": {
+      "firstName": "Prénom",
+      "lastName": "Nom",
+      "email": "Email",
+      "phoneNumber": "Téléphone",
+      "gender": "Genre",
+      "nationality": "Nationalité",
+      "birthDate": "Date de naissance",
+      "categorie": "Catégorie",
+      "echelon": "Échelon",
+      "departmentCode": "Département (code)",
+      "dateEmbauche": "Date d'embauche",
+      "numCnps": "N° CNPS",
+      "contractType": "Type de contrat",
+      "contractDateDebut": "Début du contrat",
+      "contractDateFin": "Fin du contrat (CDD/Stage)",
+      "salaireBase": "Salaire de base (FCFA)",
+      "avantagesNature": "Avantages en nature (FCFA)",
+      "periodeEssai": "Période d'essai (jours)",
+      "modePaiement": "Mode de paiement",
+      "compteBancaire": "Compte bancaire",
+      "numMobileMoney": "N° Mobile Money",
+      "operateurMm": "Opérateur"
+    },
+    "gender": { "MALE": "Masculin", "FEMALE": "Féminin", "OTHER": "Autre" },
+    "operator": { "MTN": "MTN", "ORANGE": "Orange" },
+    "submit": "Créer l'employé",
+    "success": "Employé créé",
+    "summaryEmail": "Email"
+  },
+  "detail": {
+    "tabs": {
+      "identity": "Identité",
+      "contracts": "Contrats",
+      "dependents": "Dépendants",
+      "leaves": "Soldes congés"
+    },
+    "actions": {
+      "edit": "Modifier",
+      "suspend": "Suspendre",
+      "reactivate": "Réactiver",
+      "terminate": "Résilier"
+    },
+    "identity": {
+      "matricule": "Matricule",
+      "actor": "Identifiant Actor",
+      "department": "Département",
+      "hireDate": "Date d'embauche",
+      "categorie": "Catégorie",
+      "echelon": "Échelon",
+      "numCnps": "N° CNPS",
+      "modePaiement": "Mode de paiement",
+      "compteBancaire": "Compte bancaire",
+      "mobileMoney": "Mobile Money"
+    },
+    "contracts": {
+      "addNew": "Nouveau contrat",
+      "noContracts": "Aucun contrat enregistré.",
+      "columns": {
+        "type": "Type",
+        "period": "Période",
+        "salary": "Salaire",
+        "status": "Statut"
+      }
+    },
+    "dependents": {
+      "addNew": "Nouveau dépendant",
+      "noDependents": "Aucun dépendant enregistré.",
+      "columns": {
+        "name": "Nom",
+        "birthDate": "Naissance",
+        "relationship": "Lien"
+      }
+    },
+    "leaves": {
+      "noBalances": "Aucun solde de congés disponible pour l'année.",
+      "columns": {
+        "type": "Type",
+        "acquired": "Acquis",
+        "taken": "Pris",
+        "remaining": "Solde"
+      }
+    }
+  },
+  "actions": {
+    "terminate": {
+      "title": "Résilier l'employé",
+      "subtitle": "Cette action est définitive. Les congés futurs approuvés seront annulés.",
+      "date": "Date d'effet",
+      "reason": "Motif",
+      "confirm": "Résilier",
+      "success": "Employé résilié"
+    },
+    "suspend": {
+      "title": "Suspendre l'employé",
+      "subtitle": "L'employé conserve ses rôles mais ne peut plus se connecter.",
+      "reason": "Motif",
+      "confirm": "Suspendre",
+      "success": "Employé suspendu"
+    },
+    "reactivate": {
+      "title": "Réactiver l'employé",
+      "subtitle": "L'employé pourra à nouveau se connecter et accéder à son espace.",
+      "confirm": "Réactiver",
+      "success": "Employé réactivé"
+    },
+    "addContract": {
+      "title": "Nouveau contrat",
+      "confirm": "Créer le contrat",
+      "success": "Contrat créé"
+    },
+    "addDependent": {
+      "title": "Nouveau dépendant",
+      "confirm": "Enregistrer",
+      "success": "Dépendant enregistré"
+    }
+  }
+}

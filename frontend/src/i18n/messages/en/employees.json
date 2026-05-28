@@ -1,0 +1,183 @@
+{
+  "ucBadge": "UC-01..05 · Employees",
+  "list": {
+    "title": "Employees",
+    "subtitle": "Manage your workforce: identities, contracts, dependents and lifecycle.",
+    "new": "New employee",
+    "search": "Search (name, code, email)…",
+    "filters": {
+      "all": "All",
+      "active": "Active",
+      "onLeave": "On leave",
+      "suspended": "Suspended",
+      "terminated": "Terminated"
+    },
+    "columns": {
+      "employee": "Employee",
+      "department": "Department",
+      "matricule": "Code",
+      "hireDate": "Hired",
+      "status": "Status",
+      "categoryEchelon": "Cat. / Step"
+    },
+    "empty": "No employees yet. Click \"New employee\" to get started."
+  },
+  "status": {
+    "ACTIVE": "Active",
+    "ON_LEAVE": "On leave",
+    "SUSPENDED": "Suspended",
+    "TERMINATED": "Terminated"
+  },
+  "contractType": {
+    "CDI": "Permanent",
+    "CDD": "Fixed-term",
+    "STAGE": "Internship",
+    "INTERIM": "Temp"
+  },
+  "contractStatus": {
+    "ACTIVE": "Active",
+    "EXPIRED": "Expired",
+    "TERMINATED": "Terminated",
+    "RENEWED": "Renewed"
+  },
+  "paymentChannel": {
+    "BANK_TRANSFER": "Bank transfer",
+    "MTN_MOBILE_MONEY": "MTN Mobile Money",
+    "ORANGE_MONEY": "Orange Money",
+    "CASH": "Cash"
+  },
+  "leaveType": {
+    "ANNUAL": "Annual leave",
+    "SICK": "Sick leave",
+    "MATERNITY": "Maternity",
+    "PATERNITY": "Paternity",
+    "UNPAID": "Unpaid",
+    "SPECIAL": "Special"
+  },
+  "create": {
+    "title": "Create an employee",
+    "subtitle": "4 steps: identity, HR, compensation, review.",
+    "steps": {
+      "identity": "Identity",
+      "hr": "HR",
+      "compensation": "Compensation",
+      "summary": "Review"
+    },
+    "fields": {
+      "firstName": "First name",
+      "lastName": "Last name",
+      "email": "Email",
+      "phoneNumber": "Phone",
+      "gender": "Gender",
+      "nationality": "Nationality",
+      "birthDate": "Date of birth",
+      "categorie": "Category",
+      "echelon": "Step",
+      "departmentCode": "Department code",
+      "dateEmbauche": "Hire date",
+      "numCnps": "CNPS number",
+      "contractType": "Contract type",
+      "contractDateDebut": "Contract start",
+      "contractDateFin": "Contract end (CDD/Stage)",
+      "salaireBase": "Base salary (FCFA)",
+      "avantagesNature": "Fringe benefits (FCFA)",
+      "periodeEssai": "Probation period (days)",
+      "modePaiement": "Payment method",
+      "compteBancaire": "Bank account",
+      "numMobileMoney": "Mobile Money number",
+      "operateurMm": "Operator"
+    },
+    "gender": { "MALE": "Male", "FEMALE": "Female", "OTHER": "Other" },
+    "operator": { "MTN": "MTN", "ORANGE": "Orange" },
+    "submit": "Create employee",
+    "success": "Employee created",
+    "summaryEmail": "Email"
+  },
+  "detail": {
+    "tabs": {
+      "identity": "Identity",
+      "contracts": "Contracts",
+      "dependents": "Dependents",
+      "leaves": "Leave balances"
+    },
+    "actions": {
+      "edit": "Edit",
+      "suspend": "Suspend",
+      "reactivate": "Reactivate",
+      "terminate": "Terminate"
+    },
+    "identity": {
+      "matricule": "Code",
+      "actor": "Actor ID",
+      "department": "Department",
+      "hireDate": "Hire date",
+      "categorie": "Category",
+      "echelon": "Step",
+      "numCnps": "CNPS number",
+      "modePaiement": "Payment method",
+      "compteBancaire": "Bank account",
+      "mobileMoney": "Mobile Money"
+    },
+    "contracts": {
+      "addNew": "New contract",
+      "noContracts": "No contract recorded.",
+      "columns": {
+        "type": "Type",
+        "period": "Period",
+        "salary": "Salary",
+        "status": "Status"
+      }
+    },
+    "dependents": {
+      "addNew": "New dependent",
+      "noDependents": "No dependent recorded.",
+      "columns": {
+        "name": "Name",
+        "birthDate": "Born",
+        "relationship": "Relationship"
+      }
+    },
+    "leaves": {
+      "noBalances": "No leave balance for this year.",
+      "columns": {
+        "type": "Type",
+        "acquired": "Acquired",
+        "taken": "Taken",
+        "remaining": "Balance"
+      }
+    }
+  },
+  "actions": {
+    "terminate": {
+      "title": "Terminate employee",
+      "subtitle": "This action is permanent. Future approved leaves will be cancelled.",
+      "date": "Effective date",
+      "reason": "Reason",
+      "confirm": "Terminate",
+      "success": "Employee terminated"
+    },
+    "suspend": {
+      "title": "Suspend employee",
+      "subtitle": "The employee keeps their roles but cannot sign in.",
+      "reason": "Reason",
+      "confirm": "Suspend",
+      "success": "Employee suspended"
+    },
+    "reactivate": {
+      "title": "Reactivate employee",
+      "subtitle": "The employee will regain access to their workspace.",
+      "confirm": "Reactivate",
+      "success": "Employee reactivated"
+    },
+    "addContract": {
+      "title": "New contract",
+      "confirm": "Create contract",
+      "success": "Contract created"
+    },
+    "addDependent": {
+      "title": "New dependent",
+      "confirm": "Save",
+      "success": "Dependent saved"
+    }
+  }
+}

@@ -4,7 +4,7 @@ import { getRequestConfig } from "next-intl/server";
 import { routing } from "./routing";
 
 async function loadMessages(locale: string) {
-  const namespaces = ["common", "auth", "shell", "errors", "validation", "design", "admin"];
+  const namespaces = ["common", "auth", "shell", "errors", "validation", "design", "admin", "employees"];
   const entries = await Promise.all(
     namespaces.map(async (ns) => {
       try {

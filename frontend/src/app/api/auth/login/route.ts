@@ -9,6 +9,7 @@ import {
   decideAfterDiscover,
   logAuthEvent,
 } from "@/server/auth-flow";
+import { callKsm } from "@/server/ksm/client";
 import * as authApi from "@/server/ksm/modules/auth";
 import { writeSession } from "@/server/session";
 
@@ -55,6 +56,27 @@ export async function POST(request: NextRequest) {
     });
 
     const appSession = buildSessionFromContextual(contextual);
+    // Fallback workspace: for TENANT-scoped users (e.g. SUPER_ADMIN) the discovery
+    // payload does not always carry an explicit organization. Pick the first
+    // organization in the tenant so the user lands directly on the HRM surface
+    // instead of getting ORGANIZATION_CONTEXT_REQUIRED on the first HRM call.
+    if (!appSession.workspace?.organizationId) {
+      try {
+        const orgs = await callKsm<
+          Array<{ id: string; shortName?: string; longName?: string; code?: string }>
+        >("/api/organizations", {}, { session: appSession });
+        const first = orgs[0];
+        if (first?.id) {
+          appSession.workspace = {
+            tenantId: appSession.user.tenantId,
+            organizationId: first.id,
+            organizationName: first.shortName ?? first.longName ?? first.code,
+          };
+        }
+      } catch {
+        // Non-fatal: user can still land on dashboard and pick a workspace later.
+      }
+    }
     await writeSession(appSession);
 
     logAuthEvent("login_success", {
