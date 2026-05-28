@@ -1,8 +1,0 @@
-databaseChangeLog:
-  - changeSet:
-      id: 031-document-hub
-      author: Blhack
-      changes:
-        - sqlFile:
-            path: ../../r2dbc/V31__document_hub.sql
-            relativeToChangelogFile: true

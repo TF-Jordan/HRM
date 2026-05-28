@@ -1,8 +1,0 @@
-databaseChangeLog:
-  - changeSet:
-      id: 018-legacy-tiers-users-audit-files
-      author: Blhack
-      changes:
-        - sqlFile:
-            path: db/r2dbc/V18__legacy_tiers_users_audit_files.sql
-            relativeToChangelogFile: false

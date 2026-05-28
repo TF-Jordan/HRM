@@ -1,8 +1,0 @@
-databaseChangeLog:
-  - changeSet:
-      id: 019-third-party-qualification
-      author: Blhack
-      changes:
-        - sqlFile:
-            path: db/r2dbc/V19__third_party_qualification.sql
-            relativeToChangelogFile: false

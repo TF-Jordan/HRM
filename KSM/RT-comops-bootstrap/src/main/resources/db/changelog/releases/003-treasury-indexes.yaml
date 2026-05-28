@@ -1,7 +1,0 @@
-databaseChangeLog:
-  - changeSet:
-      id: 003-treasury-indexes
-      author: Blhack
-      sqlFile:
-        path: ../../r2dbc/V3__treasury_indexes.sql
-        relativeToChangelogFile: true

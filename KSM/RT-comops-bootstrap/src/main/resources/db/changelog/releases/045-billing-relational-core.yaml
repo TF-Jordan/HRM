@@ -1,8 +1,0 @@
-databaseChangeLog:
-  - changeSet:
-      id: 045-billing-relational-core
-      author: Blhack
-      changes:
-        - sqlFile:
-            path: db/r2dbc/V45__billing_relational_core.sql
-            relativeToChangelogFile: false

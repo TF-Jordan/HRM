@@ -1,8 +1,0 @@
-databaseChangeLog:
-  - changeSet:
-      id: 009-inventory-stock-movement-source-document
-      author: Blhack
-      changes:
-        - sqlFile:
-            path: ../../r2dbc/V9__inventory_stock_movement_source_document.sql
-            relativeToChangelogFile: true

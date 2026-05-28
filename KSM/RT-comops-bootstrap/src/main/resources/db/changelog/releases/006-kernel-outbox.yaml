@@ -1,7 +1,0 @@
-databaseChangeLog:
-  - changeSet:
-      id: 006-kernel-outbox
-      author: Blhack
-      sqlFile:
-        path: ../../r2dbc/V6__kernel_outbox.sql
-        relativeToChangelogFile: true

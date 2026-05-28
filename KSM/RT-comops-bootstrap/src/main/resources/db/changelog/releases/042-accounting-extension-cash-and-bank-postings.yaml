@@ -1,8 +1,0 @@
-databaseChangeLog:
-  - changeSet:
-      id: 042-accounting-extension-cash-and-bank-postings
-      author: Blhack
-      changes:
-        - sqlFile:
-            path: db/r2dbc/V42__accounting_extension_cash_and_bank_postings.sql
-            relativeToChangelogFile: false

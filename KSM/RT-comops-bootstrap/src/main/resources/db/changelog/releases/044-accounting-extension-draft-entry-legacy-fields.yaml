@@ -1,8 +1,0 @@
-databaseChangeLog:
-  - changeSet:
-      id: 044-accounting-extension-draft-entry-legacy-fields
-      author: Blhack
-      changes:
-        - sqlFile:
-            path: ../../r2dbc/V44__accounting_extension_draft_entry_legacy_fields.sql
-            relativeToChangelogFile: true

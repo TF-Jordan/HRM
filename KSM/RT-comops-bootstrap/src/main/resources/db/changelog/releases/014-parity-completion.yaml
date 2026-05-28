@@ -1,8 +1,0 @@
-databaseChangeLog:
-  - changeSet:
-      id: 014-parity-completion
-      author: Blhack
-      changes:
-        - sqlFile:
-            path: db/r2dbc/V14__parity_completion.sql
-            relativeToChangelogFile: false

@@ -1,8 +1,0 @@
-databaseChangeLog:
-  - changeSet:
-      id: 012-domain-event-projection-source-event
-      author: Blhack
-      changes:
-        - sqlFile:
-            path: ../../r2dbc/V12__domain_event_projection_source_event.sql
-            relativeToChangelogFile: true

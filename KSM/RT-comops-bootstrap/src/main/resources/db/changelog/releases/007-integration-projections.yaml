@@ -1,7 +1,0 @@
-databaseChangeLog:
-  - changeSet:
-      id: 007-integration-projections
-      author: Blhack
-      sqlFile:
-        path: ../../r2dbc/V7__integration_projections.sql
-        relativeToChangelogFile: true

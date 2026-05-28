@@ -1,8 +1,0 @@
-databaseChangeLog:
-  - changeSet:
-      id: 032-physical-spaces
-      author: Blhack
-      changes:
-        - sqlFile:
-            path: ../../r2dbc/V32__physical_spaces.sql
-            relativeToChangelogFile: true

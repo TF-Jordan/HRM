@@ -1,8 +1,0 @@
-databaseChangeLog:
-  - changeSet:
-      id: 038-accounting-extension-reconciliation-and-stock
-      author: Blhack
-      changes:
-        - sqlFile:
-            path: db/r2dbc/V38__accounting_extension_reconciliation_and_stock.sql
-            relativeToChangelogFile: false

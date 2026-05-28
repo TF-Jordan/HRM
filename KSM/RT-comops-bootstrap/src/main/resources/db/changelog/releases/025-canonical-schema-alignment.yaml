@@ -1,8 +1,0 @@
-databaseChangeLog:
-  - changeSet:
-      id: 025-canonical-schema-alignment
-      author: antigravity
-      changes:
-        - sqlFile:
-            path: db/r2dbc/V25__canonical_schema_alignment.sql
-            relativeToChangelogFile: false

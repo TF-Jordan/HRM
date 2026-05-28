@@ -1,8 +1,0 @@
-databaseChangeLog:
-  - changeSet:
-      id: 043-accounting-extension-operations-and-audits
-      author: Blhack
-      changes:
-        - sqlFile:
-            path: db/r2dbc/V43__accounting_extension_operations_and_audits.sql
-            relativeToChangelogFile: false

@@ -1,7 +1,0 @@
-databaseChangeLog:
-  - changeSet:
-      id: 023-client-application-service-restrictions
-      author: Blhack
-      sqlFile:
-        path: ../../r2dbc/V23__client_application_service_restrictions.sql
-        relativeToChangelogFile: true

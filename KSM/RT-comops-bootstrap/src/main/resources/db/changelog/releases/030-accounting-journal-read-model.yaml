@@ -1,8 +1,0 @@
-databaseChangeLog:
-  - changeSet:
-      id: 030-accounting-journal-read-model
-      author: Blhack
-      changes:
-        - sqlFile:
-            path: ../../r2dbc/V30__accounting_journal_read_model.sql
-            relativeToChangelogFile: true

@@ -1,8 +1,0 @@
-databaseChangeLog:
-  - changeSet:
-      id: 036-accounting-extension-specialized-tables
-      author: Blhack
-      changes:
-        - sqlFile:
-            path: db/r2dbc/V36__accounting_extension_specialized_tables.sql
-            relativeToChangelogFile: false

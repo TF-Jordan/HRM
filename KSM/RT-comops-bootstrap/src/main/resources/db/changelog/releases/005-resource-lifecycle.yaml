@@ -1,7 +1,0 @@
-databaseChangeLog:
-  - changeSet:
-      id: 005-resource-lifecycle
-      author: Blhack
-      sqlFile:
-        path: ../../r2dbc/V5__resource_lifecycle.sql
-        relativeToChangelogFile: true

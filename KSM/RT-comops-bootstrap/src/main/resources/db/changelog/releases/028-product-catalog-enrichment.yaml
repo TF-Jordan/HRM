@@ -1,8 +1,0 @@
-databaseChangeLog:
-  - changeSet:
-      id: 028-product-catalog-enrichment
-      author: Blhack
-      changes:
-        - sqlFile:
-            path: db/r2dbc/V28__product_catalog_enrichment.sql
-            relativeToChangelogFile: false

@@ -1,8 +1,0 @@
-databaseChangeLog:
-  - changeSet:
-      id: 027-settings-scope-and-business-enrichment
-      author: Blhack
-      changes:
-        - sqlFile:
-            path: db/r2dbc/V27__settings_scope_and_business_enrichment.sql
-            relativeToChangelogFile: false

@@ -1,7 +1,0 @@
-databaseChangeLog:
-  - changeSet:
-      id: 004-resource-indexes
-      author: Blhack
-      sqlFile:
-        path: ../../r2dbc/V4__resource_indexes.sql
-        relativeToChangelogFile: true

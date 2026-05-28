@@ -1,4 +1,0 @@
-services:
-  app:
-    ports:
-      - "127.0.0.1:${IWM_MANAGEMENT_PUBLIC_PORT:-8081}:8081"
