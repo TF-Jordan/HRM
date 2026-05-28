@@ -1,0 +1,16 @@
+{
+  "title": "An error occurred",
+  "unauthorized": "Your session has expired. Please sign in again.",
+  "forbidden": "You do not have permission to perform this action.",
+  "organizationContextRequired": "Please select an organization to continue.",
+  "serviceNotSubscribed": "The HR module is not enabled for this organization.",
+  "duplicateEmployee": "An employee with this identity already exists.",
+  "employeeNotFound": "Employee not found.",
+  "insufficientLeaveBalance": "Insufficient leave balance.",
+  "payrollAlreadyExists": "A payroll run already exists for this period.",
+  "illegalStateTransition": "This action is no longer available. The page will be refreshed.",
+  "loanCeilingExceeded": "Loan ceiling exceeded.",
+  "activeContractExists": "This employee already has an active contract.",
+  "validationError": "Some fields contain errors.",
+  "unknown": "An unexpected error occurred. Retry or contact support."
+}

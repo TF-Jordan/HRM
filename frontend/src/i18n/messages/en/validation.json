@@ -1,0 +1,32 @@
+{
+  "required": "This field is required.",
+  "email": "Invalid email.",
+  "minLength": "Must contain at least {count, plural, one {# character} other {# characters}}.",
+  "maxLength": "Must contain at most {count, plural, one {# character} other {# characters}}.",
+  "dateRange": {
+    "endBeforeStart": "End date cannot be before start date.",
+    "durationExceeded": "Duration exceeds the allowed limit.",
+    "startAfterEnd": "Start date cannot be after end date.",
+    "dateResetNotice": "End date has been reset because it preceded the new start date."
+  },
+  "minAge": "Minimum required age is not met at the given date.",
+  "date": {
+    "notInPast": "This date cannot be in the past.",
+    "notInFuture": "This date cannot be in the future."
+  },
+  "leave": {
+    "notInPast": "Leave start date cannot be in the past."
+  },
+  "contract": {
+    "cddMaxDuration": "A fixed-term contract cannot exceed 24 months (Cameroon law)."
+  },
+  "expense": {
+    "futureDate": "An expense cannot be dated in the future."
+  },
+  "timesheet": {
+    "futurePeriod": "Cannot enter a timesheet for a future month."
+  },
+  "medical": {
+    "nextBeforeCurrent": "Next appointment date must be after the current visit."
+  }
+}

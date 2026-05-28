@@ -1,0 +1,42 @@
+{
+  "showcase": {
+    "title": "HR Core Design System",
+    "subtitle": "Component preview — Phase 0",
+    "ucBadge": "DS-00 · Design System",
+    "actions": "Actions",
+    "buttons": "Buttons",
+    "primary": "Primary",
+    "secondary": "Secondary",
+    "ghost": "Ghost",
+    "dark": "Dark",
+    "small": "Small",
+    "kpiTitle": "Key indicators",
+    "statusTitle": "Statuses & badges",
+    "stepperTitle": "Workflow",
+    "tableTitle": "Tables",
+    "iconTilesTitle": "Icon tiles",
+    "kpi": {
+      "headcount": "Active headcount",
+      "headcountFoot": "+12 this month",
+      "leaves": "Pending leaves",
+      "leavesFoot": "8 to approve",
+      "payroll": "Payroll mass",
+      "payrollFoot": "January 2024",
+      "alerts": "HR alerts",
+      "alertsFoot": "Action required"
+    },
+    "step": {
+      "submitted": "Submitted",
+      "manager": "Manager",
+      "hr": "HR",
+      "paid": "Paid"
+    },
+    "table": {
+      "employee": "Employee",
+      "role": "Role",
+      "department": "Department",
+      "status": "Status",
+      "salary": "Salary"
+    }
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "required": "Ce champ est requis.",
+  "email": "Email invalide.",
+  "minLength": "Doit contenir au moins {count, plural, one {# caractère} other {# caractères}}.",
+  "maxLength": "Doit contenir au plus {count, plural, one {# caractère} other {# caractères}}.",
+  "dateRange": {
+    "endBeforeStart": "La date de fin ne peut pas être antérieure à la date de début.",
+    "durationExceeded": "La durée dépasse la limite autorisée.",
+    "startAfterEnd": "La date de début ne peut pas être postérieure à la date de fin.",
+    "dateResetNotice": "La date de fin a été réinitialisée car elle précédait la nouvelle date de début."
+  },
+  "minAge": "L'âge minimum requis n'est pas atteint à la date indiquée.",
+  "date": {
+    "notInPast": "Cette date ne peut pas être dans le passé.",
+    "notInFuture": "Cette date ne peut pas être dans le futur."
+  },
+  "leave": {
+    "notInPast": "La date de début du congé ne peut pas être dans le passé."
+  },
+  "contract": {
+    "cddMaxDuration": "Un CDD ne peut pas dépasser 24 mois (législation camerounaise)."
+  },
+  "expense": {
+    "futureDate": "Une dépense ne peut pas être datée dans le futur."
+  },
+  "timesheet": {
+    "futurePeriod": "Impossible de saisir un timesheet pour un mois futur."
+  },
+  "medical": {
+    "nextBeforeCurrent": "La date du prochain rendez-vous doit être postérieure à la visite actuelle."
+  }
+}

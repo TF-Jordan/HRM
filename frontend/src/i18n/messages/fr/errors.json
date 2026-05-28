@@ -1,0 +1,16 @@
+{
+  "title": "Une erreur est survenue",
+  "unauthorized": "Votre session a expiré. Veuillez vous reconnecter.",
+  "forbidden": "Vous n'avez pas la permission d'effectuer cette action.",
+  "organizationContextRequired": "Veuillez sélectionner une organisation pour continuer.",
+  "serviceNotSubscribed": "Le module RH n'est pas activé pour cette organisation.",
+  "duplicateEmployee": "Un employé avec cette identité existe déjà.",
+  "employeeNotFound": "Employé introuvable.",
+  "insufficientLeaveBalance": "Solde de congés insuffisant.",
+  "payrollAlreadyExists": "Un cycle de paie existe déjà pour cette période.",
+  "illegalStateTransition": "Cette action n'est plus disponible. La page va être rafraîchie.",
+  "loanCeilingExceeded": "Le plafond de prêt est dépassé.",
+  "activeContractExists": "Cet employé a déjà un contrat actif.",
+  "validationError": "Certains champs contiennent des erreurs.",
+  "unknown": "Une erreur inattendue est survenue. Réessayez ou contactez le support."
+}

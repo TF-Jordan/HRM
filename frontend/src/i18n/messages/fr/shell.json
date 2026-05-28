@@ -1,0 +1,46 @@
+{
+  "sections": {
+    "pilotage": "PILOTAGE",
+    "personnel": "PERSONNEL",
+    "activity": "ACTIVITÉ",
+    "compensation": "RÉMUNÉRATION",
+    "development": "DÉVELOPPEMENT",
+    "compliance": "CONFORMITÉ",
+    "system": "SYSTÈME",
+    "administration": "ADMINISTRATION"
+  },
+  "nav": {
+    "dashboard": "Tableau de bord",
+    "analytics": "Analytics RH",
+    "employees": "Employés",
+    "contracts": "Contrats",
+    "skills": "Compétences",
+    "recruitment": "Recrutement",
+    "time": "Temps & Présences",
+    "leaves": "Congés",
+    "missions": "Ordres de mission",
+    "payroll": "Paie",
+    "loans": "Avances & Prêts",
+    "expenses": "Notes de frais",
+    "reviews": "Évaluations",
+    "trainings": "Formations",
+    "budget": "Budget formation",
+    "medical": "Suivi médical",
+    "declarations": "Déclarations",
+    "settings": "Paramètres",
+    "users": "Utilisateurs",
+    "services": "Services",
+    "audit": "Audit",
+    "organization": "Entreprise"
+  },
+  "topbar": {
+    "searchPlaceholder": "Rechercher employés, congés, paie…",
+    "notifications": "Notifications",
+    "help": "Aide",
+    "profile": "Mon profil",
+    "logout": "Se déconnecter"
+  },
+  "user": {
+    "role": "Rôle"
+  }
+}
