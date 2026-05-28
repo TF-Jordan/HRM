@@ -1,10 +1,10 @@
 import { setRequestLocale } from "next-intl/server";
+import { redirect } from "next/navigation";
 
+import { SessionProvider, type ClientSession } from "@/components/providers/session-provider";
 import { Sidebar } from "@/components/shell/sidebar";
 import { Topbar } from "@/components/shell/topbar";
-
-// TEMP — real user/session will be injected after Phase 1 (auth).
-const DEMO_USER = { name: "Jordan Toulépi", role: "SuperAdmin" };
+import { readSession } from "@/server/session";
 
 export default async function AppLayout({
   children,
@@ -13,13 +13,30 @@ export default async function AppLayout({
   const { locale } = await params;
   setRequestLocale(locale);
 
+  const session = await readSession();
+  if (!session) {
+    redirect("/login");
+  }
+  if (session.forcePasswordChange) {
+    redirect("/change-password");
+  }
+
+  const clientSession: ClientSession = {
+    user: session.user,
+    workspace: session.workspace,
+    forcePasswordChange: false,
+    expiresAt: session.expiresAt,
+  };
+
   return (
-    <div className="relative grid min-h-screen grid-cols-[252px_1fr]">
-      <Sidebar user={DEMO_USER} />
-      <main className="flex min-w-0 flex-col">
-        <Topbar user={DEMO_USER} notificationsCount={3} />
-        <div className="mx-auto w-full max-w-[1440px] px-9 py-8 pb-20">{children}</div>
-      </main>
-    </div>
+    <SessionProvider initialSession={clientSession}>
+      <div className="relative grid min-h-screen grid-cols-[252px_1fr]">
+        <Sidebar />
+        <main className="flex min-w-0 flex-col">
+          <Topbar />
+          <div className="mx-auto w-full max-w-[1440px] px-9 py-8 pb-20">{children}</div>
+        </main>
+      </div>
+    </SessionProvider>
   );
 }

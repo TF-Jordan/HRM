@@ -1,6 +1,14 @@
 {
   "required": "This field is required.",
   "email": "Invalid email.",
+  "password": {
+    "minLength": "Password must be at least 8 characters.",
+    "uppercase": "At least one uppercase letter is required.",
+    "lowercase": "At least one lowercase letter is required.",
+    "digit": "At least one digit is required.",
+    "special": "At least one special character is required.",
+    "mismatch": "Passwords do not match."
+  },
   "minLength": "Must contain at least {count, plural, one {# character} other {# characters}}.",
   "maxLength": "Must contain at most {count, plural, one {# character} other {# characters}}.",
   "dateRange": {

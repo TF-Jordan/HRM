@@ -1,6 +1,14 @@
 {
   "required": "Ce champ est requis.",
   "email": "Email invalide.",
+  "password": {
+    "minLength": "Le mot de passe doit contenir au moins 8 caractères.",
+    "uppercase": "Au moins une lettre majuscule est requise.",
+    "lowercase": "Au moins une lettre minuscule est requise.",
+    "digit": "Au moins un chiffre est requis.",
+    "special": "Au moins un caractère spécial est requis.",
+    "mismatch": "Les mots de passe ne correspondent pas."
+  },
   "minLength": "Doit contenir au moins {count, plural, one {# caractère} other {# caractères}}.",
   "maxLength": "Doit contenir au plus {count, plural, one {# caractère} other {# caractères}}.",
   "dateRange": {

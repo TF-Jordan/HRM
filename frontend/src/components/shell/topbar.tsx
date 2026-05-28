@@ -3,18 +3,19 @@
 import { Bell, HelpCircle, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import { useSession } from "@/components/providers/session-provider";
 import { LocaleSwitcher } from "@/components/shell/locale-switcher";
 import { Avatar } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 
 export interface TopbarProps {
-  user?: { name: string; role: string };
   notificationsCount?: number;
 }
 
-export function Topbar({ user, notificationsCount = 0 }: TopbarProps) {
+export function Topbar({ notificationsCount = 0 }: TopbarProps) {
   const t = useTranslations("shell.topbar");
   const tUser = useTranslations("shell.user");
+  const { session } = useSession();
 
   return (
     <header
@@ -23,7 +24,6 @@ export function Topbar({ user, notificationsCount = 0 }: TopbarProps) {
         "border-b border-line/70 bg-bg/70 backdrop-blur-xl backdrop-saturate-[180%]",
       )}
     >
-      {/* Search */}
       <div className="flex max-w-[540px] flex-1 items-center gap-2.5 rounded-xl border border-line bg-white px-4 py-2 text-ink-3 shadow-xs-brand transition-all duration-200 ease-[var(--ease-brand)] focus-within:border-orange-400 focus-within:ring-4 focus-within:ring-orange-500/12 hover:border-line-strong">
         <Search className="h-4 w-4 shrink-0" />
         <input
@@ -36,7 +36,6 @@ export function Topbar({ user, notificationsCount = 0 }: TopbarProps) {
         </kbd>
       </div>
 
-      {/* Spacer */}
       <div className="flex-1" />
 
       <LocaleSwitcher />
@@ -60,18 +59,18 @@ export function Topbar({ user, notificationsCount = 0 }: TopbarProps) {
         )}
       </button>
 
-      {user && (
+      {session?.user && (
         <button
           type="button"
           className="flex items-center gap-2.5 rounded-full border border-line bg-white py-1 pl-3.5 pr-1.5 shadow-xs-brand transition-all duration-200 hover:border-line-strong hover:shadow-sm-brand"
         >
           <div className="flex flex-col items-end leading-tight">
-            <span className="text-[13px] font-semibold text-ink">{user.name}</span>
+            <span className="text-[13px] font-semibold text-ink">{session.user.fullName}</span>
             <span className="text-[11px] text-ink-3">
-              {tUser("role")} · {user.role}
+              {tUser("role")} · {session.user.roles[0] ?? "—"}
             </span>
           </div>
-          <Avatar name={user.name} size="md" />
+          <Avatar name={session.user.fullName} size="md" />
         </button>
       )}
     </header>
