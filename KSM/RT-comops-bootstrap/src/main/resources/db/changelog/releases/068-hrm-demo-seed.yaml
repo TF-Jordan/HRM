@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 068-hrm-demo-seed
+      author: codex
+      changes:
+        - sqlFile:
+            path: db/r2dbc/V68__hrm_demo_seed.sql
+            relativeToChangelogFile: false
