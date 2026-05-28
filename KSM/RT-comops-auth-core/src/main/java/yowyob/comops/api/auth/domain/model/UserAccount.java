@@ -25,12 +25,13 @@ public final class UserAccount extends BaseEntity {
     private final Instant phoneVerifiedAt;
     private final boolean mfaEnabled;
     private final String mfaChannel;
+    private final boolean forcePasswordChange;
 
     private UserAccount(UUID id, UUID tenantId, Instant createdAt, Instant updatedAt, UUID actorId, String username,
             String email, String phoneNumber, String passwordHash, String authProvider, String externalSubject,
             String status, String plan, String onboardingStatus, int onboardingStep, String accountType,
             String businessType, String onboardingPayload, Instant emailVerifiedAt, Instant phoneVerifiedAt,
-            boolean mfaEnabled, String mfaChannel) {
+            boolean mfaEnabled, String mfaChannel, boolean forcePasswordChange) {
         super(id, tenantId, createdAt, updatedAt);
         this.actorId = actorId;
         this.username = requireText(username, "username").toLowerCase(Locale.ROOT);
@@ -53,6 +54,7 @@ public final class UserAccount extends BaseEntity {
         this.phoneVerifiedAt = phoneVerifiedAt;
         this.mfaEnabled = mfaEnabled;
         this.mfaChannel = normalizeNullableEnum(mfaChannel);
+        this.forcePasswordChange = forcePasswordChange;
     }
 
     private UserAccount(UUID id, UUID tenantId, Instant createdAt, Instant updatedAt, UUID actorId, String username,
@@ -60,15 +62,24 @@ public final class UserAccount extends BaseEntity {
             String onboardingStatus, int onboardingStep, Instant emailVerifiedAt) {
         this(id, tenantId, createdAt, updatedAt, actorId, username, email, null, passwordHash, authProvider, null,
                 status, plan, onboardingStatus, onboardingStep, "PROSPECT", null, null, emailVerifiedAt, null,
-                false, null);
+                false, null, false);
     }
 
     public static UserAccount register(UUID tenantId, UUID actorId, String username, String email, String passwordHash,
             String authProvider) {
+        return register(tenantId, actorId, username, email, passwordHash, authProvider, false);
+    }
+
+    /**
+     * Register a brand-new user account, optionally marking the password as temporary so the
+     * user is forced to change it at first login.
+     */
+    public static UserAccount register(UUID tenantId, UUID actorId, String username, String email, String passwordHash,
+            String authProvider, boolean forcePasswordChange) {
         Instant now = Instant.now();
         return new UserAccount(UUID.randomUUID(), tenantId, now, now, actorId, username, email, null, passwordHash,
                 authProvider, null, "ACTIVE", "FREE_TIER", "NOT_STARTED", 0, "PROSPECT", null, null,
-                null, null, false, null);
+                null, null, false, null, forcePasswordChange);
     }
 
     public static UserAccount rehydrate(UUID id, UUID tenantId, Instant createdAt, Instant updatedAt, UUID actorId,
@@ -83,9 +94,20 @@ public final class UserAccount extends BaseEntity {
             String externalSubject, String status, String plan, String onboardingStatus, int onboardingStep,
             String accountType, String businessType, String onboardingPayload, Instant emailVerifiedAt,
             Instant phoneVerifiedAt, boolean mfaEnabled, String mfaChannel) {
+        return rehydrate(id, tenantId, createdAt, updatedAt, actorId, username, email, phoneNumber, passwordHash,
+                authProvider, externalSubject, status, plan, onboardingStatus, onboardingStep, accountType,
+                businessType, onboardingPayload, emailVerifiedAt, phoneVerifiedAt, mfaEnabled, mfaChannel, false);
+    }
+
+    public static UserAccount rehydrate(UUID id, UUID tenantId, Instant createdAt, Instant updatedAt, UUID actorId,
+            String username, String email, String phoneNumber, String passwordHash, String authProvider,
+            String externalSubject, String status, String plan, String onboardingStatus, int onboardingStep,
+            String accountType, String businessType, String onboardingPayload, Instant emailVerifiedAt,
+            Instant phoneVerifiedAt, boolean mfaEnabled, String mfaChannel, boolean forcePasswordChange) {
         return new UserAccount(id, tenantId, createdAt, updatedAt, actorId, username, email, phoneNumber, passwordHash,
                 authProvider, externalSubject, status, plan, onboardingStatus, onboardingStep, accountType,
-                businessType, onboardingPayload, emailVerifiedAt, phoneVerifiedAt, mfaEnabled, mfaChannel);
+                businessType, onboardingPayload, emailVerifiedAt, phoneVerifiedAt, mfaEnabled, mfaChannel,
+                forcePasswordChange);
     }
 
     public UUID actorId() { return actorId; }
@@ -108,24 +130,29 @@ public final class UserAccount extends BaseEntity {
     public boolean phoneVerified() { return phoneVerifiedAt != null; }
     public boolean mfaEnabled() { return mfaEnabled; }
     public String mfaChannel() { return mfaChannel; }
+    public boolean forcePasswordChange() { return forcePasswordChange; }
 
     public UserAccount updatePlan(String plan) {
         return copy(phoneNumber, passwordHash, authProvider, externalSubject, status, requireText(plan, "plan"),
                 onboardingStatus, onboardingStep, accountType, businessType, onboardingPayload, emailVerifiedAt,
-                phoneVerifiedAt, mfaEnabled, mfaChannel);
+                phoneVerifiedAt, mfaEnabled, mfaChannel, forcePasswordChange);
     }
 
     public UserAccount updateOnboarding(int onboardingStep, String onboardingStatus) {
         return copy(phoneNumber, passwordHash, authProvider, externalSubject, status, plan,
                 onboardingStatus == null || onboardingStatus.isBlank() ? this.onboardingStatus : onboardingStatus,
                 onboardingStep, accountType, businessType, onboardingPayload, emailVerifiedAt, phoneVerifiedAt,
-                mfaEnabled, mfaChannel);
+                mfaEnabled, mfaChannel, forcePasswordChange);
     }
 
+    /**
+     * Update the password and clear the forcePasswordChange flag — any successful password
+     * change releases the user from the forced-change state.
+     */
     public UserAccount updatePassword(String nextPasswordHash) {
         return copy(phoneNumber, requireText(nextPasswordHash, "passwordHash"), authProvider, externalSubject, status,
                 plan, onboardingStatus, onboardingStep, accountType, businessType, onboardingPayload, emailVerifiedAt,
-                phoneVerifiedAt, mfaEnabled, mfaChannel);
+                phoneVerifiedAt, mfaEnabled, mfaChannel, false);
     }
 
     public UserAccount markEmailVerified() {
@@ -134,31 +161,31 @@ public final class UserAccount extends BaseEntity {
         }
         return copy(phoneNumber, passwordHash, authProvider, externalSubject, status, plan, onboardingStatus,
                 onboardingStep, accountType, businessType, onboardingPayload, Instant.now(), phoneVerifiedAt,
-                mfaEnabled, mfaChannel);
+                mfaEnabled, mfaChannel, forcePasswordChange);
     }
 
     public UserAccount updatePhoneNumber(String phoneNumber) {
         return copy(phoneNumber, passwordHash, authProvider, externalSubject, status, plan, onboardingStatus,
                 onboardingStep, accountType, businessType, onboardingPayload, emailVerifiedAt, null, mfaEnabled,
-                mfaChannel);
+                mfaChannel, forcePasswordChange);
     }
 
     public UserAccount markPhoneVerified() {
         return copy(phoneNumber, passwordHash, authProvider, externalSubject, status, plan, onboardingStatus,
                 onboardingStep, accountType, businessType, onboardingPayload, emailVerifiedAt, Instant.now(),
-                mfaEnabled, mfaChannel);
+                mfaEnabled, mfaChannel, forcePasswordChange);
     }
 
     public UserAccount enableMfa(String channel) {
         return copy(phoneNumber, passwordHash, authProvider, externalSubject, status, plan, onboardingStatus,
                 onboardingStep, accountType, businessType, onboardingPayload, emailVerifiedAt, phoneVerifiedAt,
-                true, requireText(channel, "mfaChannel").toUpperCase(Locale.ROOT));
+                true, requireText(channel, "mfaChannel").toUpperCase(Locale.ROOT), forcePasswordChange);
     }
 
     public UserAccount disableMfa() {
         return copy(phoneNumber, passwordHash, authProvider, externalSubject, status, plan, onboardingStatus,
                 onboardingStep, accountType, businessType, onboardingPayload, emailVerifiedAt, phoneVerifiedAt,
-                false, null);
+                false, null, forcePasswordChange);
     }
 
     public UserAccount updateIdentityProfile(String accountType, String businessType, String onboardingPayload,
@@ -166,30 +193,30 @@ public final class UserAccount extends BaseEntity {
         return copy(phoneNumber, passwordHash, authProvider, externalSubject, status, plan,
                 onboardingStatus == null || onboardingStatus.isBlank() ? this.onboardingStatus : onboardingStatus,
                 onboardingStep, accountType, businessType, onboardingPayload, emailVerifiedAt, phoneVerifiedAt,
-                mfaEnabled, mfaChannel);
+                mfaEnabled, mfaChannel, forcePasswordChange);
     }
 
     public UserAccount linkExternalIdentity(String authProvider, String externalSubject) {
         return copy(phoneNumber, passwordHash, authProvider, externalSubject, status, plan, onboardingStatus,
                 onboardingStep, accountType, businessType, onboardingPayload, emailVerifiedAt, phoneVerifiedAt,
-                mfaEnabled, mfaChannel);
+                mfaEnabled, mfaChannel, forcePasswordChange);
     }
 
     public UserAccount markForInitialPersistence() {
         return new UserAccount(id(), tenantId(), createdAt(), createdAt(), actorId, username, email, phoneNumber,
                 passwordHash, authProvider, externalSubject, status, plan, onboardingStatus, onboardingStep,
                 accountType, businessType, onboardingPayload, emailVerifiedAt, phoneVerifiedAt, mfaEnabled,
-                mfaChannel);
+                mfaChannel, forcePasswordChange);
     }
 
     private UserAccount copy(String phoneNumber, String passwordHash, String authProvider, String externalSubject,
             String status, String plan, String onboardingStatus, int onboardingStep, String accountType,
             String businessType, String onboardingPayload, Instant emailVerifiedAt, Instant phoneVerifiedAt,
-            boolean mfaEnabled, String mfaChannel) {
+            boolean mfaEnabled, String mfaChannel, boolean forcePasswordChange) {
         return new UserAccount(id(), tenantId(), createdAt(), Instant.now(), actorId, username, email, phoneNumber,
                 passwordHash, authProvider, externalSubject, status, plan, onboardingStatus, onboardingStep,
                 accountType, businessType, onboardingPayload, emailVerifiedAt, phoneVerifiedAt, mfaEnabled,
-                mfaChannel);
+                mfaChannel, forcePasswordChange);
     }
 
     private static String requireText(String value, String field) {

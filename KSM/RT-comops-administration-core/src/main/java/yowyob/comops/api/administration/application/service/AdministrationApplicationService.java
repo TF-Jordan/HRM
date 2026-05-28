@@ -87,7 +87,10 @@ public class AdministrationApplicationService implements ListPermissionCatalogUs
             "GENERAL_ADMIN", "SYSTEM_ADMIN", "IAM_ADMIN", "TENANT_ADMIN",
             "ORGANIZATION_ADMIN", "AGENCY_ADMIN", "SALES_MANAGER", "INVENTORY_MANAGER",
             "ACCOUNTANT", "TREASURY_OFFICER", "RESOURCE_MANAGER", "HR_MANAGER",
-            "PAYROLL_MANAGER", "BLOCKCHAIN_OPERATOR");
+            "PAYROLL_MANAGER", "BLOCKCHAIN_OPERATOR",
+            // HRM-specific roles consumed by the HR Core frontend
+            "SUPER_ADMIN", "HR_ADMIN", "HR_DIRECTOR", "MANAGER", "EMPLOYEE",
+            "RECRUITER", "OCCUPATIONAL_DOCTOR", "HR_CONTROLLER");
     private static final Set<String> HRM_ALL_PERMISSIONS = Set.of(
             "hrm:employee:create", "hrm:employee:read", "hrm:employee:update", "hrm:employee:terminate",
             "hrm:employee:suspend", "hrm:employee:reactivate", "hrm:contract:create", "hrm:contract:read",
@@ -113,6 +116,61 @@ public class AdministrationApplicationService implements ListPermissionCatalogUs
             "hrm:employee:read", "hrm:contract:read", "hrm:dependent:read", "hrm:payroll:run",
             "hrm:payroll:validate", "hrm:payroll:read", "hrm:leave:read", "hrm:timesheet:read",
             "hrm:expense:read", "hrm:loan:read", "hrm:kpi:read");
+    /** Manager : approves/validates for their team, manages missions and expenses. */
+    private static final Set<String> MANAGER_PERMISSIONS = Set.of(
+            "hrm:employee:read", "hrm:contract:read", "hrm:dependent:read",
+            "hrm:leave:read", "hrm:leave:approve",
+            "hrm:timesheet:read", "hrm:timesheet:validate",
+            "hrm:mission:create", "hrm:mission:manage", "hrm:mission:read",
+            "hrm:expense:read", "hrm:expense:manage",
+            "hrm:review:create", "hrm:review:manage", "hrm:review:read",
+            "hrm:training:read",
+            "hrm:skill:read",
+            "hrm:recruitment:read", "hrm:recruitment:manage");
+    /** Employee : self-service capabilities. Reads on own records are scoped server-side. */
+    private static final Set<String> EMPLOYEE_PERMISSIONS = Set.of(
+            "hrm:employee:read", "hrm:contract:read", "hrm:dependent:read",
+            "hrm:leave:create", "hrm:leave:read",
+            "hrm:loan:create", "hrm:loan:read",
+            "hrm:expense:create", "hrm:expense:read",
+            "hrm:timesheet:create", "hrm:timesheet:read",
+            "hrm:mission:read",
+            "hrm:training:read",
+            "hrm:review:read",
+            "hrm:medical:read",
+            "hrm:payroll:read",
+            "hrm:skill:read");
+    /** Recruiter : full recruitment + onboarding + can create new employees on hire. */
+    private static final Set<String> RECRUITER_PERMISSIONS = Set.of(
+            "hrm:recruitment:create", "hrm:recruitment:read", "hrm:recruitment:manage",
+            "hrm:onboarding:create", "hrm:onboarding:read", "hrm:onboarding:manage",
+            "hrm:employee:create", "hrm:employee:read", "hrm:contract:create", "hrm:contract:read",
+            "hrm:skill:read");
+    /** Occupational doctor : medical follow-up only. */
+    private static final Set<String> OCCUPATIONAL_DOCTOR_PERMISSIONS = Set.of(
+            "hrm:medical:create", "hrm:medical:read",
+            "hrm:employee:read", "hrm:contract:read", "hrm:dependent:read");
+    /** HR controller : read-only across the entire HRM perimeter for reporting + analytics. */
+    private static final Set<String> HR_CONTROLLER_PERMISSIONS = Set.of(
+            "hrm:employee:read", "hrm:contract:read", "hrm:dependent:read",
+            "hrm:leave:read", "hrm:timesheet:read", "hrm:mission:read",
+            "hrm:payroll:read", "hrm:loan:read", "hrm:expense:read",
+            "hrm:review:read", "hrm:training:read", "hrm:budget:read",
+            "hrm:skill:read", "hrm:medical:read", "hrm:recruitment:read",
+            "hrm:onboarding:read", "hrm:declaration:read", "hrm:kpi:read", "hrm:kpi:create");
+    /** HR director / DRH : strategic management — full HRM + training/budget governance + analytics. */
+    private static final Set<String> HR_DIRECTOR_PERMISSIONS = Set.of(
+            "hrm:employee:read", "hrm:contract:read", "hrm:dependent:read",
+            "hrm:training:create", "hrm:training:manage", "hrm:training:read",
+            "hrm:budget:create", "hrm:budget:manage", "hrm:budget:read",
+            "hrm:review:create", "hrm:review:manage", "hrm:review:read",
+            "hrm:skill:create", "hrm:skill:read",
+            "hrm:recruitment:create", "hrm:recruitment:read", "hrm:recruitment:manage",
+            "hrm:onboarding:create", "hrm:onboarding:read", "hrm:onboarding:manage",
+            "hrm:medical:read",
+            "hrm:declaration:read",
+            "hrm:kpi:create", "hrm:kpi:read",
+            "hrm:leave:read", "hrm:timesheet:read", "hrm:payroll:read");
     private static final Set<String> BLOCKCHAIN_PERMISSIONS = Set.of(
             "blockchain:wallet:create", "blockchain:wallet:read", "blockchain:transaction:sign",
             "blockchain:transaction:create", "blockchain:transaction:read", "blockchain:anchor:create",
@@ -172,7 +230,28 @@ public class AdministrationApplicationService implements ListPermissionCatalogUs
                     Set.of("resources:write", "resources:reserve", "resources:unassign", "resources:dispose"), false),
             template("HR_MANAGER", "Human Resources Manager", "ORGANIZATION", HRM_ALL_PERMISSIONS, false),
             template("PAYROLL_MANAGER", "Payroll Manager", "ORGANIZATION", PAYROLL_PERMISSIONS, false),
-            template("BLOCKCHAIN_OPERATOR", "Blockchain Operator", "ORGANIZATION", BLOCKCHAIN_PERMISSIONS, false));
+            template("BLOCKCHAIN_OPERATOR", "Blockchain Operator", "ORGANIZATION", BLOCKCHAIN_PERMISSIONS, false),
+            // HRM-specific role templates consumed by the HR Core frontend
+            template("SUPER_ADMIN", "Super Administrator", "TENANT",
+                    merge(Set.of("administration:read", "administration:write",
+                            "administration:roles:read", "administration:roles:write",
+                            "administration:roles:clone", "administration:permissions:read",
+                            "administration:assignments:write", "administration:settings:read",
+                            "administration:settings:write", "administration:audit:read",
+                            "administration:govern:business-actors", "administration:govern:organizations",
+                            "administration:govern:agencies",
+                            "organizations:write", "settings:read", "settings:write", "tenant:admin"),
+                            HRM_ALL_PERMISSIONS),
+                    true),
+            template("HR_ADMIN", "HR Administrator", "ORGANIZATION", HRM_ALL_PERMISSIONS, false),
+            template("HR_DIRECTOR", "HR Director (DRH)", "ORGANIZATION", HR_DIRECTOR_PERMISSIONS, false),
+            template("MANAGER", "Team Manager", "ORGANIZATION", MANAGER_PERMISSIONS, false),
+            template("EMPLOYEE", "Employee (self-service)", "ORGANIZATION", EMPLOYEE_PERMISSIONS, false),
+            template("RECRUITER", "Recruiter", "ORGANIZATION", RECRUITER_PERMISSIONS, false),
+            template("OCCUPATIONAL_DOCTOR", "Occupational Doctor", "ORGANIZATION",
+                    OCCUPATIONAL_DOCTOR_PERMISSIONS, false),
+            template("HR_CONTROLLER", "HR Management Controller", "ORGANIZATION",
+                    HR_CONTROLLER_PERMISSIONS, false));
 
     public AdministrationApplicationService(RoleRepository roleRepository,
             UserRoleAssignmentRepository assignmentRepository,

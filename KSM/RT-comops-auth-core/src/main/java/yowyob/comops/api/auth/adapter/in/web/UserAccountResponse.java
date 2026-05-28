@@ -27,6 +27,7 @@ public record UserAccountResponse(
         Instant phoneVerifiedAt,
         boolean mfaEnabled,
         String mfaChannel,
+        boolean forcePasswordChange,
         List<UserOrganizationAccessResponse> organizations) {
 
     public static UserAccountResponse from(UserAccount userAccount, List<UserOrganizationAccessResponse> organizations) {
@@ -52,6 +53,7 @@ public record UserAccountResponse(
                 userAccount.phoneVerifiedAt(),
                 userAccount.mfaEnabled(),
                 userAccount.mfaChannel(),
+                userAccount.forcePasswordChange(),
                 organizations);
     }
 }

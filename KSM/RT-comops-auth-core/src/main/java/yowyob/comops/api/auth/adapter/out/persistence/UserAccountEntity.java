@@ -29,5 +29,6 @@ public record UserAccountEntity(
         Instant emailVerifiedAt,
         Instant phoneVerifiedAt,
         boolean mfaEnabled,
-        String mfaChannel) implements PersistableEntity {
+        String mfaChannel,
+        boolean forcePasswordChange) implements PersistableEntity {
 }

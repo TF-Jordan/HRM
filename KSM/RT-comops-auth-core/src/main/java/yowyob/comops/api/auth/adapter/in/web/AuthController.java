@@ -281,6 +281,17 @@ public class AuthController {
                 .map(response -> ResponseEntity.ok(ApiResponse.success(response, "Password reset completed.")));
     }
 
+    @PostMapping("/change-password")
+    @PreAuthorize("@businessAccessPolicy.hasUserContext(authentication)")
+    public Mono<ResponseEntity<ApiResponse<UserAccountResponse>>> changePassword(
+            @Valid @RequestBody Mono<ChangePasswordRequest> requestMono) {
+        return requestMono
+                .flatMap(request -> authApplicationService.changeCurrentUserPassword(
+                        request.currentPassword(), request.newPassword()))
+                .flatMap(authUserViewAssembler::toUserAccountResponse)
+                .map(response -> ResponseEntity.ok(ApiResponse.success(response, "Password changed.")));
+    }
+
     @PostMapping("/email-verification/request")
     @PreAuthorize("@businessAccessPolicy.hasUserContext(authentication)")
     public Mono<ResponseEntity<ApiResponse<IssuedAuthChallengeResponse>>> requestEmailVerification() {

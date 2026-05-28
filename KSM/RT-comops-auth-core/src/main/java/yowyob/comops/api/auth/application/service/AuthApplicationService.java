@@ -79,7 +79,8 @@ public class AuthApplicationService implements RegisterUserUseCase, LoginUseCase
                 command.username(),
                 command.email(),
                 passwordEncoder.encode(resolvePassword(command.password(), false)),
-                command.authProvider())
+                command.authProvider(),
+                command.forcePasswordChange())
                 .updatePhoneNumber(command.phoneNumber());
 
         if (command.externalSubject() != null && !command.externalSubject().isBlank()) {
@@ -377,6 +378,34 @@ public class AuthApplicationService implements RegisterUserUseCase, LoginUseCase
                                             userAccount.email(),
                                             issued.token(),
                                             issued.expiresInSeconds()));
+                        }));
+    }
+
+    /**
+     * Change the currently authenticated user's password. The current password is verified
+     * against the stored hash, then the new password is encoded and persisted — which
+     * automatically clears the forcePasswordChange flag via {@link UserAccount#updatePassword}.
+     */
+    public Mono<UserAccount> changeCurrentUserPassword(String currentPassword, String newPassword) {
+        if (currentPassword == null || currentPassword.isBlank()
+                || newPassword == null || newPassword.isBlank()) {
+            return Mono.error(new IllegalArgumentException("currentPassword and newPassword are required"));
+        }
+        return ReactiveRequestContextHolder.getRequiredContext()
+                .flatMap(context -> userAccountRepository.findById(context.tenantId(), context.userId())
+                        .switchIfEmpty(Mono.error(new IllegalArgumentException("User account not found.")))
+                        .flatMap(userAccount -> {
+                            if (!passwordEncoder.matches(currentPassword, userAccount.passwordHash())) {
+                                return Mono.error(new InvalidLoginCredentialsException());
+                            }
+                            return userAccountRepository.save(
+                                            userAccount.updatePassword(
+                                                    passwordEncoder.encode(resolvePassword(newPassword, false))))
+                                    .flatMap(saved -> recordSystemAuditUseCase.record(saved.tenantId(),
+                                                    context.organizationId(), saved.id(),
+                                                    "USER_PASSWORD_CHANGED", "USER_ACCOUNT",
+                                                    saved.id().toString(), saved.email())
+                                            .thenReturn(saved));
                         }));
     }
 

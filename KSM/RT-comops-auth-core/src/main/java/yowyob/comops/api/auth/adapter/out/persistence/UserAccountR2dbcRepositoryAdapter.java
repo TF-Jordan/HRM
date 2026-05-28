@@ -56,7 +56,7 @@ public class UserAccountR2dbcRepositoryAdapter implements UserAccountRepository 
                 userAccount.externalSubject(), userAccount.status(), userAccount.plan(), userAccount.onboardingStatus(),
                 userAccount.onboardingStep(), userAccount.accountType(), userAccount.businessType(),
                 userAccount.onboardingPayload(), userAccount.emailVerifiedAt(), userAccount.phoneVerifiedAt(),
-                userAccount.mfaEnabled(), userAccount.mfaChannel());
+                userAccount.mfaEnabled(), userAccount.mfaChannel(), userAccount.forcePasswordChange());
     }
 
     private UserAccount toDomain(UserAccountEntity entity) {
@@ -65,6 +65,6 @@ public class UserAccountR2dbcRepositoryAdapter implements UserAccountRepository 
                 entity.authProvider(), entity.externalSubject(), entity.status(), entity.plan(),
                 entity.onboardingStatus(), entity.onboardingStep(), entity.accountType(), entity.businessType(),
                 entity.onboardingPayload(), entity.emailVerifiedAt(), entity.phoneVerifiedAt(), entity.mfaEnabled(),
-                entity.mfaChannel());
+                entity.mfaChannel(), entity.forcePasswordChange());
     }
 }
