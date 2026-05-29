@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { Loader2, Plus, Search } from "lucide-react";
+import { Download, Loader2, Plus, Search, SlidersHorizontal, Upload } from "lucide-react";
 import { useTranslations } from "next-intl";
 import * as React from "react";
 
@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Chip } from "@/components/ui/chip";
 import { Column, DataTable } from "@/components/ui/data-table";
+import { StatCard, StatCardGrid } from "@/components/ui/stat-card";
 import { Link, useRouter } from "@/i18n/navigation";
 import { apiFetch, BffApiError } from "@/lib/api-client";
 import { employeeStatusTone } from "@/lib/employee-status";
@@ -20,10 +21,13 @@ import type { EmployeeResponse, EmployeeStatus } from "@/server/ksm/modules/empl
 
 type StatusFilter = "all" | EmployeeStatus;
 
+const AVATAR_TONES = ["orange", "blue", "green", "violet", "amber", "teal"] as const;
+
 export function EmployeesList() {
   const t = useTranslations("employees");
   const tList = useTranslations("employees.list");
   const tStatus = useTranslations("employees.status");
+  const tCommon = useTranslations("common");
   const router = useRouter();
   const [statusFilter, setStatusFilter] = React.useState<StatusFilter>("all");
   const [search, setSearch] = React.useState("");
@@ -33,9 +37,19 @@ export function EmployeesList() {
     queryFn: () => apiFetch<EmployeeResponse[]>("/api/hrm/employees"),
   });
 
+  const all = query.data ?? [];
+  const counts = React.useMemo(() => {
+    return {
+      total: all.length,
+      active: all.filter((e) => e.status === "ACTIVE").length,
+      onLeave: all.filter((e) => e.status === "ON_LEAVE").length,
+      suspended: all.filter((e) => e.status === "SUSPENDED").length,
+      terminated: all.filter((e) => e.status === "TERMINATED").length,
+    };
+  }, [all]);
+
   const filtered = React.useMemo(() => {
-    if (!query.data) return [];
-    return query.data.filter((e) => {
+    return all.filter((e) => {
       if (statusFilter !== "all" && e.status !== statusFilter) return false;
       if (search) {
         const needle = search.toLowerCase();
@@ -47,7 +61,7 @@ export function EmployeesList() {
       }
       return true;
     });
-  }, [query.data, statusFilter, search]);
+  }, [all, statusFilter, search]);
 
   const columns: Column<EmployeeResponse>[] = [
     {
@@ -59,15 +73,11 @@ export function EmployeesList() {
             name={e.actorDisplayName ?? e.matricule}
             initials={initials(e.actorDisplayName ?? e.matricule, 2)}
             size="md"
-            tone={
-              (["orange", "blue", "green", "violet", "amber", "teal"] as const)[
-                e.id.charCodeAt(0) % 6
-              ]
-            }
+            tone={AVATAR_TONES[e.id.charCodeAt(0) % AVATAR_TONES.length]}
           />
           <div>
-            <div className="font-semibold text-ink">{e.actorDisplayName ?? "—"}</div>
-            <div className="font-mono-tabular text-[11.5px] text-ink-3">{e.matricule}</div>
+            <div className="text-[13.5px] font-semibold text-ink">{e.actorDisplayName ?? "—"}</div>
+            <div className="font-mono-tabular text-[11px] text-ink-3">{e.matricule}</div>
           </div>
         </div>
       ),
@@ -75,7 +85,14 @@ export function EmployeesList() {
     {
       key: "department",
       header: tList("columns.department"),
-      cell: (e) => <span className="text-ink-2">{e.departmentCode ?? "—"}</span>,
+      cell: (e) =>
+        e.departmentCode ? (
+          <span className="inline-flex items-center rounded-[7px] bg-bg-soft px-2.5 py-1 text-[11px] font-medium text-ink-2">
+            {e.departmentCode}
+          </span>
+        ) : (
+          <span className="text-ink-4">—</span>
+        ),
     },
     {
       key: "categoryEchelon",
@@ -107,48 +124,91 @@ export function EmployeesList() {
         title={tList("title")}
         subtitle={tList("subtitle")}
         actions={
-          <Link href="/employees/new">
-            <Button>
-              <Plus className="h-4 w-4" />
-              {tList("new")}
+          <>
+            <Button variant="secondary" disabled>
+              <Upload className="h-4 w-4" />
+              {tCommon("actions.import")}
             </Button>
-          </Link>
+            <Button variant="secondary" disabled>
+              <Download className="h-4 w-4" />
+              {tCommon("actions.export")}
+            </Button>
+            <Link href="/employees/new">
+              <Button>
+                <Plus className="h-4 w-4" />
+                {tList("new")}
+              </Button>
+            </Link>
+          </>
         }
       />
 
-      {/* Search + filters */}
-      <div className="mb-4 flex flex-wrap items-center gap-3">
-        <div
-          className={cn(
-            "flex flex-1 min-w-[280px] max-w-[420px] items-center gap-2.5 rounded-xl border border-line bg-white px-4 py-2 text-ink-3 shadow-xs-brand",
-            "focus-within:border-orange-400 focus-within:ring-4 focus-within:ring-orange-500/12",
-          )}
-        >
-          <Search className="h-4 w-4 shrink-0" />
-          <input
-            type="search"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder={tList("search")}
-            className="flex-1 border-none bg-transparent text-[13.5px] text-ink outline-none placeholder:text-ink-4"
-          />
-        </div>
-        <div className="flex flex-wrap gap-1.5">
+      {/* KPI stat row */}
+      <StatCardGrid>
+        <StatCard
+          label={tList("filters.all")}
+          value={counts.total}
+          sub={tList("subtitle")}
+          tone="green"
+        />
+        <StatCard
+          label={tList("filters.active")}
+          value={counts.active}
+          sub={counts.total ? `${Math.round((counts.active / counts.total) * 100)}%` : "—"}
+          tone="orange"
+        />
+        <StatCard
+          label={tList("filters.onLeave")}
+          value={counts.onLeave}
+          sub={tStatus("ON_LEAVE")}
+          tone="blue"
+        />
+        <StatCard
+          label={tList("filters.suspended")}
+          value={counts.suspended + counts.terminated}
+          sub={`${counts.terminated} ${tStatus("TERMINATED").toLowerCase()}`}
+          tone="amber"
+        />
+      </StatCardGrid>
+
+      {/* Filter bar */}
+      <div className="mb-4 rounded-[20px] border border-line bg-white p-4 shadow-sm-brand">
+        <div className="flex flex-wrap items-center gap-3">
+          <div
+            className={cn(
+              "flex min-w-[280px] flex-1 items-center gap-2.5 rounded-[10px] border border-line bg-white px-3 py-2 text-ink-3",
+              "focus-within:border-orange-400 focus-within:ring-4 focus-within:ring-orange-500/12",
+            )}
+          >
+            <Search className="h-3.5 w-3.5 shrink-0" />
+            <input
+              type="search"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder={tList("search")}
+              className="flex-1 border-none bg-transparent text-[13px] text-ink outline-none placeholder:text-ink-4"
+            />
+          </div>
           <Chip active={statusFilter === "all"} tone="orange" onClick={() => setStatusFilter("all")}>
-            {tList("filters.all")}
+            {tList("filters.all")} ({counts.total})
           </Chip>
           <Chip active={statusFilter === "ACTIVE"} onClick={() => setStatusFilter("ACTIVE")}>
-            {tList("filters.active")}
+            {tList("filters.active")} ({counts.active})
           </Chip>
           <Chip active={statusFilter === "ON_LEAVE"} onClick={() => setStatusFilter("ON_LEAVE")}>
-            {tList("filters.onLeave")}
+            {tList("filters.onLeave")} ({counts.onLeave})
           </Chip>
           <Chip active={statusFilter === "SUSPENDED"} onClick={() => setStatusFilter("SUSPENDED")}>
-            {tList("filters.suspended")}
+            {tList("filters.suspended")} ({counts.suspended})
           </Chip>
           <Chip active={statusFilter === "TERMINATED"} onClick={() => setStatusFilter("TERMINATED")}>
-            {tList("filters.terminated")}
+            {tList("filters.terminated")} ({counts.terminated})
           </Chip>
+          <div className="h-6 w-px bg-line" />
+          <Button variant="secondary" size="sm" disabled>
+            <SlidersHorizontal className="h-3.5 w-3.5" />
+            {tCommon("actions.filter")}
+          </Button>
         </div>
       </div>
 
@@ -156,7 +216,7 @@ export function EmployeesList() {
         <div className="grid place-items-center py-20">
           <Loader2 className="h-8 w-8 animate-spin text-orange-500" />
         </div>
-      ) : query.error || !query.data ? (
+      ) : query.error ? (
         <div className="rounded-[20px] border border-line bg-white p-10 text-center text-ink-3">
           {query.error instanceof BffApiError ? query.error.message : "Failed to load employees"}
         </div>

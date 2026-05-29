@@ -94,6 +94,14 @@
     "summaryEmail": "Email"
   },
   "detail": {
+    "hero": {
+      "salary": "Salaire de base",
+      "noContract": "Aucun contrat actif",
+      "leaveBalance": "Solde congés",
+      "daysUnit": "jours",
+      "acquired": "acquis",
+      "registered": "enregistrés"
+    },
     "tabs": {
       "identity": "Identité",
       "contracts": "Contrats",

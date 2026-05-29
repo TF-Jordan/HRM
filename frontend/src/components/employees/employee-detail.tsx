@@ -21,7 +21,6 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 import { useCan } from "@/hooks/use-can";
-import { PageHeader } from "@/components/shell/page-header";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -30,7 +29,6 @@ import { Column, DataTable } from "@/components/ui/data-table";
 import { Dialog } from "@/components/ui/dialog";
 import { Field, Input, Label, Textarea } from "@/components/ui/input";
 import { IconTile } from "@/components/ui/icon-tile";
-import { StatusPill } from "@/components/ui/status-pill";
 import { Link } from "@/i18n/navigation";
 import { apiFetch, BffApiError } from "@/lib/api-client";
 import { employeeStatusTone } from "@/lib/employee-status";
@@ -49,7 +47,9 @@ type Tab = "identity" | "contracts" | "dependents" | "leaves";
 export function EmployeeDetail({ employeeId }: { employeeId: string }) {
   const t = useTranslations("employees");
   const tDetail = useTranslations("employees.detail");
+  const tHero = useTranslations("employees.detail.hero");
   const tStatus = useTranslations("employees.status");
+  const tCommon = useTranslations("common");
   const tErrors = useTranslations("errors");
   const queryClient = useQueryClient();
   const [tab, setTab] = React.useState<Tab>("identity");
@@ -67,6 +67,26 @@ export function EmployeeDetail({ employeeId }: { employeeId: string }) {
     queryFn: () => apiFetch<EmployeeResponse>(`/api/hrm/employees/${employeeId}`),
   });
   const e = employeeQuery.data;
+
+  // Hero stat tiles — fed by real data from the related collections.
+  const heroContracts = useQuery({
+    queryKey: ["hrm", "contracts", employeeId],
+    queryFn: () => apiFetch<ContractResponse[]>(`/api/hrm/employees/${employeeId}/contracts`),
+  });
+  const heroDependents = useQuery({
+    queryKey: ["hrm", "dependents", employeeId],
+    queryFn: () => apiFetch<DependentResponse[]>(`/api/hrm/employees/${employeeId}/dependents`),
+  });
+  const heroBalances = useQuery({
+    queryKey: ["hrm", "leave-balances", employeeId, new Date().getFullYear()],
+    queryFn: () =>
+      apiFetch<LeaveBalanceResponse[]>(
+        `/api/hrm/employees/${employeeId}/leave-balances?annee=${new Date().getFullYear()}`,
+      ),
+  });
+
+  const activeContract = (heroContracts.data ?? []).find((c) => c.status === "ACTIVE");
+  const annualBalance = (heroBalances.data ?? []).find((b) => b.type === "ANNUAL");
 
   const invalidate = React.useCallback(() => {
     queryClient.invalidateQueries({ queryKey: ["hrm", "employee", employeeId] });
@@ -135,49 +155,78 @@ export function EmployeeDetail({ employeeId }: { employeeId: string }) {
   const isSuspended = e.status === "SUSPENDED";
   const isTerminated = e.status === "TERMINATED";
 
+  const avatarTone = (["orange", "blue", "green", "violet", "amber", "teal"] as const)[
+    e.id.charCodeAt(0) % 6
+  ];
+
   return (
     <>
-      <PageHeader
-        ucBadge={t("ucBadge")}
-        breadcrumb={[
-          { label: "HR Core" },
-          { label: t("list.title"), href: "/employees" },
-          { label: e.actorDisplayName ?? e.matricule },
-        ]}
-        title={
-          <span className="flex items-center gap-3">
+      {/* Back breadcrumb */}
+      <div className="mb-3.5 flex items-center gap-2">
+        <Link href="/employees">
+          <Button type="button" variant="ghost" size="sm">
+            <ChevronLeft className="h-3.5 w-3.5" />
+            {tCommon("actions.back")}
+          </Button>
+        </Link>
+        <span className="text-[12px] text-ink-3">
+          {t("list.title")} / {e.actorDisplayName ?? e.matricule}
+        </span>
+      </div>
+
+      {/* Hero card — warm gradient */}
+      <div
+        className="relative mb-5 overflow-hidden rounded-[20px] border border-orange-200 p-[26px] shadow-sm-brand"
+        style={{ background: "linear-gradient(135deg, #FFFAF2 0%, #FFFFFF 60%)" }}
+      >
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute -right-16 -top-16 h-60 w-60 rounded-full bg-grad-orange opacity-[0.08] blur-2xl"
+        />
+        <div className="relative flex flex-wrap items-start gap-4">
+          <div className="relative">
             <Avatar
               name={e.actorDisplayName ?? e.matricule}
               initials={initials(e.actorDisplayName ?? e.matricule, 2)}
-              size="lg"
-              tone={
-                (["orange", "blue", "green", "violet", "amber", "teal"] as const)[
-                  e.id.charCodeAt(0) % 6
-                ]
-              }
+              size="xl"
+              tone={avatarTone}
             />
-            <span className="flex flex-col">
-              <span>{e.actorDisplayName ?? e.matricule}</span>
-              <span className="font-mono-tabular text-[13px] font-normal tracking-normal text-ink-3">
+            {isActive && (
+              <span className="absolute bottom-0 right-0 h-4.5 w-4.5 rounded-full border-[3px] border-white bg-success-500" />
+            )}
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="mb-1 flex flex-wrap items-center gap-2">
+              <span className="rounded-full bg-orange-50 px-2 py-0.5 font-mono-tabular text-[11px] text-orange-700">
                 {e.matricule}
               </span>
-            </span>
-          </span>
-        }
-        subtitle={
-          <span className="flex items-center gap-2">
-            <Badge tone={employeeStatusTone(e.status)}>{tStatus(e.status)}</Badge>
-            {e.departmentCode && <span className="text-ink-3">· {e.departmentCode}</span>}
-          </span>
-        }
-        actions={
-          <>
-            <Link href="/employees">
-              <Button type="button" variant="secondary">
-                <ChevronLeft className="h-4 w-4" />
-                {t("list.title")}
-              </Button>
-            </Link>
+              <Badge tone={employeeStatusTone(e.status)}>{tStatus(e.status)}</Badge>
+            </div>
+            <h1 className="font-display text-[30px] font-extrabold leading-tight tracking-tight text-ink">
+              {e.actorDisplayName ?? e.matricule}
+            </h1>
+            <p className="mt-1 text-[14px] text-ink-2">
+              {e.departmentCode ?? "—"}
+              {e.echelon ? ` · ${tDetail("identity.echelon")} ${e.echelon}` : ""}
+            </p>
+            <div className="mt-4 flex flex-wrap gap-4 text-[12.5px] text-ink-3">
+              <span className="flex items-center gap-2">
+                <Calendar className="h-3.5 w-3.5" />
+                {tDetail("identity.hireDate")} · {formatDate(e.dateEmbauche, { locale: "fr" })}
+              </span>
+              {e.numCnps && (
+                <span className="flex items-center gap-2">
+                  <UserRound className="h-3.5 w-3.5" />
+                  CNPS · {e.numCnps}
+                </span>
+              )}
+              <span className="flex items-center gap-2">
+                <Users className="h-3.5 w-3.5" />
+                {tDetail("identity.categorie")} {e.categorie}
+              </span>
+            </div>
+          </div>
+          <div className="flex flex-col gap-2">
             {canEdit && !isTerminated && (
               <Button type="button" variant="secondary">
                 <Pencil className="h-4 w-4" />
@@ -202,9 +251,37 @@ export function EmployeeDetail({ employeeId }: { employeeId: string }) {
                 {tDetail("actions.terminate")}
               </Button>
             )}
-          </>
-        }
-      />
+          </div>
+        </div>
+
+        {/* Stat tiles — real data */}
+        <div className="relative mt-6 grid grid-cols-2 gap-3.5 md:grid-cols-4">
+          <HeroTile
+            label={tHero("salary")}
+            value={activeContract ? formatMoney(Number(activeContract.salaireBase), { locale: "fr", withCurrency: false }) : "—"}
+            unit={activeContract ? "XAF / mois" : tHero("noContract")}
+          />
+          <HeroTile
+            label={tHero("leaveBalance")}
+            value={annualBalance ? Number(annualBalance.soldeRestant).toFixed(1) : "—"}
+            unit={
+              annualBalance
+                ? `${tHero("daysUnit")} · ${tHero("acquired")} ${Number(annualBalance.acquis).toFixed(1)}`
+                : tHero("daysUnit")
+            }
+          />
+          <HeroTile
+            label={tDetail("tabs.contracts")}
+            value={String((heroContracts.data ?? []).length)}
+            unit={activeContract ? t(`contractType.${activeContract.type}`) : "—"}
+          />
+          <HeroTile
+            label={tDetail("tabs.dependents")}
+            value={String((heroDependents.data ?? []).length)}
+            unit={tHero("registered")}
+          />
+        </div>
+      </div>
 
       {/* Tabs */}
       <div className="mb-6 flex flex-wrap gap-2 border-b border-line-soft pb-2">
@@ -884,5 +961,27 @@ function AddDependentModal({
         </Field>
       </div>
     </Dialog>
+  );
+}
+
+function HeroTile({
+  label,
+  value,
+  unit,
+}: {
+  label: string;
+  value: React.ReactNode;
+  unit?: React.ReactNode;
+}) {
+  return (
+    <div className="rounded-[12px] border border-line bg-white p-3.5">
+      <div className="text-[11px] font-semibold uppercase tracking-[0.04em] text-ink-3">
+        {label}
+      </div>
+      <div className="mt-1.5 font-display text-[22px] font-extrabold tracking-tight text-ink font-mono-tabular">
+        {value}
+      </div>
+      {unit && <div className="mt-0.5 text-[11px] text-ink-3">{unit}</div>}
+    </div>
   );
 }

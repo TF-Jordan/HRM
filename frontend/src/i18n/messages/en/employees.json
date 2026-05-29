@@ -94,6 +94,14 @@
     "summaryEmail": "Email"
   },
   "detail": {
+    "hero": {
+      "salary": "Base salary",
+      "noContract": "No active contract",
+      "leaveBalance": "Leave balance",
+      "daysUnit": "days",
+      "acquired": "acquired",
+      "registered": "registered"
+    },
     "tabs": {
       "identity": "Identity",
       "contracts": "Contracts",

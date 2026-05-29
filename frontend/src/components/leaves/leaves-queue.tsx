@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl";
 import { PageHeader } from "@/components/shell/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Column, DataTable } from "@/components/ui/data-table";
+import { StatCard, StatCardGrid } from "@/components/ui/stat-card";
 import { useRouter } from "@/i18n/navigation";
 import { apiFetch, BffApiError } from "@/lib/api-client";
 import { formatDate } from "@/lib/format";
@@ -81,6 +82,34 @@ export function LeavesQueue() {
         title={tQ("title")}
         subtitle={tQ("subtitle")}
       />
+
+      <StatCardGrid>
+        <StatCard
+          label={tQ("title")}
+          value={query.data?.length ?? 0}
+          sub={t("status.PENDING")}
+          tone="amber"
+        />
+        <StatCard
+          label={t("status.APPROVED")}
+          value={(query.data ?? []).filter((l) => l.status === "APPROVED").length}
+          sub={tCommon("status.approved")}
+          tone="green"
+        />
+        <StatCard
+          label={tQ("columns.days")}
+          value={(query.data ?? []).reduce((s, l) => s + Number(l.nbJours), 0).toFixed(1)}
+          sub={tQ("columns.days")}
+          tone="orange"
+        />
+        <StatCard
+          label={t("status.REJECTED")}
+          value={(query.data ?? []).filter((l) => l.status === "REJECTED").length}
+          sub={tCommon("status.rejected")}
+          tone="red"
+        />
+      </StatCardGrid>
+
       {query.isLoading ? (
         <div className="grid place-items-center py-20">
           <Loader2 className="h-8 w-8 animate-spin text-orange-500" />

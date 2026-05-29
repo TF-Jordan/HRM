@@ -9,6 +9,7 @@ import { PageHeader } from "@/components/shell/page-header";
 import { PeriodPicker } from "@/components/timesheets/period-picker";
 import { Badge } from "@/components/ui/badge";
 import { Column, DataTable } from "@/components/ui/data-table";
+import { StatCard, StatCardGrid } from "@/components/ui/stat-card";
 import { useRouter } from "@/i18n/navigation";
 import { apiFetch, BffApiError } from "@/lib/api-client";
 import { timesheetStatusTone, timesheetTotalHours } from "@/lib/timesheet-status";
@@ -22,6 +23,7 @@ function currentPeriode(): string {
 export function TimesheetsAdmin() {
   const t = useTranslations("timesheets");
   const tAdmin = useTranslations("timesheets.admin");
+  const tCommon = useTranslations("common");
   const router = useRouter();
   const [periode, setPeriode] = React.useState(currentPeriode());
 
@@ -109,6 +111,34 @@ export function TimesheetsAdmin() {
         subtitle={tAdmin("subtitle")}
         actions={<PeriodPicker value={periode} onChange={setPeriode} maxPeriode={currentPeriode()} />}
       />
+
+      <StatCardGrid>
+        <StatCard
+          label={tAdmin("title")}
+          value={query.data?.length ?? 0}
+          sub={tAdmin("period")}
+          tone="orange"
+        />
+        <StatCard
+          label={t("status.VALIDATED")}
+          value={(query.data ?? []).filter((ts) => ts.status === "VALIDATED").length}
+          sub={tCommon("status.validated")}
+          tone="green"
+        />
+        <StatCard
+          label={t("status.SUBMITTED")}
+          value={(query.data ?? []).filter((ts) => ts.status === "SUBMITTED").length}
+          sub={tCommon("status.submitted")}
+          tone="blue"
+        />
+        <StatCard
+          label={tAdmin("columns.total")}
+          value={(query.data ?? []).reduce((s, ts) => s + timesheetTotalHours(ts), 0).toFixed(0)}
+          sub="h"
+          tone="violet"
+        />
+      </StatCardGrid>
+
       {query.isLoading ? (
         <div className="grid place-items-center py-20">
           <Loader2 className="h-8 w-8 animate-spin text-orange-500" />
