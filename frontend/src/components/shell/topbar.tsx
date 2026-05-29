@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
 
 type NotificationsPayload = {
   total: number;
-  buckets: { pendingAcceptance: number; declined: number };
+  buckets: { pendingAcceptance: number; declined: number; expensesToApprove: number };
 };
 
 export interface TopbarProps {
@@ -26,28 +26,34 @@ export function Topbar({ notificationsCount }: TopbarProps) {
   const tUser = useTranslations("shell.user");
   const { session } = useSession();
   const router = useRouter();
-  const canManage = useCan("hrm:mission:manage");
+  const canManageMissions = useCan("hrm:mission:manage");
   const canAccept = useCan("hrm:mission:accept");
+  const canManageExpenses = useCan("hrm:expense:manage");
 
   const notif = useQuery({
     queryKey: ["hrm", "notifications"],
     queryFn: () => apiFetch<NotificationsPayload>("/api/hrm/notifications"),
-    enabled: !!session && (canAccept || canManage),
+    enabled: !!session && (canAccept || canManageMissions || canManageExpenses),
     refetchInterval: 60_000,
   });
   const liveCount = notif.data?.total ?? 0;
   const count = notificationsCount ?? liveCount;
 
   function openNotifications() {
-    if (canManage && (notif.data?.buckets.declined ?? 0) > 0) {
+    const b = notif.data?.buckets;
+    if (canManageExpenses && (b?.expensesToApprove ?? 0) > 0) {
+      router.push("/expenses?status=SUBMITTED");
+      return;
+    }
+    if (canManageMissions && (b?.declined ?? 0) > 0) {
       router.push("/mission-orders?status=DECLINED");
       return;
     }
-    if (canAccept && (notif.data?.buckets.pendingAcceptance ?? 0) > 0) {
+    if (canAccept && (b?.pendingAcceptance ?? 0) > 0) {
       router.push("/mission-orders/mine");
       return;
     }
-    router.push(canManage ? "/mission-orders" : "/mission-orders/mine");
+    router.push(canManageExpenses ? "/expenses" : canManageMissions ? "/mission-orders" : "/mission-orders/mine");
   }
 
   return (

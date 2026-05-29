@@ -1,0 +1,131 @@
+{
+  "ucBadge": "UC-22 · Notes de frais",
+  "title": "Notes de frais",
+  "subtitle": "Saisie, validation et remboursement des dépenses professionnelles.",
+  "status": {
+    "DRAFT": "Brouillon",
+    "SUBMITTED": "En attente",
+    "APPROVED": "Approuvée",
+    "REJECTED": "Refusée",
+    "REIMBURSED": "Remboursée"
+  },
+  "category": {
+    "TRANSPORT": "Transport",
+    "REPAS": "Repas",
+    "HEBERGEMENT": "Hébergement",
+    "MATERIEL": "Matériel",
+    "AUTRES": "Autres"
+  },
+  "filters": {
+    "all": "Toutes",
+    "submitted": "À traiter",
+    "approved": "Approuvées",
+    "reimbursed": "Payées",
+    "rejected": "Refusées"
+  },
+  "kpi": {
+    "toApprove": "À approuver",
+    "approved": "Approuvées",
+    "reimbursed": "Remboursées",
+    "rejected": "Refusées"
+  },
+  "queue": {
+    "title": "Notes en attente de validation",
+    "empty": "Aucune note de frais.",
+    "columns": {
+      "reference": "Réf.",
+      "author": "Auteur · Objet",
+      "lines": "Lignes",
+      "amount": "Montant (XAF)",
+      "status": "Statut",
+      "actions": ""
+    }
+  },
+  "mine": {
+    "title": "Mes notes de frais",
+    "subtitle": "Saisie, suivi de remboursement et historique.",
+    "empty": "Aucune note de frais. Cliquez sur « Nouvelle note » pour commencer.",
+    "columns": {
+      "reference": "Réf.",
+      "objet": "Objet",
+      "lines": "Lignes",
+      "amount": "Montant (XAF)",
+      "status": "Statut"
+    }
+  },
+  "new": {
+    "title": "Nouvelle note de frais",
+    "subtitle": "Ajoutez vos dépenses et joignez les justificatifs.",
+    "fields": {
+      "objet": "Objet de la note",
+      "objetPlaceholder": "Ex. Conférence Mobile Summit · Lagos",
+      "periode": "Période",
+      "mission": "Lié à un ordre de mission ?",
+      "missionNone": "Aucun"
+    },
+    "lines": {
+      "title": "Lignes de dépenses",
+      "add": "Ajouter une ligne",
+      "date": "Date",
+      "category": "Catégorie",
+      "description": "Description",
+      "descriptionPlaceholder": "Ex. Vol Yaoundé → Lagos",
+      "amount": "Montant (XAF)",
+      "justificatif": "Justif.",
+      "attach": "Joindre",
+      "attached": "Joint",
+      "uploading": "Envoi…",
+      "remove": "Retirer",
+      "empty": "Aucune ligne. Ajoutez votre première dépense."
+    },
+    "recap": {
+      "title": "Récapitulatif",
+      "toReimburse": "XAF · à rembourser",
+      "byCategory": "Par catégorie"
+    },
+    "saveDraft": "Brouillon",
+    "submit": "Soumettre",
+    "createdDraft": "Brouillon créé.",
+    "submitted": "Note soumise pour validation.",
+    "needLine": "Ajoutez au moins une ligne avant de soumettre."
+  },
+  "detail": {
+    "back": "Retour",
+    "title": "Note {reference}",
+    "submittedBy": "Soumise par",
+    "period": "Période",
+    "mission": "Ordre de mission lié",
+    "missionLink": "voir l'ordre",
+    "lines": {
+      "title": "Lignes de dépenses",
+      "category": "Catégorie",
+      "description": "Libellé",
+      "justificatif": "Justificatif",
+      "amount": "Montant (XAF)",
+      "attached": "Joint",
+      "missing": "Manquant",
+      "view": "Voir",
+      "empty": "Aucune ligne sur cette note."
+    },
+    "total": "Total à rembourser",
+    "workflow": {
+      "draft": "Brouillon",
+      "submitted": "Soumise",
+      "decision": "Validation",
+      "approved": "Approuvée",
+      "rejected": "Refusée",
+      "reimbursed": "Remboursée"
+    },
+    "actions": {
+      "submit": "Soumettre",
+      "approve": "Approuver",
+      "reject": "Refuser",
+      "reimburse": "Rembourser",
+      "addLine": "Ajouter une ligne"
+    },
+    "submitSuccess": "Note soumise.",
+    "approveSuccess": "Note approuvée.",
+    "rejectSuccess": "Note refusée.",
+    "reimburseSuccess": "Note remboursée."
+  }
+}

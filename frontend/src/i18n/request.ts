@@ -16,6 +16,7 @@ async function loadMessages(locale: string) {
     "leaves",
     "timesheets",
     "missions",
+    "expenses",
   ];
   const entries = await Promise.all(
     namespaces.map(async (ns) => {
