@@ -219,3 +219,6 @@ databaseChangeLog:
   - include:
       file: releases/073-hrm-expense-mission-link.yaml
       relativeToChangelogFile: true
+  - include:
+      file: releases/074-hrm-demo-employee-link.yaml
+      relativeToChangelogFile: true

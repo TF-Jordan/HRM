@@ -1,0 +1,52 @@
+{
+  "ucBadge": "UC-15 · Training budget",
+  "title": "Training budget",
+  "subtitle": "Allocation, consumption and remaining envelope.",
+  "year": "Year",
+  "kpi": {
+    "allocated": "Allocated",
+    "engaged": "Engaged",
+    "realized": "Spent",
+    "available": "Available"
+  },
+  "hero": {
+    "annual": "Annual budget {annee}",
+    "consumed": "spent",
+    "engaged": "engaged",
+    "available": "available",
+    "used": "used"
+  },
+  "queue": {
+    "title": "Allocations by agency",
+    "empty": "No allocation for this year.",
+    "columns": {
+      "departement": "Agency",
+      "allocated": "Allocated (XAF)",
+      "engaged": "Engaged",
+      "realized": "Spent",
+      "available": "Available",
+      "actions": ""
+    }
+  },
+  "new": {
+    "title": "Allocate budget",
+    "subtitle": "Set the envelope for the year.",
+    "submit": "Allocate",
+    "success": "Budget allocated.",
+    "fields": {
+      "annee": "Year",
+      "agencyId": "Agency (optional)",
+      "montantAlloue": "Amount allocated (XAF)"
+    }
+  },
+  "detail": {
+    "back": "Back",
+    "engageTitle": "Engage funds",
+    "realiseTitle": "Record spending",
+    "montantLabel": "Amount (XAF)",
+    "engageConfirm": "Engage",
+    "realiseConfirm": "Spend",
+    "engageSuccess": "Engagement recorded.",
+    "realiseSuccess": "Spending recorded."
+  }
+}
