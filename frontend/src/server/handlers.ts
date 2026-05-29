@@ -42,7 +42,12 @@ export function requirePermissionRoute<T>(
 ): Promise<Response> {
   const list = Array.isArray(required) ? required : [required];
   return authenticatedRoute(async (session) => {
-    const owned = new Set(session.user.permissions);
+    // Session permissions come scoped from KSM (e.g. "hrm:expense:read#ORGANIZATION:<uuid>").
+    // Compare on the bare code so a manage-foo grant matches a manage-foo gate
+    // regardless of scope.
+    const owned = new Set(
+      (session.user.permissions ?? []).map((p) => p.split("#")[0] ?? p),
+    );
     if (!list.some((perm) => owned.has(perm))) {
       return Response.json(
         {

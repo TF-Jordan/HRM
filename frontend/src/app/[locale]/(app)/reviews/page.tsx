@@ -2,6 +2,7 @@ import { setRequestLocale } from "next-intl/server";
 import { redirect } from "next/navigation";
 
 import { ReviewsQueue } from "@/components/reviews/reviews-queue";
+import { hasPermission } from "@/server/permissions";
 import { readSession } from "@/server/session";
 
 export default async function ReviewsIndexPage({ params }: PageProps<"/[locale]/reviews">) {
@@ -11,9 +12,6 @@ export default async function ReviewsIndexPage({ params }: PageProps<"/[locale]/
   const session = await readSession();
   if (!session) redirect("/login");
 
-  const canManage =
-    session.user.permissions.includes("hrm:review:manage") ||
-    session.user.permissions.includes("hrm:review:create");
-  if (!canManage) redirect("/reviews/mine");
+  if (!hasPermission(session, ["hrm:review:manage", "hrm:review:create"])) redirect("/reviews/mine");
   return <ReviewsQueue />;
 }

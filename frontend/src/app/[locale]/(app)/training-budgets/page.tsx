@@ -2,6 +2,7 @@ import { setRequestLocale } from "next-intl/server";
 import { redirect } from "next/navigation";
 
 import { BudgetOverview } from "@/components/budget/budget-overview";
+import { hasPermission } from "@/server/permissions";
 import { readSession } from "@/server/session";
 
 export default async function BudgetIndexPage({
@@ -12,8 +13,6 @@ export default async function BudgetIndexPage({
 
   const session = await readSession();
   if (!session) redirect("/login");
-  if (!session.user.permissions.includes("hrm:budget:read")) {
-    redirect("/dashboard");
-  }
+  if (!hasPermission(session, "hrm:budget:read")) redirect("/dashboard");
   return <BudgetOverview />;
 }

@@ -2,6 +2,7 @@ import { setRequestLocale } from "next-intl/server";
 import { redirect } from "next/navigation";
 
 import { NewReviewForm } from "@/components/reviews/new-review-form";
+import { hasPermission } from "@/server/permissions";
 import { readSession } from "@/server/session";
 
 export default async function NewReviewPage({ params }: PageProps<"/[locale]/reviews/new">) {
@@ -10,8 +11,6 @@ export default async function NewReviewPage({ params }: PageProps<"/[locale]/rev
 
   const session = await readSession();
   if (!session) redirect("/login");
-  if (!session.user.permissions.includes("hrm:review:create")) {
-    redirect("/reviews");
-  }
+  if (!hasPermission(session, "hrm:review:create")) redirect("/reviews");
   return <NewReviewForm />;
 }

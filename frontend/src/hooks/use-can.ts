@@ -10,10 +10,15 @@ import { useSession } from "@/components/providers/session-provider";
  * Permissions are also enforced server-side by KSM — this hook only governs UI
  * (hiding buttons / nav items / sections).
  */
+/** Strip the `#SCOPE:<id>` suffix KSM appends to scoped permissions. */
+function basePerm(p: string): string {
+  return p.split("#")[0] ?? p;
+}
+
 export function useCan(required: string | string[]): boolean {
   const { session } = useSession();
   if (!session) return false;
-  const owned = new Set(session.user.permissions ?? []);
+  const owned = new Set((session.user.permissions ?? []).map(basePerm));
   const list = Array.isArray(required) ? required : [required];
   return list.some((perm) => owned.has(perm));
 }
@@ -22,7 +27,7 @@ export function useCan(required: string | string[]): boolean {
 export function useCanAll(required: string[]): boolean {
   const { session } = useSession();
   if (!session) return false;
-  const owned = new Set(session.user.permissions ?? []);
+  const owned = new Set((session.user.permissions ?? []).map(basePerm));
   return required.every((perm) => owned.has(perm));
 }
 

@@ -2,6 +2,7 @@ import { setRequestLocale } from "next-intl/server";
 import { redirect } from "next/navigation";
 
 import { NewBudgetForm } from "@/components/budget/new-budget-form";
+import { hasPermission } from "@/server/permissions";
 import { readSession } from "@/server/session";
 
 export default async function NewBudgetPage({
@@ -12,8 +13,6 @@ export default async function NewBudgetPage({
 
   const session = await readSession();
   if (!session) redirect("/login");
-  if (!session.user.permissions.includes("hrm:budget:create")) {
-    redirect("/training-budgets");
-  }
+  if (!hasPermission(session, "hrm:budget:create")) redirect("/training-budgets");
   return <NewBudgetForm />;
 }

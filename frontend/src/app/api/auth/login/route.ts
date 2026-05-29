@@ -56,10 +56,12 @@ export async function POST(request: NextRequest) {
     });
 
     const appSession = buildSessionFromContextual(contextual);
-    // Fallback workspace: for TENANT-scoped users (e.g. SUPER_ADMIN) the discovery
-    // payload does not always carry an explicit organization. Pick the first
-    // organization in the tenant so the user lands directly on the HRM surface
-    // instead of getting ORGANIZATION_CONTEXT_REQUIRED on the first HRM call.
+    // Fallback workspace resolution: the discovery payload only carries an
+    // explicit organization when the user holds a business_actor_profile in
+    // that org. For scoped-only users (e.g. EMPLOYEE in org X) we still know
+    // the org because every granted permission ends with
+    // `#ORGANIZATION:<uuid>`. Try the catalog API first (works for tenant
+    // admins), then fall back to parsing scoped permissions.
     if (!appSession.workspace?.organizationId) {
       try {
         const orgs = await callKsm<
@@ -74,7 +76,18 @@ export async function POST(request: NextRequest) {
           };
         }
       } catch {
-        // Non-fatal: user can still land on dashboard and pick a workspace later.
+        // Catalog not accessible — fall through to permission-scope parsing.
+      }
+    }
+    if (!appSession.workspace?.organizationId) {
+      const orgIdFromPerms = (appSession.user.permissions ?? [])
+        .map((p) => /#ORGANIZATION:([0-9a-f-]{36})/.exec(p)?.[1])
+        .find((id): id is string => !!id);
+      if (orgIdFromPerms) {
+        appSession.workspace = {
+          tenantId: appSession.user.tenantId,
+          organizationId: orgIdFromPerms,
+        };
       }
     }
     await writeSession(appSession);
