@@ -1,5 +1,7 @@
 package yowyob.comops.api.hrm.application.port.in;
 
+import java.util.UUID;
+
 public record UpdateEmployeeCommand(
         String numCnps,
         int categorie,
@@ -8,5 +10,6 @@ public record UpdateEmployeeCommand(
         String modePaiement,
         String compteBancaire,
         String numMobileMoney,
-        String operateurMm) {
+        String operateurMm,
+        UUID managerId) {
 }

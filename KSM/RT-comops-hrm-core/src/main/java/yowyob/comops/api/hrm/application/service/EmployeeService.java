@@ -4,14 +4,17 @@ import org.springframework.context.annotation.Profile;
 import yowyob.comops.api.hrm.application.port.in.AddContractCommand;
 import yowyob.comops.api.hrm.application.port.in.AddDependentCommand;
 import yowyob.comops.api.hrm.application.port.in.CreateEmployeeCommand;
+import yowyob.comops.api.hrm.application.port.in.EmployeeProfile;
 import yowyob.comops.api.hrm.application.port.in.ManageEmployeeUseCase;
 import yowyob.comops.api.hrm.application.port.in.TerminateEmployeeCommand;
+import yowyob.comops.api.hrm.application.port.in.TimelineEvent;
 import yowyob.comops.api.hrm.application.port.in.UpdateEmployeeCommand;
 import yowyob.comops.api.hrm.application.port.out.ActorPort;
 import yowyob.comops.api.hrm.application.port.out.ContractRepository;
 import yowyob.comops.api.hrm.application.port.out.DependentRepository;
 import yowyob.comops.api.hrm.application.port.out.EmployeeRepository;
 import yowyob.comops.api.hrm.application.port.out.LeaveBalanceRepository;
+import yowyob.comops.api.hrm.application.port.out.PerformanceReviewRepository;
 import yowyob.comops.api.hrm.application.port.out.SettingsPort;
 import yowyob.comops.api.hrm.application.port.out.ThirdPartyProfilePort;
 import yowyob.comops.api.hrm.domain.ActorNotFoundException;
@@ -30,6 +33,8 @@ import yowyob.comops.api.kernel.application.service.ReactiveRequestContextHolder
 import yowyob.comops.api.kernel.domain.model.BusinessEvent;
 
 import java.time.LocalDate;
+import java.time.ZoneOffset;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -46,6 +51,7 @@ public class EmployeeService implements ManageEmployeeUseCase {
     private final ContractRepository contractRepository;
     private final DependentRepository dependentRepository;
     private final LeaveBalanceRepository leaveBalanceRepository;
+    private final PerformanceReviewRepository performanceReviewRepository;
     private final ActorPort actorPort;
     private final SettingsPort settingsPort;
     private final ThirdPartyProfilePort thirdPartyProfilePort;
@@ -53,6 +59,7 @@ public class EmployeeService implements ManageEmployeeUseCase {
 
     public EmployeeService(EmployeeRepository employeeRepository, ContractRepository contractRepository,
                            DependentRepository dependentRepository, LeaveBalanceRepository leaveBalanceRepository,
+                           PerformanceReviewRepository performanceReviewRepository,
                            ActorPort actorPort, SettingsPort settingsPort,
                            ThirdPartyProfilePort thirdPartyProfilePort,
                            BusinessEventPublisher businessEventPublisher) {
@@ -60,6 +67,7 @@ public class EmployeeService implements ManageEmployeeUseCase {
         this.contractRepository = contractRepository;
         this.dependentRepository = dependentRepository;
         this.leaveBalanceRepository = leaveBalanceRepository;
+        this.performanceReviewRepository = performanceReviewRepository;
         this.actorPort = actorPort;
         this.settingsPort = settingsPort;
         this.thirdPartyProfilePort = thirdPartyProfilePort;
@@ -79,7 +87,7 @@ public class EmployeeService implements ManageEmployeeUseCase {
                                                 .flatMap(matricule -> {
                                                     Employee employee = Employee.hire(
                                                             context.tenantId(), context.organizationId(), context.agencyId(),
-                                                            command.actorId(), matricule, command.numCnps(),
+                                                            command.actorId(), command.managerId(), matricule, command.numCnps(),
                                                             command.categorie(), command.echelon(),
                                                             command.dateEmbauche(), command.departmentCode(),
                                                             PaymentChannel.valueOf(command.modePaiement()),
@@ -126,7 +134,8 @@ public class EmployeeService implements ManageEmployeeUseCase {
                                 command.numCnps(), command.categorie(), command.echelon(),
                                 command.departmentCode(), PaymentChannel.valueOf(command.modePaiement()),
                                 command.compteBancaire(), command.numMobileMoney(),
-                                command.operateurMm() != null ? MobileOperator.valueOf(command.operateurMm()) : null))
+                                command.operateurMm() != null ? MobileOperator.valueOf(command.operateurMm()) : null,
+                                command.managerId()))
                         .flatMap(employeeRepository::save)
                         .flatMap(saved -> businessEventPublisher.publish(
                                 BusinessEvent.now(context.tenantId(), context.organizationId(),
@@ -169,6 +178,56 @@ public class EmployeeService implements ManageEmployeeUseCase {
         return ReactiveRequestContextHolder.getRequiredContext()
                 .flatMap(context -> employeeRepository.findById(context.tenantId(), employeeId)
                         .switchIfEmpty(Mono.error(new EmployeeNotFoundException(employeeId))));
+    }
+
+    @Override
+    public Mono<EmployeeProfile> getEmployeeProfile(UUID employeeId) {
+        return ReactiveRequestContextHolder.getRequiredContext()
+                .flatMap(context -> employeeRepository.findById(context.tenantId(), employeeId)
+                        .switchIfEmpty(Mono.error(new EmployeeNotFoundException(employeeId)))
+                        .flatMap(employee -> {
+                            UUID tenantId = context.tenantId();
+                            Mono<ActorPort.ActorInfo> actorMono = actorPort.resolveActor(tenantId, employee.actorId())
+                                    .switchIfEmpty(Mono.fromSupplier(() ->
+                                            ActorPort.ActorInfo.of(employee.actorId(), employee.actorDisplayName())));
+                            Mono<String> managerNameMono = employee.managerId() == null
+                                    ? Mono.just("")
+                                    : employeeRepository.findById(tenantId, employee.managerId())
+                                            .flatMap(manager -> actorPort.resolveActor(tenantId, manager.actorId())
+                                                    .map(ActorPort.ActorInfo::displayName)
+                                                    .defaultIfEmpty(manager.actorDisplayName() != null
+                                                            ? manager.actorDisplayName() : ""))
+                                            .defaultIfEmpty("");
+                            return Mono.zip(actorMono, managerNameMono)
+                                    .map(tuple -> new EmployeeProfile(employee, tuple.getT1(),
+                                            tuple.getT2().isEmpty() ? null : tuple.getT2()));
+                        }));
+    }
+
+    @Override
+    public Flux<TimelineEvent> getEmployeeTimeline(UUID employeeId) {
+        return ReactiveRequestContextHolder.getRequiredContext()
+                .flatMapMany(context -> {
+                    UUID tenantId = context.tenantId();
+                    return employeeRepository.findById(tenantId, employeeId)
+                            .switchIfEmpty(Mono.error(new EmployeeNotFoundException(employeeId)))
+                            .flatMapMany(employee -> {
+                                Flux<TimelineEvent> hire = Flux.just(new TimelineEvent(
+                                        "HIRE", employee.dateEmbauche(), "Embauche",
+                                        "Matricule " + employee.matricule()));
+                                Flux<TimelineEvent> contracts = contractRepository.findByEmployeeId(tenantId, employeeId)
+                                        .map(c -> new TimelineEvent("CONTRACT", c.dateDebut(),
+                                                "Contrat " + c.type().name(),
+                                                "Statut " + c.status().name()));
+                                Flux<TimelineEvent> reviews = performanceReviewRepository.findByEmployeeId(tenantId, employeeId)
+                                        .map(r -> new TimelineEvent("REVIEW",
+                                                r.createdAt().atZone(ZoneOffset.UTC).toLocalDate(),
+                                                "Evaluation " + r.periode(),
+                                                "Statut " + r.status().name()));
+                                return Flux.concat(hire, contracts, reviews);
+                            })
+                            .sort(Comparator.comparing(TimelineEvent::date).reversed());
+                });
     }
 
     @Override

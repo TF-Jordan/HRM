@@ -5,9 +5,12 @@ import yowyob.comops.api.common.domain.model.ApiResponse;
 import yowyob.comops.api.hrm.application.port.in.AddContractCommand;
 import yowyob.comops.api.hrm.application.port.in.AddDependentCommand;
 import yowyob.comops.api.hrm.application.port.in.CreateEmployeeCommand;
+import yowyob.comops.api.hrm.application.port.in.EmployeeProfile;
 import yowyob.comops.api.hrm.application.port.in.ManageEmployeeUseCase;
 import yowyob.comops.api.hrm.application.port.in.TerminateEmployeeCommand;
+import yowyob.comops.api.hrm.application.port.in.TimelineEvent;
 import yowyob.comops.api.hrm.application.port.in.UpdateEmployeeCommand;
+import yowyob.comops.api.hrm.application.port.out.ActorPort;
 import yowyob.comops.api.hrm.domain.model.Contract;
 import yowyob.comops.api.hrm.domain.model.Dependent;
 import yowyob.comops.api.hrm.domain.model.Employee;
@@ -61,6 +64,25 @@ public class EmployeeController {
         return manageEmployeeUseCase.getEmployee(employeeId)
                 .map(EmployeeResponse::from)
                 .map(response -> ResponseEntity.ok(ApiResponse.success(response, "Employee fetched.")));
+    }
+
+    @GetMapping("/{employeeId}/profile")
+    @PreAuthorize("@businessAccessPolicy.hasPermission(authentication, 'hrm:employee:read')")
+    public Mono<ResponseEntity<ApiResponse<EmployeeProfileResponse>>> getEmployeeProfile(
+            @PathVariable UUID employeeId) {
+        return manageEmployeeUseCase.getEmployeeProfile(employeeId)
+                .map(EmployeeProfileResponse::from)
+                .map(response -> ResponseEntity.ok(ApiResponse.success(response, "Employee profile fetched.")));
+    }
+
+    @GetMapping("/{employeeId}/timeline")
+    @PreAuthorize("@businessAccessPolicy.hasPermission(authentication, 'hrm:employee:read')")
+    public Mono<ResponseEntity<ApiResponse<List<TimelineEventResponse>>>> getEmployeeTimeline(
+            @PathVariable UUID employeeId) {
+        return manageEmployeeUseCase.getEmployeeTimeline(employeeId)
+                .map(TimelineEventResponse::from)
+                .collectList()
+                .map(list -> ResponseEntity.ok(ApiResponse.success(list, "Employee timeline fetched.")));
     }
 
     @GetMapping
@@ -167,22 +189,22 @@ public class EmployeeController {
 
     // --- Request/Response DTOs ---
 
-    public record CreateEmployeeRequest(UUID actorId, String numCnps, int categorie, String echelon,
+    public record CreateEmployeeRequest(UUID actorId, UUID managerId, String numCnps, int categorie, String echelon,
             LocalDate dateEmbauche, String departmentCode, String modePaiement, String compteBancaire,
             String numMobileMoney, String operateurMm, String contractType, LocalDate contractDateDebut,
             LocalDate contractDateFin, BigDecimal salaireBase, BigDecimal avantagesNature, Integer periodeEssai) {
         CreateEmployeeCommand toCommand() {
-            return new CreateEmployeeCommand(actorId, numCnps, categorie, echelon, dateEmbauche, departmentCode,
+            return new CreateEmployeeCommand(actorId, managerId, numCnps, categorie, echelon, dateEmbauche, departmentCode,
                     modePaiement, compteBancaire, numMobileMoney, operateurMm, contractType, contractDateDebut,
                     contractDateFin, salaireBase, avantagesNature, periodeEssai);
         }
     }
 
     public record UpdateEmployeeRequest(String numCnps, int categorie, String echelon, String departmentCode,
-            String modePaiement, String compteBancaire, String numMobileMoney, String operateurMm) {
+            String modePaiement, String compteBancaire, String numMobileMoney, String operateurMm, UUID managerId) {
         UpdateEmployeeCommand toCommand() {
             return new UpdateEmployeeCommand(numCnps, categorie, echelon, departmentCode, modePaiement,
-                    compteBancaire, numMobileMoney, operateurMm);
+                    compteBancaire, numMobileMoney, operateurMm, managerId);
         }
     }
 
@@ -207,13 +229,13 @@ public class EmployeeController {
         }
     }
 
-    public record EmployeeResponse(UUID id, UUID organizationId, UUID agencyId, UUID actorId, String matricule,
-            String numCnps, int categorie, String echelon, LocalDate dateEmbauche, String status,
+    public record EmployeeResponse(UUID id, UUID organizationId, UUID agencyId, UUID actorId, UUID managerId,
+            String matricule, String numCnps, int categorie, String echelon, LocalDate dateEmbauche, String status,
             String departmentCode, String modePaiement, String compteBancaire, String numMobileMoney,
             String operateurMm, String actorDisplayName) {
         static EmployeeResponse from(Employee e) {
-            return new EmployeeResponse(e.id(), e.organizationId(), e.agencyId(), e.actorId(), e.matricule(),
-                    e.numCnps(), e.categorie(), e.echelon(), e.dateEmbauche(), e.status().name(),
+            return new EmployeeResponse(e.id(), e.organizationId(), e.agencyId(), e.actorId(), e.managerId(),
+                    e.matricule(), e.numCnps(), e.categorie(), e.echelon(), e.dateEmbauche(), e.status().name(),
                     e.departmentCode(), e.modePaiement().name(), e.compteBancaire(), e.numMobileMoney(),
                     e.operateurMm() != null ? e.operateurMm().name() : null, e.actorDisplayName());
         }
@@ -242,6 +264,44 @@ public class EmployeeController {
         static LeaveBalanceResponse from(LeaveBalance lb) {
             return new LeaveBalanceResponse(lb.id(), lb.employeeId(), lb.type().name(), lb.acquis(), lb.pris(),
                     lb.soldeRestant(), lb.annee());
+        }
+    }
+
+    public record EmployeeProfileResponse(
+            UUID id, UUID organizationId, UUID agencyId, UUID actorId, UUID managerId,
+            String matricule, String numCnps, int categorie, String echelon,
+            LocalDate dateEmbauche, String status, String departmentCode,
+            String modePaiement, String compteBancaire, String numMobileMoney,
+            String operateurMm, String actorDisplayName,
+            String actorFirstName, String actorLastName, String actorEmail,
+            String actorPhoneNumber, String actorGender, String actorNationality,
+            LocalDate actorBirthDate, String actorPhotoUri,
+            String managerDisplayName) {
+        static EmployeeProfileResponse from(yowyob.comops.api.hrm.application.port.in.EmployeeProfile p) {
+            Employee e = p.employee();
+            yowyob.comops.api.hrm.application.port.out.ActorPort.ActorInfo a = p.actor();
+            return new EmployeeProfileResponse(
+                    e.id(), e.organizationId(), e.agencyId(), e.actorId(), e.managerId(),
+                    e.matricule(), e.numCnps(), e.categorie(), e.echelon(), e.dateEmbauche(),
+                    e.status().name(), e.departmentCode(),
+                    e.modePaiement().name(), e.compteBancaire(), e.numMobileMoney(),
+                    e.operateurMm() != null ? e.operateurMm().name() : null,
+                    e.actorDisplayName(),
+                    a != null ? a.firstName() : null,
+                    a != null ? a.lastName() : null,
+                    a != null ? a.email() : null,
+                    a != null ? a.phoneNumber() : null,
+                    a != null ? a.gender() : null,
+                    a != null ? a.nationality() : null,
+                    a != null ? a.birthDate() : null,
+                    a != null ? a.photoUri() : null,
+                    p.managerDisplayName());
+        }
+    }
+
+    public record TimelineEventResponse(String type, LocalDate date, String title, String detail) {
+        static TimelineEventResponse from(yowyob.comops.api.hrm.application.port.in.TimelineEvent e) {
+            return new TimelineEventResponse(e.type(), e.date(), e.title(), e.detail());
         }
     }
 }

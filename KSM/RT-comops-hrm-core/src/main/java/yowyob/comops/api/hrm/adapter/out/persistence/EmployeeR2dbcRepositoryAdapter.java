@@ -63,7 +63,7 @@ public class EmployeeR2dbcRepositoryAdapter implements EmployeeRepository {
 
     private EmployeeEntity toEntity(Employee e) {
         return new EmployeeEntity(e.id(), e.tenantId(), e.createdAt(), e.updatedAt(), e.organizationId(),
-                e.agencyId(), e.actorId(), e.matricule(), e.numCnps(), e.categorie(), e.echelon(),
+                e.agencyId(), e.actorId(), e.managerId(), e.matricule(), e.numCnps(), e.categorie(), e.echelon(),
                 e.dateEmbauche(), e.status().name(), e.departmentCode(), e.modePaiement().name(),
                 e.compteBancaire(), e.numMobileMoney(),
                 e.operateurMm() != null ? e.operateurMm().name() : null, e.actorDisplayName());
@@ -71,7 +71,7 @@ public class EmployeeR2dbcRepositoryAdapter implements EmployeeRepository {
 
     private Employee toDomain(EmployeeEntity e) {
         return Employee.rehydrate(e.id(), e.tenantId(), e.createdAt(), e.updatedAt(), e.organizationId(),
-                e.agencyId(), e.actorId(), e.matricule(), e.numCnps(), e.categorie(), e.echelon(),
+                e.agencyId(), e.actorId(), e.managerId(), e.matricule(), e.numCnps(), e.categorie(), e.echelon(),
                 e.dateEmbauche(), EmployeeStatus.valueOf(e.status()), e.departmentCode(),
                 PaymentChannel.valueOf(e.modePaiement()), e.compteBancaire(), e.numMobileMoney(),
                 e.operateurMm() != null ? MobileOperator.valueOf(e.operateurMm()) : null, e.actorDisplayName());

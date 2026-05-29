@@ -18,6 +18,7 @@ public record EmployeeEntity(
         UUID organizationId,
         UUID agencyId,
         UUID actorId,
+        UUID managerId,
         String matricule,
         String numCnps,
         int categorie,

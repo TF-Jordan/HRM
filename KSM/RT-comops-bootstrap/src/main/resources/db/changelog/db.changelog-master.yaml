@@ -207,3 +207,6 @@ databaseChangeLog:
   - include:
       file: releases/069-hrm-matricule-sequence.yaml
       relativeToChangelogFile: true
+  - include:
+      file: releases/070-hrm-employee-manager.yaml
+      relativeToChangelogFile: true

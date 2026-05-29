@@ -6,6 +6,7 @@ import java.util.UUID;
 
 public record CreateEmployeeCommand(
         UUID actorId,
+        UUID managerId,
         String numCnps,
         int categorie,
         String echelon,

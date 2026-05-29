@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 070-hrm-employee-manager
+      author: codex
+      changes:
+        - sqlFile:
+            path: db/r2dbc/V70__hrm_employee_manager.sql
+            relativeToChangelogFile: false

@@ -24,6 +24,10 @@ public interface ManageEmployeeUseCase {
 
     Mono<Employee> getEmployee(UUID employeeId);
 
+    Mono<EmployeeProfile> getEmployeeProfile(UUID employeeId);
+
+    Flux<TimelineEvent> getEmployeeTimeline(UUID employeeId);
+
     Flux<Employee> listEmployees(UUID organizationId, UUID agencyId);
 
     Mono<Contract> addContract(UUID employeeId, AddContractCommand command);
