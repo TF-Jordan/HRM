@@ -1,0 +1,60 @@
+{
+  "ucBadge": "UC-19/20 · Time",
+  "status": {
+    "DRAFT": "Draft",
+    "SUBMITTED": "Submitted",
+    "VALIDATED": "Validated"
+  },
+  "hours": {
+    "normales": "Regular hours",
+    "supplementaires": "Overtime hours",
+    "nuit": "Night hours",
+    "weekend": "Weekend hours",
+    "absences": "Unjustified absences",
+    "total": "Total hours"
+  },
+  "admin": {
+    "title": "Time & Attendance",
+    "subtitle": "Consolidate the organization's hours for payroll.",
+    "period": "Period",
+    "empty": "No timesheet for this period.",
+    "columns": {
+      "employee": "Employee",
+      "normales": "Regular",
+      "supp": "OT",
+      "nuit": "Night",
+      "weekend": "WE",
+      "absences": "Abs.",
+      "total": "Total",
+      "status": "Status"
+    }
+  },
+  "my": {
+    "title": "My time",
+    "subtitle": "Enter and submit your worked hours per month.",
+    "new": "New entry",
+    "empty": "No entry for this period.",
+    "noEmployee": "No employee record linked to your account. Contact your HR admin.",
+    "period": "Period"
+  },
+  "new": {
+    "title": "New time entry",
+    "subtitle": "Fill in your hours for the month. Cameroon public holidays are shown for reference.",
+    "fields": {
+      "periode": "Period (month)"
+    },
+    "submit": "Save draft",
+    "success": "Entry saved",
+    "holidaysHint": "Public holidays this month: {count}"
+  },
+  "detail": {
+    "title": "Time entry",
+    "actions": {
+      "submit": "Submit",
+      "validate": "Validate"
+    },
+    "submitSuccess": "Timesheet submitted",
+    "validateSuccess": "Timesheet validated",
+    "breakdown": "Hours breakdown"
+  }
+}
