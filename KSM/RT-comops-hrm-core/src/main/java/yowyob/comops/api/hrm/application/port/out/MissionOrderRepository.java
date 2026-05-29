@@ -17,4 +17,7 @@ public interface MissionOrderRepository {
 
     /** Every mission order of the tenant whose status matches the given value. */
     Flux<MissionOrder> findByStatus(UUID tenantId, String status);
+
+    /** Every mission order of the tenant, regardless of status. */
+    Flux<MissionOrder> findAll(UUID tenantId);
 }

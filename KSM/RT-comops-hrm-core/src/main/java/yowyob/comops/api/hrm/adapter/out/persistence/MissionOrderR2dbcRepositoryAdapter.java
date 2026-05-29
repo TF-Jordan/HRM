@@ -41,6 +41,11 @@ public class MissionOrderR2dbcRepositoryAdapter implements MissionOrderRepositor
         return repository.findAllByTenantIdAndStatus(tenantId, status).map(this::toDomain);
     }
 
+    @Override
+    public Flux<MissionOrder> findAll(UUID tenantId) {
+        return repository.findAllByTenantId(tenantId).map(this::toDomain);
+    }
+
     private MissionOrderEntity toEntity(MissionOrder o) {
         return new MissionOrderEntity(o.id(), o.tenantId(), o.createdAt(), o.updatedAt(),
                 o.employeeId(), o.destination(), o.objet(), o.dateDebut(), o.dateFin(),

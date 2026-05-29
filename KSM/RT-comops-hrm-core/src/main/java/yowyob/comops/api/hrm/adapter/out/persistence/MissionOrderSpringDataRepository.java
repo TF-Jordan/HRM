@@ -13,4 +13,6 @@ public interface MissionOrderSpringDataRepository extends ReactiveCrudRepository
     Flux<MissionOrderEntity> findAllByTenantIdAndEmployeeId(UUID tenantId, UUID employeeId);
 
     Flux<MissionOrderEntity> findAllByTenantIdAndStatus(UUID tenantId, String status);
+
+    Flux<MissionOrderEntity> findAllByTenantId(UUID tenantId);
 }

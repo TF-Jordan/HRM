@@ -108,9 +108,14 @@ public class MissionOrderController {
 
     @GetMapping
     @PreAuthorize("@businessAccessPolicy.hasPermission(authentication, 'hrm:mission:read')")
-    public Mono<ResponseEntity<ApiResponse<List<MissionOrderResponse>>>> listMissionOrders(@RequestParam UUID employeeId) {
-        return missionOrderUseCase.listMissionOrdersByEmployee(employeeId)
-                .map(MissionOrderResponse::from).collectList()
+    public Mono<ResponseEntity<ApiResponse<List<MissionOrderResponse>>>> listMissionOrders(
+            @RequestParam(required = false) UUID employeeId,
+            @RequestParam(required = false) UUID organizationId,
+            @RequestParam(required = false) String status) {
+        var flux = employeeId != null
+                ? missionOrderUseCase.listMissionOrdersByEmployee(employeeId)
+                : missionOrderUseCase.listMissionOrders(organizationId, status);
+        return flux.map(MissionOrderResponse::from).collectList()
                 .map(l -> ResponseEntity.ok(ApiResponse.success(l, "Mission orders fetched.")));
     }
 

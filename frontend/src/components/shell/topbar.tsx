@@ -1,21 +1,54 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import { Bell, HelpCircle, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { useSession } from "@/components/providers/session-provider";
 import { LocaleSwitcher } from "@/components/shell/locale-switcher";
 import { Avatar } from "@/components/ui/avatar";
+import { useCan } from "@/hooks/use-can";
+import { useRouter } from "@/i18n/navigation";
+import { apiFetch } from "@/lib/api-client";
 import { cn } from "@/lib/utils";
+
+type NotificationsPayload = {
+  total: number;
+  buckets: { pendingAcceptance: number; declined: number };
+};
 
 export interface TopbarProps {
   notificationsCount?: number;
 }
 
-export function Topbar({ notificationsCount = 0 }: TopbarProps) {
+export function Topbar({ notificationsCount }: TopbarProps) {
   const t = useTranslations("shell.topbar");
   const tUser = useTranslations("shell.user");
   const { session } = useSession();
+  const router = useRouter();
+  const canManage = useCan("hrm:mission:manage");
+  const canAccept = useCan("hrm:mission:accept");
+
+  const notif = useQuery({
+    queryKey: ["hrm", "notifications"],
+    queryFn: () => apiFetch<NotificationsPayload>("/api/hrm/notifications"),
+    enabled: !!session && (canAccept || canManage),
+    refetchInterval: 60_000,
+  });
+  const liveCount = notif.data?.total ?? 0;
+  const count = notificationsCount ?? liveCount;
+
+  function openNotifications() {
+    if (canManage && (notif.data?.buckets.declined ?? 0) > 0) {
+      router.push("/mission-orders?status=DECLINED");
+      return;
+    }
+    if (canAccept && (notif.data?.buckets.pendingAcceptance ?? 0) > 0) {
+      router.push("/mission-orders/mine");
+      return;
+    }
+    router.push(canManage ? "/mission-orders" : "/mission-orders/mine");
+  }
 
   return (
     <header
@@ -51,11 +84,17 @@ export function Topbar({ notificationsCount = 0 }: TopbarProps) {
       <button
         type="button"
         aria-label={t("notifications")}
+        onClick={openNotifications}
         className="relative grid h-[38px] w-[38px] place-items-center rounded-[11px] border border-line bg-white text-ink-2 shadow-xs-brand transition-all duration-200 hover:-translate-y-px hover:border-line-strong hover:text-ink hover:shadow-sm-brand"
       >
         <Bell className="h-[18px] w-[18px]" />
-        {notificationsCount > 0 && (
-          <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-orange-500 ring-2 ring-white shadow-[0_0_0_2px_rgba(242,107,15,0.25)]" />
+        {count > 0 && (
+          <>
+            <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-orange-500 ring-2 ring-white shadow-[0_0_0_2px_rgba(242,107,15,0.25)]" />
+            <span className="absolute -right-1 -top-1 inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-grad-orange px-1 text-[10px] font-bold text-white shadow-orange-brand">
+              {count > 99 ? "99+" : count}
+            </span>
+          </>
         )}
       </button>
 

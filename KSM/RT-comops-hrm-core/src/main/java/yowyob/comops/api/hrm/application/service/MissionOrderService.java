@@ -144,6 +144,14 @@ public class MissionOrderService implements ManageMissionOrderUseCase {
     }
 
     @Override
+    public Flux<MissionOrder> listMissionOrders(UUID organizationId, String status) {
+        return ReactiveRequestContextHolder.getRequiredContext()
+                .flatMapMany(ctx -> status == null || status.isBlank()
+                        ? missionOrderRepository.findAll(ctx.tenantId())
+                        : missionOrderRepository.findByStatus(ctx.tenantId(), status));
+    }
+
+    @Override
     public Flux<MissionOrder> listPendingAcceptance(UUID organizationId) {
         return ReactiveRequestContextHolder.getRequiredContext()
                 .flatMapMany(ctx -> missionOrderRepository.findByStatus(ctx.tenantId(),

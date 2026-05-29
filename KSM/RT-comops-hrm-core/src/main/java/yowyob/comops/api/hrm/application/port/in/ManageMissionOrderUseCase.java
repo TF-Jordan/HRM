@@ -34,6 +34,12 @@ public interface ManageMissionOrderUseCase {
     Flux<MissionOrder> listMissionOrdersByEmployee(UUID employeeId);
 
     /**
+     * Org-wide list of every mission order in the tenant. When {@code status}
+     * is null all statuses are returned, otherwise only the matching ones.
+     */
+    Flux<MissionOrder> listMissionOrders(UUID organizationId, String status);
+
+    /**
      * Returns every mission order in the tenant currently awaiting employee
      * acceptance — used by the frontend to build in-app notifications.
      */
