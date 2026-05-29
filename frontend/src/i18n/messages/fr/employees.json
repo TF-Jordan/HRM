@@ -103,10 +103,38 @@
       "registered": "enregistrés"
     },
     "tabs": {
+      "overview": "Vue d'ensemble",
       "identity": "Identité",
       "contracts": "Contrats",
       "dependents": "Dépendants",
       "leaves": "Soldes congés"
+    },
+    "overview": {
+      "personalInfo": "Informations personnelles",
+      "personalEdit": "Modifier",
+      "fields": {
+        "firstName": "Prénom",
+        "lastName": "Nom",
+        "birthDate": "Date de naissance",
+        "gender": "Genre",
+        "nationality": "Nationalité",
+        "phone": "Téléphone",
+        "email": "Email perso.",
+        "bank": "Banque",
+        "mobileMoney": "Mobile money"
+      },
+      "timeline": "Chronologie de carrière",
+      "timelineEmpty": "Aucun événement enregistré.",
+      "hierarchy": "Hiérarchie",
+      "noManager": "Aucun manager assigné",
+      "managerLabel": "Manager direct",
+      "documents": "Documents",
+      "documentsComingSoon": "Bientôt — l'attachement de fichiers à un employé sera disponible avec la prochaine extension de file-core."
+    },
+    "eventType": {
+      "HIRE": "Embauche",
+      "CONTRACT": "Contrat",
+      "REVIEW": "Évaluation"
     },
     "actions": {
       "edit": "Modifier",

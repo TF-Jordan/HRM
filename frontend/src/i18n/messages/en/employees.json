@@ -103,10 +103,38 @@
       "registered": "registered"
     },
     "tabs": {
+      "overview": "Overview",
       "identity": "Identity",
       "contracts": "Contracts",
       "dependents": "Dependents",
       "leaves": "Leave balances"
+    },
+    "overview": {
+      "personalInfo": "Personal information",
+      "personalEdit": "Edit",
+      "fields": {
+        "firstName": "First name",
+        "lastName": "Last name",
+        "birthDate": "Date of birth",
+        "gender": "Gender",
+        "nationality": "Nationality",
+        "phone": "Phone",
+        "email": "Personal email",
+        "bank": "Bank",
+        "mobileMoney": "Mobile money"
+      },
+      "timeline": "Career timeline",
+      "timelineEmpty": "No event recorded yet.",
+      "hierarchy": "Hierarchy",
+      "noManager": "No manager assigned",
+      "managerLabel": "Direct manager",
+      "documents": "Documents",
+      "documentsComingSoon": "Coming soon — attaching files to an employee will be available with the next file-core extension."
+    },
+    "eventType": {
+      "HIRE": "Hire",
+      "CONTRACT": "Contract",
+      "REVIEW": "Performance review"
     },
     "actions": {
       "edit": "Edit",

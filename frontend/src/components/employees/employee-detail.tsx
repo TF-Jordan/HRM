@@ -42,7 +42,21 @@ import type {
   LeaveBalanceResponse,
 } from "@/server/ksm/modules/employees";
 
-type Tab = "identity" | "contracts" | "dependents" | "leaves";
+type Tab = "overview" | "contracts" | "dependents" | "leaves";
+
+import type {
+  EmployeeProfileResponse,
+  TimelineEventResponse,
+} from "@/server/ksm/modules/employee-profile";
+import {
+  Briefcase,
+  FileText,
+  GraduationCap,
+  Mail,
+  Phone,
+  Star,
+} from "lucide-react";
+import { formatDateLong } from "@/lib/format";
 
 export function EmployeeDetail({ employeeId }: { employeeId: string }) {
   const t = useTranslations("employees");
@@ -52,7 +66,7 @@ export function EmployeeDetail({ employeeId }: { employeeId: string }) {
   const tCommon = useTranslations("common");
   const tErrors = useTranslations("errors");
   const queryClient = useQueryClient();
-  const [tab, setTab] = React.useState<Tab>("identity");
+  const [tab, setTab] = React.useState<Tab>("overview");
   const [modal, setModal] = React.useState<null | "suspend" | "terminate" | "reactivate" | "addContract" | "addDependent">(null);
 
   const canSuspend = useCan("hrm:employee:suspend");
@@ -285,7 +299,7 @@ export function EmployeeDetail({ employeeId }: { employeeId: string }) {
 
       {/* Tabs */}
       <div className="mb-6 flex flex-wrap gap-2 border-b border-line-soft pb-2">
-        {(["identity", "contracts", "dependents", "leaves"] as const).map((tabKey) => (
+        {(["overview", "contracts", "dependents", "leaves"] as const).map((tabKey) => (
           <button
             key={tabKey}
             type="button"
@@ -301,7 +315,7 @@ export function EmployeeDetail({ employeeId }: { employeeId: string }) {
         ))}
       </div>
 
-      {tab === "identity" && <IdentityTab employee={e} />}
+      {tab === "overview" && <OverviewTab employeeId={employeeId} />}
       {tab === "contracts" && (
         <ContractsTab
           employeeId={employeeId}
@@ -982,6 +996,227 @@ function HeroTile({
         {value}
       </div>
       {unit && <div className="mt-0.5 text-[11px] text-ink-3">{unit}</div>}
+    </div>
+  );
+}
+
+/* ============================== Overview tab (design-faithful) ============================== */
+
+function OverviewTab({ employeeId }: { employeeId: string }) {
+  const t = useTranslations("employees");
+  const tOv = useTranslations("employees.detail.overview");
+  const tEvt = useTranslations("employees.detail.eventType");
+
+  const profileQ = useQuery({
+    queryKey: ["hrm", "employee", "profile", employeeId],
+    queryFn: () =>
+      apiFetch<EmployeeProfileResponse>(`/api/hrm/employees/${employeeId}/profile`),
+  });
+  const timelineQ = useQuery({
+    queryKey: ["hrm", "employee", "timeline", employeeId],
+    queryFn: () =>
+      apiFetch<TimelineEventResponse[]>(`/api/hrm/employees/${employeeId}/timeline`),
+  });
+
+  if (profileQ.isLoading) {
+    return (
+      <div className="grid place-items-center py-12">
+        <Loader2 className="h-7 w-7 animate-spin text-orange-500" />
+      </div>
+    );
+  }
+  const p = profileQ.data;
+  if (!p) return null;
+
+  const fields: Array<[string, React.ReactNode]> = [
+    [tOv("fields.firstName"), p.actorFirstName ?? "—"],
+    [tOv("fields.lastName"), p.actorLastName ?? "—"],
+    [
+      tOv("fields.birthDate"),
+      p.actorBirthDate ? formatDateLong(p.actorBirthDate, "fr") : "—",
+    ],
+    [tOv("fields.gender"), p.actorGender ?? "—"],
+    [tOv("fields.nationality"), p.actorNationality ?? "—"],
+    [tOv("fields.phone"), p.actorPhoneNumber ?? "—"],
+    [tOv("fields.email"), p.actorEmail ?? "—"],
+    [
+      tOv("fields.bank"),
+      p.compteBancaire ? `**** ${p.compteBancaire.slice(-4)}` : "—",
+    ],
+    [
+      tOv("fields.mobileMoney"),
+      p.numMobileMoney ? `${p.operateurMm ?? ""} · **${p.numMobileMoney.slice(-4)}` : "—",
+    ],
+  ];
+
+  const events = timelineQ.data ?? [];
+  const eventIcon = (type: string) => {
+    switch (type) {
+      case "HIRE":
+        return Briefcase;
+      case "REVIEW":
+        return Star;
+      case "CONTRACT":
+        return FileText;
+      default:
+        return GraduationCap;
+    }
+  };
+  const eventTone = (type: string) => {
+    switch (type) {
+      case "HIRE":
+        return "violet";
+      case "REVIEW":
+        return "success";
+      case "CONTRACT":
+        return "orange";
+      default:
+        return "info";
+    }
+  };
+
+  return (
+    <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
+      {/* Left column */}
+      <div className="flex flex-col gap-4">
+        {/* Personal info */}
+        <Card>
+          <div className="flex items-center justify-between border-b border-line-soft px-6 py-4">
+            <div className="text-[16px] font-bold tracking-tight text-ink">
+              {tOv("personalInfo")}
+            </div>
+          </div>
+          <CardContent padding="lg">
+            <dl className="grid grid-cols-1 gap-x-8 gap-y-4 md:grid-cols-3">
+              {fields.map(([label, value]) => (
+                <div key={label}>
+                  <Label className="text-[11px] uppercase tracking-[0.04em] text-ink-3">
+                    {label}
+                  </Label>
+                  <div className="mt-1 text-[13px] text-ink-2">{value}</div>
+                </div>
+              ))}
+            </dl>
+          </CardContent>
+        </Card>
+
+        {/* Timeline */}
+        <Card>
+          <div className="flex items-center justify-between border-b border-line-soft px-6 py-4">
+            <div className="text-[16px] font-bold tracking-tight text-ink">
+              {tOv("timeline")}
+            </div>
+          </div>
+          <CardContent padding="lg">
+            {events.length === 0 ? (
+              <p className="text-[13px] text-ink-3">{tOv("timelineEmpty")}</p>
+            ) : (
+              <div className="relative pl-2">
+                {events.map((ev, idx) => {
+                  const Icon = eventIcon(ev.type);
+                  return (
+                    <div
+                      key={`${ev.type}-${ev.date}-${idx}`}
+                      className="relative flex items-start gap-3.5 pb-5"
+                    >
+                      {idx < events.length - 1 && (
+                        <span className="absolute left-[15px] top-[34px] bottom-0 w-px bg-line" />
+                      )}
+                      <IconTile icon={Icon} tone={eventTone(ev.type)} size="sm" />
+                      <div className="flex-1">
+                        <span className="font-mono-tabular text-[11px] uppercase tracking-wider text-ink-4">
+                          {formatDate(ev.date, { locale: "fr" })} ·{" "}
+                          {tEvt(ev.type as "HIRE" | "CONTRACT" | "REVIEW")}
+                        </span>
+                        <div className="mt-0.5 text-[13.5px] font-semibold text-ink">
+                          {ev.title}
+                        </div>
+                        {ev.detail && (
+                          <div className="mt-0.5 text-[12px] text-ink-3">{ev.detail}</div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Right column */}
+      <div className="flex flex-col gap-4">
+        {/* Hierarchy */}
+        <Card>
+          <CardContent padding="lg">
+            <div className="mb-3 text-[14px] font-bold tracking-tight text-ink">
+              {tOv("hierarchy")}
+            </div>
+            {p.managerDisplayName ? (
+              <div className="flex items-center gap-3 rounded-[10px] bg-bg-dim p-3">
+                <Avatar name={p.managerDisplayName} size="lg" tone="green" />
+                <div className="flex-1 min-w-0">
+                  <div className="truncate text-[13.5px] font-semibold text-ink">
+                    {p.managerDisplayName}
+                  </div>
+                  <div className="text-[11px] text-ink-3">{tOv("managerLabel")}</div>
+                </div>
+              </div>
+            ) : (
+              <div className="rounded-[10px] border border-line-soft bg-bg-soft px-3 py-2.5 text-[12.5px] text-ink-3">
+                {tOv("noManager")}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Quick contact card */}
+        {(p.actorEmail || p.actorPhoneNumber) && (
+          <Card>
+            <CardContent padding="lg">
+              <div className="mb-3 text-[14px] font-bold tracking-tight text-ink">
+                Contact
+              </div>
+              <div className="flex flex-col gap-2">
+                {p.actorEmail && (
+                  <div className="flex items-center gap-2.5 text-[13px] text-ink-2">
+                    <Mail className="h-4 w-4 text-ink-3" />
+                    <a
+                      href={`mailto:${p.actorEmail}`}
+                      className="break-all hover:text-orange-600"
+                    >
+                      {p.actorEmail}
+                    </a>
+                  </div>
+                )}
+                {p.actorPhoneNumber && (
+                  <div className="flex items-center gap-2.5 text-[13px] text-ink-2">
+                    <Phone className="h-4 w-4 text-ink-3" />
+                    <a
+                      href={`tel:${p.actorPhoneNumber}`}
+                      className="font-mono-tabular hover:text-orange-600"
+                    >
+                      {p.actorPhoneNumber}
+                    </a>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Documents — placeholder until file-core extension lands */}
+        <Card>
+          <CardContent padding="lg">
+            <div className="mb-3 text-[14px] font-bold tracking-tight text-ink">
+              {tOv("documents")}
+            </div>
+            <div className="rounded-[10px] border border-dashed border-line bg-bg-soft px-3 py-3 text-[12px] text-ink-3">
+              {tOv("documentsComingSoon")}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
