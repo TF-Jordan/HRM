@@ -57,6 +57,7 @@ import {
   Star,
 } from "lucide-react";
 import { formatDateLong } from "@/lib/format";
+import { EmployeeDocuments } from "@/components/employees/employee-documents";
 
 export function EmployeeDetail({ employeeId }: { employeeId: string }) {
   const t = useTranslations("employees");
@@ -1205,15 +1206,10 @@ function OverviewTab({ employeeId }: { employeeId: string }) {
           </Card>
         )}
 
-        {/* Documents — placeholder until file-core extension lands */}
+        {/* Documents — real upload + list via file-core's document-hub. */}
         <Card>
           <CardContent padding="lg">
-            <div className="mb-3 text-[14px] font-bold tracking-tight text-ink">
-              {tOv("documents")}
-            </div>
-            <div className="rounded-[10px] border border-dashed border-line bg-bg-soft px-3 py-3 text-[12px] text-ink-3">
-              {tOv("documentsComingSoon")}
-            </div>
+            <EmployeeDocuments employeeId={employeeId} />
           </CardContent>
         </Card>
       </div>

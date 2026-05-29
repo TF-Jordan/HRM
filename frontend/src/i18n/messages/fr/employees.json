@@ -129,7 +129,22 @@
       "noManager": "Aucun manager assigné",
       "managerLabel": "Manager direct",
       "documents": "Documents",
-      "documentsComingSoon": "Bientôt — l'attachement de fichiers à un employé sera disponible avec la prochaine extension de file-core."
+      "documentsEmpty": "Aucun document attaché.",
+      "documentsUpload": "Téléverser",
+      "documentsUploading": "Envoi…",
+      "documentsCategory": "Catégorie",
+      "documentsLabel": "Libellé (optionnel)",
+      "documentsSubmit": "Joindre",
+      "documentsCancel": "Annuler",
+      "documentsSuccess": "Document joint",
+      "documentCategories": {
+        "CONTRACT": "Contrat",
+        "ID": "Pièce d'identité",
+        "MEDICAL": "Médical",
+        "CV": "CV",
+        "DIPLOMA": "Diplôme",
+        "GENERAL": "Général"
+      }
     },
     "eventType": {
       "HIRE": "Embauche",

@@ -12,3 +12,6 @@ Thumbs.db
 
 # Logs
 *.log
+
+# file-core local storage
+KSM/data/

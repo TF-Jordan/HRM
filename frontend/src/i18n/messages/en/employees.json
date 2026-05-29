@@ -129,7 +129,22 @@
       "noManager": "No manager assigned",
       "managerLabel": "Direct manager",
       "documents": "Documents",
-      "documentsComingSoon": "Coming soon — attaching files to an employee will be available with the next file-core extension."
+      "documentsEmpty": "No document attached.",
+      "documentsUpload": "Upload",
+      "documentsUploading": "Uploading…",
+      "documentsCategory": "Category",
+      "documentsLabel": "Label (optional)",
+      "documentsSubmit": "Attach",
+      "documentsCancel": "Cancel",
+      "documentsSuccess": "Document attached",
+      "documentCategories": {
+        "CONTRACT": "Contract",
+        "ID": "ID document",
+        "MEDICAL": "Medical",
+        "CV": "Resume",
+        "DIPLOMA": "Diploma",
+        "GENERAL": "General"
+      }
     },
     "eventType": {
       "HIRE": "Hire",
