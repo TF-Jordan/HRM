@@ -1,0 +1,76 @@
+{
+  "ucBadge": "UC-09/10 · Leaves",
+  "status": {
+    "PENDING": "Pending",
+    "APPROVED": "Approved",
+    "REJECTED": "Rejected",
+    "CANCELLED": "Cancelled"
+  },
+  "queue": {
+    "title": "Pending leaves",
+    "subtitle": "Approval queue for managers and HR admins.",
+    "empty": "No pending request. 🎉",
+    "columns": {
+      "employee": "Employee",
+      "type": "Type",
+      "period": "Period",
+      "days": "Days",
+      "submitted": "Submitted",
+      "reason": "Reason"
+    }
+  },
+  "my": {
+    "title": "My leaves",
+    "subtitle": "Review your history and submit new requests.",
+    "new": "New request",
+    "empty": "No request yet. Click \"New request\" to start.",
+    "noEmployee": "No employee record linked to your account. Contact your HR admin.",
+    "columns": {
+      "type": "Type",
+      "period": "Period",
+      "days": "Days",
+      "status": "Status",
+      "submittedAt": "Submitted"
+    }
+  },
+  "new": {
+    "title": "New leave request",
+    "subtitle": "Double-check your dates before submission — your manager will review.",
+    "fields": {
+      "type": "Leave type",
+      "dateDebut": "Start date",
+      "dateFin": "End date",
+      "motif": "Reason (optional)",
+      "duration": "Duration (working days)"
+    },
+    "submit": "Submit request",
+    "success": "Request submitted",
+    "hint": "Saturdays, Sundays and Cameroon public holidays are automatically excluded."
+  },
+  "detail": {
+    "title": "Leave request",
+    "submittedBy": "Submitted by",
+    "validatedBy": "Reviewer",
+    "validatedAt": "Reviewed at",
+    "comment": "Reviewer comment",
+    "actions": {
+      "approve": "Approve",
+      "reject": "Reject",
+      "cancel": "Cancel request"
+    },
+    "reject": {
+      "title": "Reject request",
+      "subtitle": "Provide a clear reason — it will be sent to the employee.",
+      "comment": "Comment",
+      "confirm": "Reject"
+    },
+    "cancel": {
+      "title": "Cancel request",
+      "subtitle": "This is permanent. The leave balance will not be debited.",
+      "confirm": "Cancel request"
+    },
+    "approveSuccess": "Request approved",
+    "rejectSuccess": "Request rejected",
+    "cancelSuccess": "Request cancelled"
+  }
+}

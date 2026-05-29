@@ -1,0 +1,76 @@
+{
+  "ucBadge": "UC-09/10 · Congés",
+  "status": {
+    "PENDING": "En attente",
+    "APPROVED": "Approuvé",
+    "REJECTED": "Rejeté",
+    "CANCELLED": "Annulé"
+  },
+  "queue": {
+    "title": "Congés en attente",
+    "subtitle": "File d'approbation pour les managers et l'administration RH.",
+    "empty": "Aucune demande en attente. 🎉",
+    "columns": {
+      "employee": "Employé",
+      "type": "Type",
+      "period": "Période",
+      "days": "Jours",
+      "submitted": "Soumise le",
+      "reason": "Motif"
+    }
+  },
+  "my": {
+    "title": "Mes congés",
+    "subtitle": "Consultez votre historique et soumettez vos demandes.",
+    "new": "Nouvelle demande",
+    "empty": "Aucune demande pour l'instant. Cliquez sur \"Nouvelle demande\" pour commencer.",
+    "noEmployee": "Aucune fiche employé associée à votre compte. Contactez votre administrateur RH.",
+    "columns": {
+      "type": "Type",
+      "period": "Période",
+      "days": "Jours",
+      "status": "Statut",
+      "submittedAt": "Soumis le"
+    }
+  },
+  "new": {
+    "title": "Nouvelle demande de congé",
+    "subtitle": "Vérifiez vos dates avant soumission — la demande sera examinée par votre manager.",
+    "fields": {
+      "type": "Type de congé",
+      "dateDebut": "Date de début",
+      "dateFin": "Date de fin",
+      "motif": "Motif (facultatif)",
+      "duration": "Durée (jours ouvrables)"
+    },
+    "submit": "Soumettre la demande",
+    "success": "Demande soumise",
+    "hint": "Les samedis, dimanches et jours fériés camerounais sont automatiquement exclus du décompte."
+  },
+  "detail": {
+    "title": "Demande de congé",
+    "submittedBy": "Demandeur",
+    "validatedBy": "Validateur",
+    "validatedAt": "Validation",
+    "comment": "Commentaire du validateur",
+    "actions": {
+      "approve": "Approuver",
+      "reject": "Rejeter",
+      "cancel": "Annuler la demande"
+    },
+    "reject": {
+      "title": "Rejeter la demande",
+      "subtitle": "Saisissez un motif clair, il sera communiqué à l'employé.",
+      "comment": "Commentaire",
+      "confirm": "Rejeter"
+    },
+    "cancel": {
+      "title": "Annuler la demande",
+      "subtitle": "Cette action est définitive. Le solde de congés ne sera pas débité.",
+      "confirm": "Annuler la demande"
+    },
+    "approveSuccess": "Demande approuvée",
+    "rejectSuccess": "Demande rejetée",
+    "cancelSuccess": "Demande annulée"
+  }
+}
