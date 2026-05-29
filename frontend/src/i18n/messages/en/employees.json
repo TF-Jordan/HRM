@@ -100,7 +100,12 @@
       "leaveBalance": "Leave balance",
       "daysUnit": "days",
       "acquired": "acquired",
-      "registered": "registered"
+      "registered": "registered",
+      "performance": "Performance",
+      "noReview": "No review yet",
+      "trainings": "Trainings",
+      "completed": "completed",
+      "ongoing": "ongoing"
     },
     "tabs": {
       "overview": "Overview",
@@ -128,6 +133,9 @@
       "hierarchy": "Hierarchy",
       "noManager": "No manager assigned",
       "managerLabel": "Direct manager",
+      "skills": "Key skills",
+      "skillsEmpty": "No skill assessed yet.",
+      "skillTarget": "target",
       "documents": "Documents",
       "documentsEmpty": "No document attached.",
       "documentsUpload": "Upload",

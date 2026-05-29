@@ -100,7 +100,12 @@
       "leaveBalance": "Solde congés",
       "daysUnit": "jours",
       "acquired": "acquis",
-      "registered": "enregistrés"
+      "registered": "enregistrés",
+      "performance": "Performance",
+      "noReview": "Aucune évaluation",
+      "trainings": "Formations",
+      "completed": "complétées",
+      "ongoing": "en cours"
     },
     "tabs": {
       "overview": "Vue d'ensemble",
@@ -128,6 +133,9 @@
       "hierarchy": "Hiérarchie",
       "noManager": "Aucun manager assigné",
       "managerLabel": "Manager direct",
+      "skills": "Compétences clés",
+      "skillsEmpty": "Aucune compétence évaluée.",
+      "skillTarget": "attendu",
       "documents": "Documents",
       "documentsEmpty": "Aucun document attaché.",
       "documentsUpload": "Téléverser",

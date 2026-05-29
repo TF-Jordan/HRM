@@ -58,6 +58,7 @@ import {
 } from "lucide-react";
 import { formatDateLong } from "@/lib/format";
 import { EmployeeDocuments } from "@/components/employees/employee-documents";
+import { EmployeeSkills } from "@/components/employees/employee-skills";
 
 export function EmployeeDetail({ employeeId }: { employeeId: string }) {
   const t = useTranslations("employees");
@@ -102,6 +103,35 @@ export function EmployeeDetail({ employeeId }: { employeeId: string }) {
 
   const activeContract = (heroContracts.data ?? []).find((c) => c.status === "ACTIVE");
   const annualBalance = (heroBalances.data ?? []).find((b) => b.type === "ANNUAL");
+
+  // Performance + trainings tiles (design hero) — gated by permission so roles
+  // without review/training read access don't trigger 403s.
+  const canReadReviews = useCan("hrm:review:read");
+  const canReadTrainings = useCan("hrm:training:read");
+  const heroReviews = useQuery({
+    queryKey: ["hrm", "employee", "reviews", employeeId],
+    enabled: canReadReviews,
+    queryFn: () =>
+      apiFetch<{ noteGlobale?: number | string | null; periode: string; status: string }[]>(
+        `/api/hrm/employees/${employeeId}/reviews`,
+      ),
+  });
+  const heroEnrollments = useQuery({
+    queryKey: ["hrm", "employee", "enrollments", employeeId],
+    enabled: canReadTrainings,
+    queryFn: () =>
+      apiFetch<{ status: string }[]>(`/api/hrm/employees/${employeeId}/enrollments`),
+  });
+
+  const latestReview = (heroReviews.data ?? [])
+    .filter((r) => r.noteGlobale != null)
+    .at(-1);
+  const completedTrainings = (heroEnrollments.data ?? []).filter(
+    (e) => e.status === "COMPLETED",
+  ).length;
+  const ongoingTrainings = (heroEnrollments.data ?? []).filter(
+    (e) => e.status === "ENROLLED",
+  ).length;
 
   const invalidate = React.useCallback(() => {
     queryClient.invalidateQueries({ queryKey: ["hrm", "employee", employeeId] });
@@ -286,14 +316,18 @@ export function EmployeeDetail({ employeeId }: { employeeId: string }) {
             }
           />
           <HeroTile
-            label={tDetail("tabs.contracts")}
-            value={String((heroContracts.data ?? []).length)}
-            unit={activeContract ? t(`contractType.${activeContract.type}`) : "—"}
+            label={tHero("performance")}
+            value={latestReview?.noteGlobale != null ? Number(latestReview.noteGlobale).toFixed(1) : "—"}
+            unit={latestReview ? `/ 5 · ${latestReview.periode}` : tHero("noReview")}
           />
           <HeroTile
-            label={tDetail("tabs.dependents")}
-            value={String((heroDependents.data ?? []).length)}
-            unit={tHero("registered")}
+            label={tHero("trainings")}
+            value={String(completedTrainings)}
+            unit={
+              ongoingTrainings > 0
+                ? `${tHero("completed")} · ${ongoingTrainings} ${tHero("ongoing")}`
+                : tHero("completed")
+            }
           />
         </div>
       </div>
@@ -1205,6 +1239,13 @@ function OverviewTab({ employeeId }: { employeeId: string }) {
             </CardContent>
           </Card>
         )}
+
+        {/* Key skills — level bars, design-faithful */}
+        <Card>
+          <CardContent padding="lg">
+            <EmployeeSkills employeeId={employeeId} />
+          </CardContent>
+        </Card>
 
         {/* Documents — real upload + list via file-core's document-hub. */}
         <Card>
