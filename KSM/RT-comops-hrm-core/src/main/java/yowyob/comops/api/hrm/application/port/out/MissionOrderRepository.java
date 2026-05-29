@@ -14,4 +14,7 @@ public interface MissionOrderRepository {
     Mono<MissionOrder> findById(UUID tenantId, UUID missionOrderId);
 
     Flux<MissionOrder> findByEmployeeId(UUID tenantId, UUID employeeId);
+
+    /** Every mission order of the tenant whose status matches the given value. */
+    Flux<MissionOrder> findByStatus(UUID tenantId, String status);
 }

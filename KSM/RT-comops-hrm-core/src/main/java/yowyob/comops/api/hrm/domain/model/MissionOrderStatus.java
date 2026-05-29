@@ -1,5 +1,11 @@
 package yowyob.comops.api.hrm.domain.model;
 
 public enum MissionOrderStatus {
-    DRAFT, APPROVED, IN_PROGRESS, COMPLETED, CANCELLED
+    DRAFT,
+    PENDING_ACCEPTANCE,
+    APPROVED,
+    DECLINED,
+    IN_PROGRESS,
+    COMPLETED,
+    CANCELLED
 }

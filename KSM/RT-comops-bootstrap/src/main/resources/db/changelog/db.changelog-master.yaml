@@ -210,3 +210,9 @@ databaseChangeLog:
   - include:
       file: releases/070-hrm-employee-manager.yaml
       relativeToChangelogFile: true
+  - include:
+      file: releases/071-hrm-mission-order-workflow.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: releases/072-hrm-mission-accept-permission.yaml
+      relativeToChangelogFile: true

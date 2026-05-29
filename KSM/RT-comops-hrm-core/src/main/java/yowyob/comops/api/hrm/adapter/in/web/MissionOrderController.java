@@ -2,12 +2,15 @@ package yowyob.comops.api.hrm.adapter.in.web;
 
 import org.springframework.context.annotation.Profile;
 import yowyob.comops.api.common.domain.model.ApiResponse;
+import yowyob.comops.api.hrm.application.port.in.AmendMissionOrderCommand;
 import yowyob.comops.api.hrm.application.port.in.CreateMissionOrderCommand;
 import yowyob.comops.api.hrm.application.port.in.ManageMissionOrderUseCase;
 import yowyob.comops.api.hrm.domain.model.MissionOrder;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
@@ -40,11 +43,39 @@ public class MissionOrderController {
                 .map(r -> ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(r, "Mission order created.")));
     }
 
-    @PutMapping("/{id}/approve")
+    @PutMapping("/{id}/issue")
     @PreAuthorize("@businessAccessPolicy.hasPermission(authentication, 'hrm:mission:manage')")
-    public Mono<ResponseEntity<ApiResponse<MissionOrderResponse>>> approveMissionOrder(@PathVariable UUID id) {
-        return missionOrderUseCase.approveMissionOrder(id).map(MissionOrderResponse::from)
-                .map(r -> ResponseEntity.ok(ApiResponse.success(r, "Mission order approved.")));
+    public Mono<ResponseEntity<ApiResponse<MissionOrderResponse>>> issueMissionOrder(@PathVariable UUID id) {
+        return missionOrderUseCase.issueMissionOrder(id).map(MissionOrderResponse::from)
+                .map(r -> ResponseEntity.ok(ApiResponse.success(r, "Mission order issued to employee.")));
+    }
+
+    @PutMapping("/{id}/accept")
+    @PreAuthorize("@businessAccessPolicy.hasPermission(authentication, 'hrm:mission:accept')")
+    public Mono<ResponseEntity<ApiResponse<MissionOrderResponse>>> acceptMissionOrder(@PathVariable UUID id) {
+        return missionOrderUseCase.acceptMissionOrder(id).map(MissionOrderResponse::from)
+                .map(r -> ResponseEntity.ok(ApiResponse.success(r, "Mission order accepted.")));
+    }
+
+    @PutMapping("/{id}/decline")
+    @PreAuthorize("@businessAccessPolicy.hasPermission(authentication, 'hrm:mission:accept')")
+    public Mono<ResponseEntity<ApiResponse<MissionOrderResponse>>> declineMissionOrder(
+            @PathVariable UUID id,
+            @Valid @RequestBody Mono<DeclineMissionOrderRequest> requestMono) {
+        return requestMono.flatMap(req -> missionOrderUseCase.declineMissionOrder(id, req.reason()))
+                .map(MissionOrderResponse::from)
+                .map(r -> ResponseEntity.ok(ApiResponse.success(r, "Mission order declined.")));
+    }
+
+    @PostMapping("/{id}/amend")
+    @PreAuthorize("@businessAccessPolicy.hasPermission(authentication, 'hrm:mission:manage')")
+    public Mono<ResponseEntity<ApiResponse<MissionOrderResponse>>> amendMissionOrder(
+            @PathVariable UUID id,
+            @Valid @RequestBody Mono<AmendMissionOrderRequest> requestMono) {
+        return requestMono.map(req -> req.toCommand(id))
+                .flatMap(missionOrderUseCase::amendMissionOrder)
+                .map(MissionOrderResponse::from)
+                .map(r -> ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(r, "Amendment created.")));
     }
 
     @PutMapping("/{id}/start")
@@ -83,6 +114,24 @@ public class MissionOrderController {
                 .map(l -> ResponseEntity.ok(ApiResponse.success(l, "Mission orders fetched.")));
     }
 
+    @GetMapping("/pending-acceptance")
+    @PreAuthorize("@businessAccessPolicy.hasPermission(authentication, 'hrm:mission:read')")
+    public Mono<ResponseEntity<ApiResponse<List<MissionOrderResponse>>>> listPendingAcceptance(
+            @RequestParam UUID organizationId) {
+        return missionOrderUseCase.listPendingAcceptance(organizationId)
+                .map(MissionOrderResponse::from).collectList()
+                .map(l -> ResponseEntity.ok(ApiResponse.success(l, "Mission orders pending acceptance fetched.")));
+    }
+
+    @GetMapping("/declined")
+    @PreAuthorize("@businessAccessPolicy.hasPermission(authentication, 'hrm:mission:read')")
+    public Mono<ResponseEntity<ApiResponse<List<MissionOrderResponse>>>> listDeclined(
+            @RequestParam UUID organizationId) {
+        return missionOrderUseCase.listDeclined(organizationId)
+                .map(MissionOrderResponse::from).collectList()
+                .map(l -> ResponseEntity.ok(ApiResponse.success(l, "Declined mission orders fetched.")));
+    }
+
     public record CreateMissionOrderRequest(UUID employeeId, String destination, String objet,
             LocalDate dateDebut, LocalDate dateFin, BigDecimal montantAvance, String centreCout) {
         CreateMissionOrderCommand toCommand() {
@@ -91,11 +140,24 @@ public class MissionOrderController {
         }
     }
 
+    public record DeclineMissionOrderRequest(@NotBlank String reason) {
+    }
+
+    public record AmendMissionOrderRequest(String destination, String objet,
+            LocalDate dateDebut, LocalDate dateFin, BigDecimal montantAvance, String centreCout) {
+        AmendMissionOrderCommand toCommand(UUID parentMissionOrderId) {
+            return new AmendMissionOrderCommand(parentMissionOrderId, destination, objet,
+                    dateDebut, dateFin, montantAvance, centreCout);
+        }
+    }
+
     public record MissionOrderResponse(UUID id, UUID employeeId, String destination, String objet,
-            LocalDate dateDebut, LocalDate dateFin, BigDecimal montantAvance, String centreCout, String status) {
+            LocalDate dateDebut, LocalDate dateFin, BigDecimal montantAvance, String centreCout,
+            String status, UUID parentOrderId, String decisionReason, Instant decidedAt) {
         static MissionOrderResponse from(MissionOrder o) {
             return new MissionOrderResponse(o.id(), o.employeeId(), o.destination(), o.objet(),
-                    o.dateDebut(), o.dateFin(), o.montantAvance(), o.centreCout(), o.status().name());
+                    o.dateDebut(), o.dateFin(), o.montantAvance(), o.centreCout(), o.status().name(),
+                    o.parentOrderId(), o.decisionReason(), o.decidedAt());
         }
     }
 }

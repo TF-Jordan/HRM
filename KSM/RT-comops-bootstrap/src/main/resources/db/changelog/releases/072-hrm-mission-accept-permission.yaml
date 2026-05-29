@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 072-hrm-mission-accept-permission
+      author: codex
+      changes:
+        - sqlFile:
+            path: db/r2dbc/V72__hrm_mission_accept_permission.sql
+            relativeToChangelogFile: false

@@ -23,5 +23,8 @@ public record MissionOrderEntity(
         LocalDate dateFin,
         BigDecimal montantAvance,
         String centreCout,
-        String status) implements PersistableEntity {
+        String status,
+        UUID parentOrderId,
+        String decisionReason,
+        Instant decidedAt) implements PersistableEntity {
 }

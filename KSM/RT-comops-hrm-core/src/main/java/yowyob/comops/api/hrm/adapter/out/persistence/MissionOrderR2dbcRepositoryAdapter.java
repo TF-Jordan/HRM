@@ -36,15 +36,22 @@ public class MissionOrderR2dbcRepositoryAdapter implements MissionOrderRepositor
         return repository.findAllByTenantIdAndEmployeeId(tenantId, employeeId).map(this::toDomain);
     }
 
+    @Override
+    public Flux<MissionOrder> findByStatus(UUID tenantId, String status) {
+        return repository.findAllByTenantIdAndStatus(tenantId, status).map(this::toDomain);
+    }
+
     private MissionOrderEntity toEntity(MissionOrder o) {
         return new MissionOrderEntity(o.id(), o.tenantId(), o.createdAt(), o.updatedAt(),
                 o.employeeId(), o.destination(), o.objet(), o.dateDebut(), o.dateFin(),
-                o.montantAvance(), o.centreCout(), o.status().name());
+                o.montantAvance(), o.centreCout(), o.status().name(),
+                o.parentOrderId(), o.decisionReason(), o.decidedAt());
     }
 
     private MissionOrder toDomain(MissionOrderEntity e) {
         return MissionOrder.rehydrate(e.id(), e.tenantId(), e.createdAt(), e.updatedAt(),
                 e.employeeId(), e.destination(), e.objet(), e.dateDebut(), e.dateFin(),
-                e.montantAvance(), e.centreCout(), MissionOrderStatus.valueOf(e.status()));
+                e.montantAvance(), e.centreCout(), MissionOrderStatus.valueOf(e.status()),
+                e.parentOrderId(), e.decisionReason(), e.decidedAt());
     }
 }

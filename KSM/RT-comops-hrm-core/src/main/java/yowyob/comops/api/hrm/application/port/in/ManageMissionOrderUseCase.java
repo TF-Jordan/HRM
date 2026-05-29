@@ -11,7 +11,17 @@ public interface ManageMissionOrderUseCase {
 
     Mono<MissionOrder> createMissionOrder(CreateMissionOrderCommand command);
 
-    Mono<MissionOrder> approveMissionOrder(UUID missionOrderId);
+    /** Manager issues a DRAFT order to the employee for acceptance. */
+    Mono<MissionOrder> issueMissionOrder(UUID missionOrderId);
+
+    /** Employee accepts a PENDING_ACCEPTANCE order. */
+    Mono<MissionOrder> acceptMissionOrder(UUID missionOrderId);
+
+    /** Employee declines a PENDING_ACCEPTANCE order with a mandatory reason. */
+    Mono<MissionOrder> declineMissionOrder(UUID missionOrderId, String reason);
+
+    /** Manager rebuilds a corrected order from a DECLINED parent. */
+    Mono<MissionOrder> amendMissionOrder(AmendMissionOrderCommand command);
 
     Mono<MissionOrder> startMissionOrder(UUID missionOrderId);
 
@@ -22,4 +32,16 @@ public interface ManageMissionOrderUseCase {
     Mono<MissionOrder> getMissionOrder(UUID missionOrderId);
 
     Flux<MissionOrder> listMissionOrdersByEmployee(UUID employeeId);
+
+    /**
+     * Returns every mission order in the tenant currently awaiting employee
+     * acceptance — used by the frontend to build in-app notifications.
+     */
+    Flux<MissionOrder> listPendingAcceptance(UUID organizationId);
+
+    /**
+     * Returns every mission order in the tenant that has been DECLINED so the
+     * manager can review and emit an amendment.
+     */
+    Flux<MissionOrder> listDeclined(UUID organizationId);
 }
