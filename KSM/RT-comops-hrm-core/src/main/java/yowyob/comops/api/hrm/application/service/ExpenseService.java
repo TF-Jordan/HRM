@@ -32,7 +32,7 @@ public class ExpenseService implements ManageExpenseUseCase {
         return ReactiveRequestContextHolder.getRequiredContext()
                 .flatMap(ctx -> {
                     ExpenseReport report = ExpenseReport.create(ctx.tenantId(), command.employeeId(),
-                            command.periode(), command.motif());
+                            command.periode(), command.motif(), command.missionOrderId());
                     return expenseReportRepository.save(report);
                 });
     }
@@ -86,6 +86,14 @@ public class ExpenseService implements ManageExpenseUseCase {
     public Flux<ExpenseReport> listExpenseReportsByEmployee(UUID employeeId) {
         return ReactiveRequestContextHolder.getRequiredContext()
                 .flatMapMany(ctx -> expenseReportRepository.findByEmployeeId(ctx.tenantId(), employeeId));
+    }
+
+    @Override
+    public Flux<ExpenseReport> listExpenseReports(UUID organizationId, String status) {
+        return ReactiveRequestContextHolder.getRequiredContext()
+                .flatMapMany(ctx -> status == null || status.isBlank()
+                        ? expenseReportRepository.findAll(ctx.tenantId())
+                        : expenseReportRepository.findByStatus(ctx.tenantId(), status));
     }
 
     @Override

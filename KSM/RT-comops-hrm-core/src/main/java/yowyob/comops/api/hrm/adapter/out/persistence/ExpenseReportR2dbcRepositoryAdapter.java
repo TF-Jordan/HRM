@@ -36,14 +36,25 @@ public class ExpenseReportR2dbcRepositoryAdapter implements ExpenseReportReposit
         return repository.findAllByTenantIdAndEmployeeId(tenantId, employeeId).map(this::toDomain);
     }
 
+    @Override
+    public Flux<ExpenseReport> findAll(UUID tenantId) {
+        return repository.findAllByTenantId(tenantId).map(this::toDomain);
+    }
+
+    @Override
+    public Flux<ExpenseReport> findByStatus(UUID tenantId, String status) {
+        return repository.findAllByTenantIdAndStatus(tenantId, status).map(this::toDomain);
+    }
+
     private ExpenseReportEntity toEntity(ExpenseReport r) {
         return new ExpenseReportEntity(r.id(), r.tenantId(), r.createdAt(), r.updatedAt(),
-                r.employeeId(), r.periode(), r.totalMontant(), r.motif(), r.status().name());
+                r.employeeId(), r.periode(), r.totalMontant(), r.motif(), r.status().name(),
+                r.missionOrderId());
     }
 
     private ExpenseReport toDomain(ExpenseReportEntity e) {
         return ExpenseReport.rehydrate(e.id(), e.tenantId(), e.createdAt(), e.updatedAt(),
                 e.employeeId(), e.periode(), e.totalMontant(), e.motif(),
-                ExpenseReportStatus.valueOf(e.status()));
+                ExpenseReportStatus.valueOf(e.status()), e.missionOrderId());
     }
 }

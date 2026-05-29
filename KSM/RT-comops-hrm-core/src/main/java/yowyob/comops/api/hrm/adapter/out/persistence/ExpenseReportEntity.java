@@ -19,5 +19,6 @@ public record ExpenseReportEntity(
         String periode,
         BigDecimal totalMontant,
         String motif,
-        String status) implements PersistableEntity {
+        String status,
+        UUID missionOrderId) implements PersistableEntity {
 }

@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 073-hrm-expense-mission-link
+      author: codex
+      changes:
+        - sqlFile:
+            path: db/r2dbc/V73__hrm_expense_mission_link.sql
+            relativeToChangelogFile: false

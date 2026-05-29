@@ -26,5 +26,12 @@ public interface ManageExpenseUseCase {
 
     Flux<ExpenseReport> listExpenseReportsByEmployee(UUID employeeId);
 
+    /**
+     * Org-wide list of expense reports in the tenant. When {@code status} is null
+     * all statuses are returned, otherwise only the matching ones. Used by the
+     * accountant / DAF validation queue.
+     */
+    Flux<ExpenseReport> listExpenseReports(UUID organizationId, String status);
+
     Flux<ExpenseLine> listExpenseLinesByReport(UUID expenseReportId);
 }

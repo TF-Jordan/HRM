@@ -11,4 +11,8 @@ public interface ExpenseReportSpringDataRepository extends ReactiveCrudRepositor
     Mono<ExpenseReportEntity> findByIdAndTenantId(UUID id, UUID tenantId);
 
     Flux<ExpenseReportEntity> findAllByTenantIdAndEmployeeId(UUID tenantId, UUID employeeId);
+
+    Flux<ExpenseReportEntity> findAllByTenantId(UUID tenantId);
+
+    Flux<ExpenseReportEntity> findAllByTenantIdAndStatus(UUID tenantId, String status);
 }

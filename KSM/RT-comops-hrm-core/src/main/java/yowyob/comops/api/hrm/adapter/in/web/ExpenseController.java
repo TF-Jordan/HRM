@@ -86,9 +86,14 @@ public class ExpenseController {
 
     @GetMapping
     @PreAuthorize("@businessAccessPolicy.hasPermission(authentication, 'hrm:expense:read')")
-    public Mono<ResponseEntity<ApiResponse<List<ExpenseReportResponse>>>> listExpenseReports(@RequestParam UUID employeeId) {
-        return expenseUseCase.listExpenseReportsByEmployee(employeeId)
-                .map(ExpenseReportResponse::from).collectList()
+    public Mono<ResponseEntity<ApiResponse<List<ExpenseReportResponse>>>> listExpenseReports(
+            @RequestParam(required = false) UUID employeeId,
+            @RequestParam(required = false) UUID organizationId,
+            @RequestParam(required = false) String status) {
+        var flux = employeeId != null
+                ? expenseUseCase.listExpenseReportsByEmployee(employeeId)
+                : expenseUseCase.listExpenseReports(organizationId, status);
+        return flux.map(ExpenseReportResponse::from).collectList()
                 .map(l -> ResponseEntity.ok(ApiResponse.success(l, "Expense reports fetched.")));
     }
 
@@ -100,9 +105,10 @@ public class ExpenseController {
                 .map(l -> ResponseEntity.ok(ApiResponse.success(l, "Expense lines fetched.")));
     }
 
-    public record CreateExpenseReportRequest(UUID employeeId, String periode, String motif) {
+    public record CreateExpenseReportRequest(UUID employeeId, String periode, String motif,
+            UUID missionOrderId) {
         CreateExpenseReportCommand toCommand() {
-            return new CreateExpenseReportCommand(employeeId, periode, motif);
+            return new CreateExpenseReportCommand(employeeId, periode, motif, missionOrderId);
         }
     }
 
@@ -114,10 +120,10 @@ public class ExpenseController {
     }
 
     public record ExpenseReportResponse(UUID id, UUID employeeId, String periode,
-            BigDecimal totalMontant, String motif, String status) {
+            BigDecimal totalMontant, String motif, String status, UUID missionOrderId) {
         static ExpenseReportResponse from(ExpenseReport r) {
             return new ExpenseReportResponse(r.id(), r.employeeId(), r.periode(),
-                    r.totalMontant(), r.motif(), r.status().name());
+                    r.totalMontant(), r.motif(), r.status().name(), r.missionOrderId());
         }
     }
 

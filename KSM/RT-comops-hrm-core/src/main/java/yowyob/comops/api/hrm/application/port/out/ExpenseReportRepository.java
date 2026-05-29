@@ -14,4 +14,10 @@ public interface ExpenseReportRepository {
     Mono<ExpenseReport> findById(UUID tenantId, UUID reportId);
 
     Flux<ExpenseReport> findByEmployeeId(UUID tenantId, UUID employeeId);
+
+    /** Every expense report of the tenant, regardless of status. */
+    Flux<ExpenseReport> findAll(UUID tenantId);
+
+    /** Every expense report of the tenant whose status matches the given value. */
+    Flux<ExpenseReport> findByStatus(UUID tenantId, String status);
 }

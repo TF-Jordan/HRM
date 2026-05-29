@@ -5,5 +5,6 @@ import java.util.UUID;
 public record CreateExpenseReportCommand(
         UUID employeeId,
         String periode,
-        String motif) {
+        String motif,
+        UUID missionOrderId) {
 }
