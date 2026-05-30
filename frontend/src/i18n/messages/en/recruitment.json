@@ -1,0 +1,193 @@
+{
+  "ucBadge": "UC-16/17/18 · Recruitment & Onboarding",
+  "title": "Recruitment",
+  "subtitle": "Talent pipeline, open positions and interviews.",
+  "jobOfferStatus": {
+    "DRAFT": "Draft",
+    "PUBLISHED": "Open",
+    "CLOSED": "Filled"
+  },
+  "applicationStatus": {
+    "NEW": "New",
+    "SHORTLISTED": "Shortlisted",
+    "INTERVIEWING": "Interviewing",
+    "OFFERED": "Offered",
+    "REJECTED": "Rejected",
+    "HIRED": "Hired"
+  },
+  "interviewType": {
+    "RH": "HR",
+    "TECHNIQUE": "Technical",
+    "FINAL": "Final"
+  },
+  "interviewResult": {
+    "PENDING": "Pending",
+    "PASS": "Passed",
+    "FAIL": "Failed"
+  },
+  "taskStatus": {
+    "PENDING": "To do",
+    "IN_PROGRESS": "In progress",
+    "COMPLETED": "Done"
+  },
+  "kpi": {
+    "openOffers": "Open positions",
+    "activeApplications": "Active candidates",
+    "scheduledInterviews": "Upcoming interviews",
+    "hires": "Hires"
+  },
+  "filters": {
+    "all": "All",
+    "open": "Open",
+    "draft": "Draft",
+    "closed": "Filled"
+  },
+  "pipeline": {
+    "title": "Candidate pipeline",
+    "subtitle": "Drag a candidate to a column to update their status.",
+    "addCandidate": "Add",
+    "empty": "No candidate in this column."
+  },
+  "offers": {
+    "title": "Job offers",
+    "empty": "No published offer.",
+    "columns": {
+      "reference": "Ref.",
+      "poste": "Position",
+      "departement": "Department",
+      "site": "Location",
+      "package": "Package",
+      "applications": "Applications",
+      "interviews": "Interviews",
+      "deadline": "Deadline",
+      "status": "Status"
+    }
+  },
+  "new": {
+    "title": "Publish an offer",
+    "subtitle": "Describe the role, scope and package.",
+    "submit": "Create draft",
+    "submitAndPublish": "Create & publish",
+    "success": "Offer created.",
+    "publishedSuccess": "Offer published.",
+    "fields": {
+      "poste": "Position",
+      "postePlaceholder": "e.g. Mobile Tech Lead",
+      "departement": "Department",
+      "localisation": "Location",
+      "competences": "Required skills",
+      "competencesPlaceholder": "One skill per line…",
+      "dateLimite": "Deadline",
+      "package": "Salary package",
+      "packagePlaceholder": "e.g. 1.2M–1.6M XAF"
+    }
+  },
+  "detail": {
+    "back": "Back",
+    "poste": "Position",
+    "departement": "Department",
+    "site": "Location",
+    "deadline": "Deadline",
+    "package": "Package",
+    "competences": "Required skills",
+    "publish": "Publish",
+    "close": "Close",
+    "publishSuccess": "Offer published.",
+    "closeSuccess": "Offer closed.",
+    "applications": "Applications",
+    "addCandidate": "Add candidate",
+    "addSuccess": "Candidate added.",
+    "workflow": {
+      "draft": "Draft",
+      "published": "Open",
+      "closed": "Filled"
+    }
+  },
+  "candidate": {
+    "back": "Back",
+    "email": "Email",
+    "phone": "Phone",
+    "cv": "Resume",
+    "cover": "Cover letter",
+    "viewFile": "View",
+    "noFile": "None",
+    "actions": {
+      "shortlist": "Shortlist",
+      "interview": "Schedule interview",
+      "offer": "Send offer",
+      "hire": "Hire",
+      "reject": "Reject"
+    },
+    "transitionSuccess": "Status updated.",
+    "workflow": {
+      "new": "New",
+      "shortlisted": "Shortlisted",
+      "interviewing": "Interview",
+      "decision": "Decision",
+      "hired": "Hired"
+    },
+    "interviews": {
+      "title": "Interviews",
+      "empty": "No interview scheduled yet.",
+      "schedule": "Schedule interview",
+      "scheduleSuccess": "Interview scheduled.",
+      "completeSuccess": "Interview closed.",
+      "fields": {
+        "type": "Type",
+        "dateHeure": "Date & time",
+        "lieu": "Location",
+        "interviewer": "Interviewer"
+      },
+      "complete": "Record outcome",
+      "completeFields": {
+        "notes": "Notes",
+        "result": "Result"
+      },
+      "scheduleConfirm": "Schedule",
+      "completeConfirm": "Close"
+    },
+    "add": {
+      "title": "New candidate",
+      "fields": {
+        "nom": "Last name",
+        "prenom": "First name",
+        "email": "Email",
+        "telephone": "Phone",
+        "cv": "Resume",
+        "cover": "Cover letter"
+      },
+      "uploading": "Uploading…",
+      "submit": "Add"
+    }
+  },
+  "onboarding": {
+    "title": "Onboarding tasks",
+    "subtitle": "Track an employee's onboarding.",
+    "empty": "No onboarding task.",
+    "addTitle": "New task",
+    "addSuccess": "Task created.",
+    "startSuccess": "Task started.",
+    "completeSuccess": "Task completed.",
+    "fields": {
+      "titre": "Title",
+      "description": "Description",
+      "echeance": "Deadline",
+      "assignee": "Assigned to (party ID)"
+    },
+    "actions": {
+      "start": "Start",
+      "complete": "Complete"
+    },
+    "columns": {
+      "title": "Task",
+      "deadline": "Deadline",
+      "status": "Status",
+      "actions": ""
+    }
+  },
+  "mine": {
+    "title": "My onboarding",
+    "subtitle": "Your onboarding tasks and progress.",
+    "empty": "No onboarding task yet."
+  }
+}

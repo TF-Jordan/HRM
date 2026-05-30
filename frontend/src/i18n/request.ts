@@ -20,6 +20,7 @@ async function loadMessages(locale: string) {
     "trainings",
     "reviews",
     "budget",
+    "recruitment",
   ];
   const entries = await Promise.all(
     namespaces.map(async (ns) => {
