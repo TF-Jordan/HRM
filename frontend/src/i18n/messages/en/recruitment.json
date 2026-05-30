@@ -116,7 +116,29 @@
       "interview": "Schedule interview",
       "offer": "Send offer",
       "hire": "Hire",
+      "convertToEmployee": "Hire & provision employee",
       "reject": "Reject"
+    },
+    "convert": {
+      "title": "Provision {name} as an employee",
+      "subtitle": "Fill in the remaining HR fields. The employee matricule will be generated automatically.",
+      "confirm": "Hire & create",
+      "success": "Employee created · matricule {matricule}",
+      "fields": {
+        "categorie": "Category",
+        "echelon": "Step",
+        "departmentCode": "Department code",
+        "dateEmbauche": "Hire date",
+        "contractType": "Contract type",
+        "contractDateDebut": "Contract start",
+        "contractDateFin": "Contract end",
+        "salaireBase": "Base salary (XAF)",
+        "avantagesNature": "Fringe benefits (XAF)",
+        "periodeEssai": "Probation period (days)",
+        "modePaiement": "Payment method",
+        "compteBancaire": "Bank account",
+        "numCnps": "CNPS number"
+      }
     },
     "transitionSuccess": "Status updated.",
     "workflow": {

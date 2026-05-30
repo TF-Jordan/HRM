@@ -172,6 +172,54 @@ export function transitionApplication(
   );
 }
 
+export type ConvertApplicationRequest = {
+  managerId?: string | null;
+  numCnps?: string | null;
+  categorie: number;
+  echelon?: string | null;
+  dateEmbauche: string;
+  departmentCode?: string | null;
+  modePaiement: "BANK_TRANSFER" | "MTN_MOBILE_MONEY" | "ORANGE_MONEY" | "CASH";
+  compteBancaire?: string | null;
+  numMobileMoney?: string | null;
+  operateurMm?: "MTN" | "ORANGE" | null;
+  contractType: "CDI" | "CDD" | "STAGE" | "INTERIM";
+  contractDateDebut: string;
+  contractDateFin?: string | null;
+  salaireBase: number | string;
+  avantagesNature?: number | string | null;
+  periodeEssai?: number | null;
+};
+
+export type ConvertedEmployeeResponse = {
+  id: string;
+  organizationId: string;
+  actorId: string;
+  matricule: string;
+  categorie: number;
+  echelon: string | null;
+  dateEmbauche: string;
+  status: string;
+  departmentCode: string | null;
+  actorDisplayName: string | null;
+};
+
+/**
+ * Hire-and-provision: turns an OFFERED application into a real Employee.
+ * Returns the freshly created employee snapshot.
+ */
+export function convertApplicationToEmployee(
+  applicationId: string,
+  body: ConvertApplicationRequest,
+  session: AppSession,
+) {
+  return callKsm<ConvertedEmployeeResponse>(
+    `/api/v1/hrm/applications/${applicationId}/convert-to-employee`,
+    { method: "POST", body },
+    { session },
+  );
+}
+
 /* -------- Interviews -------- */
 
 export function listInterviews(applicationId: string, session: AppSession) {

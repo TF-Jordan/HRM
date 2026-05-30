@@ -116,7 +116,29 @@
       "interview": "Programmer un entretien",
       "offer": "Faire une offre",
       "hire": "Embaucher",
+      "convertToEmployee": "Embaucher & créer l'employé",
       "reject": "Refuser"
+    },
+    "convert": {
+      "title": "Provisionner {name} comme employé",
+      "subtitle": "Saisissez les informations RH manquantes. Le matricule sera généré automatiquement.",
+      "confirm": "Embaucher & créer",
+      "success": "Employé créé · matricule {matricule}",
+      "fields": {
+        "categorie": "Catégorie",
+        "echelon": "Échelon",
+        "departmentCode": "Code département",
+        "dateEmbauche": "Date d'embauche",
+        "contractType": "Type de contrat",
+        "contractDateDebut": "Début contrat",
+        "contractDateFin": "Fin contrat",
+        "salaireBase": "Salaire de base (XAF)",
+        "avantagesNature": "Avantages en nature (XAF)",
+        "periodeEssai": "Période d'essai (jours)",
+        "modePaiement": "Mode de paiement",
+        "compteBancaire": "Compte bancaire",
+        "numCnps": "Numéro CNPS"
+      }
     },
     "transitionSuccess": "Statut mis à jour.",
     "workflow": {

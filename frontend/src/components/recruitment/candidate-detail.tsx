@@ -35,6 +35,8 @@ import { applicationStatusTone, interviewResultTone } from "@/lib/recruitment-st
 import type {
   ApplicationResponse,
   ApplicationStatus,
+  ConvertApplicationRequest,
+  ConvertedEmployeeResponse,
   InterviewResponse,
   InterviewResult,
   InterviewType,
@@ -47,7 +49,9 @@ export function CandidateDetail({ applicationId }: { applicationId: string }) {
   const locale = useLocale() as "fr" | "en";
   const queryClient = useQueryClient();
   const canManage = useCan("hrm:recruitment:manage");
+  const canConvert = useCan("hrm:employee:create");
   const [showSchedule, setShowSchedule] = React.useState(false);
+  const [showConvert, setShowConvert] = React.useState(false);
   const [completeInterview, setCompleteInterview] = React.useState<InterviewResponse | null>(null);
 
   const query = useQuery({
@@ -173,7 +177,13 @@ export function CandidateDetail({ applicationId }: { applicationId: string }) {
                 {t("candidate.actions.offer")}
               </Button>
             )}
-            {canHire && (
+            {canHire && app.status === "OFFERED" && canConvert && (
+              <Button type="button" onClick={() => setShowConvert(true)}>
+                <CheckCircle2 className="h-4 w-4" />
+                {t("candidate.actions.convertToEmployee")}
+              </Button>
+            )}
+            {canHire && !(app.status === "OFFERED" && canConvert) && (
               <Button type="button" onClick={() => transitionM.mutate("hire")}>
                 <CheckCircle2 className="h-4 w-4" />
                 {t("candidate.actions.hire")}
@@ -339,6 +349,16 @@ export function CandidateDetail({ applicationId }: { applicationId: string }) {
         onCompleted={() => {
           setCompleteInterview(null);
           queryClient.invalidateQueries({ queryKey: ["hrm", "application", applicationId, "interviews"] });
+        }}
+      />
+      <ConvertDialog
+        open={showConvert}
+        applicationId={applicationId}
+        candidateName={`${app.candidatPrenom} ${app.candidatNom}`}
+        onClose={() => setShowConvert(false)}
+        onConverted={() => {
+          setShowConvert(false);
+          invalidate();
         }}
       />
     </>
@@ -585,6 +605,190 @@ function CompleteInterviewDialog({
       <Field label={t("completeFields.notes")}>
         <Textarea rows={4} {...register("notes", { required: true, minLength: 5 })} />
       </Field>
+    </Dialog>
+  );
+}
+
+function ConvertDialog({
+  open,
+  applicationId,
+  candidateName,
+  onClose,
+  onConverted,
+}: {
+  open: boolean;
+  applicationId: string;
+  candidateName: string;
+  onClose: () => void;
+  onConverted: () => void;
+}) {
+  const t = useTranslations("recruitment.candidate.convert");
+  const tCommon = useTranslations("common");
+  const tErrors = useTranslations("errors");
+  const today = new Date().toISOString().slice(0, 10);
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    watch,
+    formState: { errors, isValid },
+  } = useForm<{
+    categorie: string;
+    echelon: string;
+    departmentCode: string;
+    dateEmbauche: string;
+    contractType: ConvertApplicationRequest["contractType"];
+    contractDateDebut: string;
+    contractDateFin: string;
+    salaireBase: string;
+    avantagesNature: string;
+    periodeEssai: string;
+    modePaiement: ConvertApplicationRequest["modePaiement"];
+    compteBancaire: string;
+    numCnps: string;
+  }>({
+    mode: "onChange",
+    defaultValues: {
+      categorie: "5",
+      echelon: "A",
+      departmentCode: "",
+      dateEmbauche: today,
+      contractType: "CDI",
+      contractDateDebut: today,
+      contractDateFin: "",
+      salaireBase: "",
+      avantagesNature: "",
+      periodeEssai: "90",
+      modePaiement: "BANK_TRANSFER",
+      compteBancaire: "",
+      numCnps: "",
+    },
+  });
+
+  React.useEffect(() => {
+    if (!open) {
+      reset();
+    }
+  }, [open, reset]);
+
+  const contractType = watch("contractType");
+  const showCdEnd = contractType === "CDD" || contractType === "STAGE" || contractType === "INTERIM";
+
+  const convert = useMutation({
+    mutationFn: (v: Parameters<typeof handleSubmit>[0] extends (vals: infer V) => unknown ? V : never) => {
+      const body: ConvertApplicationRequest = {
+        categorie: Number(v.categorie),
+        echelon: v.echelon.trim() || null,
+        departmentCode: v.departmentCode.trim() || null,
+        dateEmbauche: v.dateEmbauche,
+        contractType: v.contractType,
+        contractDateDebut: v.contractDateDebut,
+        contractDateFin: showCdEnd && v.contractDateFin ? v.contractDateFin : null,
+        salaireBase: Number(v.salaireBase),
+        avantagesNature: v.avantagesNature ? Number(v.avantagesNature) : null,
+        periodeEssai: v.periodeEssai ? Number(v.periodeEssai) : null,
+        modePaiement: v.modePaiement,
+        compteBancaire: v.compteBancaire.trim() || null,
+        numCnps: v.numCnps.trim() || null,
+      };
+      return apiFetch<ConvertedEmployeeResponse>(
+        `/api/hrm/applications/${applicationId}/convert-to-employee`,
+        { method: "POST", body },
+      );
+    },
+    onSuccess: (emp) => {
+      toast.success(t("success", { matricule: emp.matricule }));
+      onConverted();
+    },
+    onError: (cause) => {
+      if (cause instanceof BffApiError) toast.error(cause.message);
+      else toast.error(tErrors("unknown"));
+    },
+  });
+
+  return (
+    <Dialog
+      open={open}
+      onClose={onClose}
+      size="lg"
+      title={t("title", { name: candidateName })}
+      subtitle={t("subtitle")}
+      footer={
+        <>
+          <Button type="button" variant="ghost" onClick={onClose}>
+            {tCommon("actions.cancel")}
+          </Button>
+          <Button
+            type="button"
+            disabled={!isValid || convert.isPending}
+            onClick={handleSubmit((v) => convert.mutate(v))}
+          >
+            {convert.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+            {t("confirm")}
+          </Button>
+        </>
+      }
+    >
+      <div className="grid grid-cols-2 gap-3">
+        <Field label={t("fields.categorie")} error={errors.categorie && tCommon("actions.create")}>
+          <Input type="number" min={1} max={12} step={1} {...register("categorie", { required: true })} />
+        </Field>
+        <Field label={t("fields.echelon")}>
+          <Input {...register("echelon")} />
+        </Field>
+        <Field label={t("fields.departmentCode")}>
+          <Input placeholder="IT, COMMERCIAL, …" {...register("departmentCode")} />
+        </Field>
+        <Field label={t("fields.dateEmbauche")}>
+          <Input type="date" {...register("dateEmbauche", { required: true })} />
+        </Field>
+        <Field label={t("fields.contractType")}>
+          <select
+            {...register("contractType", { required: true })}
+            className="w-full rounded-[11px] border border-line bg-white px-3.5 py-[11px] text-[13.5px] text-ink shadow-xs-brand outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-500/12"
+          >
+            <option value="CDI">CDI</option>
+            <option value="CDD">CDD</option>
+            <option value="STAGE">Stage</option>
+            <option value="INTERIM">Intérim</option>
+          </select>
+        </Field>
+        <Field label={t("fields.contractDateDebut")}>
+          <Input type="date" {...register("contractDateDebut", { required: true })} />
+        </Field>
+        {showCdEnd && (
+          <Field label={t("fields.contractDateFin")} className="col-span-2">
+            <Input type="date" {...register("contractDateFin")} />
+          </Field>
+        )}
+        <Field label={t("fields.salaireBase")}>
+          <Input type="number" min={0} step={1000} {...register("salaireBase", { required: true, min: 1 })} />
+        </Field>
+        <Field label={t("fields.avantagesNature")}>
+          <Input type="number" min={0} step={1000} {...register("avantagesNature")} />
+        </Field>
+        <Field label={t("fields.periodeEssai")}>
+          <Input type="number" min={0} max={365} step={1} {...register("periodeEssai")} />
+        </Field>
+        <Field label={t("fields.modePaiement")}>
+          <select
+            {...register("modePaiement", { required: true })}
+            className="w-full rounded-[11px] border border-line bg-white px-3.5 py-[11px] text-[13.5px] text-ink shadow-xs-brand outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-500/12"
+          >
+            <option value="BANK_TRANSFER">Virement bancaire</option>
+            <option value="MTN_MOBILE_MONEY">MTN MoMo</option>
+            <option value="ORANGE_MONEY">Orange Money</option>
+            <option value="CASH">Espèces</option>
+          </select>
+        </Field>
+        <Field label={t("fields.compteBancaire")} className="col-span-2">
+          <Input {...register("compteBancaire")} />
+        </Field>
+        <Field label={t("fields.numCnps")} className="col-span-2">
+          <Input {...register("numCnps")} />
+        </Field>
+      </div>
     </Dialog>
   );
 }

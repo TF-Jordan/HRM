@@ -5,6 +5,7 @@ import yowyob.comops.api.actor.application.port.out.BusinessActorProfileReposito
 import yowyob.comops.api.actor.domain.model.Actor;
 import yowyob.comops.api.hrm.application.port.out.ActorPort;
 
+import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.stereotype.Component;
@@ -39,6 +40,28 @@ public class ActorCoreHrmActorPort implements ActorPort {
     @Override
     public Mono<ActorInfo> resolveManager(UUID tenantId, UUID employeeActorId) {
         return resolveActor(tenantId, employeeActorId);
+    }
+
+    /**
+     * Create an Actor row for a freshly-hired candidate. We mint the minimum
+     * required identity (first/last name) plus optional email + phone — the
+     * employee 360° can be enriched later via the standard /actors API.
+     */
+    @Override
+    public Mono<UUID> createActor(UUID tenantId, UUID organizationId, ActorCreate spec) {
+        Actor actor = Actor.create(
+                tenantId,
+                organizationId,
+                spec.firstName(),
+                spec.lastName(),
+                null, // name (derived from first/last)
+                spec.phoneNumber(),
+                spec.email(),
+                null, // description
+                "PERSON",
+                null, null, null, null, null, null, null,
+                Set.of(), Set.of());
+        return actorRepository.save(actor).map(Actor::id);
     }
 
     private static ActorInfo toInfo(Actor actor, String displayName) {

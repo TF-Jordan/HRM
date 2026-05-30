@@ -12,6 +12,21 @@ public interface ActorPort {
     Mono<ActorInfo> resolveManager(UUID tenantId, UUID employeeActorId);
 
     /**
+     * Provision a brand-new actor for HRM. Used by the candidate→employee
+     * conversion when a hired application has no pre-existing actor record.
+     * Returns the new actor's id.
+     */
+    Mono<UUID> createActor(UUID tenantId, UUID organizationId, ActorCreate spec);
+
+    /** Minimal payload to spawn an actor from a candidate's identity. */
+    record ActorCreate(
+            String firstName,
+            String lastName,
+            String email,
+            String phoneNumber) {
+    }
+
+    /**
      * Personal identity information about an actor, sourced from actor-core.
      * Enriches the HRM employee 360° profile without duplicating data on the
      * employee row.

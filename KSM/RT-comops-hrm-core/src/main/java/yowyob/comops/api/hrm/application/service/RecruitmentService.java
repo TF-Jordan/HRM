@@ -20,15 +20,21 @@ public class RecruitmentService implements ManageRecruitmentUseCase {
     private final ApplicationRepository applicationRepository;
     private final InterviewRepository interviewRepository;
     private final OnboardingTaskRepository onboardingTaskRepository;
+    private final ActorPort actorPort;
+    private final ManageEmployeeUseCase employeeUseCase;
 
     public RecruitmentService(JobOfferRepository jobOfferRepository,
                               ApplicationRepository applicationRepository,
                               InterviewRepository interviewRepository,
-                              OnboardingTaskRepository onboardingTaskRepository) {
+                              OnboardingTaskRepository onboardingTaskRepository,
+                              ActorPort actorPort,
+                              ManageEmployeeUseCase employeeUseCase) {
         this.jobOfferRepository = jobOfferRepository;
         this.applicationRepository = applicationRepository;
         this.interviewRepository = interviewRepository;
         this.onboardingTaskRepository = onboardingTaskRepository;
+        this.actorPort = actorPort;
+        this.employeeUseCase = employeeUseCase;
     }
 
     @Override
@@ -110,6 +116,47 @@ public class RecruitmentService implements ManageRecruitmentUseCase {
     @Override
     public Mono<Application> hireApplication(UUID applicationId) {
         return updateApplication(applicationId, Application::hire);
+    }
+
+    @Override
+    public Mono<Employee> convertApplicationToEmployee(ConvertApplicationCommand command) {
+        return ReactiveRequestContextHolder.getRequiredContext()
+                .flatMap(ctx -> applicationRepository.findById(ctx.tenantId(), command.applicationId())
+                        .switchIfEmpty(Mono.error(new IllegalArgumentException("Application not found")))
+                        .flatMap(app -> {
+                            if (app.status() != ApplicationStatus.OFFERED) {
+                                return Mono.error(new IllegalStateException(
+                                        "Cannot convert application in status " + app.status()
+                                                + " — application must be OFFERED"));
+                            }
+                            // 1. provision an Actor from the candidate identity
+                            return actorPort.createActor(ctx.tenantId(), ctx.organizationId(),
+                                            new ActorPort.ActorCreate(
+                                                    app.candidatPrenom(), app.candidatNom(),
+                                                    app.candidatEmail(), app.candidatTelephone()))
+                                    // 2. create the HRM Employee against the new actor
+                                    .flatMap(actorId -> employeeUseCase.createEmployee(new CreateEmployeeCommand(
+                                            actorId,
+                                            command.managerId(),
+                                            command.numCnps(),
+                                            command.categorie(),
+                                            command.echelon(),
+                                            command.dateEmbauche(),
+                                            command.departmentCode(),
+                                            command.modePaiement(),
+                                            command.compteBancaire(),
+                                            command.numMobileMoney(),
+                                            command.operateurMm(),
+                                            command.contractType(),
+                                            command.contractDateDebut(),
+                                            command.contractDateFin(),
+                                            command.salaireBase(),
+                                            command.avantagesNature(),
+                                            command.periodeEssai())))
+                                    // 3. mark the application HIRED
+                                    .flatMap(employee -> applicationRepository.save(app.hire())
+                                            .thenReturn(employee));
+                        }));
     }
 
     @Override

@@ -21,6 +21,14 @@ public interface ManageRecruitmentUseCase {
     Mono<Application> offerApplication(UUID applicationId);
     Mono<Application> rejectApplication(UUID applicationId);
     Mono<Application> hireApplication(UUID applicationId);
+
+    /**
+     * End-to-end conversion: provisions an Actor from the candidate's identity,
+     * creates the HRM Employee (matricule generated server-side) with an active
+     * contract, and marks the application HIRED. Returns the new employee.
+     */
+    Mono<Employee> convertApplicationToEmployee(ConvertApplicationCommand command);
+
     Mono<Application> getApplication(UUID applicationId);
     Flux<Application> listApplicationsByJobOffer(UUID jobOfferId);
 

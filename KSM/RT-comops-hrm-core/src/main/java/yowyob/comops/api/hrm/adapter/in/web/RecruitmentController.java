@@ -117,6 +117,24 @@ public class RecruitmentController {
                 .map(r -> ResponseEntity.ok(ApiResponse.success(r, "Candidate hired.")));
     }
 
+    /**
+     * End-to-end conversion: provisions an Actor from the candidate identity,
+     * creates the HRM Employee (matricule generated server-side) with an
+     * active contract, and marks the application HIRED. Requires both the
+     * recruitment manage and the employee create permissions because it
+     * touches both aggregates.
+     */
+    @PostMapping("/applications/{id}/convert-to-employee")
+    @PreAuthorize("@businessAccessPolicy.hasPermission(authentication, 'hrm:recruitment:manage') and "
+            + "@businessAccessPolicy.hasPermission(authentication, 'hrm:employee:create')")
+    public Mono<ResponseEntity<ApiResponse<EmployeeResponse>>> convertApplicationToEmployee(
+            @PathVariable UUID id, @Valid @RequestBody Mono<ConvertApplicationRequest> requestMono) {
+        return requestMono.map(r -> r.toCommand(id))
+                .flatMap(recruitmentUseCase::convertApplicationToEmployee)
+                .map(EmployeeResponse::from)
+                .map(r -> ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(r, "Candidate hired and employee provisioned.")));
+    }
+
     @GetMapping("/applications/{id}")
     @PreAuthorize("@businessAccessPolicy.hasPermission(authentication, 'hrm:recruitment:read')")
     public Mono<ResponseEntity<ApiResponse<ApplicationResponse>>> getApplication(@PathVariable UUID id) {
@@ -210,6 +228,32 @@ public class RecruitmentController {
         CreateApplicationCommand toCommand() {
             return new CreateApplicationCommand(jobOfferId, candidatNom, candidatPrenom,
                     candidatEmail, candidatTelephone, cvFileId, lettreMotivationFileId);
+        }
+    }
+
+    public record ConvertApplicationRequest(
+            UUID managerId, String numCnps, int categorie, String echelon,
+            LocalDate dateEmbauche, String departmentCode, String modePaiement,
+            String compteBancaire, String numMobileMoney, String operateurMm,
+            String contractType, LocalDate contractDateDebut, LocalDate contractDateFin,
+            java.math.BigDecimal salaireBase, java.math.BigDecimal avantagesNature,
+            Integer periodeEssai) {
+        ConvertApplicationCommand toCommand(UUID applicationId) {
+            return new ConvertApplicationCommand(applicationId, managerId, numCnps, categorie,
+                    echelon, dateEmbauche, departmentCode, modePaiement, compteBancaire,
+                    numMobileMoney, operateurMm, contractType, contractDateDebut, contractDateFin,
+                    salaireBase, avantagesNature, periodeEssai);
+        }
+    }
+
+    /** Minimal employee snapshot returned by the conversion endpoint. */
+    public record EmployeeResponse(UUID id, UUID organizationId, UUID actorId, String matricule,
+            int categorie, String echelon, LocalDate dateEmbauche, String status,
+            String departmentCode, String actorDisplayName) {
+        static EmployeeResponse from(yowyob.comops.api.hrm.domain.model.Employee e) {
+            return new EmployeeResponse(e.id(), e.organizationId(), e.actorId(), e.matricule(),
+                    e.categorie(), e.echelon(), e.dateEmbauche(), e.status().name(),
+                    e.departmentCode(), e.actorDisplayName());
         }
     }
 
