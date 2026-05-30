@@ -106,9 +106,13 @@ cd frontend
 npm install
 
 # 2) Configurer l'environnement
+# Option A — utiliser le .env racine déjà configuré (cf. § 2.5)
+ln -s ../.env .env.local
+
+# Option B — un .env.local indépendant pour le front
 cp .env.example .env.local
 # Générer un secret de session (32+ octets) :
-echo "SESSION_SECRET=$(openssl rand -hex 32)" >> .env.local
+sed -i "s|^SESSION_SECRET=.*|SESSION_SECRET=$(openssl rand -hex 32)|" .env.local
 
 # 3) Démarrer en dev (port 3000, HMR)
 npm run dev
@@ -118,21 +122,125 @@ npm run build
 npm start
 ```
 
-**Vérification** : ouvrir <http://localhost:3000/fr/login>. Comptes de démo
-seedés par `V068__hrm_demo_seed.yaml` (mot de passe commun : `Demo@2024!`) :
+**Vérification** : ouvrir <http://localhost:3000/fr/login>.
 
-| Email                          | Rôle               |
-| ------------------------------ | ------------------ |
-| `super.admin@hrcore.demo`      | SuperAdmin tenant  |
-| `admin.rh@hrcore.demo`         | Admin RH           |
-| `manager@hrcore.demo`          | Manager            |
-| `employee@hrcore.demo`         | Employé            |
-| `recruiter@hrcore.demo`        | Recruteur          |
-| `accountant@hrcore.demo`       | Comptable / DAF    |
-| `drh@hrcore.demo`              | DRH                |
-| `doctor@hrcore.demo`           | Médecin du travail |
+#### Comptes de démo seedés (V068 + V076)
 
-### 2.4 Scripts NPM exposés
+Tous partagent le même mot de passe **`Demo@2024!`** (BCrypt strength 10).
+Au premier login, l'application demande une organisation de travail
+(`MUFID Union` est la seule seedée pour la démo).
+
+| Email                          | Rôle             | Périmètre des permissions                     |
+| ------------------------------ | ---------------- | --------------------------------------------- |
+| `super.admin@hrcore.demo`      | SuperAdmin       | TENANT — tout                                 |
+| `hr.admin@hrcore.demo`         | Admin RH         | ORG — RH complet + création de comptes / rôles |
+| `drh@hrcore.demo`              | DRH              | ORG — pilotage, formation, évaluations         |
+| `manager@hrcore.demo`          | Manager          | ORG — équipe, approbations congés / missions  |
+| `recruiter@hrcore.demo`        | Recruteur        | ORG — recrutement + onboarding                |
+| `accountant@hrcore.demo`       | Comptable / DAF  | ORG — notes de frais, validation paie         |
+| `payroll@hrcore.demo`          | Payroll Manager  | ORG — calcul paie + déclarations sociales     |
+| `doctor@hrcore.demo`           | Médecin du travail | ORG — visites, certificats                  |
+| `employee@hrcore.demo`         | Employé          | ORG — self-service (congés, missions, paie)   |
+
+En plus de ces comptes, V076 crée **11 fiches employés réelles** (5 liées
+aux comptes ci-dessus + 6 « orphelines » sans login) avec leurs contrats
+CDI/CDD actifs, prêtes pour tester la liste des employés, le moteur de paie
+et le tableau de bord.
+
+### 2.4 Workflow : créer un nouvel employé et lui permettre de se connecter
+
+L'écran **`/employees/new`** (accessible à SuperAdmin et Admin RH) crée
+l'employé via une orchestration multi-cores en 5 étapes :
+
+1. `POST /api/actors` — identité humaine dans actor-core.
+2. `POST /api/v1/hrm/employees` — fiche employé + contrat initial dans hrm-core,
+   matricule auto-séquentiel `EMP-…` généré par V069.
+3. `POST /api/auth/register` — compte utilisateur dans auth-core avec un
+   **mot de passe temporaire** généré par le BFF (`forcePasswordChange = true`).
+4. `POST /api/administration/users/{id}/roles` — rôle `EMPLOYEE` assigné sur
+   l'organisation courante.
+5. **Envoi de l'email de bienvenue** par le BFF (provider défini par
+   `EMAIL_PROVIDER`, sender défini par `EMAIL_FROM`, cf. § 2.5).
+
+Le nouvel employé reçoit alors un email avec :
+- son **email de connexion**,
+- son **mot de passe temporaire**,
+- le **lien vers `/fr/login`**.
+
+Au premier login il sera invité à changer son mot de passe (écran
+`/[locale]/change-password`).
+
+> Les étapes 3 → 5 sont *best-effort* : si l'orchestration échoue partiellement
+> (par exemple SMTP indisponible) la fiche employé reste créée et un
+> avertissement remonte dans le toast UI. L'Admin RH peut alors relancer la
+> création du compte ou renvoyer l'email depuis `/admin/users`.
+
+### 2.5 Variables d'environnement & email sender
+
+Un fichier **`.env.example`** est fourni à la racine du dépôt. Copiez-le en
+`.env`, ajustez-le, et il sera lu à la fois par KSM et par le BFF :
+
+```bash
+cp .env.example .env
+sed -i "s|^SESSION_SECRET=.*|SESSION_SECRET=$(openssl rand -hex 32)|" .env
+
+# Lancer KSM avec ces variables :
+set -a; source .env; set +a
+mvn -pl RT-comops-bootstrap -am spring-boot:run
+```
+
+Le `.env` contient des blocs commentés pour :
+
+| Bloc                | Variables clés                                   |
+| ------------------- | ------------------------------------------------ |
+| Postgres            | `IWM_R2DBC_URL`, `IWM_R2DBC_USERNAME`, `IWM_R2DBC_PASSWORD`, `IWM_LIQUIBASE_URL` |
+| Redis               | `IWM_REDIS_HOST`, `IWM_REDIS_PORT`               |
+| Elasticsearch/Kafka (option.) | `IWM_ELASTICSEARCH_URIS`, `IWM_KAFKA_BOOTSTRAP_SERVERS`, `IWM_OUTBOX_RELAY_ENABLED` |
+| JWT                 | `IWM_JWT_AUTO_GENERATE_KEY_PAIR`, `IWM_JWT_KEY_ID` |
+| BFF ↔ KSM           | `KSM_BASE_URL`, `KSM_CLIENT_ID`, `KSM_API_KEY`   |
+| Session             | `SESSION_SECRET`, `SESSION_TTL_SECONDS`, `SESSION_COOKIE_NAME` |
+| **Email**           | `EMAIL_PROVIDER`, `EMAIL_FROM`, `EMAIL_REPLY_TO`, `SMTP_*`, `RESEND_API_KEY` |
+| Public Next.js      | `NEXT_PUBLIC_APP_URL`, `NEXT_PUBLIC_DEFAULT_LOCALE`, `NEXT_PUBLIC_DEFAULT_CURRENCY` |
+
+#### Adresse expéditrice des emails (CRITIQUE pour tester l'envoi)
+
+> **C'est `EMAIL_FROM` qui définit le « De: » visible par vos employés.**
+> Renseignez-la dans `.env` (ou `frontend/.env.local`) avec le format
+> `"Nom affiché <inbox@domaine>"`.
+
+Choix du provider via `EMAIL_PROVIDER` :
+
+- **`none`** (par défaut) — l'envoi est *simulé* : le mailer écrit le contenu
+  dans la console (`[MAILER · NONE]`) et dans les logs Pino. Idéal pour tester
+  l'UI sans déranger une boîte mail. Vous voyez le mot de passe temporaire
+  directement dans la console.
+- **`smtp`** — vrai envoi via `nodemailer`. Renseigner :
+  ```ini
+  EMAIL_PROVIDER=smtp
+  SMTP_HOST=smtp.gmail.com         # ou Mailtrap, AWS SES, SendGrid…
+  SMTP_PORT=587
+  SMTP_SECURE=false                # true pour le port 465 (SSL)
+  SMTP_USER=votre-compte@gmail.com
+  SMTP_PASS=votre-mot-de-passe-application
+  EMAIL_FROM="HR Core <votre-compte@gmail.com>"
+  ```
+  > Pour Gmail : créez un *mot de passe d'application* (2FA requis).
+  > Pour Mailtrap (test sandbox) : `SMTP_HOST=sandbox.smtp.mailtrap.io`,
+  > `SMTP_PORT=2525`, et utilisez les credentials affichés dans Mailtrap.
+- **`resend`** — vrai envoi via [Resend.com](https://resend.com) (free tier
+  généreux). Renseigner :
+  ```ini
+  EMAIL_PROVIDER=resend
+  RESEND_API_KEY=re_xxxxxxxxxxxxx
+  EMAIL_FROM="HR Core <noreply@votre-domaine-verifie.com>"
+  ```
+  > **Important** : le domaine de `EMAIL_FROM` doit être *vérifié* dans
+  > Resend (DNS DKIM + SPF), sinon le mail est rejeté.
+
+`EMAIL_REPLY_TO` (optionnel) définit le `Reply-To:` si vous voulez que les
+réponses arrivent ailleurs que sur l'adresse expéditrice (ex. support RH).
+
+### 2.6 Scripts NPM exposés
 
 | Commande               | Effet                                    |
 | ---------------------- | ---------------------------------------- |
@@ -143,7 +251,7 @@ seedés par `V068__hrm_demo_seed.yaml` (mot de passe commun : `Demo@2024!`) :
 | `npm run lint`         | ESLint                                   |
 | `npm run openapi:generate` | Régénère les types KSM depuis `iwm-openapi.json` |
 
-### 2.5 Scripts Maven utiles
+### 2.7 Scripts Maven utiles
 
 | Commande                                        | Effet                          |
 | ----------------------------------------------- | ------------------------------ |

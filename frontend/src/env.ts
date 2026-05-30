@@ -13,9 +13,14 @@ const serverSchema = z.object({
   RESEND_API_KEY: z.string().optional(),
   SMTP_HOST: z.string().optional(),
   SMTP_PORT: z.coerce.number().int().positive().optional(),
+  SMTP_SECURE: z
+    .union([z.literal("true"), z.literal("false"), z.boolean()])
+    .transform((v) => v === true || v === "true")
+    .default(false),
   SMTP_USER: z.string().optional(),
   SMTP_PASS: z.string().optional(),
   EMAIL_FROM: z.string().default("noreply@hrcore.local"),
+  EMAIL_REPLY_TO: z.string().optional(),
 
   LOG_LEVEL: z.enum(["fatal", "error", "warn", "info", "debug", "trace"]).default("info"),
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),

@@ -225,3 +225,6 @@ databaseChangeLog:
   - include:
       file: releases/075-hrm-onboarding-read-employee.yaml
       relativeToChangelogFile: true
+  - include:
+      file: releases/076-hrm-extended-demo-seed.yaml
+      relativeToChangelogFile: true
