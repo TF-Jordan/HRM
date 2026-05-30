@@ -13,8 +13,9 @@ Thumbs.db
 # Logs
 *.log
 
-# file-core local storage
+# file-core local storage (resolved relative to whichever CWD KSM is started in)
 KSM/data/
+/data/
 
 # Redis runtime snapshot (created when redis-server runs in the repo dir)
 dump.rdb
