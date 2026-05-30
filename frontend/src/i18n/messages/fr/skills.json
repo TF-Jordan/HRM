@@ -44,8 +44,8 @@
     }
   },
   "skillTabs": {
-    "referential": "Référentiel",
     "cartography": "Cartographie",
+    "list": "Référentiel",
     "gap": "Écarts"
   },
   "list": {
