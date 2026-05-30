@@ -47,9 +47,76 @@
 
 ---
 
-## 2. Mise en route express (sans Docker)
+## 2. Démarrage en 6 commandes (copier-coller)
 
-### 2.1 Infrastructure locale
+> Suppose que JDK 21, Maven 3.9+, Node 20+, Postgres et Redis sont installés
+> et que tu te trouves à la racine du dépôt.
+
+```bash
+# ── 1. Préparer la base de données et Redis ───────────────────────────────
+sudo -u postgres psql -v ON_ERROR_STOP=1 <<'SQL'
+CREATE USER iwm WITH PASSWORD 'iwm';
+CREATE DATABASE iwm OWNER iwm;
+GRANT ALL PRIVILEGES ON DATABASE iwm TO iwm;
+SQL
+redis-server --daemonize yes
+
+# ── 2. Générer le .env racine (KSM + BFF + email) ─────────────────────────
+cp .env.example .env
+# Remplace le secret de session par 32 octets aléatoires :
+sed -i "s|^SESSION_SECRET=.*|SESSION_SECRET=$(openssl rand -hex 32)|" .env
+# (option) renseigne dès maintenant l'expéditeur des mails :
+#   sed -i 's|^EMAIL_FROM=.*|EMAIL_FROM="HR Core <noreply@ton-domaine.com>"|' .env
+# (option) bascule SMTP / Resend en éditant EMAIL_PROVIDER dans .env
+
+# ── 3. Linker le .env pour le frontend ────────────────────────────────────
+ln -sf ../.env frontend/.env.local
+
+# ── 4. Build du backend KSM (21 modules) ──────────────────────────────────
+mvn -f KSM/pom.xml -DskipTests clean install
+
+# ── 5. Lancer KSM en chargeant le .env racine (port 8080) ─────────────────
+set -a; source .env; set +a
+mvn -f KSM/pom.xml -pl RT-comops-bootstrap -am spring-boot:run
+# Liquibase exécute V001…V076 automatiquement (seeds de démo inclus).
+# Vérifier la santé dans un autre terminal :
+#   curl -s http://localhost:8080/actuator/health | jq
+
+# ── 6. Lancer le frontend (port 3000, dans un autre terminal) ─────────────
+cd frontend
+npm install
+npm run dev
+# Ouvrir http://localhost:3000/fr/login
+```
+
+**Vérification** : <http://localhost:3000/fr/login> doit afficher l'écran de
+connexion. Utilise un des comptes seedés (cf. § 3.3) — mot de passe commun
+**`Demo@2024!`**.
+
+### Pour une seconde session (sans rebuild)
+
+```bash
+# Terminal 1 — KSM
+set -a; source .env; set +a
+mvn -f KSM/pom.xml -pl RT-comops-bootstrap -am spring-boot:run
+
+# Terminal 2 — Frontend
+cd frontend && npm run dev
+```
+
+### Tout arrêter
+
+```bash
+# Tuer les deux processus (Ctrl+C dans chaque terminal) puis :
+redis-cli shutdown
+sudo -u postgres pg_ctl -D /var/lib/postgresql/16/main stop  # si pertinent
+```
+
+---
+
+## 3. Mise en route détaillée (sans Docker)
+
+### 3.1 Infrastructure locale
 
 ```bash
 # Postgres — créer la base iwm avec l'utilisateur iwm/iwm
@@ -63,7 +130,7 @@ SQL
 redis-server --daemonize yes
 ```
 
-### 2.2 Backend KSM (JVM)
+### 3.2 Backend KSM (JVM)
 
 ```bash
 cd KSM
@@ -72,7 +139,7 @@ cd KSM
 mvn -DskipTests clean install
 
 # Lancer le bootstrap (port 8080)
-# Profile r2dbc actif par défaut — Liquibase exécute V001…V075 au démarrage.
+# Profile r2dbc actif par défaut — Liquibase exécute V001…V076 au démarrage.
 mvn -pl RT-comops-bootstrap -am spring-boot:run
 
 # … ou en jar packagé :
@@ -97,7 +164,7 @@ export IWM_OUTBOX_RELAY_ENABLED=false         # si pas de Kafka local
 **Vérification** : `curl -s http://localhost:8080/actuator/health | jq` doit
 renvoyer `"status": "UP"`.
 
-### 2.3 Frontend BFF Next.js
+### 3.3 Frontend BFF Next.js
 
 ```bash
 cd frontend
@@ -106,7 +173,7 @@ cd frontend
 npm install
 
 # 2) Configurer l'environnement
-# Option A — utiliser le .env racine déjà configuré (cf. § 2.5)
+# Option A — utiliser le .env racine déjà configuré (cf. § 3.5)
 ln -s ../.env .env.local
 
 # Option B — un .env.local indépendant pour le front
@@ -147,7 +214,7 @@ aux comptes ci-dessus + 6 « orphelines » sans login) avec leurs contrats
 CDI/CDD actifs, prêtes pour tester la liste des employés, le moteur de paie
 et le tableau de bord.
 
-### 2.4 Workflow : créer un nouvel employé et lui permettre de se connecter
+### 3.4 Workflow : créer un nouvel employé et lui permettre de se connecter
 
 L'écran **`/employees/new`** (accessible à SuperAdmin et Admin RH) crée
 l'employé via une orchestration multi-cores en 5 étapes :
@@ -175,7 +242,7 @@ Au premier login il sera invité à changer son mot de passe (écran
 > avertissement remonte dans le toast UI. L'Admin RH peut alors relancer la
 > création du compte ou renvoyer l'email depuis `/admin/users`.
 
-### 2.5 Variables d'environnement & email sender
+### 3.5 Variables d'environnement & email sender
 
 Un fichier **`.env.example`** est fourni à la racine du dépôt. Copiez-le en
 `.env`, ajustez-le, et il sera lu à la fois par KSM et par le BFF :
@@ -240,7 +307,7 @@ Choix du provider via `EMAIL_PROVIDER` :
 `EMAIL_REPLY_TO` (optionnel) définit le `Reply-To:` si vous voulez que les
 réponses arrivent ailleurs que sur l'adresse expéditrice (ex. support RH).
 
-### 2.6 Scripts NPM exposés
+### 3.6 Scripts NPM exposés
 
 | Commande               | Effet                                    |
 | ---------------------- | ---------------------------------------- |
@@ -251,7 +318,7 @@ réponses arrivent ailleurs que sur l'adresse expéditrice (ex. support RH).
 | `npm run lint`         | ESLint                                   |
 | `npm run openapi:generate` | Régénère les types KSM depuis `iwm-openapi.json` |
 
-### 2.7 Scripts Maven utiles
+### 3.7 Scripts Maven utiles
 
 | Commande                                        | Effet                          |
 | ----------------------------------------------- | ------------------------------ |
