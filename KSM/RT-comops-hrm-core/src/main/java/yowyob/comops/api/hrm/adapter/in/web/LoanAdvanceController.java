@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
@@ -80,6 +81,16 @@ public class LoanAdvanceController {
     public Mono<ResponseEntity<ApiResponse<List<LoanAdvanceResponse>>>> listByEmployee(
             @PathVariable UUID employeeId) {
         return manageLoanAdvanceUseCase.listByEmployee(employeeId)
+                .map(LoanAdvanceResponse::from)
+                .collectList()
+                .map(list -> ResponseEntity.ok(ApiResponse.success(list, "Loan advances fetched.")));
+    }
+
+    @GetMapping
+    @PreAuthorize("@businessAccessPolicy.hasPermission(authentication, 'hrm:loan:read')")
+    public Mono<ResponseEntity<ApiResponse<List<LoanAdvanceResponse>>>> listByOrganization(
+            @RequestParam(value = "status", required = false) String status) {
+        return manageLoanAdvanceUseCase.listByOrganization(status)
                 .map(LoanAdvanceResponse::from)
                 .collectList()
                 .map(list -> ResponseEntity.ok(ApiResponse.success(list, "Loan advances fetched.")));

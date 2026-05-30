@@ -20,4 +20,6 @@ public interface ManageLoanAdvanceUseCase {
     Flux<LoanAdvance> listByEmployee(UUID employeeId);
 
     Flux<LoanAdvance> listActiveByEmployee(UUID tenantId, UUID employeeId);
+
+    Flux<LoanAdvance> listByOrganization(String statusOpt);
 }

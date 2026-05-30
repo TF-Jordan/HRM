@@ -1,0 +1,103 @@
+{
+  "ucBadge": "Rémunération",
+  "title": "Avances & Prêts",
+  "subtitle": "Gestion des avances de salaire et prêts au personnel",
+  "kpi": {
+    "pending": "En attente",
+    "pendingSub": "{count} à approuver · {amount} XAF",
+    "active": "Prêts actifs",
+    "activeSub": "{amount} XAF en encours",
+    "monthly": "Remboursement (mois)",
+    "monthlySub": "XAF · prélèvement paie",
+    "incidents": "Taux d'incidents",
+    "incidentsSub": "aucun défaut · 12 mois"
+  },
+  "charts": {
+    "evolution": "Évolution de l'encours",
+    "evolutionEmpty": "Aucun historique disponible",
+    "breakdown": "Répartition",
+    "breakdownCenter": "{amount}",
+    "breakdownCenterSub": "XAF encours",
+    "breakdownTotal": "Total"
+  },
+  "kind": {
+    "ADVANCE": "Avance sur salaire",
+    "PERSONAL": "Prêt personnel",
+    "VEHICLE": "Prêt véhicule",
+    "HOUSING": "Prêt logement",
+    "ADVANCE_short": "Avances",
+    "LOAN_short": "Prêts"
+  },
+  "status": {
+    "PENDING": "À approuver",
+    "APPROVED": "Approuvé",
+    "IN_REPAYMENT": "En cours",
+    "FULLY_REPAID": "Remboursé",
+    "REJECTED": "Refusé"
+  },
+  "filters": {
+    "all": "Tous",
+    "advances": "Avances",
+    "loans": "Prêts",
+    "active": "En cours",
+    "pending": "À approuver"
+  },
+  "table": {
+    "title": "Avances & prêts",
+    "empty": "Aucune avance ni prêt enregistré",
+    "columns": {
+      "ref": "Réf.",
+      "employee": "Employé",
+      "type": "Type",
+      "amount": "Montant total (XAF)",
+      "term": "Échéance",
+      "monthly": "Mensualité (XAF)",
+      "remaining": "Restant dû (XAF)",
+      "progress": "Progression",
+      "status": "Statut"
+    },
+    "term": "{months, plural, one {# mois} other {# mois}}"
+  },
+  "mine": {
+    "title": "Mes avances & prêts",
+    "subtitle": "Demandes en cours et historique de remboursement",
+    "empty": "Aucune demande d'avance ou de prêt",
+    "newCta": "Faire une demande"
+  },
+  "new": {
+    "title": "Nouvelle demande",
+    "subtitle": "Avance sur salaire ou prêt remboursable par prélèvement sur paie",
+    "amountLabel": "Montant demandé (XAF)",
+    "amountHelp": "Net souhaité, en francs CFA",
+    "termLabel": "Nombre d'échéances",
+    "termHelp": "1 mois = avance · 2 à 36 mois = prêt",
+    "monthlyLabel": "Mensualité estimée",
+    "motifLabel": "Motif",
+    "motifPlaceholder": "Raison de la demande (facultatif)",
+    "submit": "Envoyer la demande",
+    "success": "Demande envoyée",
+    "noEmployee": "Aucune fiche employé liée à votre compte — contactez l'administration RH.",
+    "amountInvalid": "Montant invalide",
+    "termInvalid": "Nombre d'échéances invalide (1 à 60)"
+  },
+  "detail": {
+    "title": "Demande {ref}",
+    "back": "Retour à la liste",
+    "summary": "Récapitulatif",
+    "employee": "Employé",
+    "type": "Type",
+    "amount": "Montant",
+    "monthly": "Mensualité",
+    "remaining": "Restant dû",
+    "progress": "Progression",
+    "term": "Durée",
+    "startDate": "Date de demande",
+    "motif": "Motif",
+    "approvedBy": "Approuvé par",
+    "approve": "Approuver",
+    "reject": "Refuser",
+    "rejectPrompt": "Motif du refus",
+    "approveSuccess": "Avance approuvée",
+    "rejectSuccess": "Avance refusée"
+  }
+}

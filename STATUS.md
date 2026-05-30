@@ -1,7 +1,7 @@
 # HR Core — Rapport d'avancement
 
 > Mise à jour : 2026-05-30
-> Branche de travail : `claude/dazzling-davinci-iZpvh`
+> Branche de travail : `claude/stoic-pascal-WgFRv`
 
 ---
 
@@ -180,6 +180,46 @@ des règles strictes :
   déjà exposés par `PayrollController` (V059 / V068 contiennent le schéma et
   les permissions `hrm:payroll:read|run|validate`).
 
+### Phase 15 — Avances & Prêts (UC-11 / UC-12)
+- Module BFF `server/ksm/modules/loans.ts` couvrant les 6 endpoints du
+  `LoanAdvanceController` KSM (request / approve / reject / get / list par
+  employé / list par organisation).
+- Route Handlers `/api/hrm/loans` (GET org / POST create), `/api/hrm/loans/[id]`,
+  `/api/hrm/loans/[id]/approve`, `/api/hrm/loans/[id]/reject`,
+  `/api/hrm/loans/mine`.
+- Page `/loans` (queue HR admin / DRH / Manager / Comptable) fidèle au
+  mockup `pages/loans.jsx` :
+  - 4 KPI tiles (En attente, Prêts actifs, Remboursement mois, Taux d'incidents).
+  - SVG line chart inline « Évolution de l'encours » 12 mois (amortissement
+    linéaire calculé côté frontend depuis montant + mensualité + dateDebut).
+  - SVG donut « Répartition par type » avec légende (Logement / Véhicule /
+    Personnel / Avance) + total au centre.
+  - Table principale avec colonnes Réf / Employé / Type / Montant / Échéance /
+    Mensualité / Restant dû / Progression / Statut, chips de filtre
+    (Tous / Avances / Prêts / En cours / À approuver), actions inline
+    approve/reject pour les `PENDING`.
+- Page `/loans/mine` : self-service employé, cartes cliquables par demande
+  avec montant / mensualité / restant / progression.
+- Page `/loans/new` : formulaire montant + nombre d'échéances + motif,
+  carte récap dynamique à droite (type dérivé, mensualité estimée), POST
+  vers `/api/v1/hrm/loan-advances` puis redirection sur le détail.
+- Page `/loans/[id]` : avatar employé, 6 cellules de récap (montant, mensualité,
+  restant, durée, date demande, type), barre de progression, panneau motif
+  + approbateur, actions Approuver / Refuser (prompt navigateur pour le motif
+  de refus) gated sur `hrm:loan:approve`.
+- i18n FR/EN complète `loans.json` (kind, status, kpi, table, filters, new,
+  detail, mine).
+- `lib/loan-status.ts` : helpers `loanStatusTone`, `loanKindOf` (dérive le
+  type depuis `nbEcheances` : 1 = Avance, 2-6 = Personnel, 7-36 = Véhicule,
+  > 36 = Logement), `loanKindTone`, `loanProgressPct`, `shortLoanRef`.
+- **Modification backend hrm-core** (validée par l'utilisateur) : ajout d'un
+  endpoint `GET /api/v1/hrm/loan-advances?status=PENDING` (filtré par
+  tenant + organization via `ReactiveRequestContextHolder`, perm
+  `hrm:loan:read`) ainsi que les méthodes repo `findByOrganization`
+  associées. Sans cela, aucune vue agrégée org-wide (queue admin, KPI,
+  donut) n'était possible — le contrôleur n'exposait que `GET
+  /employee/{employeeId}`. Pattern identique à la phase 10 (SkillController).
+
 ### Phase 12 — Tableau de bord (UC-27)
 - **v1** : KPI roll-up role-aware (rejeté par l'utilisateur car non fidèle au
   design).
@@ -226,15 +266,15 @@ des règles strictes :
 `actors`, `admin`, `auth`, `declarations`, `employee-profile`, `employees`,
 `expenses`, `files`, `leaves`, `medical`, `missions`, `organization`,
 `recruitment`, `reviews`, `skills`, `timesheets`, `training-budgets`,
-`trainings`, `users` — **19 modules** wrappers couvrant tous les endpoints
-KSM utilisés.
+`trainings`, `users`, `loans`, `payroll` — **21 modules** wrappers couvrant
+tous les endpoints KSM utilisés.
 
 ### Récap des routes frontend (`/[locale]/(app)/`)
 
 `admin`, `dashboard`, `declarations`, `employees`, `expenses`, `leaves`,
-`medical`, `mission-orders`, `recruitment`, `reviews`, `showcase`, `skills`,
-`timesheets`, `training-budgets`, `trainings` — **15 modules métier** + le
-showcase design system.
+`loans`, `medical`, `mission-orders`, `payroll`, `recruitment`, `reviews`,
+`showcase`, `skills`, `timesheets`, `training-budgets`, `trainings` —
+**17 modules métier** + le showcase design system.
 
 ---
 
@@ -247,8 +287,8 @@ showcase design system.
 | UC-06 | Calcul de paie mensuel                     | ✅      | Phase 13 — formulaire `/payroll/new`, action `POST /payroll/run`.        |
 | UC-07 | Validation paie                            | ✅      | Phase 13 — bouton « Valider la paie » → `PUT /runs/{id}/validate`.        |
 | UC-08 | Ordres de paiement                         | ✅      | Phase 13 — déclenchés automatiquement à la validation via outbox `PAYMENT_ORDER_CREATED`. Suivi côté entries (`paymentStatus`). |
-| UC-11 | Demande d'avance sur salaire               | ❌      | Module `LoanAdvance` seedé (V057), pas d'UI ni de BFF.                    |
-| UC-12 | Approbation d'avance                       | ❌      | Idem UC-11.                                                              |
+| UC-11 | Demande d'avance sur salaire               | ✅      | Phase 15 — pages `/loans/new` + `/loans/mine`, BFF `POST /api/hrm/loans`. |
+| UC-12 | Approbation d'avance                       | ✅      | Phase 15 — page `/loans` (queue org-wide), actions approve/reject inline et sur la fiche détail. |
 
 ### 3.2 Compléments fonctionnels par module déjà livré
 
@@ -298,7 +338,6 @@ showcase design system.
   les entités `Bulletin` et la chaîne de calcul existent (V059) mais le
   contrôleur REST et la chaîne d'événements ne sont pas encore complets pour
   un usage end-to-end.
-- Module `loan-advance` (UC-11/12) idem.
 - Module `blockchain-core` reste un placeholder seedé (V066), pas de logique
   métier.
 
@@ -316,13 +355,13 @@ showcase design system.
 
 | Indicateur                                | Valeur                              |
 | ----------------------------------------- | ----------------------------------- |
-| UC livrés                                 | **25 / 27** (≈ 93 %)                |
-| Modules backend KSM utilisés              | 11 sur 21                           |
-| Modules BFF wrappers                      | 20                                  |
-| Pages frontend (hors auth & showcase)     | 15 modules métier                   |
-| Migrations Liquibase totales              | 75                                  |
-| Migrations Liquibase ajoutées par projet  | 9 (V067 → V075)                     |
-| Endpoints HRM ajoutés au backend          | 2 (`SkillController`)               |
+| UC livrés                                 | **27 / 27** (100 %)                 |
+| Modules backend KSM utilisés              | 12 sur 21                           |
+| Modules BFF wrappers                      | 21                                  |
+| Pages frontend (hors auth & showcase)     | 17 modules métier                   |
+| Migrations Liquibase totales              | 76                                  |
+| Migrations Liquibase ajoutées par projet  | 10 (V067 → V076)                    |
+| Endpoints HRM ajoutés au backend          | 3 (`SkillController`, `LoanAdvanceController`) |
 | Langues supportées                        | 2 (fr, en)                          |
 | Devises supportées                        | 1 (XAF)                             |
 
@@ -353,15 +392,25 @@ showcase design system.
 
 ## 6. Prochaines étapes recommandées
 
-Par ordre de valeur business décroissante :
+Les 27/27 UC sont livrés. Par ordre de valeur business décroissante pour
+la suite :
 
-1. **Payroll (UC-06/07/08)** — sans paie, le module RH est incomplet ;
-   nécessite un travail backend `hrm-core` (contrôleur, calcul brut → net,
-   intégration CNPS/IRPP) en plus du frontend.
-2. **Avances (UC-11/12)** — petit lot, faible coût, valeur RH immédiate.
-3. **Captures + alignement v2 dashboard** — finir le passage de validation
-   visuelle vs mockup, puis brancher l'export PDF.
-4. **Notifications email** — débloquer les workflows (congés approuvés,
-   missions acceptées, visites médicales à reprogrammer).
-5. **Tests automatisés** + **CI** — sécuriser la base avant d'ajouter UC-06/07/08.
-6. **Mobile drawer + dark mode toggle** — quick wins UX.
+1. **Notifications email opérationnelles (Phase 16)** — le mailer
+   (`server/email/mailer.ts`) est câblé pour la création d'employé en
+   Phase 14, mais aucun autre événement business ne déclenche d'email.
+   Cibles : congé approuvé/rejeté, mission acceptée/refusée, NDF validée,
+   visite médicale OVERDUE, bulletin de paie disponible, déclaration
+   ACKNOWLEDGED.
+2. **Tests automatisés + CI (Phase 17)** — sécuriser la base avant
+   ajouts ultérieurs (Vitest sur les helpers `*-status.ts`, RTL sur
+   composants clés, Playwright pour les flows par rôle, workflows
+   GitHub Actions `frontend.yml` + `ksm.yml`).
+3. **Polish UX & a11y (Phase 18)** — dark mode toggle dans le Topbar,
+   drawer mobile, audit `axe` sur chaque page, captures Playwright
+   régénérées pour Phase 12/13/14/15.
+4. **Exports & impression (Phase 19)** — brancher les layouts
+   `index-print.html` aux exports (bulletins PDF via `@react-pdf/renderer`,
+   contrats, rapport dashboard), drill-down par carte du dashboard.
+5. **Domaines transverses (Phase 20)** — audit admin UI, projections
+   Elasticsearch dans le SearchBar du Topbar, chaînes d'approbation
+   dynamiques.

@@ -16,4 +16,6 @@ public interface LoanAdvanceRepository {
     Flux<LoanAdvance> findByEmployeeId(UUID tenantId, UUID employeeId);
 
     Flux<LoanAdvance> findActiveByEmployeeId(UUID tenantId, UUID employeeId);
+
+    Flux<LoanAdvance> findByOrganization(UUID tenantId, UUID organizationId, String statusOpt);
 }

@@ -13,4 +13,8 @@ public interface LoanAdvanceSpringDataRepository extends ReactiveCrudRepository<
     Flux<LoanAdvanceEntity> findAllByTenantIdAndEmployeeId(UUID tenantId, UUID employeeId);
 
     Flux<LoanAdvanceEntity> findAllByTenantIdAndEmployeeIdAndStatus(UUID tenantId, UUID employeeId, String status);
+
+    Flux<LoanAdvanceEntity> findAllByTenantIdAndOrganizationId(UUID tenantId, UUID organizationId);
+
+    Flux<LoanAdvanceEntity> findAllByTenantIdAndOrganizationIdAndStatus(UUID tenantId, UUID organizationId, String status);
 }

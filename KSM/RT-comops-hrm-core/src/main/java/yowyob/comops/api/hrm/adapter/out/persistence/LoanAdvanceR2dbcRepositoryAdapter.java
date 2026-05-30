@@ -42,6 +42,14 @@ public class LoanAdvanceR2dbcRepositoryAdapter implements LoanAdvanceRepository 
                 .map(this::toDomain);
     }
 
+    @Override
+    public Flux<LoanAdvance> findByOrganization(UUID tenantId, UUID organizationId, String statusOpt) {
+        Flux<LoanAdvanceEntity> source = (statusOpt == null || statusOpt.isBlank())
+                ? repository.findAllByTenantIdAndOrganizationId(tenantId, organizationId)
+                : repository.findAllByTenantIdAndOrganizationIdAndStatus(tenantId, organizationId, statusOpt);
+        return source.map(this::toDomain);
+    }
+
     private LoanAdvanceEntity toEntity(LoanAdvance la) {
         return new LoanAdvanceEntity(la.id(), la.tenantId(), la.createdAt(), la.updatedAt(),
                 la.organizationId(), la.agencyId(), la.employeeId(), la.montant(), la.soldeRestant(),

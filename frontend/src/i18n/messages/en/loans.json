@@ -1,0 +1,103 @@
+{
+  "ucBadge": "Compensation",
+  "title": "Advances & Loans",
+  "subtitle": "Salary advances and staff loans management",
+  "kpi": {
+    "pending": "Pending",
+    "pendingSub": "{count} to approve · {amount} XAF",
+    "active": "Active loans",
+    "activeSub": "{amount} XAF outstanding",
+    "monthly": "Monthly repayment",
+    "monthlySub": "XAF · payroll deduction",
+    "incidents": "Default rate",
+    "incidentsSub": "no default · 12 months"
+  },
+  "charts": {
+    "evolution": "Outstanding balance trend",
+    "evolutionEmpty": "No historical data",
+    "breakdown": "Breakdown",
+    "breakdownCenter": "{amount}",
+    "breakdownCenterSub": "XAF outstanding",
+    "breakdownTotal": "Total"
+  },
+  "kind": {
+    "ADVANCE": "Salary advance",
+    "PERSONAL": "Personal loan",
+    "VEHICLE": "Vehicle loan",
+    "HOUSING": "Housing loan",
+    "ADVANCE_short": "Advances",
+    "LOAN_short": "Loans"
+  },
+  "status": {
+    "PENDING": "Pending",
+    "APPROVED": "Approved",
+    "IN_REPAYMENT": "In repayment",
+    "FULLY_REPAID": "Repaid",
+    "REJECTED": "Rejected"
+  },
+  "filters": {
+    "all": "All",
+    "advances": "Advances",
+    "loans": "Loans",
+    "active": "Active",
+    "pending": "Pending"
+  },
+  "table": {
+    "title": "Advances & loans",
+    "empty": "No advance or loan recorded yet",
+    "columns": {
+      "ref": "Ref.",
+      "employee": "Employee",
+      "type": "Type",
+      "amount": "Total amount (XAF)",
+      "term": "Term",
+      "monthly": "Monthly (XAF)",
+      "remaining": "Outstanding (XAF)",
+      "progress": "Progress",
+      "status": "Status"
+    },
+    "term": "{months, plural, one {# month} other {# months}}"
+  },
+  "mine": {
+    "title": "My advances & loans",
+    "subtitle": "Pending requests and repayment history",
+    "empty": "No advance or loan request",
+    "newCta": "New request"
+  },
+  "new": {
+    "title": "New request",
+    "subtitle": "Salary advance or loan repayable via payroll deduction",
+    "amountLabel": "Requested amount (XAF)",
+    "amountHelp": "Net amount, in CFA francs",
+    "termLabel": "Number of instalments",
+    "termHelp": "1 month = advance · 2 to 36 months = loan",
+    "monthlyLabel": "Estimated monthly amount",
+    "motifLabel": "Reason",
+    "motifPlaceholder": "Reason for the request (optional)",
+    "submit": "Submit request",
+    "success": "Request sent",
+    "noEmployee": "No employee record linked to your account — contact HR administration.",
+    "amountInvalid": "Invalid amount",
+    "termInvalid": "Invalid number of instalments (1 to 60)"
+  },
+  "detail": {
+    "title": "Request {ref}",
+    "back": "Back to list",
+    "summary": "Summary",
+    "employee": "Employee",
+    "type": "Type",
+    "amount": "Amount",
+    "monthly": "Monthly",
+    "remaining": "Outstanding",
+    "progress": "Progress",
+    "term": "Term",
+    "startDate": "Request date",
+    "motif": "Reason",
+    "approvedBy": "Approved by",
+    "approve": "Approve",
+    "reject": "Reject",
+    "rejectPrompt": "Reason for rejection",
+    "approveSuccess": "Loan approved",
+    "rejectSuccess": "Loan rejected"
+  }
+}

@@ -95,6 +95,13 @@ public class LoanAdvanceService implements ManageLoanAdvanceUseCase {
         return loanAdvanceRepository.findActiveByEmployeeId(tenantId, employeeId);
     }
 
+    @Override
+    public Flux<LoanAdvance> listByOrganization(String statusOpt) {
+        return ReactiveRequestContextHolder.getRequiredContext()
+                .flatMapMany(context -> loanAdvanceRepository.findByOrganization(
+                        context.tenantId(), context.organizationId(), statusOpt));
+    }
+
     private Map<String, Object> payload(Object... entries) {
         Map<String, Object> payload = new LinkedHashMap<>();
         for (int i = 0; i < entries.length; i += 2) {
