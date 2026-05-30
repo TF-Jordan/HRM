@@ -58,6 +58,15 @@ public class MedicalController {
                 .map(l -> ResponseEntity.ok(ApiResponse.success(l, "Medical visits fetched.")));
     }
 
+    @GetMapping("/visits")
+    @PreAuthorize("@businessAccessPolicy.hasPermission(authentication, 'hrm:medical:read')")
+    public Mono<ResponseEntity<ApiResponse<List<MedicalVisitResponse>>>> listVisits(
+            @RequestParam UUID organizationId) {
+        return medicalUseCase.listVisits(organizationId)
+                .map(MedicalVisitResponse::from).collectList()
+                .map(l -> ResponseEntity.ok(ApiResponse.success(l, "Medical visits fetched.")));
+    }
+
     @PostMapping("/certificates")
     @PreAuthorize("@businessAccessPolicy.hasPermission(authentication, 'hrm:medical:create')")
     public Mono<ResponseEntity<ApiResponse<MedicalCertificateResponse>>> createCertificate(
@@ -80,6 +89,15 @@ public class MedicalController {
     public Mono<ResponseEntity<ApiResponse<List<MedicalCertificateResponse>>>> listCertificatesByEmployee(
             @PathVariable UUID employeeId) {
         return medicalUseCase.listCertificatesByEmployee(employeeId)
+                .map(MedicalCertificateResponse::from).collectList()
+                .map(l -> ResponseEntity.ok(ApiResponse.success(l, "Medical certificates fetched.")));
+    }
+
+    @GetMapping("/certificates")
+    @PreAuthorize("@businessAccessPolicy.hasPermission(authentication, 'hrm:medical:read')")
+    public Mono<ResponseEntity<ApiResponse<List<MedicalCertificateResponse>>>> listCertificates(
+            @RequestParam UUID organizationId) {
+        return medicalUseCase.listCertificates(organizationId)
                 .map(MedicalCertificateResponse::from).collectList()
                 .map(l -> ResponseEntity.ok(ApiResponse.success(l, "Medical certificates fetched.")));
     }

@@ -11,4 +11,6 @@ public interface MedicalVisitSpringDataRepository extends ReactiveCrudRepository
     Mono<MedicalVisitEntity> findByIdAndTenantId(UUID id, UUID tenantId);
 
     Flux<MedicalVisitEntity> findAllByTenantIdAndEmployeeId(UUID tenantId, UUID employeeId);
+
+    Flux<MedicalVisitEntity> findAllByTenantId(UUID tenantId);
 }

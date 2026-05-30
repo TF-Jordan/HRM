@@ -54,6 +54,12 @@ public class MedicalService implements ManageMedicalUseCase {
     }
 
     @Override
+    public Flux<MedicalVisit> listVisits(UUID organizationId) {
+        return ReactiveRequestContextHolder.getRequiredContext()
+                .flatMapMany(ctx -> medicalVisitRepository.findAll(ctx.tenantId()));
+    }
+
+    @Override
     public Mono<MedicalCertificate> createCertificate(CreateMedicalCertificateCommand command) {
         return ReactiveRequestContextHolder.getRequiredContext()
                 .flatMap(ctx -> {
@@ -75,5 +81,11 @@ public class MedicalService implements ManageMedicalUseCase {
     public Flux<MedicalCertificate> listCertificatesByEmployee(UUID employeeId) {
         return ReactiveRequestContextHolder.getRequiredContext()
                 .flatMapMany(ctx -> medicalCertificateRepository.findByEmployeeId(ctx.tenantId(), employeeId));
+    }
+
+    @Override
+    public Flux<MedicalCertificate> listCertificates(UUID organizationId) {
+        return ReactiveRequestContextHolder.getRequiredContext()
+                .flatMapMany(ctx -> medicalCertificateRepository.findAll(ctx.tenantId()));
     }
 }

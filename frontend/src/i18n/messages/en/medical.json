@@ -1,0 +1,114 @@
+{
+  "ucBadge": "UC-23 · Medical follow-up",
+  "title": "Medical follow-up",
+  "subtitle": "Visits, certificates and expiry alerts.",
+  "aptitude": {
+    "APTE": "Fit",
+    "APTE_AVEC_RESTRICTIONS": "Fit with restrictions",
+    "INAPTE_TEMPORAIRE": "Temporarily unfit"
+  },
+  "alert": {
+    "OK": "Up to date",
+    "DUE_SOON": "Due soon",
+    "OVERDUE": "Overdue"
+  },
+  "kpi": {
+    "totalVisits": "Visits this year",
+    "overdueChecks": "Overdue checks",
+    "dueSoonChecks": "Due within 30 d",
+    "restrictionsCount": "Active restrictions"
+  },
+  "filters": {
+    "all": "All",
+    "due": "Overdue",
+    "dueSoon": "Upcoming",
+    "restrictions": "Restrictions"
+  },
+  "visits": {
+    "title": "Medical visits",
+    "empty": "No visit recorded.",
+    "addVisit": "New visit",
+    "columns": {
+      "reference": "Ref.",
+      "employee": "Employee",
+      "date": "Visit date",
+      "medecin": "Doctor",
+      "aptitude": "Aptitude",
+      "nextDue": "Next due",
+      "status": "State"
+    },
+    "new": {
+      "title": "New medical visit",
+      "subtitle": "Record the visit and attach the certificate (PDF).",
+      "submit": "Save",
+      "success": "Visit recorded.",
+      "fields": {
+        "employee": "Employee",
+        "dateVisite": "Visit date",
+        "medecin": "Doctor (name)",
+        "medecinPlaceholder": "e.g. Dr. Anne Mbarga",
+        "aptitude": "Aptitude result",
+        "restrictions": "Restrictions",
+        "restrictionsPlaceholder": "e.g. No carrying loads > 5 kg",
+        "prochaineEcheance": "Next due",
+        "certificat": "Certificate (PDF)"
+      }
+    }
+  },
+  "certificates": {
+    "title": "Medical certificates",
+    "empty": "No certificate recorded.",
+    "addCertificate": "New certificate",
+    "columns": {
+      "reference": "Ref.",
+      "employee": "Employee",
+      "type": "Type",
+      "emission": "Issued",
+      "expiration": "Expires",
+      "statut": "Status",
+      "file": "File"
+    },
+    "viewFile": "View",
+    "noFile": "None",
+    "new": {
+      "title": "New certificate",
+      "subtitle": "Type, dates and digital file.",
+      "submit": "Save",
+      "success": "Certificate recorded.",
+      "fields": {
+        "employee": "Employee",
+        "type": "Certificate type",
+        "typePlaceholder": "e.g. Fitness for work, Hep B vaccine",
+        "dateEmission": "Issued on",
+        "dateExpiration": "Expires on",
+        "statut": "Status",
+        "fichier": "File (PDF)"
+      },
+      "statutValues": {
+        "VALIDE": "Valid",
+        "EXPIRE": "Expired",
+        "REVOQUE": "Revoked"
+      }
+    }
+  },
+  "detail": {
+    "back": "Back",
+    "reference": "Reference",
+    "employee": "Employee",
+    "date": "Date",
+    "medecin": "Doctor",
+    "aptitude": "Result",
+    "restrictions": "Restrictions",
+    "nextDue": "Next due",
+    "file": "Certificate",
+    "viewFile": "View PDF"
+  },
+  "mine": {
+    "title": "My medical file",
+    "subtitle": "Your visits and current certificates.",
+    "visitsTitle": "Medical visits",
+    "visitsEmpty": "No medical visit recorded.",
+    "certificatesTitle": "Medical certificates",
+    "certificatesEmpty": "No certificate recorded."
+  }
+}

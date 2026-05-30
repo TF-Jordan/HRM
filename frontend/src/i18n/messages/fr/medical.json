@@ -1,0 +1,114 @@
+{
+  "ucBadge": "UC-23 · Suivi médical",
+  "title": "Suivi médical",
+  "subtitle": "Visites, certificats et alertes d'échéances.",
+  "aptitude": {
+    "APTE": "Apte",
+    "APTE_AVEC_RESTRICTIONS": "Apte avec restrictions",
+    "INAPTE_TEMPORAIRE": "Inapte temporaire"
+  },
+  "alert": {
+    "OK": "À jour",
+    "DUE_SOON": "Échéance proche",
+    "OVERDUE": "Échue"
+  },
+  "kpi": {
+    "totalVisits": "Visites cette année",
+    "overdueChecks": "Visites échues",
+    "dueSoonChecks": "Échéances < 30 j",
+    "restrictionsCount": "Restrictions actives"
+  },
+  "filters": {
+    "all": "Toutes",
+    "due": "Échues",
+    "dueSoon": "À venir",
+    "restrictions": "Restrictions"
+  },
+  "visits": {
+    "title": "Visites médicales",
+    "empty": "Aucune visite enregistrée.",
+    "addVisit": "Nouvelle visite",
+    "columns": {
+      "reference": "Réf.",
+      "employee": "Employé",
+      "date": "Date visite",
+      "medecin": "Médecin",
+      "aptitude": "Aptitude",
+      "nextDue": "Prochaine échéance",
+      "status": "État"
+    },
+    "new": {
+      "title": "Nouvelle visite médicale",
+      "subtitle": "Saisissez le compte-rendu et joignez le certificat (PDF).",
+      "submit": "Enregistrer",
+      "success": "Visite enregistrée.",
+      "fields": {
+        "employee": "Employé",
+        "dateVisite": "Date de la visite",
+        "medecin": "Médecin (nom)",
+        "medecinPlaceholder": "Ex. Dr. Anne Mbarga",
+        "aptitude": "Résultat d'aptitude",
+        "restrictions": "Restrictions",
+        "restrictionsPlaceholder": "Ex. Pas de port de charges > 5 kg",
+        "prochaineEcheance": "Prochaine échéance",
+        "certificat": "Certificat (PDF)"
+      }
+    }
+  },
+  "certificates": {
+    "title": "Certificats médicaux",
+    "empty": "Aucun certificat enregistré.",
+    "addCertificate": "Nouveau certificat",
+    "columns": {
+      "reference": "Réf.",
+      "employee": "Employé",
+      "type": "Type",
+      "emission": "Émis le",
+      "expiration": "Expire le",
+      "statut": "Statut",
+      "file": "Fichier"
+    },
+    "viewFile": "Voir",
+    "noFile": "Aucun",
+    "new": {
+      "title": "Nouveau certificat",
+      "subtitle": "Type, dates et fichier numérique.",
+      "submit": "Enregistrer",
+      "success": "Certificat enregistré.",
+      "fields": {
+        "employee": "Employé",
+        "type": "Type de certificat",
+        "typePlaceholder": "Ex. Aptitude au travail, Vaccin Hépatite B",
+        "dateEmission": "Date d'émission",
+        "dateExpiration": "Date d'expiration",
+        "statut": "Statut",
+        "fichier": "Fichier (PDF)"
+      },
+      "statutValues": {
+        "VALIDE": "Valide",
+        "EXPIRE": "Expiré",
+        "REVOQUE": "Révoqué"
+      }
+    }
+  },
+  "detail": {
+    "back": "Retour",
+    "reference": "Référence",
+    "employee": "Employé",
+    "date": "Date",
+    "medecin": "Médecin",
+    "aptitude": "Résultat",
+    "restrictions": "Restrictions",
+    "nextDue": "Prochaine échéance",
+    "file": "Certificat",
+    "viewFile": "Voir le PDF"
+  },
+  "mine": {
+    "title": "Mon dossier médical",
+    "subtitle": "Vos visites et certificats à jour.",
+    "visitsTitle": "Visites médicales",
+    "visitsEmpty": "Aucune visite médicale enregistrée.",
+    "certificatesTitle": "Certificats médicaux",
+    "certificatesEmpty": "Aucun certificat enregistré."
+  }
+}

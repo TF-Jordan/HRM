@@ -35,6 +35,11 @@ public class MedicalCertificateR2dbcRepositoryAdapter implements MedicalCertific
         return repository.findAllByTenantIdAndEmployeeId(tenantId, employeeId).map(this::toDomain);
     }
 
+    @Override
+    public Flux<MedicalCertificate> findAll(UUID tenantId) {
+        return repository.findAllByTenantId(tenantId).map(this::toDomain);
+    }
+
     private MedicalCertificateEntity toEntity(MedicalCertificate c) {
         return new MedicalCertificateEntity(c.id(), c.tenantId(), c.createdAt(), c.updatedAt(),
                 c.employeeId(), c.typeCertificat(), c.dateEmission(), c.dateExpiration(),

@@ -14,4 +14,7 @@ public interface MedicalCertificateRepository {
     Mono<MedicalCertificate> findById(UUID tenantId, UUID certificateId);
 
     Flux<MedicalCertificate> findByEmployeeId(UUID tenantId, UUID employeeId);
+
+    /** Every medical certificate of the tenant, regardless of employee. */
+    Flux<MedicalCertificate> findAll(UUID tenantId);
 }

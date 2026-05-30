@@ -11,4 +11,6 @@ public interface MedicalCertificateSpringDataRepository extends ReactiveCrudRepo
     Mono<MedicalCertificateEntity> findByIdAndTenantId(UUID id, UUID tenantId);
 
     Flux<MedicalCertificateEntity> findAllByTenantIdAndEmployeeId(UUID tenantId, UUID employeeId);
+
+    Flux<MedicalCertificateEntity> findAllByTenantId(UUID tenantId);
 }

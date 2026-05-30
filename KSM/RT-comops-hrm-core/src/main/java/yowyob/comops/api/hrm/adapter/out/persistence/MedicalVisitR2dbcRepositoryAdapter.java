@@ -36,6 +36,11 @@ public class MedicalVisitR2dbcRepositoryAdapter implements MedicalVisitRepositor
         return repository.findAllByTenantIdAndEmployeeId(tenantId, employeeId).map(this::toDomain);
     }
 
+    @Override
+    public Flux<MedicalVisit> findAll(UUID tenantId) {
+        return repository.findAllByTenantId(tenantId).map(this::toDomain);
+    }
+
     private MedicalVisitEntity toEntity(MedicalVisit v) {
         return new MedicalVisitEntity(v.id(), v.tenantId(), v.createdAt(), v.updatedAt(),
                 v.employeeId(), v.dateVisite(), v.medecin(), v.resultatAptitude().name(),

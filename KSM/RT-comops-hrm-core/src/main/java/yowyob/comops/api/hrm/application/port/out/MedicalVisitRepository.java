@@ -14,4 +14,7 @@ public interface MedicalVisitRepository {
     Mono<MedicalVisit> findById(UUID tenantId, UUID visitId);
 
     Flux<MedicalVisit> findByEmployeeId(UUID tenantId, UUID employeeId);
+
+    /** Every medical visit of the tenant, regardless of employee. */
+    Flux<MedicalVisit> findAll(UUID tenantId);
 }
