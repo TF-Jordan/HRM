@@ -1,67 +1,68 @@
 {
   "title": "Tableau de bord",
   "greeting": "Bonjour, {name}",
-  "sections": {
-    "employee": "Mon espace",
-    "employeeSub": "Matricule {matricule} · vos accès rapides",
-    "hr": "Admin RH",
-    "hrSub": "Effectif, congés et évaluations en cours",
-    "recruitment": "Recrutement",
-    "recruitmentSub": "Pipeline candidats et offres ouvertes",
-    "drh": "DRH · Développement",
-    "drhSub": "Budget formation, formations actives et campagne d'évaluations",
-    "accounting": "Comptabilité / DAF",
-    "accountingSub": "Notes de frais et missions à traiter",
-    "payroll": "Paie · Déclarations",
-    "payrollSub": "Cycle CNPS / DIPE / IRPP",
-    "medical": "Suivi médical",
-    "medicalSub": "Visites, certificats et échéances"
+  "headline": "{actions} actions vous attendent aujourd'hui · {deadlines} échéances cette semaine",
+  "actions": {
+    "export": "Exporter le rapport",
+    "newEmployee": "Nouvel employé"
   },
-  "kpi": {
-    "leaveBalance": "Solde congés",
-    "leaveAcquired": "{count} jours acquis",
-    "noBalance": "Aucun solde renseigné",
-    "nextLeave": "Prochain congé",
-    "noUpcomingLeave": "Aucun congé à venir",
-    "missionsPending": "Missions à valider",
-    "actionRequired": "Action requise",
-    "upToDate": "Tout est à jour",
-    "trainingsActive": "Mes formations actives",
-    "completedSuffix": "{count} terminées",
-    "activeWorkforce": "Effectif actif",
-    "totalSuffix": "/ {count} au total",
-    "cddExpiring": "CDD expirant",
-    "next30d": "Dans les 30 jours",
-    "leavesPending": "Congés en attente",
-    "toReview": "À examiner",
-    "reviewsFinalized": "Évaluations finalisées",
-    "openOffers": "Offres ouvertes",
-    "published": "Publiées",
-    "activeApplications": "Candidatures actives",
-    "activeApplicationsSub": "Hors refus / embauches",
-    "hiresThisCycle": "Embauches",
-    "hiresThisCycleSub": "Cycle en cours",
-    "budgetAllocated": "Budget alloué",
-    "usedPct": "{pct} % utilisé",
-    "budgetAvailable": "Disponible",
-    "trainingsInProgress": "Formations en cours",
-    "plannedSuffix": "+ {count} planifiées",
-    "reviewsSubmitted": "Évaluations à valider",
-    "awaitingDecision": "En attente DRH",
-    "expensesPending": "Notes de frais à traiter",
-    "missionsDeclined": "Missions refusées",
-    "toAmend": "Avenants à créer",
-    "declarationsToGenerate": "Déclarations à générer",
-    "draft": "Brouillons",
-    "declarationsToSubmit": "À soumettre",
-    "generated": "Fichiers prêts",
-    "declarationsAcknowledged": "Validées",
-    "validated": "Confirmées par l'administration",
-    "visitsThisMonth": "Visites ce mois",
-    "thisMonth": "Mois en cours",
-    "certificatesThisMonth": "Certificats ce mois",
-    "medicalOverdue": "Visites échues",
-    "toScheduleFast": "À reprogrammer en urgence",
-    "medicalDueSoon": "Visites à venir"
+  "hero": {
+    "effectif": "Effectif total",
+    "effectifSub": "{entries} entrées · {departs} départs (mois)",
+    "masseSalariale": "Masse salariale",
+    "absenteism": "Taux d'absentéisme",
+    "absenteismSub": "sur 30 derniers jours",
+    "engagement": "Engagement",
+    "engagementSub": "eNPS · sondage Q1"
+  },
+  "evolution": {
+    "title": "Évolution de l'effectif",
+    "subtitle": "12 derniers mois · entrées vs départs",
+    "entries": "entrées",
+    "departs": "départs",
+    "turnover": "Turnover",
+    "netGrowth": "Croissance nette"
+  },
+  "departments": {
+    "title": "Répartition par dpt",
+    "empty": "Aucun département renseigné"
+  },
+  "todo": {
+    "title": "À traiter",
+    "subtitle": "Approbations & demandes en attente",
+    "all": "Tout ({count})",
+    "urgent": "Urgent ({count})",
+    "details": "Détails",
+    "empty": "Rien à traiter pour le moment"
+  },
+  "urgency": {
+    "today": "Aujourd'hui",
+    "thisWeek": "Cette semaine",
+    "later": "Plus tard"
+  },
+  "upcoming": {
+    "title": "Prochaines échéances",
+    "empty": "Aucune échéance à venir"
+  },
+  "quick": {
+    "title": "Actions rapides",
+    "employee": "Ajouter un employé",
+    "payroll": "Lancer la paie",
+    "leaveCal": "Calendrier congés",
+    "offer": "Publier une offre",
+    "training": "Planifier formation",
+    "declaration": "Déclaration sociale"
+  },
+  "activity": {
+    "title": "Activité récente",
+    "seeAll": "Voir tout",
+    "empty": "Aucune activité récente"
+  },
+  "metrics": {
+    "title": "Métriques clés",
+    "openOffers": "Recrutements ouverts",
+    "trainings": "Formations en cours",
+    "reviewsClose": "Évaluations à clôturer",
+    "bulletins": "Bulletins du mois"
   }
 }

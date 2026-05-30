@@ -1,67 +1,68 @@
 {
   "title": "Dashboard",
   "greeting": "Hi, {name}",
-  "sections": {
-    "employee": "My space",
-    "employeeSub": "Matricule {matricule} · your quick links",
-    "hr": "HR admin",
-    "hrSub": "Workforce, leaves and reviews in progress",
-    "recruitment": "Recruitment",
-    "recruitmentSub": "Candidate pipeline and open offers",
-    "drh": "HR leadership · L&D",
-    "drhSub": "Training budget, active trainings and review campaign",
-    "accounting": "Accounting / CFO",
-    "accountingSub": "Expense reports and mission orders to process",
-    "payroll": "Payroll · Declarations",
-    "payrollSub": "CNPS / DIPE / IRPP cycle",
-    "medical": "Medical follow-up",
-    "medicalSub": "Visits, certificates and deadlines"
+  "headline": "{actions} actions awaiting you today · {deadlines} deadlines this week",
+  "actions": {
+    "export": "Export report",
+    "newEmployee": "New employee"
   },
-  "kpi": {
-    "leaveBalance": "Leave balance",
-    "leaveAcquired": "{count} days acquired",
-    "noBalance": "No balance available",
-    "nextLeave": "Next leave",
-    "noUpcomingLeave": "No upcoming leave",
-    "missionsPending": "Missions to validate",
-    "actionRequired": "Action required",
-    "upToDate": "All up to date",
-    "trainingsActive": "My active trainings",
-    "completedSuffix": "{count} completed",
-    "activeWorkforce": "Active workforce",
-    "totalSuffix": "/ {count} total",
-    "cddExpiring": "FTC expiring",
-    "next30d": "Within 30 days",
-    "leavesPending": "Leaves pending",
-    "toReview": "To review",
-    "reviewsFinalized": "Reviews finalized",
-    "openOffers": "Open offers",
-    "published": "Published",
-    "activeApplications": "Active applications",
-    "activeApplicationsSub": "Excluding rejected / hired",
-    "hiresThisCycle": "Hires",
-    "hiresThisCycleSub": "Current cycle",
-    "budgetAllocated": "Allocated budget",
-    "usedPct": "{pct}% used",
-    "budgetAvailable": "Available",
-    "trainingsInProgress": "Trainings in progress",
-    "plannedSuffix": "+ {count} planned",
-    "reviewsSubmitted": "Reviews to validate",
-    "awaitingDecision": "Awaiting HR decision",
-    "expensesPending": "Expense reports to process",
-    "missionsDeclined": "Declined missions",
-    "toAmend": "Amendments to create",
-    "declarationsToGenerate": "Declarations to generate",
-    "draft": "Drafts",
-    "declarationsToSubmit": "To submit",
-    "generated": "Files ready",
-    "declarationsAcknowledged": "Acknowledged",
-    "validated": "Confirmed by the authority",
-    "visitsThisMonth": "Visits this month",
-    "thisMonth": "Current month",
-    "certificatesThisMonth": "Certificates this month",
-    "medicalOverdue": "Overdue visits",
-    "toScheduleFast": "To reschedule urgently",
-    "medicalDueSoon": "Upcoming visits"
+  "hero": {
+    "effectif": "Total workforce",
+    "effectifSub": "{entries} hires · {departs} departures (month)",
+    "masseSalariale": "Salary mass",
+    "absenteism": "Absenteism rate",
+    "absenteismSub": "last 30 days",
+    "engagement": "Engagement",
+    "engagementSub": "eNPS · Q1 survey"
+  },
+  "evolution": {
+    "title": "Headcount evolution",
+    "subtitle": "Last 12 months · hires vs. departures",
+    "entries": "hires",
+    "departs": "departures",
+    "turnover": "Turnover",
+    "netGrowth": "Net growth"
+  },
+  "departments": {
+    "title": "By department",
+    "empty": "No departments configured"
+  },
+  "todo": {
+    "title": "To handle",
+    "subtitle": "Approvals & pending requests",
+    "all": "All ({count})",
+    "urgent": "Urgent ({count})",
+    "details": "Details",
+    "empty": "Nothing to handle for now"
+  },
+  "urgency": {
+    "today": "Today",
+    "thisWeek": "This week",
+    "later": "Later"
+  },
+  "upcoming": {
+    "title": "Upcoming deadlines",
+    "empty": "No upcoming deadlines"
+  },
+  "quick": {
+    "title": "Quick actions",
+    "employee": "Add an employee",
+    "payroll": "Run payroll",
+    "leaveCal": "Leave calendar",
+    "offer": "Post an offer",
+    "training": "Schedule training",
+    "declaration": "Social declaration"
+  },
+  "activity": {
+    "title": "Recent activity",
+    "seeAll": "See all",
+    "empty": "No recent activity"
+  },
+  "metrics": {
+    "title": "Key metrics",
+    "openOffers": "Open positions",
+    "trainings": "Trainings in progress",
+    "reviewsClose": "Reviews to close",
+    "bulletins": "Payslips this month"
   }
 }
