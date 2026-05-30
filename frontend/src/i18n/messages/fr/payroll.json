@@ -1,0 +1,132 @@
+{
+  "title": "Paie",
+  "subtitle": "Calcul, validation et paiement des bulletins de salaire",
+  "uc": "Rémunération",
+  "actions": {
+    "newRun": "Nouveau cycle",
+    "exportDsn": "Export DSN",
+    "back": "Retour",
+    "details": "Détails",
+    "validate": "Valider la paie",
+    "validating": "Validation…",
+    "calculate": "Lancer le calcul",
+    "calculating": "Calcul en cours…",
+    "previewPayslip": "Aperçu bulletins",
+    "downloadPayslip": "Télécharger PDF",
+    "printPayslip": "Imprimer",
+    "emailPayslip": "Envoyer par email",
+    "viewPayslip": "Voir le bulletin"
+  },
+  "status": {
+    "CALCULATED": "Calculée",
+    "VALIDATED": "Validée",
+    "PAID": "Payée",
+    "active": "Cycle actif"
+  },
+  "stepper": {
+    "variables": "1 · Variables",
+    "calculation": "2 · Calcul",
+    "review": "3 · Vérif. DRH",
+    "validation": "4 · Validation DG",
+    "payment": "5 · Paiement"
+  },
+  "hero": {
+    "employeesPaid": "Employés payés",
+    "employeesPaidSub": "sur {total}",
+    "grossMass": "Masse brute",
+    "grossMassSub": "XAF · cycle en cours",
+    "deductions": "Cotisations sal.",
+    "deductionsSub": "CNPS, IRPP, CFC",
+    "net": "Net à payer",
+    "netSub": "XAF · estimation",
+    "openedOn": "Cycle ouvert · échéance paiement à venir",
+    "noRun": "Aucun cycle en cours",
+    "noRunSub": "Lancez un nouveau cycle pour démarrer la paie du mois."
+  },
+  "chart": {
+    "evolution": "Évolution de la masse salariale",
+    "composition": "Composition · {periode}",
+    "grossLabel": "XAF brut",
+    "salaireBase": "Salaire de base",
+    "primes": "Primes & indemnités",
+    "heuresSupp": "Heures supplémentaires",
+    "avantages": "Avantages en nature",
+    "empty": "Pas encore de données",
+    "yearChip": "{year} ({count})"
+  },
+  "table": {
+    "title": "Cycles de paie",
+    "period": "Période",
+    "status": "Statut",
+    "employees": "Employés",
+    "gross": "Masse brute (XAF)",
+    "net": "Net à payer (XAF)",
+    "date": "Date",
+    "empty": "Aucun cycle de paie pour cette organisation."
+  },
+  "detail": {
+    "title": "Cycle de paie {periode}",
+    "subtitle": "Statut {status} · {count} employés",
+    "totals": "Totaux",
+    "entriesTitle": "Bulletins",
+    "entriesEmpty": "Aucun bulletin pour ce cycle.",
+    "employee": "Salarié",
+    "salaireBase": "Salaire de base",
+    "brut": "Brut",
+    "retenues": "Retenues",
+    "net": "Net",
+    "channel": "Mode",
+    "paymentStatus": "Paiement",
+    "cnpsEmploye": "CNPS employé",
+    "cnpsEmployeur": "CNPS employeur",
+    "irpp": "IRPP"
+  },
+  "form": {
+    "title": "Nouveau cycle de paie",
+    "subtitle": "Choisissez la période et lancez le calcul automatique.",
+    "periode": "Période",
+    "periodeHint": "Format AAAA-MM (ex. 2026-06)",
+    "agency": "Agence (optionnel)",
+    "agencyHint": "Laissez vide pour calculer pour toute l'organisation.",
+    "submit": "Lancer le cycle",
+    "successTitle": "Cycle calculé",
+    "errorTitle": "Erreur"
+  },
+  "payslip": {
+    "title": "Aperçu bulletin",
+    "subtitle": "Bulletin de paie {periode}",
+    "headerTitle": "BULLETIN DE PAIE",
+    "period": "Période",
+    "ref": "N° {ref}",
+    "employee": "Salarié",
+    "payment": "Versement",
+    "scheduled": "Prévu après validation du cycle",
+    "tableLibelle": "Libellé",
+    "tableBase": "Base",
+    "tableTaux": "Taux",
+    "tableGain": "Gain (XAF)",
+    "tableRetenue": "Retenue (XAF)",
+    "rubricBrut": "RÉMUNÉRATION BRUTE",
+    "rubricRetenues": "RETENUES SALARIALES",
+    "rubricEmployer": "CHARGES PATRONALES",
+    "subtotalBrut": "Brut imposable",
+    "subtotalRetenues": "Total retenues",
+    "netLabel": "NET À PAYER",
+    "footerCumulBrut": "Cumul brut {year}",
+    "footerCumulIrpp": "Cumul IRPP {year}",
+    "noEmployee": "Salarié inconnu"
+  },
+  "payment": {
+    "PENDING": "À ordonner",
+    "SCHEDULED": "Ordonné",
+    "SENT": "Envoyé",
+    "PAID": "Payé",
+    "FAILED": "Échec"
+  },
+  "channel": {
+    "BANK_TRANSFER": "Virement bancaire",
+    "MTN_MOBILE_MONEY": "MTN Mobile Money",
+    "ORANGE_MONEY": "Orange Money",
+    "CASH": "Espèces"
+  }
+}

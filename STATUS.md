@@ -147,6 +147,39 @@ des règles strictes :
   attach).
 - Stepper workflow + statuts visuels cohérents.
 
+### Phase 13 — Paie (UC-06 / UC-07 / UC-08)
+- Module BFF `server/ksm/modules/payroll.ts` couvrant les 6 endpoints du
+  `PayrollController` KSM (run / validate / get / list / entries / payslip).
+- Route Handlers `/api/hrm/payroll` (GET liste + POST run), `/api/hrm/payroll/[id]`,
+  `/api/hrm/payroll/[id]/entries`, `/api/hrm/payroll/[id]/validate`,
+  `/api/hrm/payroll/entries/[entryId]/payslip`.
+- Page `/payroll` fidèle au mockup `pages/payroll.jsx` :
+  - Hero sombre gradient orange avec stepper 5 étapes (Variables → Calcul →
+    Vérif. DRH → Validation DG → Paiement), badge « Cycle actif », 4 cartes
+    de stats glassmorphism (employés, masse brute, cotisations, net).
+  - SVG line chart inline « Évolution de la masse salariale » sur 12 mois.
+  - SVG donut « Composition · {mois} » avec légende salaire base / primes /
+    HS / avantages.
+  - Table « Cycles de paie » avec filtres année, statuts colorés, barre de
+    progression, accès aux détails.
+- Page `/payroll/new` : formulaire période AAAA-MM + agency optionnelle,
+  appel `POST /api/v1/hrm/payroll/run`, redirection sur le cycle créé.
+- Page `/payroll/[id]` : stepper, 4 KPI totaux (employés, brut, retenues, net),
+  table bulletins par employé avec avatar / canal / statut paiement et
+  bouton de validation `PUT /runs/{id}/validate` (UC-07) déclenchant en cascade
+  les `PAYMENT_ORDER_CREATED` (UC-08, événements outbox).
+- Page `/payroll/[id]/entries/[entryId]` : bulletin de paie design-fidèle
+  avec en-tête org, blocs Salarié / Versement, table à 5 colonnes
+  (Libellé / Base / Taux / Gain / Retenue) avec rubriques brut / retenues /
+  net, totaux mis en valeur, ligne « NET À PAYER » sur bandeau ink.
+- i18n FR/EN complète `payroll.json` (status, stepper, hero, chart, table,
+  detail, form, payslip, payment, channel).
+- `lib/payroll-status.ts` : helpers tone, progress, stepper-state, format
+  de période.
+- Aucune modification du backend KSM : tous les endpoints attendus étaient
+  déjà exposés par `PayrollController` (V059 / V068 contiennent le schéma et
+  les permissions `hrm:payroll:read|run|validate`).
+
 ### Phase 12 — Tableau de bord (UC-27)
 - **v1** : KPI roll-up role-aware (rejeté par l'utilisateur car non fidèle au
   design).
@@ -211,9 +244,9 @@ showcase design system.
 
 | UC    | Nom                                        | État    | Reste à faire                                                            |
 | ----- | ------------------------------------------ | ------- | ------------------------------------------------------------------------ |
-| UC-06 | Calcul de paie mensuel                     | ❌      | Pas de module `payroll` côté frontend. Backend `hrm-core` expose les `Bulletin` (V059) mais aucun écran. |
-| UC-07 | Validation paie                            | ❌      | Idem UC-06.                                                              |
-| UC-08 | Ordres de paiement                         | ❌      | Idem UC-06. À relier avec `accounting-core` / `treasury-core`.            |
+| UC-06 | Calcul de paie mensuel                     | ✅      | Phase 13 — formulaire `/payroll/new`, action `POST /payroll/run`.        |
+| UC-07 | Validation paie                            | ✅      | Phase 13 — bouton « Valider la paie » → `PUT /runs/{id}/validate`.        |
+| UC-08 | Ordres de paiement                         | ✅      | Phase 13 — déclenchés automatiquement à la validation via outbox `PAYMENT_ORDER_CREATED`. Suivi côté entries (`paymentStatus`). |
 | UC-11 | Demande d'avance sur salaire               | ❌      | Module `LoanAdvance` seedé (V057), pas d'UI ni de BFF.                    |
 | UC-12 | Approbation d'avance                       | ❌      | Idem UC-11.                                                              |
 
@@ -283,10 +316,10 @@ showcase design system.
 
 | Indicateur                                | Valeur                              |
 | ----------------------------------------- | ----------------------------------- |
-| UC livrés                                 | **22 / 27** (≈ 81 %)                |
+| UC livrés                                 | **25 / 27** (≈ 93 %)                |
 | Modules backend KSM utilisés              | 11 sur 21                           |
-| Modules BFF wrappers                      | 19                                  |
-| Pages frontend (hors auth & showcase)     | 14 modules métier                   |
+| Modules BFF wrappers                      | 20                                  |
+| Pages frontend (hors auth & showcase)     | 15 modules métier                   |
 | Migrations Liquibase totales              | 75                                  |
 | Migrations Liquibase ajoutées par projet  | 9 (V067 → V075)                     |
 | Endpoints HRM ajoutés au backend          | 2 (`SkillController`)               |

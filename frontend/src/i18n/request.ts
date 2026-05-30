@@ -24,6 +24,7 @@ async function loadMessages(locale: string) {
     "medical",
     "skills",
     "declarations",
+    "payroll",
     "dashboard",
   ];
   const entries = await Promise.all(
