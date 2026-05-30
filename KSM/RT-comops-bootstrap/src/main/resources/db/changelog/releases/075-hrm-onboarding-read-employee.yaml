@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 075-hrm-onboarding-read-employee
+      author: codex
+      changes:
+        - sqlFile:
+            path: db/r2dbc/V75__hrm_onboarding_read_employee.sql
+            relativeToChangelogFile: false
