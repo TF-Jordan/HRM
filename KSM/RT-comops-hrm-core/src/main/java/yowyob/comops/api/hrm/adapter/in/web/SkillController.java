@@ -75,6 +75,24 @@ public class SkillController {
                 .map(l -> ResponseEntity.ok(ApiResponse.success(l, "Employee skills fetched.")));
     }
 
+    @GetMapping("/{skillId}/employee-skills")
+    @PreAuthorize("@businessAccessPolicy.hasPermission(authentication, 'hrm:skill:read')")
+    public Mono<ResponseEntity<ApiResponse<List<EmployeeSkillResponse>>>> listBySkill(
+            @PathVariable UUID skillId) {
+        return skillUseCase.listEmployeeSkillsBySkill(skillId)
+                .map(EmployeeSkillResponse::from).collectList()
+                .map(l -> ResponseEntity.ok(ApiResponse.success(l, "Employee skills fetched.")));
+    }
+
+    @GetMapping("/employee-skills")
+    @PreAuthorize("@businessAccessPolicy.hasPermission(authentication, 'hrm:skill:read')")
+    public Mono<ResponseEntity<ApiResponse<List<EmployeeSkillResponse>>>> listAllEmployeeSkills(
+            @RequestParam UUID organizationId) {
+        return skillUseCase.listAllEmployeeSkills(organizationId)
+                .map(EmployeeSkillResponse::from).collectList()
+                .map(l -> ResponseEntity.ok(ApiResponse.success(l, "Employee skills fetched.")));
+    }
+
     public record CreateSkillRequest(String name, String categorie, String description) {
         CreateSkillCommand toCommand() {
             return new CreateSkillCommand(name, categorie, description);

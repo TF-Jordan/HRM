@@ -13,4 +13,6 @@ public interface EmployeeSkillSpringDataRepository extends ReactiveCrudRepositor
     Flux<EmployeeSkillEntity> findAllByTenantIdAndEmployeeId(UUID tenantId, UUID employeeId);
 
     Flux<EmployeeSkillEntity> findAllByTenantIdAndSkillId(UUID tenantId, UUID skillId);
+
+    Flux<EmployeeSkillEntity> findAllByTenantId(UUID tenantId);
 }

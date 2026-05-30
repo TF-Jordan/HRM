@@ -73,4 +73,10 @@ public class SkillService implements ManageSkillUseCase {
         return ReactiveRequestContextHolder.getRequiredContext()
                 .flatMapMany(ctx -> employeeSkillRepository.findBySkillId(ctx.tenantId(), skillId));
     }
+
+    @Override
+    public Flux<EmployeeSkill> listAllEmployeeSkills(UUID organizationId) {
+        return ReactiveRequestContextHolder.getRequiredContext()
+                .flatMapMany(ctx -> employeeSkillRepository.findAll(ctx.tenantId()));
+    }
 }

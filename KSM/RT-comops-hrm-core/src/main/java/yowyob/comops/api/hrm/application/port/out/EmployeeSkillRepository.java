@@ -14,4 +14,7 @@ public interface EmployeeSkillRepository {
     Flux<EmployeeSkill> findByEmployeeId(UUID tenantId, UUID employeeId);
 
     Flux<EmployeeSkill> findBySkillId(UUID tenantId, UUID skillId);
+
+    /** Every employee↔skill mapping in the tenant — used for the cartographie view. */
+    Flux<EmployeeSkill> findAll(UUID tenantId);
 }

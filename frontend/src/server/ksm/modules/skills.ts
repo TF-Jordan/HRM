@@ -43,8 +43,64 @@ export type EnrollmentResponse = {
   attestationFileId?: string | null;
 };
 
+export type CreateSkillRequest = {
+  name: string;
+  categorie?: string | null;
+  description?: string | null;
+};
+
+export type CreateEmployeeSkillRequest = {
+  employeeId: string;
+  skillId: string;
+  niveauActuel: number;
+  niveauAttendu: number;
+  dateEvaluation?: string | null;
+};
+
 export function listSkills(session: AppSession) {
   return callKsm<SkillResponse[]>("/api/v1/hrm/skills", {}, { session });
+}
+
+export function getSkill(id: string, session: AppSession) {
+  return callKsm<SkillResponse>(`/api/v1/hrm/skills/${id}`, {}, { session });
+}
+
+export function createSkill(body: CreateSkillRequest, session: AppSession) {
+  return callKsm<SkillResponse>(
+    "/api/v1/hrm/skills",
+    { method: "POST", body },
+    { session },
+  );
+}
+
+export function listEmployeeSkillsBySkill(skillId: string, session: AppSession) {
+  return callKsm<EmployeeSkillResponse[]>(
+    `/api/v1/hrm/skills/${skillId}/employee-skills`,
+    {},
+    { session },
+  );
+}
+
+export function listAllEmployeeSkills(session: AppSession, organizationId?: string) {
+  const orgId = organizationId ?? session.workspace?.organizationId;
+  if (!orgId) throw new Error("organizationId is required");
+  const params = new URLSearchParams({ organizationId: orgId });
+  return callKsm<EmployeeSkillResponse[]>(
+    `/api/v1/hrm/skills/employee-skills?${params}`,
+    {},
+    { session },
+  );
+}
+
+export function createEmployeeSkill(
+  body: CreateEmployeeSkillRequest,
+  session: AppSession,
+) {
+  return callKsm<EmployeeSkillResponse>(
+    "/api/v1/hrm/skills/employee-skills",
+    { method: "POST", body },
+    { session },
+  );
 }
 
 export function listEmployeeSkills(employeeId: string, session: AppSession) {

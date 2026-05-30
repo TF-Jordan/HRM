@@ -1,0 +1,103 @@
+{
+  "ucBadge": "UC-24/25 · Skills",
+  "title": "Skills",
+  "subtitle": "Referential, mapping and development plans.",
+  "kpi": {
+    "totalSkills": "Skills",
+    "totalEvaluated": "Evaluated",
+    "rareSkills": "Rare skills",
+    "averageScore": "Avg. score"
+  },
+  "kpiSub": {
+    "categories": "{count} categories",
+    "perEmployee": "{ratio} per employee",
+    "lessThan3": "< 3 internal experts",
+    "scale": "out of 5"
+  },
+  "filters": {
+    "all": "All",
+    "uncategorized": "Uncategorized"
+  },
+  "cartography": {
+    "title": "Map · Top skills",
+    "subtitle": "Coverage & average level",
+    "empty": "No skill in the referential.",
+    "employeesShort": "{count} evaluated",
+    "level": "level"
+  },
+  "experts": {
+    "title": "Internal experts ★★★★★",
+    "empty": "No expert yet."
+  },
+  "gap": {
+    "title": "Gap analysis",
+    "subtitle": "Target vs current level",
+    "empty": "No gap to report.",
+    "columns": {
+      "skill": "Skill",
+      "category": "Category",
+      "target": "Target",
+      "actual": "Current",
+      "gap": "Gap",
+      "toTrain": "To train",
+      "evaluated": "Evaluated"
+    }
+  },
+  "skillTabs": {
+    "referential": "Referential",
+    "cartography": "Map",
+    "gap": "Gap"
+  },
+  "list": {
+    "title": "Referential",
+    "empty": "No skill defined yet.",
+    "columns": {
+      "name": "Skill",
+      "category": "Category",
+      "evaluated": "Evaluated",
+      "average": "Avg. level"
+    }
+  },
+  "new": {
+    "title": "Add a skill",
+    "subtitle": "Extend the referential.",
+    "submit": "Create",
+    "success": "Skill created.",
+    "fields": {
+      "name": "Name",
+      "namePlaceholder": "e.g. React Native, AWS Cloud",
+      "categorie": "Category",
+      "categoriePlaceholder": "e.g. Tech, Management, Soft skills",
+      "description": "Description"
+    }
+  },
+  "detail": {
+    "back": "Back",
+    "categorie": "Category",
+    "description": "Description",
+    "employees": "Evaluated",
+    "averageActual": "Avg. current",
+    "averageTarget": "Avg. target",
+    "experts": "Experts (level 5)",
+    "evaluationsTitle": "All assessments",
+    "evaluationsEmpty": "No employee evaluated for this skill.",
+    "addAssessment": "Assess an employee",
+    "addSuccess": "Assessment recorded.",
+    "columns": {
+      "employee": "Employee",
+      "actual": "Current",
+      "target": "Target",
+      "date": "Evaluated on"
+    }
+  },
+  "assessment": {
+    "title": "Skill assessment",
+    "fields": {
+      "employee": "Employee",
+      "skill": "Skill",
+      "actual": "Current level (1-5)",
+      "target": "Target level (1-5)",
+      "date": "Assessment date"
+    }
+  }
+}

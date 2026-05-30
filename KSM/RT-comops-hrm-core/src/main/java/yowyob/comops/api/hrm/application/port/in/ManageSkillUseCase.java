@@ -21,4 +21,7 @@ public interface ManageSkillUseCase {
     Flux<EmployeeSkill> listEmployeeSkillsByEmployee(UUID employeeId);
 
     Flux<EmployeeSkill> listEmployeeSkillsBySkill(UUID skillId);
+
+    /** Org-wide mapping list — used by the DRH cartographie / gap-analysis view. */
+    Flux<EmployeeSkill> listAllEmployeeSkills(UUID organizationId);
 }

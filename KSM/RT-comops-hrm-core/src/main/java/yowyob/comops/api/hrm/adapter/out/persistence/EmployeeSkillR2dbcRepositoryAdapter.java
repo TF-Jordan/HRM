@@ -35,6 +35,11 @@ public class EmployeeSkillR2dbcRepositoryAdapter implements EmployeeSkillReposit
         return repository.findAllByTenantIdAndSkillId(tenantId, skillId).map(this::toDomain);
     }
 
+    @Override
+    public Flux<EmployeeSkill> findAll(UUID tenantId) {
+        return repository.findAllByTenantId(tenantId).map(this::toDomain);
+    }
+
     private EmployeeSkillEntity toEntity(EmployeeSkill es) {
         return new EmployeeSkillEntity(es.id(), es.tenantId(), es.createdAt(), es.updatedAt(),
                 es.employeeId(), es.skillId(), es.niveauActuel(), es.niveauAttendu(),
