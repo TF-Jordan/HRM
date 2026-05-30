@@ -15,3 +15,6 @@ Thumbs.db
 
 # file-core local storage
 KSM/data/
+
+# Redis runtime snapshot (created when redis-server runs in the repo dir)
+dump.rdb
