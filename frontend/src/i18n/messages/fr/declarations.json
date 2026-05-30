@@ -1,0 +1,97 @@
+{
+  "ucBadge": "UC-26 · Déclarations sociales",
+  "title": "Déclarations sociales",
+  "subtitle": "Création, génération, soumission et validation des déclarations CNPS, DIPE et IRPP/CAC.",
+  "type": {
+    "CNPS": "CNPS",
+    "DIPE": "DIPE",
+    "IRPP_CAC": "IRPP / CAC"
+  },
+  "typeName": {
+    "CNPS": "Caisse Nationale de Prévoyance Sociale",
+    "DIPE": "Déclaration d'Impôt sur Personne et Employeur",
+    "IRPP_CAC": "Impôt sur le Revenu / Centimes Additionnels Communaux"
+  },
+  "status": {
+    "DRAFT": "Brouillon",
+    "GENERATED": "Générée",
+    "SUBMITTED": "Soumise",
+    "ACKNOWLEDGED": "Validée"
+  },
+  "format": {
+    "PDF": "PDF",
+    "CSV": "CSV",
+    "XML": "XML"
+  },
+  "kpi": {
+    "toGenerate": "À générer",
+    "toSubmit": "À soumettre",
+    "submitted": "Soumises",
+    "acknowledged": "Validées"
+  },
+  "filters": {
+    "all": "Toutes",
+    "draft": "Brouillons",
+    "generated": "Générées",
+    "submitted": "Soumises",
+    "acknowledged": "Validées"
+  },
+  "list": {
+    "title": "Déclarations",
+    "empty": "Aucune déclaration enregistrée.",
+    "columns": {
+      "reference": "Réf.",
+      "type": "Type",
+      "periode": "Période",
+      "format": "Format",
+      "status": "Statut",
+      "submitted": "Soumise le",
+      "actions": ""
+    }
+  },
+  "new": {
+    "title": "Nouvelle déclaration",
+    "subtitle": "Préparez le brouillon avant d'attacher le fichier généré.",
+    "submit": "Créer le brouillon",
+    "success": "Brouillon créé.",
+    "fields": {
+      "type": "Type de déclaration",
+      "periode": "Période",
+      "periodePlaceholder": "Ex. 2026-05 (mensuel), 2026-Q1 (trimestriel)",
+      "format": "Format du fichier"
+    }
+  },
+  "detail": {
+    "back": "Retour",
+    "type": "Type",
+    "periode": "Période",
+    "format": "Format",
+    "fichier": "Fichier",
+    "fichierEmpty": "Aucun fichier attaché",
+    "viewFile": "Voir le fichier",
+    "generatedAt": "Générée le",
+    "submittedAt": "Soumise le",
+    "workflow": {
+      "draft": "Brouillon",
+      "generated": "Générée",
+      "submitted": "Soumise",
+      "acknowledged": "Validée"
+    },
+    "actions": {
+      "generate": "Générer & attacher",
+      "submit": "Soumettre à l'administration",
+      "acknowledge": "Confirmer la validation"
+    },
+    "generateSuccess": "Déclaration générée.",
+    "submitSuccess": "Déclaration soumise.",
+    "acknowledgeSuccess": "Déclaration validée."
+  },
+  "generate": {
+    "title": "Attacher le fichier généré",
+    "subtitle": "Téléversez le PDF, CSV ou XML produit par votre outil de déclaration externe.",
+    "uploadCta": "Choisir un fichier",
+    "uploaded": "Fichier téléversé",
+    "uploading": "Envoi…",
+    "confirm": "Attacher & générer"
+  }
+}
