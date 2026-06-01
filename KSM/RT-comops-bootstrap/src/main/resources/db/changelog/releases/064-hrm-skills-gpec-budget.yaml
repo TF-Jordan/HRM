@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 064-hrm-skills-gpec-budget
+      author: jordan
+      changes:
+        - sqlFile:
+            path: db/r2dbc/V64__hrm_skills_gpec_budget.sql
+            relativeToChangelogFile: false

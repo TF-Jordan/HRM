@@ -1,0 +1,46 @@
+{
+  "appName": "HR Core",
+  "tagline": "Multi-tenant HR platform",
+  "actions": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "submit": "Submit",
+    "approve": "Approve",
+    "reject": "Reject",
+    "validate": "Validate",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "search": "Search",
+    "filter": "Filter",
+    "export": "Export",
+    "import": "Import",
+    "download": "Download",
+    "upload": "Upload",
+    "view": "View",
+    "close": "Close",
+    "loading": "Loading…"
+  },
+  "status": {
+    "active": "Active",
+    "inactive": "Inactive",
+    "pending": "Pending",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "draft": "Draft",
+    "submitted": "Submitted",
+    "validated": "Validated",
+    "cancelled": "Cancelled",
+    "terminated": "Terminated",
+    "suspended": "Suspended"
+  },
+  "language": {
+    "french": "French",
+    "english": "English",
+    "switchTo": "Switch language"
+  }
+}

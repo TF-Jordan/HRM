@@ -1,0 +1,152 @@
+{
+  "title": "Payroll",
+  "subtitle": "Calculation, validation and payment of payslips",
+  "uc": "Compensation",
+  "actions": {
+    "newRun": "New cycle",
+    "exportDsn": "Export DSN",
+    "back": "Back",
+    "details": "View details",
+    "continueReview": "Continue review",
+    "startPayment": "Proceed to payment",
+    "downloadRun": "Download cycle",
+    "validate": "Validate payroll",
+    "validating": "Validating…",
+    "calculate": "Run calculation",
+    "calculating": "Calculating…",
+    "previewPayslip": "Preview payslips",
+    "downloadPayslip": "Download PDF",
+    "printPayslip": "Print",
+    "emailPayslip": "Send by email",
+    "viewPayslip": "View payslip"
+  },
+  "status": {
+    "CALCULATED": "Calculated",
+    "VALIDATED": "Validated",
+    "PAID": "Paid",
+    "active": "Active cycle"
+  },
+  "stepper": {
+    "variables": "1 · Variables",
+    "calculation": "2 · Calculation",
+    "review": "3 · HR review",
+    "validation": "4 · CEO approval",
+    "payment": "5 · Payment"
+  },
+  "hero": {
+    "employeesPaid": "Employees paid",
+    "employeesPaidSub": "of {total}",
+    "grossMass": "Gross mass",
+    "grossMassSub": "XAF · current cycle",
+    "deductions": "Empl. deductions",
+    "deductionsSub": "Employee CNPS, IRPP, CAC, CFC",
+    "net": "Net payable",
+    "netSub": "XAF · estimated",
+    "openedOn": "Cycle opened · payment deadline upcoming",
+    "calculatedOn": "Calculated on {date} · awaiting validation",
+    "noRun": "No active cycle",
+    "noRunSub": "Start a new cycle to run this month's payroll."
+  },
+  "chart": {
+    "evolution": "Salary mass evolution",
+    "composition": "Composition · {periode}",
+    "grossLabel": "XAF gross",
+    "salaireBase": "Base salary",
+    "primes": "Bonuses & allowances",
+    "heuresSupp": "Overtime",
+    "avantages": "Fringe benefits",
+    "empty": "No data yet",
+    "yearChip": "{year} ({count})"
+  },
+  "table": {
+    "title": "Payroll cycles",
+    "period": "Period",
+    "status": "Status",
+    "employees": "Employees",
+    "gross": "Gross mass (XAF)",
+    "net": "Net payable (XAF)",
+    "date": "Date",
+    "empty": "No payroll cycles for this organization."
+  },
+  "detail": {
+    "title": "Payroll cycle {periode}",
+    "subtitle": "Status {status} · {count} employees",
+    "totals": "Totals",
+    "entriesTitle": "Payslips",
+    "entriesEmpty": "No payslip in this cycle.",
+    "employee": "Employee",
+    "salaireBase": "Base salary",
+    "brut": "Gross",
+    "retenues": "Deductions",
+    "net": "Net",
+    "channel": "Channel",
+    "paymentStatus": "Payment",
+    "cnpsEmploye": "Employee CNPS",
+    "cnpsEmployeur": "Employer CNPS",
+    "irpp": "IRPP"
+  },
+  "form": {
+    "title": "New payroll cycle",
+    "subtitle": "Choose the period and run the automatic calculation.",
+    "periode": "Period",
+    "periodeHint": "Format YYYY-MM (e.g. 2026-06)",
+    "agency": "Agency (optional)",
+    "agencyHint": "Leave empty to calculate across the whole organization.",
+    "submit": "Start cycle",
+    "successTitle": "Cycle calculated",
+    "errorTitle": "Error"
+  },
+  "payslip": {
+    "title": "Payslip preview",
+    "subtitle": "Payslip {periode}",
+    "headerTitle": "PAYSLIP",
+    "period": "Period",
+    "ref": "Ref. {ref}",
+    "employee": "Employee",
+    "payment": "Payment",
+    "scheduled": "Scheduled after cycle validation",
+    "tableLibelle": "Item",
+    "tableBase": "Base",
+    "tableTaux": "Rate",
+    "tableGain": "Gain (XAF)",
+    "tableRetenue": "Deduction (XAF)",
+    "rubricBrut": "GROSS COMPENSATION",
+    "rubricRetenues": "EMPLOYEE DEDUCTIONS",
+    "rubricEmployer": "EMPLOYER CONTRIBUTIONS",
+    "subtotalBrut": "Taxable gross",
+    "subtotalRetenues": "Total deductions",
+    "netLabel": "NET PAYABLE",
+    "footerCumulBrut": "{year} cumulated gross",
+    "footerCumulIrpp": "{year} cumulated IRPP",
+    "noEmployee": "Unknown employee",
+    "inlineTitle": "Payslip preview · active cycle",
+    "firstEntry": "First payslip of the cycle"
+  },
+  "cycle": {
+    "alreadyRun": "Payroll already run this month",
+    "tooEarly": "Window opens in {days} day(s)",
+    "openWindow": "Window open · {days} day(s) left — auto-runs at 23:59 if not triggered",
+    "downloadRequiresValidation": "Available after cycle validation"
+  },
+  "pdf": {
+    "reportTitle": "PAYROLL CYCLE REPORT",
+    "totalRetenues": "Total employee deductions",
+    "validatedBy": "Validated by",
+    "validatedAt": "Validated on",
+    "calculatedAt": "Calculated on",
+    "statusLabel": "Cycle status"
+  },
+  "payment": {
+    "PENDING": "To schedule",
+    "SCHEDULED": "Scheduled",
+    "SENT": "Sent",
+    "PAID": "Paid",
+    "FAILED": "Failed"
+  },
+  "channel": {
+    "BANK_TRANSFER": "Bank transfer",
+    "MTN_MOBILE_MONEY": "MTN Mobile Money",
+    "ORANGE_MONEY": "Orange Money",
+    "CASH": "Cash"
+  }
+}

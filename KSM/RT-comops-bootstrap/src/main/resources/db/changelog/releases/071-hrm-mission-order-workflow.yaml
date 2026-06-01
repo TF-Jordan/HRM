@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 071-hrm-mission-order-workflow
+      author: codex
+      changes:
+        - sqlFile:
+            path: db/r2dbc/V71__hrm_mission_order_workflow.sql
+            relativeToChangelogFile: false

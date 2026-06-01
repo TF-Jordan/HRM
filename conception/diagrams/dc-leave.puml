@@ -1,0 +1,73 @@
+@startuml dc-leave
+!theme plain
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+package "common-core" #EEEEEE {
+    abstract class BaseEntity {
+        # id : UUID
+        # tenantId : UUID
+        # organizationId : UUID
+        ..
+    }
+    class PartyRef {
+        - partyId : UUID
+        - displayName : String
+    }
+}
+
+package "hrm-core / domain — Congés" #F5FFF5 {
+
+    class LeaveRequest extends BaseEntity {
+        - employeeId : UUID
+        - type : LeaveType
+        - dateDebut : LocalDate
+        - dateFin : LocalDate
+        - nbJours : BigDecimal
+        - status : LeaveStatus
+        - motif : String
+        - valideurRef : PartyRef
+        - dateValidation : Instant
+        - commentaireValideur : String
+        - justificatifFileId : UUID
+        + submit() : void
+        + approve(valideurId) : void
+        + reject(valideurId, comment) : void
+        + cancel() : void
+    }
+
+    class LeaveBalance extends BaseEntity {
+        - employeeId : UUID
+        - type : LeaveType
+        - acquis : BigDecimal
+        - pris : BigDecimal
+        - annee : int
+        + soldeRestant() : BigDecimal
+        + crediter(jours) : void
+        + debiter(jours) : void
+        + reset() : void
+    }
+
+    enum LeaveType {
+        ANNUAL
+        SICK
+        MATERNITY
+        PATERNITY
+        UNPAID
+        SPECIAL
+    }
+
+    enum LeaveStatus {
+        PENDING
+        APPROVED
+        REJECTED
+        CANCELLED
+    }
+
+    LeaveRequest --> LeaveType
+    LeaveRequest --> LeaveStatus
+    LeaveRequest --> PartyRef
+    LeaveBalance --> LeaveType
+}
+
+@enduml

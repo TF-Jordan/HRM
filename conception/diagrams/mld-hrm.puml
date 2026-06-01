@@ -1,0 +1,297 @@
+@startuml mld-hrm
+!theme plain
+skinparam linetype ortho
+
+title Modèle Logique de Données — hrm-core (schéma tenant)
+
+entity "hrm_employee" as emp {
+    * **id** : UUID <<PK>>
+    --
+    * tenant_id : UUID <<FK kernel>>
+    * organization_id : UUID <<FK>>
+    agency_id : UUID <<FK, nullable>>
+    * actor_id : UUID <<FK actor-core>>
+    * matricule : VARCHAR(20) <<UNIQUE>>
+    num_cnps : VARCHAR(20)
+    * categorie : INT
+    echelon : VARCHAR(5)
+    * date_embauche : DATE
+    * status : VARCHAR(20)
+    department_code : VARCHAR(20)
+    * mode_paiement : VARCHAR(30)
+    compte_bancaire : VARCHAR(30)
+    num_mobile_money : VARCHAR(15)
+    operateur_mm : VARCHAR(10)
+    --
+    * created_by : UUID
+    * created_at : TIMESTAMPTZ
+    * updated_by : UUID
+    * updated_at : TIMESTAMPTZ
+    * version : BIGINT
+}
+
+entity "hrm_contract" as ctr {
+    * **id** : UUID <<PK>>
+    --
+    * tenant_id : UUID
+    * organization_id : UUID
+    agency_id : UUID
+    * employee_id : UUID <<FK>>
+    * type : VARCHAR(10)
+    * date_debut : DATE
+    date_fin : DATE
+    * salaire_base : NUMERIC(15,2)
+    avantages_nature : NUMERIC(15,2)
+    periode_essai : INT
+    * status : VARCHAR(15)
+    motif_fin : VARCHAR(255)
+    document_file_id : UUID
+    --
+    * created_by : UUID
+    * created_at : TIMESTAMPTZ
+    * updated_by : UUID
+    * updated_at : TIMESTAMPTZ
+    * version : BIGINT
+}
+
+entity "hrm_dependent" as dep {
+    * **id** : UUID <<PK>>
+    --
+    * tenant_id : UUID
+    * organization_id : UUID
+    * employee_id : UUID <<FK>>
+    * nom : VARCHAR(100)
+    * prenom : VARCHAR(100)
+    * date_naissance : DATE
+    * lien_parente : VARCHAR(30)
+    certificat_file_id : UUID
+    --
+    * created_by : UUID
+    * created_at : TIMESTAMPTZ
+    * updated_by : UUID
+    * updated_at : TIMESTAMPTZ
+    * version : BIGINT
+}
+
+entity "hrm_leave_balance" as lb {
+    * **id** : UUID <<PK>>
+    --
+    * tenant_id : UUID
+    * organization_id : UUID
+    * employee_id : UUID <<FK>>
+    * type : VARCHAR(15)
+    * acquis : NUMERIC(5,2)
+    * pris : NUMERIC(5,2)
+    * annee : INT
+    --
+    * created_by : UUID
+    * created_at : TIMESTAMPTZ
+    * updated_by : UUID
+    * updated_at : TIMESTAMPTZ
+    * version : BIGINT
+}
+
+entity "hrm_leave_request" as lr {
+    * **id** : UUID <<PK>>
+    --
+    * tenant_id : UUID
+    * organization_id : UUID
+    agency_id : UUID
+    * employee_id : UUID <<FK>>
+    * type : VARCHAR(15)
+    * date_debut : DATE
+    * date_fin : DATE
+    * nb_jours : NUMERIC(5,2)
+    * status : VARCHAR(15)
+    motif : TEXT
+    valideur_party_id : UUID
+    valideur_display_name : VARCHAR(150)
+    date_validation : TIMESTAMPTZ
+    commentaire_valideur : TEXT
+    justificatif_file_id : UUID
+    --
+    * created_by : UUID
+    * created_at : TIMESTAMPTZ
+    * updated_by : UUID
+    * updated_at : TIMESTAMPTZ
+    * version : BIGINT
+}
+
+entity "hrm_loan_advance" as la {
+    * **id** : UUID <<PK>>
+    --
+    * tenant_id : UUID
+    * organization_id : UUID
+    agency_id : UUID
+    * employee_id : UUID <<FK>>
+    * montant : NUMERIC(15,2)
+    * solde_restant : NUMERIC(15,2)
+    * mensualite : NUMERIC(15,2)
+    * status : VARCHAR(15)
+    * date_debut : DATE
+    * nb_echeances : INT
+    motif : TEXT
+    approved_by : UUID
+    --
+    * created_by : UUID
+    * created_at : TIMESTAMPTZ
+    * updated_by : UUID
+    * updated_at : TIMESTAMPTZ
+    * version : BIGINT
+}
+
+entity "hrm_payroll_run" as pr {
+    * **id** : UUID <<PK>>
+    --
+    * tenant_id : UUID
+    * organization_id : UUID
+    agency_id : UUID <<nullable, filtre optionnel>>
+    * periode : VARCHAR(7) <<ex: 2026-03>>
+    * status : VARCHAR(15)
+    * total_brut : NUMERIC(15,2)
+    * total_net : NUMERIC(15,2)
+    * total_cnps_employe : NUMERIC(15,2)
+    * total_cnps_employeur : NUMERIC(15,2)
+    * total_irpp : NUMERIC(15,2)
+    * nb_employes : INT
+    calculated_at : TIMESTAMPTZ
+    validated_by : UUID
+    validated_at : TIMESTAMPTZ
+    --
+    * created_by : UUID
+    * created_at : TIMESTAMPTZ
+    * updated_by : UUID
+    * updated_at : TIMESTAMPTZ
+    * version : BIGINT
+}
+
+entity "hrm_payroll_entry" as pe {
+    * **id** : UUID <<PK>>
+    --
+    * tenant_id : UUID
+    * organization_id : UUID
+    * payroll_run_id : UUID <<FK>>
+    * employee_id : UUID <<FK>>
+    * salaire_base : NUMERIC(15,2)
+    * brut : NUMERIC(15,2)
+    * net : NUMERIC(15,2)
+    * cnps_employe : NUMERIC(15,2)
+    * cnps_employeur : NUMERIC(15,2)
+    * irpp : NUMERIC(15,2)
+    * cac : NUMERIC(15,2)
+    primes : NUMERIC(15,2)
+    retenues : NUMERIC(15,2)
+    avances_deduites : NUMERIC(15,2)
+    * payment_status : VARCHAR(15)
+    * payment_channel : VARCHAR(30)
+    account_ref : VARCHAR(30)
+    --
+    * created_by : UUID
+    * created_at : TIMESTAMPTZ
+    * updated_by : UUID
+    * updated_at : TIMESTAMPTZ
+    * version : BIGINT
+}
+
+entity "hrm_payslip_line" as pl {
+    * **id** : UUID <<PK>>
+    --
+    * tenant_id : UUID
+    * payroll_entry_id : UUID <<FK>>
+    * libelle : VARCHAR(100)
+    * type : VARCHAR(15)
+    base : NUMERIC(15,2)
+    taux : NUMERIC(8,5)
+    * montant : NUMERIC(15,2)
+    * ordre_affichage : INT
+}
+
+entity "hrm_training" as tr {
+    * **id** : UUID <<PK>>
+    --
+    * tenant_id : UUID
+    * organization_id : UUID
+    agency_id : UUID
+    * intitule : VARCHAR(200)
+    organisme : VARCHAR(150)
+    * date_debut : DATE
+    date_fin : DATE
+    cout : NUMERIC(15,2)
+    nb_places : INT
+    lieu : VARCHAR(150)
+    * status : VARCHAR(15)
+    --
+    * created_by : UUID
+    * created_at : TIMESTAMPTZ
+    * updated_by : UUID
+    * updated_at : TIMESTAMPTZ
+    * version : BIGINT
+}
+
+entity "hrm_training_enrollment" as te {
+    * **id** : UUID <<PK>>
+    --
+    * tenant_id : UUID
+    * training_id : UUID <<FK>>
+    * employee_id : UUID <<FK>>
+    * status : VARCHAR(15)
+    note_evaluation : NUMERIC(5,2)
+    attestation_file_id : UUID
+    --
+    * created_by : UUID
+    * created_at : TIMESTAMPTZ
+    * updated_by : UUID
+    * updated_at : TIMESTAMPTZ
+    * version : BIGINT
+}
+
+entity "hrm_performance_review" as rv {
+    * **id** : UUID <<PK>>
+    --
+    * tenant_id : UUID
+    * organization_id : UUID
+    * employee_id : UUID <<FK>>
+    evaluateur_party_id : UUID
+    evaluateur_display_name : VARCHAR(150)
+    * periode : VARCHAR(20)
+    note_globale : NUMERIC(5,2)
+    commentaires : TEXT
+    plan_action : TEXT
+    * status : VARCHAR(15)
+    --
+    * created_by : UUID
+    * created_at : TIMESTAMPTZ
+    * updated_by : UUID
+    * updated_at : TIMESTAMPTZ
+    * version : BIGINT
+}
+
+entity "hrm_review_objective" as ro {
+    * **id** : UUID <<PK>>
+    --
+    * tenant_id : UUID
+    * review_id : UUID <<FK>>
+    * description : TEXT
+    * poids : NUMERIC(5,2)
+    note_atteinte : NUMERIC(5,2)
+    commentaire : TEXT
+}
+
+' Relations
+emp ||--o{ ctr : employee_id
+emp ||--o{ dep : employee_id
+emp ||--o{ lb : employee_id
+emp ||--o{ lr : employee_id
+emp ||--o{ la : employee_id
+emp ||--o{ te : employee_id
+emp ||--o{ rv : employee_id
+
+pr ||--o{ pe : payroll_run_id
+pe ||--o{ pl : payroll_entry_id
+pe }o--|| emp : employee_id
+
+tr ||--o{ te : training_id
+
+rv ||--o{ ro : review_id
+
+@enduml

@@ -1,0 +1,131 @@
+{
+  "ucBadge": "UC-22 · Expense reports",
+  "title": "Expense reports",
+  "subtitle": "Capture, approval and reimbursement of business expenses.",
+  "status": {
+    "DRAFT": "Draft",
+    "SUBMITTED": "Pending",
+    "APPROVED": "Approved",
+    "REJECTED": "Rejected",
+    "REIMBURSED": "Reimbursed"
+  },
+  "category": {
+    "TRANSPORT": "Transport",
+    "REPAS": "Meals",
+    "HEBERGEMENT": "Lodging",
+    "MATERIEL": "Supplies",
+    "AUTRES": "Other"
+  },
+  "filters": {
+    "all": "All",
+    "submitted": "To review",
+    "approved": "Approved",
+    "reimbursed": "Paid",
+    "rejected": "Rejected"
+  },
+  "kpi": {
+    "toApprove": "To approve",
+    "approved": "Approved",
+    "reimbursed": "Reimbursed",
+    "rejected": "Rejected"
+  },
+  "queue": {
+    "title": "Reports awaiting validation",
+    "empty": "No expense report.",
+    "columns": {
+      "reference": "Ref.",
+      "author": "Author · Purpose",
+      "lines": "Lines",
+      "amount": "Amount (XAF)",
+      "status": "Status",
+      "actions": ""
+    }
+  },
+  "mine": {
+    "title": "My expense reports",
+    "subtitle": "Capture, reimbursement tracking and history.",
+    "empty": "No expense report yet. Click \"New report\" to start.",
+    "columns": {
+      "reference": "Ref.",
+      "objet": "Purpose",
+      "lines": "Lines",
+      "amount": "Amount (XAF)",
+      "status": "Status"
+    }
+  },
+  "new": {
+    "title": "New expense report",
+    "subtitle": "Add your expenses and attach the receipts.",
+    "fields": {
+      "objet": "Report purpose",
+      "objetPlaceholder": "e.g. Mobile Summit conference · Lagos",
+      "periode": "Period",
+      "mission": "Linked to a mission order?",
+      "missionNone": "None"
+    },
+    "lines": {
+      "title": "Expense lines",
+      "add": "Add a line",
+      "date": "Date",
+      "category": "Category",
+      "description": "Description",
+      "descriptionPlaceholder": "e.g. Flight Yaoundé → Lagos",
+      "amount": "Amount (XAF)",
+      "justificatif": "Receipt",
+      "attach": "Attach",
+      "attached": "Attached",
+      "uploading": "Uploading…",
+      "remove": "Remove",
+      "empty": "No line yet. Add your first expense."
+    },
+    "recap": {
+      "title": "Summary",
+      "toReimburse": "XAF · to reimburse",
+      "byCategory": "By category"
+    },
+    "saveDraft": "Draft",
+    "submit": "Submit",
+    "createdDraft": "Draft created.",
+    "submitted": "Report submitted for validation.",
+    "needLine": "Add at least one line before submitting."
+  },
+  "detail": {
+    "back": "Back",
+    "title": "Report {reference}",
+    "submittedBy": "Submitted by",
+    "period": "Period",
+    "mission": "Linked mission order",
+    "missionLink": "see order",
+    "lines": {
+      "title": "Expense lines",
+      "category": "Category",
+      "description": "Label",
+      "justificatif": "Receipt",
+      "amount": "Amount (XAF)",
+      "attached": "Attached",
+      "missing": "Missing",
+      "view": "View",
+      "empty": "No line on this report."
+    },
+    "total": "Total to reimburse",
+    "workflow": {
+      "draft": "Draft",
+      "submitted": "Submitted",
+      "decision": "Validation",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "reimbursed": "Reimbursed"
+    },
+    "actions": {
+      "submit": "Submit",
+      "approve": "Approve",
+      "reject": "Reject",
+      "reimburse": "Reimburse",
+      "addLine": "Add a line"
+    },
+    "submitSuccess": "Report submitted.",
+    "approveSuccess": "Report approved.",
+    "rejectSuccess": "Report rejected.",
+    "reimburseSuccess": "Report reimbursed."
+  }
+}

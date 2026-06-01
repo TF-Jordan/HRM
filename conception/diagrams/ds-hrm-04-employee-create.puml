@@ -1,0 +1,96 @@
+@startuml ds-hrm-04-employee-create
+!theme plain
+skinparam sequenceArrowThickness 1.5
+
+title DS-HRM-04 — Création d'un employé lié à un Actor existant
+
+actor "Admin RH" as admin
+participant "WebController\n<<adapter/in>>" as ctrl
+participant "EmployeeService\n<<application/service>>" as svc
+participant "ActorPort\n<<port/out>>" as actorPort
+participant "SettingsPort\n<<port/out>>" as settingsPort
+participant "EmployeeRepository\n<<port/out>>" as empRepo
+participant "ContractRepository\n<<port/out>>" as ctrRepo
+database "PostgreSQL" as db
+participant "OutboxEvent\n<<kernel-core>>" as outbox
+
+admin -> ctrl : POST /api/v1/hrm/employees\n{\n  actorId: "uuid-actor",\n  numCnps: "987654-B",\n  categorie: 5, echelon: "B",\n  departmentCode: "IT",\n  modePaiement: "MTN_MOBILE_MONEY",\n  numMobileMoney: "6XXXXXXXX",\n  contrat: {\n    type: "CDI",\n    salaireBase: 350000,\n    dateDebut: "2026-04-01"\n  }\n}
+activate ctrl
+
+note right of ctrl
+  tenantId et organizationId sont
+  extraits **implicitement** du JWT
+  via le SecurityContext (kernel-core).
+  L'Admin RH ne les spécifie jamais.
+  **agencyId** peut être passé
+  optionnellement pour rattacher
+  l'employé à une agence.
+end note
+
+ctrl -> svc : createEmployee(request)
+activate svc
+
+' Vérifier que l'acteur existe via actor-core
+svc -> actorPort : resolvePartyRef(actorId)
+activate actorPort
+note right of actorPort
+  Résolution via le mécanisme
+  PartyRef de common-core.
+  Retourne un snapshot dénormalisé.
+end note
+actorPort --> svc : PartyRef{partyId, displayName="MBARGA Jean"}
+deactivate actorPort
+
+' Vérifier qu'il n'existe pas déjà un Employee pour cet Actor
+svc -> empRepo : existsByActorIdAndTenant(actorId, tenantId)
+empRepo -> db : SELECT count(*) FROM hrm_employee WHERE actor_id = ?
+db --> empRepo : 0
+empRepo --> svc : false
+
+' Générer le matricule via settings-core (séquence documentaire)
+svc -> settingsPort : consumeSequence("hrm.sequence.matricule")
+activate settingsPort
+note right of settingsPort
+  settings-core consomme
+  atomiquement la séquence :
+  EMP-2026-0043
+  (DS-S-01)
+end note
+settingsPort --> svc : "EMP-2026-0043"
+deactivate settingsPort
+
+' Créer l'Employee
+svc -> svc : Employee.hire(actorRef, matricule, ...)
+note right of svc
+  L'agrégat Employee est créé.
+  Les champs BaseEntity (tenantId,
+  organizationId, agencyId, createdBy)
+  sont propagés automatiquement
+  par common-core.
+end note
+
+svc -> empRepo : save(employee)
+empRepo -> db : INSERT INTO hrm_employee (...)
+db --> empRepo : OK
+
+' Créer le contrat initial
+svc -> ctrRepo : save(Contract{type=CDI, salaireBase=350000, ...})
+ctrRepo -> db : INSERT INTO hrm_contract (...)
+db --> ctrRepo : OK
+
+' Initialiser les soldes de congés
+svc -> svc : initLeaveBalances(employee)\n→ ANNUAL: acquis=0, pris=0\n→ SICK: acquis=0, pris=0
+
+' Publier les événements
+svc -> outbox : insertOutboxEvent(\n  EMPLOYEE_CREATED,\n  {employeeId, actorId, matricule,\n   organizationId}\n)
+outbox -> db : INSERT kernel.outbox_event
+
+svc -> outbox : insertOutboxEvent(\n  CONTRACT_CREATED,\n  {contractId, employeeId, type=CDI,\n   dateDebut}\n)
+outbox -> db : INSERT kernel.outbox_event
+
+svc --> ctrl : Employee{id, matricule, status=ACTIVE}
+deactivate svc
+ctrl --> admin : HTTP 201 — EmployeeResponse
+deactivate ctrl
+
+@enduml

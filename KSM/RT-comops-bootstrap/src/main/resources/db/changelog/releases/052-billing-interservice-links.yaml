@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 052-billing-interservice-links
+      author: Blhack
+      changes:
+        - sqlFile:
+            path: ../../r2dbc/V52__billing_interservice_links.sql
+            relativeToChangelogFile: true

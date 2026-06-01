@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 051-cashier-linked-service-bills
+      author: Blhack
+      changes:
+        - sqlFile:
+            path: ../../r2dbc/V51__cashier_linked_service_bills.sql
+            relativeToChangelogFile: true

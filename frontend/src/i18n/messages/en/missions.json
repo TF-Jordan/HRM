@@ -1,0 +1,135 @@
+{
+  "ucBadge": "UC-13 · Mission orders",
+  "title": "Mission orders",
+  "subtitle": "Business trips, per-diems and employee validation.",
+  "status": {
+    "DRAFT": "Draft",
+    "PENDING_ACCEPTANCE": "Pending employee",
+    "APPROVED": "Approved",
+    "DECLINED": "Declined",
+    "IN_PROGRESS": "In progress",
+    "COMPLETED": "Completed",
+    "CANCELLED": "Cancelled"
+  },
+  "filters": {
+    "all": "All",
+    "pending": "Pending employee",
+    "approved": "Approved",
+    "inProgress": "In progress",
+    "declined": "Declined",
+    "completed": "Completed"
+  },
+  "kpi": {
+    "inProgress": "In progress",
+    "pending": "Pending",
+    "approved": "Approved",
+    "declined": "Declined"
+  },
+  "queue": {
+    "title": "Mission orders",
+    "empty": "No mission order.",
+    "columns": {
+      "reference": "Reference",
+      "employee": "Employee",
+      "destination": "Destination & purpose",
+      "period": "Period",
+      "allowance": "Per-diem (XAF)",
+      "status": "Status"
+    }
+  },
+  "inbox": {
+    "title": "My mission orders",
+    "subtitle": "Notifications, approvals and history of your trips.",
+    "pendingTitle": "Awaiting your validation",
+    "pendingEmpty": "Nothing awaiting your validation.",
+    "historyTitle": "History",
+    "historyEmpty": "No mission order received yet.",
+    "myAction": "Action required",
+    "accept": "Accept",
+    "decline": "Decline",
+    "destinationLabel": "Destination",
+    "objetLabel": "Purpose",
+    "periodLabel": "Period",
+    "allowanceLabel": "Per-diem",
+    "issuedAt": "Issued on"
+  },
+  "declined": {
+    "title": "Declined to amend",
+    "subtitle": "Employees declined these orders — correct and re-issue (amendment).",
+    "empty": "No declined orders waiting.",
+    "reasonLabel": "Decline reason",
+    "amend": "Create amendment"
+  },
+  "new": {
+    "title": "New mission order",
+    "subtitle": "Created as a draft. Issue it next to notify the employee.",
+    "submit": "Create order",
+    "submitAndIssue": "Create and issue",
+    "success": "Order created.",
+    "fields": {
+      "employee": "Employee",
+      "employeePlaceholder": "Pick an employee",
+      "destination": "Destination",
+      "destinationPlaceholder": "City · country",
+      "objet": "Purpose",
+      "objetPlaceholder": "e.g. West region store audit",
+      "dateDebut": "Start date",
+      "dateFin": "End date",
+      "montantAvance": "Advance amount (XAF)",
+      "centreCout": "Cost center"
+    }
+  },
+  "amend": {
+    "title": "Create amendment",
+    "subtitle": "Fix what was rejected. The amendment supersedes the declined order while preserving the audit trail.",
+    "parentReason": "Original decline reason",
+    "submit": "Create amendment",
+    "success": "Amendment created.",
+    "cancel": "Cancel"
+  },
+  "detail": {
+    "title": "Order {reference}",
+    "back": "Back to list",
+    "destination": "Destination",
+    "objet": "Purpose",
+    "period": "Period",
+    "days": "{count, plural, =1 {# day} other {# days}}",
+    "allowance": "Advance per-diem",
+    "centreCout": "Cost center",
+    "employee": "Employee",
+    "parent": "Amendment of",
+    "parentLink": "see parent",
+    "decisionReason": "Decline reason",
+    "decidedAt": "Decided at",
+    "issuedFor": "Awaiting validation",
+    "issueButton": "Issue to employee",
+    "issueSuccess": "Order issued. Employee has been notified.",
+    "acceptButton": "Accept",
+    "acceptSuccess": "Order accepted.",
+    "declineButton": "Decline",
+    "declineSuccess": "Order declined.",
+    "amendButton": "Create amendment",
+    "startButton": "Start",
+    "startSuccess": "Mission started.",
+    "completeButton": "Complete",
+    "completeSuccess": "Mission completed.",
+    "cancelButton": "Cancel",
+    "cancelSuccess": "Order cancelled.",
+    "workflow": {
+      "draft": "Draft",
+      "issued": "Issued",
+      "decision": "Employee decision",
+      "approved": "Approved",
+      "declined": "Declined",
+      "running": "Running",
+      "done": "Done"
+    },
+    "decline": {
+      "title": "Decline this mission order",
+      "subtitle": "Give the reason so your manager can correct and re-issue.",
+      "reasonLabel": "Decline reason",
+      "reasonPlaceholder": "e.g. Conflict with a training session, allowance too low…",
+      "confirm": "Decline order"
+    }
+  }
+}

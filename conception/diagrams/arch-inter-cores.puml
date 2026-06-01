@@ -1,0 +1,65 @@
+@startuml arch-inter-cores
+!theme plain
+skinparam componentStyle rectangle
+
+title Cartographie des interactions hrm-core ↔ autres cores
+
+' Cores existants
+package "Transverse" #EEEEEE {
+    component [common-core] as common
+    component [kernel-core] as kernel
+}
+
+package "Identité & Accès" #E8F5E9 {
+    component [auth-core] as auth
+    component [roles-core] as roles
+    component [actor-core] as actor
+}
+
+package "Organisation" #FFF3E0 {
+    component [organization-core] as org
+    component [settings-core] as settings
+}
+
+package "Services" #E3F2FD {
+    component [administration-core] as admin
+    component [file-core] as file
+}
+
+package "Finance" #FCE4EC {
+    component [accounting-core] as accounting
+    component [treasury-core] as treasury
+}
+
+' Nouveau core
+package "Ressources Humaines" #E8EAF6 {
+    component [**hrm-core**] as hrm #7986CB
+}
+
+queue "Kafka" as kafka
+
+' Relations synchrones (port/out)
+hrm -down-> actor : <<port/out>>\nrésolution PartyRef
+hrm -down-> org : <<port/out>>\nstructure départements
+hrm -down-> settings : <<port/out>>\nparamètres paie\n& séquences
+hrm -down-> file : <<port/out>>\nstockage documents
+
+' Relations implicites
+hrm .up.> common : <<extends>>\nBaseEntity, PartyRef\nPagedResponse
+hrm .up.> kernel : <<utilise>>\noutbox, audit,\ntenant routing
+hrm ..> roles : <<@Secured>>\nvérification transparente\nvia filtre WebFlux
+hrm ..> auth : <<implicite>>\nJWT validé par\nkernel-core filter
+
+' Relations asynchrones (Kafka)
+hrm -right-> kafka : publie\nPAYROLL_VALIDATED\nPAYMENT_ORDER_CREATED\nEMPLOYEE_CREATED\nLEAVE_APPROVED
+kafka -right-> accounting : consume\nPAYROLL_VALIDATED
+kafka -right-> treasury : consume\nPAYMENT_ORDER_CREATED
+
+' Callbacks
+treasury --> kafka : publie\nPAYMENT_COMPLETED\nPAYMENT_FAILED
+kafka --> hrm : consume\nPAYMENT_COMPLETED\nPAYMENT_FAILED
+
+actor --> kafka : publie\nACTOR_UPDATED
+kafka --> hrm : consume\nACTOR_UPDATED
+
+@enduml

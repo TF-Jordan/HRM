@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 069-hrm-matricule-sequence
+      author: codex
+      changes:
+        - sqlFile:
+            path: db/r2dbc/V69__hrm_matricule_sequence.sql
+            relativeToChangelogFile: false

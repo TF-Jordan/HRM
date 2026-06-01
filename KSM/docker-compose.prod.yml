@@ -1,0 +1,51 @@
+services:
+  app:
+    image: iwm-backend:${IWM_IMAGE_TAG:-latest}
+    env_file:
+      - .env.prod
+    environment:
+      IWM_BOOTSTRAP_CLIENT_ENABLED: "true"
+      IWM_BOOTSTRAP_CLIENT_SECRET: ""
+      IWM_MANAGEMENT_API_KEY: ""
+      IWM_R2DBC_PASSWORD: ""
+      IWM_LIQUIBASE_PASSWORD: ""
+      IWM_REDIS_PASSWORD: ""
+      IWM_BOOTSTRAP_CLIENT_SECRET_FILE: /run/secrets/iwm_bootstrap_client_secret
+      IWM_MANAGEMENT_API_KEY_FILE: /run/secrets/iwm_management_api_key
+      IWM_R2DBC_PASSWORD_FILE: /run/secrets/iwm_r2dbc_password
+      IWM_LIQUIBASE_PASSWORD_FILE: /run/secrets/iwm_liquibase_password
+      IWM_REDIS_PASSWORD_FILE: /run/secrets/iwm_redis_password
+    secrets:
+      - iwm_bootstrap_client_secret
+      - iwm_management_api_key
+      - iwm_r2dbc_password
+      - iwm_liquibase_password
+      - iwm_redis_password
+      - source: iwm_jwt_private_key
+        target: jwt-private-key.pem
+    restart: always
+
+  gateway:
+    env_file:
+      - .env.prod
+    environment:
+      IWM_GATEWAY_PUBLIC_HTTP_PORT: "${IWM_GATEWAY_PUBLIC_HTTP_PORT:-80}"
+      IWM_GATEWAY_PUBLIC_HTTPS_PORT: "${IWM_GATEWAY_PUBLIC_HTTPS_PORT:-443}"
+    volumes:
+      - ./ops/nginx/certs/prod/server.crt:/etc/nginx/certs/server.crt:ro
+      - ./ops/nginx/certs/prod/server.key:/etc/nginx/certs/server.key:ro
+    restart: always
+
+secrets:
+  iwm_bootstrap_client_secret:
+    file: ./ops/secrets/prod/iwm_bootstrap_client_secret.txt
+  iwm_management_api_key:
+    file: ./ops/secrets/prod/iwm_management_api_key.txt
+  iwm_r2dbc_password:
+    file: ./ops/secrets/prod/iwm_r2dbc_password.txt
+  iwm_liquibase_password:
+    file: ./ops/secrets/prod/iwm_liquibase_password.txt
+  iwm_redis_password:
+    file: ./ops/secrets/prod/iwm_redis_password.txt
+  iwm_jwt_private_key:
+    file: ./ops/secrets/prod/jwt-private-key.pem

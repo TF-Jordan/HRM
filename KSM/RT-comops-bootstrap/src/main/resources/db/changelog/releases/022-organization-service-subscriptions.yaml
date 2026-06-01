@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - changeSet:
+      id: 022-organization-service-subscriptions
+      author: Blhack
+      sqlFile:
+        path: ../../r2dbc/V22__organization_service_subscriptions.sql
+        relativeToChangelogFile: true
+        splitStatements: true
+        stripComments: false

@@ -1,0 +1,71 @@
+spring:
+  config:
+    activate:
+      on-profile: test-memory
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.r2dbc.R2dbcAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.r2dbc.R2dbcDataAutoConfiguration
+      - org.springframework.boot.actuate.autoconfigure.r2dbc.ConnectionFactoryHealthContributorAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.redis.RedisReactiveAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration
+
+management:
+  server:
+    port: ${MANAGEMENT_SERVER_PORT:${server.port:8080}}
+  health:
+    elasticsearch:
+      enabled: false
+    redis:
+      enabled: false
+  endpoint:
+    health:
+      show-details: always
+      show-components: always
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+
+iwm:
+  outbox:
+    replay-on-startup:
+      enabled: false
+    delivery:
+      type: recording
+    consumers:
+      mode: inline
+    relay:
+      enabled: false
+      fixed-delay: 5s
+      batch-size: 100
+      max-attempts: 3
+      initial-backoff: 1s
+      backoff-multiplier: 2.0
+      max-backoff: 30s
+    allow-manual-relay-only: true
+  management:
+    security:
+      api-key: test-management-key
+  persistence:
+    mode: memory
+  redis:
+    permission-cache:
+      enabled: false
+  search:
+    elasticsearch:
+      enabled: false
+  security:
+    client-applications:
+      bootstrap:
+        enabled: true
+        client-id: test-client
+        name: Test Client
+        description: Test bootstrap client application.
+        secret: test-key
+    jwt:
+      auto-generate-key-pair: true
+  organization:
+    service-subscriptions:
+      provision-subscribable-services-on-create: true

@@ -1,0 +1,96 @@
+{
+  "ucBadge": "UC-13 · Formations",
+  "title": "Formations",
+  "subtitle": "Catalogue de formations et suivi des inscriptions.",
+  "status": {
+    "PLANNED": "Planifiée",
+    "IN_PROGRESS": "En cours",
+    "COMPLETED": "Terminée",
+    "CANCELLED": "Annulée"
+  },
+  "enrollmentStatus": {
+    "ENROLLED": "Inscrit",
+    "COMPLETED": "Validé",
+    "CANCELLED": "Annulée"
+  },
+  "filters": {
+    "all": "Toutes",
+    "planned": "Planifiées",
+    "inProgress": "En cours",
+    "completed": "Terminées"
+  },
+  "kpi": {
+    "active": "Formations actives",
+    "inProgress": "En cours",
+    "completed": "Complétées",
+    "enrollments": "Inscriptions"
+  },
+  "catalog": {
+    "title": "Catalogue · Sessions",
+    "empty": "Aucune session de formation."
+  },
+  "card": {
+    "seats": "Inscrits",
+    "session": "Session",
+    "cost": "Coût"
+  },
+  "enrollments": {
+    "title": "Inscriptions récentes",
+    "empty": "Aucune inscription pour le moment.",
+    "columns": {
+      "employee": "Employé",
+      "training": "Formation",
+      "start": "Démarrage",
+      "status": "Statut"
+    }
+  },
+  "mine": {
+    "title": "Mes formations",
+    "subtitle": "Vos inscriptions et leur progression.",
+    "empty": "Aucune inscription. Parcourez le catalogue pour vous inscrire.",
+    "browse": "Parcourir le catalogue",
+    "columns": { "training": "Formation", "dates": "Dates", "status": "Statut" }
+  },
+  "enroll": "M'inscrire",
+  "enrolled": "Déjà inscrit",
+  "full": "Complète",
+  "enrollSuccess": "Inscription enregistrée.",
+  "new": {
+    "title": "Nouvelle session",
+    "subtitle": "Planifiez une session et ouvrez les inscriptions.",
+    "submit": "Créer la session",
+    "success": "Session créée.",
+    "fields": {
+      "intitule": "Intitulé",
+      "intitulePlaceholder": "Ex. Leadership & Management d'équipe",
+      "organisme": "Organisme",
+      "organismePlaceholder": "Ex. IFC Cameroun",
+      "dateDebut": "Date de début",
+      "dateFin": "Date de fin",
+      "cout": "Coût (XAF)",
+      "nbPlaces": "Places disponibles",
+      "lieu": "Lieu"
+    }
+  },
+  "detail": {
+    "back": "Retour",
+    "organisme": "Organisme",
+    "period": "Période",
+    "location": "Lieu",
+    "cost": "Coût",
+    "seats": "Places",
+    "enrollments": "Inscriptions",
+    "enrollmentsEmpty": "Aucune inscription pour cette session.",
+    "actions": {
+      "start": "Démarrer",
+      "complete": "Terminer",
+      "cancel": "Annuler",
+      "enroll": "Inscrire un employé"
+    },
+    "startSuccess": "Session démarrée.",
+    "completeSuccess": "Session terminée.",
+    "cancelSuccess": "Session annulée.",
+    "enrollEmployee": "Inscrire",
+    "columns": { "employee": "Employé", "status": "Statut", "note": "Note", "actions": "" }
+  }
+}

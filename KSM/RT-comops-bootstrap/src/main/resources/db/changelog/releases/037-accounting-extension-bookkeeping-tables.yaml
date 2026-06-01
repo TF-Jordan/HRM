@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 037-accounting-extension-bookkeeping-tables
+      author: Blhack
+      changes:
+        - sqlFile:
+            path: db/r2dbc/V37__accounting_extension_bookkeeping_tables.sql
+            relativeToChangelogFile: false

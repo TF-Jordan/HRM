@@ -1,0 +1,135 @@
+{
+  "ucBadge": "UC-13 · Ordres de mission",
+  "title": "Ordres de mission",
+  "subtitle": "Déplacements professionnels, indemnités et validation de l'employé.",
+  "status": {
+    "DRAFT": "Brouillon",
+    "PENDING_ACCEPTANCE": "À valider (employé)",
+    "APPROVED": "Approuvée",
+    "DECLINED": "Refusée",
+    "IN_PROGRESS": "En cours",
+    "COMPLETED": "Terminée",
+    "CANCELLED": "Annulée"
+  },
+  "filters": {
+    "all": "Toutes",
+    "pending": "À valider",
+    "approved": "Approuvées",
+    "inProgress": "En cours",
+    "declined": "Refusées",
+    "completed": "Terminées"
+  },
+  "kpi": {
+    "inProgress": "En cours",
+    "pending": "À valider",
+    "approved": "Approuvées",
+    "declined": "Refusées"
+  },
+  "queue": {
+    "title": "Ordres de mission",
+    "empty": "Aucun ordre de mission.",
+    "columns": {
+      "reference": "Référence",
+      "employee": "Employé",
+      "destination": "Destination & objet",
+      "period": "Période",
+      "allowance": "Indemnité (XAF)",
+      "status": "Statut"
+    }
+  },
+  "inbox": {
+    "title": "Mes ordres de mission",
+    "subtitle": "Notifications, validations et historique de vos déplacements.",
+    "pendingTitle": "À valider par moi",
+    "pendingEmpty": "Aucun ordre en attente de votre validation.",
+    "historyTitle": "Historique",
+    "historyEmpty": "Aucun ordre de mission reçu.",
+    "myAction": "Action requise",
+    "accept": "Accepter",
+    "decline": "Refuser",
+    "destinationLabel": "Destination",
+    "objetLabel": "Objet",
+    "periodLabel": "Période",
+    "allowanceLabel": "Indemnité",
+    "issuedAt": "Émis le"
+  },
+  "declined": {
+    "title": "Refus à traiter",
+    "subtitle": "Vos employés ont refusé ces ordres — corrigez puis renvoyez (avenant).",
+    "empty": "Aucun refus à traiter.",
+    "reasonLabel": "Motif du refus",
+    "amend": "Émettre un avenant"
+  },
+  "new": {
+    "title": "Nouvel ordre de mission",
+    "subtitle": "L'ordre sera créé en brouillon. Émettez-le ensuite à l'employé pour validation.",
+    "submit": "Créer l'ordre",
+    "submitAndIssue": "Créer et émettre",
+    "success": "Ordre créé.",
+    "fields": {
+      "employee": "Employé",
+      "employeePlaceholder": "Sélectionnez l'employé",
+      "destination": "Destination",
+      "destinationPlaceholder": "Ville · pays",
+      "objet": "Objet de la mission",
+      "objetPlaceholder": "Ex. Audit point de vente Ouest",
+      "dateDebut": "Date de début",
+      "dateFin": "Date de fin",
+      "montantAvance": "Montant d'avance (XAF)",
+      "centreCout": "Centre de coût"
+    }
+  },
+  "amend": {
+    "title": "Émettre un avenant",
+    "subtitle": "Corrigez les éléments rejetés. Cet avenant remplacera l'ordre refusé tout en gardant l'audit trail.",
+    "parentReason": "Motif du refus initial",
+    "submit": "Créer l'avenant",
+    "success": "Avenant créé.",
+    "cancel": "Annuler"
+  },
+  "detail": {
+    "title": "Ordre {reference}",
+    "back": "Retour à la liste",
+    "destination": "Destination",
+    "objet": "Objet",
+    "period": "Période",
+    "days": "{count, plural, =1 {# jour} other {# jours}}",
+    "allowance": "Indemnité (avance)",
+    "centreCout": "Centre de coût",
+    "employee": "Employé",
+    "parent": "Avenant de",
+    "parentLink": "voir ordre parent",
+    "decisionReason": "Motif du refus",
+    "decidedAt": "Décidé le",
+    "issuedFor": "Validation en attente",
+    "issueButton": "Émettre à l'employé",
+    "issueSuccess": "Ordre émis. L'employé a été notifié.",
+    "acceptButton": "Accepter",
+    "acceptSuccess": "Ordre accepté.",
+    "declineButton": "Refuser",
+    "declineSuccess": "Ordre refusé.",
+    "amendButton": "Créer un avenant",
+    "startButton": "Démarrer",
+    "startSuccess": "Mission démarrée.",
+    "completeButton": "Clôturer",
+    "completeSuccess": "Mission terminée.",
+    "cancelButton": "Annuler",
+    "cancelSuccess": "Ordre annulé.",
+    "workflow": {
+      "draft": "Brouillon",
+      "issued": "Émis",
+      "decision": "Validation employé",
+      "approved": "Approuvée",
+      "declined": "Refusée",
+      "running": "En cours",
+      "done": "Terminée"
+    },
+    "decline": {
+      "title": "Refuser cet ordre de mission",
+      "subtitle": "Donnez la raison du refus pour que votre manager puisse corriger et renvoyer.",
+      "reasonLabel": "Motif du refus",
+      "reasonPlaceholder": "Ex. Dates en conflit avec une formation, indemnité insuffisante…",
+      "confirm": "Refuser l'ordre"
+    }
+  }
+}

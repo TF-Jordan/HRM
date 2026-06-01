@@ -1,0 +1,98 @@
+@startuml ds-hrm-02-payroll-validate
+!theme plain
+skinparam sequenceArrowThickness 1.5
+
+title DS-HRM-02 — Validation de la paie et publication vers accounting-core / treasury-core
+
+actor "Comptable / DAF" as comptable
+participant "WebController\n<<adapter/in>>" as ctrl
+participant "PayrollService\n<<application/service>>" as svc
+participant "PayrollRunRepository\n<<port/out>>" as payRepo
+database "PostgreSQL" as db
+participant "OutboxEvent\n<<kernel-core>>" as outbox
+queue "Apache Kafka\niwm.events.business" as kafka
+participant "accounting-core" as acc
+participant "treasury-core" as tre
+
+comptable -> ctrl : POST /api/v1/hrm/payroll/runs/{id}/validate
+activate ctrl
+
+ctrl -> svc : validatePayroll(runId, validatorId)
+activate svc
+
+svc -> payRepo : findById(runId)
+payRepo -> db : SELECT ... WHERE id = ?
+db --> payRepo : PayrollRun{status=CALCULATED}
+payRepo --> svc : PayrollRun
+
+alt status != CALCULATED
+    svc --> ctrl : PayrollAlreadyValidatedException
+    ctrl --> comptable : HTTP 409 — ApiErrorResponse (common-core)
+else status == CALCULATED
+
+    svc -> svc : payrollRun.validate(validatorId)\nstatus → VALIDATED\nvalidatedAt → now()
+
+    svc -> payRepo : save(payrollRun)
+    payRepo -> db : UPDATE hrm_payroll_run SET status='VALIDATED'
+    db --> payRepo : OK
+
+    == Publication événement PAYROLL_VALIDATED ==
+
+    svc -> outbox : insertOutboxEvent(\n  type=PAYROLL_VALIDATED,\n  aggregateType=PayrollRun,\n  payload={\n    payrollRunId,\n    periode,\n    organizationId,\n    entries: [{employeeId, brut, net,\n      cnpsEmploye, cnpsEmployeur,\n      irpp, cac}]\n  }\n)
+    outbox -> db : INSERT kernel.outbox_event
+    db --> outbox : OK
+
+    == Publication événements PAYMENT_ORDER_CREATED (1 par employé) ==
+
+    loop pour chaque PayrollEntry
+        svc -> outbox : insertOutboxEvent(\n  type=PAYMENT_ORDER_CREATED,\n  payload={\n    employeeId,\n    amount: entry.net,\n    channel: entry.paymentChannel,\n    accountRef: entry.accountRef,\n    reference: "SAL-2026-03-{matricule}"\n  }\n)
+        outbox -> db : INSERT kernel.outbox_event
+    end
+
+    svc --> ctrl : PayrollRun{status=VALIDATED}
+    deactivate svc
+    ctrl --> comptable : HTTP 200 — PayrollRunResponse
+
+end
+
+== Relais asynchrone outbox → Kafka (kernel-core scheduler) ==
+
+outbox -[#blue]-> kafka : relay PAYROLL_VALIDATED
+note right of kafka : Topic: iwm.events.business
+
+kafka -[#green]-> acc : consume PAYROLL_VALIDATED
+activate acc
+note right of acc
+  accounting-core génère
+  automatiquement les écritures
+  comptables en partie double :
+  661 → Rémunérations (débit)
+  4211 → Personnel dues (crédit)
+  4311 → CNPS à payer (crédit)
+  4421 → IRPP à payer (crédit)
+end note
+acc --> acc : DS-AC-01 — Génération écritures
+deactivate acc
+
+kafka -[#orange]-> tre : consume PAYMENT_ORDER_CREATED
+activate tre
+note right of tre
+  treasury-core crée les
+  transactions bancaires /
+  mobile money correspondantes
+  via ses canaux de paiement.
+end note
+tre --> tre : DS-TR-02 — Création transaction
+deactivate tre
+
+... Callback asynchrone ...
+
+tre -[#orange]-> kafka : PAYMENT_COMPLETED\n{employeeId, transactionId, status}
+
+kafka -[#green]-> svc : consume PAYMENT_COMPLETED
+activate svc
+svc -> payRepo : updatePaymentStatus(employeeId, COMPLETED)
+payRepo -> db : UPDATE hrm_payroll_entry SET payment_status='COMPLETED'
+deactivate svc
+
+@enduml

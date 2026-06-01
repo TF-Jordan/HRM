@@ -1,0 +1,199 @@
+{
+  "ucBadge": "ADMIN · SuperAdmin",
+  "landing": {
+    "title": "Administration",
+    "subtitle": "Set up your platform: organization, users, roles and services.",
+    "cards": {
+      "organization": {
+        "title": "Organization",
+        "description": "Legal info, logo, status, contacts"
+      },
+      "agencies": {
+        "title": "Agencies",
+        "description": "Create and manage agencies attached to your organization"
+      },
+      "users": {
+        "title": "Users",
+        "description": "Create, list and assign roles"
+      },
+      "roles": {
+        "title": "Roles & permissions",
+        "description": "Role templates, provisioning and permissions"
+      },
+      "services": {
+        "title": "Services",
+        "description": "Modules enabled for your organization"
+      },
+      "audit": {
+        "title": "Audit",
+        "description": "Administrative action history"
+      },
+      "settings": {
+        "title": "Settings",
+        "description": "Document sequences, payroll, holidays"
+      }
+    }
+  },
+  "organization": {
+    "title": "Organization",
+    "subtitle": "Legal info used in every document (payslips, contracts, declarations).",
+    "save": "Save",
+    "saved": "Organization updated",
+    "tabs": {
+      "general": "General",
+      "identity": "Identity",
+      "legal": "Legal information",
+      "contact": "Contact",
+      "branding": "Branding",
+      "governance": "Governance"
+    },
+    "bannerTitle": "Source of truth:",
+    "bannerText": "This data is synced across all your HR documents upon saving.",
+    "legalBannerText": "This data appears on your payslips, contracts and tax declarations. Any change takes effect immediately on the next generated documents.",
+    "contactBannerText": "The email is normalized to lowercase by organization_core. It is used as a contact identifier in exports and declarations.",
+    "uploadLogoLabel": "Click or drag an image (PNG, JPG, SVG · max 2 MB)",
+    "keywordPlaceholder": "Add a keyword and press Enter",
+    "currentStatus": "Current status",
+    "docPreviewTitle": "Document header preview",
+    "impactedTitle": "Impacted documents",
+    "sections": {
+      "denomination": "Denomination",
+      "characteristics": "Characteristics",
+      "registration": "Registration",
+      "capital": "Capital & management",
+      "contact": "Contact",
+      "logo": "Logo",
+      "keywords": "Keywords",
+      "govStatus": "Governance status",
+      "govMeta": "Governance metadata",
+      "govActions": "Governance actions"
+    },
+    "fields": {
+      "code": "Internal code",
+      "shortName": "Trade name",
+      "longName": "Legal name",
+      "service": "Organization type",
+      "email": "Email",
+      "websiteUrl": "Website",
+      "socialNetwork": "Social network",
+      "description": "Description",
+      "legalForm": "Legal form",
+      "isIndividualBusiness": "Individual business",
+      "businessRegistrationNumber": "RCCM (Trade registry)",
+      "taxNumber": "NIU (Tax ID)",
+      "capitalShare": "Share capital",
+      "ceoName": "CEO",
+      "yearFounded": "Year founded",
+      "numberOfEmployees": "Headcount",
+      "keywords": "Keywords",
+      "governedByUserId": "Governed by (userId)",
+      "governedAt": "Decision date",
+      "governanceReason": "Reason",
+      "businessActorId": "BusinessActor ID",
+      "tenantId": "Tenant ID"
+    },
+    "hints": {
+      "shortName": "Display name used in the interface and exports",
+      "longName": "Full legal name as it appears on legal documents",
+      "code": "Unique short identifier (e.g. KSM-001)",
+      "service": "Service category subscribed to on the platform",
+      "legalForm": "Legal form (SARL, SA, SAS, GIE…)",
+      "description": "Free text description visible in your public profile",
+      "rccm": "Trade and Personal Property Credit Register number",
+      "niu": "Unique Identification Number (tax authority)",
+      "ceo": "Full name of the primary executive",
+      "email": "Official contact email address of the organization",
+      "social": "URL of the main social media page (LinkedIn, Twitter…)",
+      "keywords": "Free-form terms for search and filtering"
+    },
+    "govStatus": {
+      "PENDING_APPROVAL": "Pending approval",
+      "APPROVED": "Approved · Active",
+      "SUSPENDED": "Suspended",
+      "CLOSED": "Closed",
+      "REJECTED": "Rejected"
+    },
+    "actions": {
+      "reason": "Reason (optional)",
+      "reasonPlaceholder": "Explain the reason for this action…",
+      "suspend": {
+        "title": "Suspend organization",
+        "subtitle": "The organization will be temporarily deactivated. You can reopen it later.",
+        "confirm": "Suspend"
+      },
+      "close": {
+        "title": "Close organization",
+        "subtitle": "The organization will be permanently closed. This action is irreversible.",
+        "confirm": "Close permanently"
+      },
+      "reopen": {
+        "title": "Reopen organization",
+        "subtitle": "The organization will be reactivated and return to APPROVED status.",
+        "confirm": "Reopen"
+      }
+    },
+    "impacted": {
+      "payslips": "Payslips",
+      "contracts": "Employment contracts",
+      "attestations": "Attestations",
+      "declarations": "Tax & social declarations",
+      "missions": "Mission orders"
+    },
+    "lifecycle": {
+      "title": "Organization lifecycle",
+      "note": "Transitions are executed by organization_core. Only an authorized admin can trigger suspend(), close() or reopen()."
+    }
+  },
+  "users": {
+    "title": "Users",
+    "subtitle": "Users sign in to HR Core with their email and the password you communicate to them.",
+    "new": "New user",
+    "columns": {
+      "name": "Name",
+      "email": "Email",
+      "status": "Status",
+      "roles": "Roles",
+      "createdAt": "Created at",
+      "actions": "Actions"
+    },
+    "create": {
+      "title": "Create a user",
+      "subtitle": "Identity + login account + role, all in one step.",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "email": "Email",
+      "phone": "Phone",
+      "roleHint": "At least one role is required for the user to sign in.",
+      "submit": "Create user",
+      "success": "User created",
+      "tempPasswordTitle": "Temporary password",
+      "tempPasswordHint": "Share this with {name}. It is displayed only once.",
+      "copy": "Copy",
+      "copied": "Copied",
+      "openUsers": "Back to list"
+    }
+  },
+  "roles": {
+    "title": "Roles & permissions",
+    "subtitle": "Available role templates and roles enabled on your tenant.",
+    "provisioned": "Roles already provisioned",
+    "templates": "Available templates",
+    "provisionDefaults": "Provision default roles",
+    "provisioned_success": "Roles provisioned",
+    "scopeType": "Scope",
+    "permissionsCount": "Permissions",
+    "code": "Code",
+    "name": "Name"
+  },
+  "audit": {
+    "title": "Audit",
+    "subtitle": "Latest administrative actions.",
+    "columns": {
+      "when": "When",
+      "action": "Action",
+      "target": "Target",
+      "actor": "Actor",
+      "details": "Details"
+    }
+  }
+}

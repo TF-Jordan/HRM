@@ -1,0 +1,96 @@
+{
+  "ucBadge": "UC-13 · Trainings",
+  "title": "Trainings",
+  "subtitle": "Training catalog and enrolment tracking.",
+  "status": {
+    "PLANNED": "Planned",
+    "IN_PROGRESS": "In progress",
+    "COMPLETED": "Completed",
+    "CANCELLED": "Cancelled"
+  },
+  "enrollmentStatus": {
+    "ENROLLED": "Enrolled",
+    "COMPLETED": "Completed",
+    "CANCELLED": "Cancelled"
+  },
+  "filters": {
+    "all": "All",
+    "planned": "Planned",
+    "inProgress": "In progress",
+    "completed": "Completed"
+  },
+  "kpi": {
+    "active": "Active sessions",
+    "inProgress": "In progress",
+    "completed": "Completed",
+    "enrollments": "Enrolments"
+  },
+  "catalog": {
+    "title": "Catalog · Sessions",
+    "empty": "No training session."
+  },
+  "card": {
+    "seats": "Enrolled",
+    "session": "Session",
+    "cost": "Cost"
+  },
+  "enrollments": {
+    "title": "Recent enrolments",
+    "empty": "No enrolment yet.",
+    "columns": {
+      "employee": "Employee",
+      "training": "Training",
+      "start": "Start",
+      "status": "Status"
+    }
+  },
+  "mine": {
+    "title": "My trainings",
+    "subtitle": "Your enrolments and their progress.",
+    "empty": "No enrolment yet. Browse the catalog to enrol.",
+    "browse": "Browse catalog",
+    "columns": { "training": "Training", "dates": "Dates", "status": "Status" }
+  },
+  "enroll": "Enrol me",
+  "enrolled": "Already enrolled",
+  "full": "Full",
+  "enrollSuccess": "Enrolment saved.",
+  "new": {
+    "title": "New session",
+    "subtitle": "Plan a session and open enrolments.",
+    "submit": "Create session",
+    "success": "Session created.",
+    "fields": {
+      "intitule": "Title",
+      "intitulePlaceholder": "e.g. Team leadership & management",
+      "organisme": "Provider",
+      "organismePlaceholder": "e.g. IFC Cameroon",
+      "dateDebut": "Start date",
+      "dateFin": "End date",
+      "cout": "Cost (XAF)",
+      "nbPlaces": "Seats",
+      "lieu": "Location"
+    }
+  },
+  "detail": {
+    "back": "Back",
+    "organisme": "Provider",
+    "period": "Period",
+    "location": "Location",
+    "cost": "Cost",
+    "seats": "Seats",
+    "enrollments": "Enrolments",
+    "enrollmentsEmpty": "No enrolment for this session.",
+    "actions": {
+      "start": "Start",
+      "complete": "Complete",
+      "cancel": "Cancel",
+      "enroll": "Enrol employee"
+    },
+    "startSuccess": "Session started.",
+    "completeSuccess": "Session completed.",
+    "cancelSuccess": "Session cancelled.",
+    "enrollEmployee": "Enrol",
+    "columns": { "employee": "Employee", "status": "Status", "note": "Score", "actions": "" }
+  }
+}

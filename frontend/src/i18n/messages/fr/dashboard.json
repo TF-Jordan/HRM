@@ -1,0 +1,128 @@
+{
+  "title": "Tableau de bord",
+  "greeting": "Bonjour, {name}",
+  "headline": "{actions} actions vous attendent aujourd'hui · {deadlines} échéances cette semaine",
+  "actions": {
+    "export": "Exporter le rapport",
+    "newEmployee": "Nouvel employé"
+  },
+  "hero": {
+    "effectif": "Effectif total",
+    "effectifSub": "{entries} entrées · {departs} départs (mois)",
+    "masseSalariale": "Masse salariale",
+    "absenteism": "Taux d'absentéisme",
+    "absenteismSub": "sur 30 derniers jours",
+    "engagement": "Engagement",
+    "engagementSub": "eNPS · sondage Q1"
+  },
+  "evolution": {
+    "title": "Évolution de l'effectif",
+    "subtitle": "12 derniers mois · entrées vs départs",
+    "entries": "entrées",
+    "departs": "départs",
+    "turnover": "Turnover",
+    "netGrowth": "Croissance nette"
+  },
+  "departments": {
+    "title": "Répartition par dpt",
+    "empty": "Aucun département renseigné"
+  },
+  "todo": {
+    "title": "À traiter",
+    "subtitle": "Approbations & demandes en attente",
+    "all": "Tout ({count})",
+    "urgent": "Urgent ({count})",
+    "details": "Détails",
+    "empty": "Rien à traiter pour le moment"
+  },
+  "urgency": {
+    "today": "Aujourd'hui",
+    "thisWeek": "Cette semaine",
+    "later": "Plus tard"
+  },
+  "upcoming": {
+    "title": "Prochaines échéances",
+    "empty": "Aucune échéance à venir"
+  },
+  "quick": {
+    "title": "Actions rapides",
+    "employee": "Ajouter un employé",
+    "payroll": "Lancer la paie",
+    "leaveCal": "Calendrier congés",
+    "offer": "Publier une offre",
+    "training": "Planifier formation",
+    "declaration": "Déclaration sociale"
+  },
+  "activity": {
+    "title": "Activité récente",
+    "seeAll": "Voir tout",
+    "empty": "Aucune activité récente"
+  },
+  "metrics": {
+    "title": "Métriques clés",
+    "openOffers": "Recrutements ouverts",
+    "trainings": "Formations en cours",
+    "reviewsClose": "Évaluations à clôturer",
+    "bulletins": "Bulletins du mois"
+  },
+  "employee": {
+    "title": "Mon espace",
+    "greetingMorning": "Bonjour, {name} 👋",
+    "greetingAfternoon": "Bon après-midi, {name} 👋",
+    "greetingEvening": "Bonsoir, {name} 👋",
+    "headline": "{actions} élément(s) en attente de votre part",
+    "kpi": {
+      "leaveBalance": "Solde congés",
+      "leaveUnit": "jours",
+      "leaveSub": "{acquis}j acquis cette année",
+      "monthHours": "Heures du mois",
+      "monthHoursSub": "Période {periode}",
+      "netMonth": "Net du mois",
+      "netMonthSub": "Dernier bulletin validé",
+      "trainings": "Formations",
+      "trainingsUnit": "inscriptions",
+      "trainingSub": "Formations actives"
+    },
+    "quickActions": {
+      "title": "Actions rapides",
+      "leave": "Demander un congé",
+      "leaveSub": "Soumettre une demande",
+      "expense": "Note de frais",
+      "expenseSub": "Rembourser vos dépenses",
+      "time": "Feuille de temps",
+      "timeSub": "Période {periode}",
+      "mission": "Ordre de mission",
+      "missionSub": "Planifier un déplacement",
+      "training": "Mes formations",
+      "trainingSub": "Voir le catalogue",
+      "documents": "Mes documents",
+      "documentsSub": "Télécharger vos fichiers"
+    },
+    "requests": {
+      "title": "Mes demandes récentes",
+      "subtitle": "Congés, notes de frais, missions",
+      "seeAll": "Tout voir",
+      "empty": "Aucune demande récente",
+      "stepSubmitted": "Soumis",
+      "stepValidated": "Validé",
+      "stepClosed": "Clôturé"
+    },
+    "upcoming": {
+      "title": "Prochains événements",
+      "empty": "Aucun événement à venir"
+    },
+    "leaveDonut": {
+      "title": "Soldes de congés",
+      "remaining": "jours restants",
+      "requestLeave": "Demander un congé",
+      "noBalances": "Aucun solde configuré"
+    },
+    "netEvolution": {
+      "title": "Évolution du net",
+      "subtitle": "12 derniers bulletins de paie",
+      "noData": "Pas encore de données de paie",
+      "currentNet": "Net actuel :",
+      "seePayslips": "Voir mes bulletins"
+    }
+  }
+}

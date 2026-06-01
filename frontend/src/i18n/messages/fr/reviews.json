@@ -1,0 +1,103 @@
+{
+  "ucBadge": "UC-14 · Évaluations",
+  "title": "Évaluations",
+  "subtitle": "Campagnes périodiques, objectifs et plans de carrière.",
+  "status": {
+    "DRAFT": "Brouillon",
+    "SUBMITTED": "Soumise",
+    "ACKNOWLEDGED": "Reconnue",
+    "FINALIZED": "Finalisée"
+  },
+  "filters": {
+    "all": "Toutes",
+    "draft": "Brouillons",
+    "submitted": "En attente",
+    "acknowledged": "Reconnues",
+    "finalized": "Finalisées"
+  },
+  "kpi": {
+    "cycle": "Cycle actif",
+    "toClose": "À clôturer",
+    "averageScore": "Score moyen",
+    "finalized": "Finalisées"
+  },
+  "queue": {
+    "title": "Évaluations · {periode}",
+    "empty": "Aucune évaluation pour cette période.",
+    "columns": {
+      "reference": "Réf.",
+      "employee": "Employé",
+      "evaluator": "Évaluateur",
+      "cycle": "Cycle",
+      "score": "Score",
+      "status": "Statut"
+    }
+  },
+  "mine": {
+    "title": "Mes évaluations",
+    "subtitle": "Vos évaluations de performance et plans d'action.",
+    "empty": "Aucune évaluation pour le moment."
+  },
+  "new": {
+    "title": "Nouvelle évaluation",
+    "subtitle": "Démarrez l'évaluation d'un employé pour la période active.",
+    "submit": "Créer",
+    "success": "Évaluation créée.",
+    "fields": {
+      "employee": "Employé",
+      "evaluator": "Évaluateur (nom)",
+      "evaluatorPlaceholder": "Ex. Marc Foga",
+      "periode": "Période",
+      "periodePlaceholder": "Ex. 2026-Q1"
+    }
+  },
+  "detail": {
+    "back": "Retour",
+    "periode": "Période",
+    "evaluator": "Évaluateur",
+    "score": "Score global",
+    "comments": "Commentaires",
+    "planAction": "Plan d'action",
+    "submitTitle": "Soumettre l'évaluation",
+    "submitSubtitle": "Renseignez la note globale, vos commentaires et le plan d'action.",
+    "noteLabel": "Note globale (sur 5)",
+    "commentsLabel": "Commentaires",
+    "planActionLabel": "Plan d'action",
+    "submitConfirm": "Soumettre",
+    "submitSuccess": "Évaluation soumise.",
+    "acknowledgeSuccess": "Évaluation reconnue.",
+    "finalizeSuccess": "Évaluation finalisée.",
+    "actions": {
+      "submit": "Soumettre",
+      "acknowledge": "Reconnaître",
+      "finalize": "Finaliser"
+    },
+    "workflow": {
+      "draft": "Brouillon",
+      "submitted": "Soumise",
+      "acknowledged": "Reconnue",
+      "finalized": "Finalisée"
+    },
+    "objectives": {
+      "title": "Objectifs",
+      "empty": "Aucun objectif renseigné.",
+      "addTitle": "Ajouter un objectif",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Ex. Augmenter la couverture des tests à 80%",
+      "poidsLabel": "Poids (%)",
+      "addConfirm": "Ajouter",
+      "addSuccess": "Objectif ajouté.",
+      "evaluateTitle": "Évaluer",
+      "noteLabel": "Note d'atteinte",
+      "commentLabel": "Commentaire",
+      "evaluateConfirm": "Évaluer",
+      "evaluateSuccess": "Objectif évalué.",
+      "columns": {
+        "description": "Objectif",
+        "poids": "Poids",
+        "note": "Note",
+        "actions": ""
+      }
+    }
+  }
+}

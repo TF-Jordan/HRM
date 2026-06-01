@@ -1,0 +1,52 @@
+{
+  "ucBadge": "UC-15 · Budget formation",
+  "title": "Budget de formation",
+  "subtitle": "Allocation, consommation et reste à dépenser.",
+  "year": "Année",
+  "kpi": {
+    "allocated": "Alloué",
+    "engaged": "Engagé",
+    "realized": "Réalisé",
+    "available": "Disponible"
+  },
+  "hero": {
+    "annual": "Budget annuel {annee}",
+    "consumed": "consommé",
+    "engaged": "engagé",
+    "available": "disponible",
+    "used": "utilisé"
+  },
+  "queue": {
+    "title": "Allocations par département",
+    "empty": "Aucun budget alloué pour cette année.",
+    "columns": {
+      "departement": "Département",
+      "allocated": "Alloué (XAF)",
+      "engaged": "Engagé",
+      "realized": "Réalisé",
+      "available": "Disponible",
+      "actions": ""
+    }
+  },
+  "new": {
+    "title": "Allouer un budget",
+    "subtitle": "Définissez l'enveloppe pour l'année.",
+    "submit": "Allouer",
+    "success": "Budget alloué.",
+    "fields": {
+      "annee": "Année",
+      "agencyId": "Agence (optionnel)",
+      "montantAlloue": "Montant alloué (XAF)"
+    }
+  },
+  "detail": {
+    "back": "Retour",
+    "engageTitle": "Engager des fonds",
+    "realiseTitle": "Réaliser une dépense",
+    "montantLabel": "Montant (XAF)",
+    "engageConfirm": "Engager",
+    "realiseConfirm": "Réaliser",
+    "engageSuccess": "Engagement enregistré.",
+    "realiseSuccess": "Dépense enregistrée."
+  }
+}

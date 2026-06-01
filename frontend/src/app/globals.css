@@ -1,0 +1,324 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap");
+@import "tailwindcss";
+
+/* ==========================================================
+   HR Core — Design System v2 (porté vers Tailwind v4)
+   Bold orange · refined depth · futuristic
+   ========================================================== */
+
+@theme inline {
+  /* Brand orange — slightly more saturated */
+  --color-orange-50: #fff1e6;
+  --color-orange-100: #ffdcc2;
+  --color-orange-200: #ffc299;
+  --color-orange-300: #ffa366;
+  --color-orange-400: #fb8533;
+  --color-orange-500: #f26b0f;
+  --color-orange-600: #dc560a;
+  --color-orange-700: #b0420a;
+  --color-orange-800: #7a2d08;
+
+  /* Refined neutrals — warm but not muddy */
+  --color-bg: #f8f5ef;
+  --color-bg-2: #f1ece0;
+  --color-bg-elev: #ffffff;
+  --color-bg-soft: #f2ebdb;
+  --color-bg-dim: #efe7d2;
+
+  /* Dark surface */
+  --color-dark: #110d08;
+  --color-dark-2: #1c1610;
+  --color-dark-3: #2b2218;
+  --color-dark-line: #3a2f22;
+
+  /* Borders */
+  --color-line: #e8dec6;
+  --color-line-soft: #f0e8d4;
+  --color-line-strong: #d5c8aa;
+
+  /* Ink (texts) */
+  --color-ink: #0f0b05;
+  --color-ink-2: #2e281e;
+  --color-ink-3: #6b6253;
+  --color-ink-4: #9a9283;
+  --color-ink-5: #c4bcae;
+
+  /* Status colors */
+  --color-success-50: #e8f8f0;
+  --color-success-500: #10b981;
+  --color-success-600: #059669;
+  --color-info-50: #e8f0fe;
+  --color-info-500: #3b82f6;
+  --color-info-600: #2563eb;
+  --color-danger-50: #feecec;
+  --color-danger-500: #ef4444;
+  --color-danger-600: #dc2626;
+  --color-warning-50: #fff6e0;
+  --color-warning-500: #f59e0b;
+  --color-warning-600: #d97706;
+  --color-violet-50: #f1ecfe;
+  --color-violet-500: #8b5cf6;
+  --color-violet-600: #7c3aed;
+  --color-teal-50: #dcfce7;
+  --color-teal-500: #14b8a6;
+  --color-teal-600: #0d9488;
+
+  /* Radii */
+  --radius-xs: 8px;
+  --radius-sm: 12px;
+  --radius-md: 16px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+  --radius-2xl: 36px;
+
+  /* Fonts */
+  --font-sans: "Inter", -apple-system, system-ui, sans-serif;
+  --font-display: "Inter Tight", "Inter", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+
+  /* Motion */
+  --ease-brand: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-brand-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* CSS variables for shadows + gradients (cannot use @theme for non-utility tokens) */
+:root {
+  --shadow-xs: 0 1px 2px rgba(15, 11, 5, 0.04);
+  --shadow-sm: 0 1px 2px rgba(15, 11, 5, 0.05), 0 2px 4px rgba(15, 11, 5, 0.03);
+  --shadow-md: 0 4px 12px -2px rgba(15, 11, 5, 0.06), 0 2px 4px rgba(15, 11, 5, 0.03);
+  --shadow-lg: 0 12px 32px -8px rgba(15, 11, 5, 0.12), 0 4px 8px rgba(15, 11, 5, 0.04);
+  --shadow-xl: 0 24px 60px -16px rgba(15, 11, 5, 0.2), 0 8px 16px rgba(15, 11, 5, 0.06);
+  --shadow-orange: 0 8px 24px -4px rgba(242, 107, 15, 0.35), 0 2px 4px rgba(242, 107, 15, 0.2);
+  --shadow-orange-lg: 0 16px 48px -8px rgba(242, 107, 15, 0.45),
+    0 4px 8px rgba(242, 107, 15, 0.25);
+  --shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  --shadow-dark: 0 8px 32px -4px rgba(0, 0, 0, 0.45);
+
+  --grad-orange: linear-gradient(135deg, #fb8533 0%, #f26b0f 50%, #dc560a 100%);
+  --grad-orange-2: linear-gradient(180deg, #ff9d52 0%, #f26b0f 100%);
+  --grad-orange-soft: linear-gradient(135deg, #ffc299 0%, #f26b0f 100%);
+  --grad-amber: linear-gradient(135deg, #fcd34d 0%, #f59e0b 100%);
+  --grad-green: linear-gradient(135deg, #34d399 0%, #059669 100%);
+  --grad-blue: linear-gradient(135deg, #60a5fa 0%, #2563eb 100%);
+  --grad-violet: linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%);
+  --grad-teal: linear-gradient(135deg, #2dd4bf 0%, #0d9488 100%);
+  --grad-dark: linear-gradient(135deg, #2b2218 0%, #0f0b05 100%);
+
+  --glass: rgba(255, 255, 255, 0.65);
+  --glass-border: rgba(255, 255, 255, 0.8);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "cv11", "ss01";
+  letter-spacing: -0.005em;
+}
+
+/* Ambient backdrop */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(1000px circle at 70% -10%, rgba(242, 107, 15, 0.1) 0%, transparent 45%),
+    radial-gradient(800px circle at 10% 30%, rgba(252, 211, 77, 0.06) 0%, transparent 50%),
+    radial-gradient(900px circle at 90% 100%, rgba(220, 86, 10, 0.08) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Subtle grain texture */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(circle at 1px 1px, rgba(15, 11, 5, 0.025) 1px, transparent 0);
+  background-size: 22px 22px;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.6;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: var(--color-ink);
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+input,
+select,
+textarea {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Custom utilities for design fidelity */
+@utility text-display {
+  font-size: 34px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  font-family: var(--font-display);
+}
+@utility text-h1 {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  font-family: var(--font-display);
+}
+@utility text-h2 {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.022em;
+  font-family: var(--font-display);
+}
+@utility text-h3 {
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.012em;
+  font-family: var(--font-display);
+}
+@utility font-mono-tabular {
+  font-family: var(--font-mono);
+  font-feature-settings: "tnum";
+  font-variant-numeric: tabular-nums;
+}
+
+@utility bg-grad-orange {
+  background: var(--grad-orange);
+}
+@utility bg-grad-orange-2 {
+  background: var(--grad-orange-2);
+}
+@utility bg-grad-orange-soft {
+  background: var(--grad-orange-soft);
+}
+@utility bg-grad-amber {
+  background: var(--grad-amber);
+}
+@utility bg-grad-green {
+  background: var(--grad-green);
+}
+@utility bg-grad-blue {
+  background: var(--grad-blue);
+}
+@utility bg-grad-violet {
+  background: var(--grad-violet);
+}
+@utility bg-grad-teal {
+  background: var(--grad-teal);
+}
+@utility bg-grad-dark {
+  background: var(--grad-dark);
+}
+
+@utility shadow-xs-brand {
+  box-shadow: var(--shadow-xs);
+}
+@utility shadow-sm-brand {
+  box-shadow: var(--shadow-sm);
+}
+@utility shadow-md-brand {
+  box-shadow: var(--shadow-md);
+}
+@utility shadow-lg-brand {
+  box-shadow: var(--shadow-lg);
+}
+@utility shadow-xl-brand {
+  box-shadow: var(--shadow-xl);
+}
+@utility shadow-orange-brand {
+  box-shadow: var(--shadow-orange);
+}
+@utility shadow-orange-lg-brand {
+  box-shadow: var(--shadow-orange-lg);
+}
+@utility shadow-dark-brand {
+  box-shadow: var(--shadow-dark);
+}
+@utility shadow-inset-top {
+  box-shadow: var(--shadow-inset);
+}
+
+@utility glow-orange {
+  background: var(--grad-orange);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-line-strong);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-ink-4);
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Pulse animation */
+@keyframes pulse-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(242, 107, 15, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(242, 107, 15, 0);
+  }
+}
+.pulse-glow {
+  animation: pulse-glow 2s infinite;
+}
+
+/* Fade-up animation */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.fade-up {
+  animation: fade-up 0.5s var(--ease-brand-out) backwards;
+}

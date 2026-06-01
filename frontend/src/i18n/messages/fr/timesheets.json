@@ -1,0 +1,60 @@
+{
+  "ucBadge": "UC-19/20 · Temps",
+  "status": {
+    "DRAFT": "Brouillon",
+    "SUBMITTED": "Soumis",
+    "VALIDATED": "Validé"
+  },
+  "hours": {
+    "normales": "Heures normales",
+    "supplementaires": "Heures supplémentaires",
+    "nuit": "Heures de nuit",
+    "weekend": "Heures de week-end",
+    "absences": "Absences non justifiées",
+    "total": "Total heures"
+  },
+  "admin": {
+    "title": "Temps & Présences",
+    "subtitle": "Consolidez les heures de l'organisation pour la paie.",
+    "period": "Période",
+    "empty": "Aucun timesheet pour cette période.",
+    "columns": {
+      "employee": "Employé",
+      "normales": "Normales",
+      "supp": "Supp.",
+      "nuit": "Nuit",
+      "weekend": "WE",
+      "absences": "Abs.",
+      "total": "Total",
+      "status": "Statut"
+    }
+  },
+  "my": {
+    "title": "Mes temps",
+    "subtitle": "Saisissez et soumettez vos heures travaillées par mois.",
+    "new": "Nouvelle saisie",
+    "empty": "Aucune saisie pour cette période.",
+    "noEmployee": "Aucune fiche employé associée à votre compte. Contactez votre administrateur RH.",
+    "period": "Période"
+  },
+  "new": {
+    "title": "Nouvelle saisie de temps",
+    "subtitle": "Renseignez vos heures pour le mois. Les jours fériés camerounais sont indiqués pour information.",
+    "fields": {
+      "periode": "Période (mois)"
+    },
+    "submit": "Enregistrer le brouillon",
+    "success": "Saisie enregistrée",
+    "holidaysHint": "Jours fériés ce mois : {count}"
+  },
+  "detail": {
+    "title": "Saisie de temps",
+    "actions": {
+      "submit": "Soumettre",
+      "validate": "Valider"
+    },
+    "submitSuccess": "Timesheet soumis",
+    "validateSuccess": "Timesheet validé",
+    "breakdown": "Détail des heures"
+  }
+}

@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 048-cashier-and-cash-accounting-links
+      author: Blhack
+      changes:
+        - sqlFile:
+            path: ../../r2dbc/V48__cashier_and_cash_accounting_links.sql
+            relativeToChangelogFile: true

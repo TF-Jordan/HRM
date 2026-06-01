@@ -1,0 +1,103 @@
+{
+  "ucBadge": "UC-24/25 · Compétences",
+  "title": "Compétences",
+  "subtitle": "Référentiel, cartographie et plans de développement.",
+  "kpi": {
+    "totalSkills": "Compétences",
+    "totalEvaluated": "Évaluées",
+    "rareSkills": "Compétences rares",
+    "averageScore": "Score moyen"
+  },
+  "kpiSub": {
+    "categories": "{count} catégories",
+    "perEmployee": "{ratio} par employé",
+    "lessThan3": "< 3 experts internes",
+    "scale": "sur 5"
+  },
+  "filters": {
+    "all": "Toutes",
+    "uncategorized": "Sans catégorie"
+  },
+  "cartography": {
+    "title": "Cartographie · Top compétences",
+    "subtitle": "Couverture & niveau moyen",
+    "empty": "Aucune compétence dans le référentiel.",
+    "employeesShort": "{count} évalués",
+    "level": "niveau"
+  },
+  "experts": {
+    "title": "Experts internes ★★★★★",
+    "empty": "Aucun expert pour le moment."
+  },
+  "gap": {
+    "title": "Analyse des écarts",
+    "subtitle": "Cible vs niveau atteint",
+    "empty": "Aucun écart à signaler.",
+    "columns": {
+      "skill": "Compétence",
+      "category": "Catégorie",
+      "target": "Cible",
+      "actual": "Actuel",
+      "gap": "Écart",
+      "toTrain": "À former",
+      "evaluated": "Évalués"
+    }
+  },
+  "skillTabs": {
+    "cartography": "Cartographie",
+    "list": "Référentiel",
+    "gap": "Écarts"
+  },
+  "list": {
+    "title": "Référentiel",
+    "empty": "Aucune compétence définie.",
+    "columns": {
+      "name": "Compétence",
+      "category": "Catégorie",
+      "evaluated": "Évalués",
+      "average": "Niveau moyen"
+    }
+  },
+  "new": {
+    "title": "Ajouter une compétence",
+    "subtitle": "Étendez le référentiel.",
+    "submit": "Créer",
+    "success": "Compétence créée.",
+    "fields": {
+      "name": "Nom",
+      "namePlaceholder": "Ex. React Native, AWS Cloud",
+      "categorie": "Catégorie",
+      "categoriePlaceholder": "Ex. Tech, Management, Soft skills",
+      "description": "Description"
+    }
+  },
+  "detail": {
+    "back": "Retour",
+    "categorie": "Catégorie",
+    "description": "Description",
+    "employees": "Évalués",
+    "averageActual": "Niveau actuel moyen",
+    "averageTarget": "Cible moyenne",
+    "experts": "Experts (niveau 5)",
+    "evaluationsTitle": "Toutes les évaluations",
+    "evaluationsEmpty": "Aucun employé évalué sur cette compétence.",
+    "addAssessment": "Évaluer un employé",
+    "addSuccess": "Évaluation enregistrée.",
+    "columns": {
+      "employee": "Employé",
+      "actual": "Niveau actuel",
+      "target": "Cible",
+      "date": "Évaluée le"
+    }
+  },
+  "assessment": {
+    "title": "Évaluation de compétence",
+    "fields": {
+      "employee": "Employé",
+      "skill": "Compétence",
+      "actual": "Niveau actuel (1-5)",
+      "target": "Niveau attendu (1-5)",
+      "date": "Date d'évaluation"
+    }
+  }
+}

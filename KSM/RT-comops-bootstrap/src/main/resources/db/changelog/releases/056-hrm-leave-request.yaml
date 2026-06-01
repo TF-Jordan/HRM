@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 056-hrm-leave-request
+      author: jordan
+      changes:
+        - sqlFile:
+            path: db/r2dbc/V56__hrm_leave_request.sql
+            relativeToChangelogFile: false

@@ -1,0 +1,199 @@
+{
+  "ucBadge": "ADMIN · SuperAdmin",
+  "landing": {
+    "title": "Administration",
+    "subtitle": "Configurez votre plateforme : organisation, utilisateurs, rôles et services.",
+    "cards": {
+      "organization": {
+        "title": "Organisation",
+        "description": "Informations légales, logo, statuts, contacts"
+      },
+      "agencies": {
+        "title": "Agences",
+        "description": "Créer et gérer les agences rattachées à votre organisation"
+      },
+      "users": {
+        "title": "Utilisateurs",
+        "description": "Créer, lister et attribuer des rôles aux utilisateurs"
+      },
+      "roles": {
+        "title": "Rôles & permissions",
+        "description": "Modèles de rôles, provisionnement et permissions"
+      },
+      "services": {
+        "title": "Services",
+        "description": "Modules activés pour votre organisation"
+      },
+      "audit": {
+        "title": "Audit",
+        "description": "Historique des actions d'administration"
+      },
+      "settings": {
+        "title": "Paramètres",
+        "description": "Séquences de documents, paie, jours fériés"
+      }
+    }
+  },
+  "organization": {
+    "title": "Organisation",
+    "subtitle": "Informations légales utilisées dans tous vos documents (bulletins, contrats, déclarations).",
+    "save": "Enregistrer",
+    "saved": "Organisation mise à jour",
+    "tabs": {
+      "general": "Général",
+      "identity": "Identité",
+      "legal": "Informations légales",
+      "contact": "Contact",
+      "branding": "Charte graphique",
+      "governance": "Gouvernance"
+    },
+    "bannerTitle": "Source de vérité :",
+    "bannerText": "Ces données sont synchronisées dans tous vos documents RH dès l'enregistrement.",
+    "legalBannerText": "Ces données figurent sur vos bulletins de paie, contrats et déclarations fiscales. Toute modification prend effet immédiatement sur les prochains documents générés.",
+    "contactBannerText": "L'email est normalisé en minuscules par organization_core. Il sert d'identifiant de contact dans les exports et les déclarations.",
+    "uploadLogoLabel": "Cliquez ou glissez une image (PNG, JPG, SVG · max 2 Mo)",
+    "keywordPlaceholder": "Ajouter un mot-clé et appuyer sur Entrée",
+    "currentStatus": "Statut actuel",
+    "docPreviewTitle": "Aperçu en-tête document",
+    "impactedTitle": "Documents impactés",
+    "sections": {
+      "denomination": "Dénomination",
+      "characteristics": "Caractéristiques",
+      "registration": "Immatriculation",
+      "capital": "Capital & direction",
+      "contact": "Contact",
+      "logo": "Logo",
+      "keywords": "Mots-clés",
+      "govStatus": "Statut de gouvernance",
+      "govMeta": "Métadonnées de gouvernance",
+      "govActions": "Actions de gouvernance"
+    },
+    "fields": {
+      "code": "Code interne",
+      "shortName": "Nom commercial",
+      "longName": "Raison sociale",
+      "service": "Type d'organisation",
+      "email": "Email",
+      "websiteUrl": "Site web",
+      "socialNetwork": "Réseau social",
+      "description": "Description",
+      "legalForm": "Forme juridique",
+      "isIndividualBusiness": "Entrepreneur individuel",
+      "businessRegistrationNumber": "RCCM",
+      "taxNumber": "NIU",
+      "capitalShare": "Capital social",
+      "ceoName": "Directeur général",
+      "yearFounded": "Année de création",
+      "numberOfEmployees": "Effectif",
+      "keywords": "Mots-clés",
+      "governedByUserId": "Gouverné par (userId)",
+      "governedAt": "Date de décision",
+      "governanceReason": "Motif",
+      "businessActorId": "BusinessActor ID",
+      "tenantId": "Tenant ID"
+    },
+    "hints": {
+      "shortName": "Nom affiché dans l'interface et les exports",
+      "longName": "Raison sociale complète telle qu'elle apparaît sur les documents légaux",
+      "code": "Identifiant court unique (ex : KSM-001)",
+      "service": "Catégorie de service souscrit sur la plateforme",
+      "legalForm": "Forme juridique (SARL, SA, SAS, GIE…)",
+      "description": "Description libre, visible dans votre profil public",
+      "rccm": "Numéro au Registre du Commerce et du Crédit Mobilier",
+      "niu": "Numéro d'Identification Unique (administration fiscale)",
+      "ceo": "Nom complet du dirigeant principal",
+      "email": "Adresse email de contact officielle de l'organisation",
+      "social": "URL de la page réseau social principale (LinkedIn, Twitter…)",
+      "keywords": "Termes libres pour la recherche et le filtrage"
+    },
+    "govStatus": {
+      "PENDING_APPROVAL": "En attente d'approbation",
+      "APPROVED": "Approuvée · Active",
+      "SUSPENDED": "Suspendue",
+      "CLOSED": "Fermée",
+      "REJECTED": "Rejetée"
+    },
+    "actions": {
+      "reason": "Motif (optionnel)",
+      "reasonPlaceholder": "Expliquez la raison de cette action…",
+      "suspend": {
+        "title": "Suspendre l'organisation",
+        "subtitle": "L'organisation sera temporairement désactivée. Vous pourrez la réouvrir.",
+        "confirm": "Suspendre"
+      },
+      "close": {
+        "title": "Fermer l'organisation",
+        "subtitle": "L'organisation sera définitivement fermée. Cette action est irréversible.",
+        "confirm": "Fermer définitivement"
+      },
+      "reopen": {
+        "title": "Réouvrir l'organisation",
+        "subtitle": "L'organisation sera réactivée et retrouvera son statut APPROVED.",
+        "confirm": "Réouvrir"
+      }
+    },
+    "impacted": {
+      "payslips": "Bulletins de paie",
+      "contracts": "Contrats de travail",
+      "attestations": "Attestations",
+      "declarations": "Déclarations fiscales & sociales",
+      "missions": "Ordres de mission"
+    },
+    "lifecycle": {
+      "title": "Cycle de vie de l'organisation",
+      "note": "Les transitions sont exécutées par organization_core. Seul un admin habilité peut déclencher suspend(), close() ou reopen()."
+    }
+  },
+  "users": {
+    "title": "Utilisateurs",
+    "subtitle": "Les utilisateurs accèdent à HR Core avec leur email et le mot de passe que vous leur communiquez.",
+    "new": "Nouvel utilisateur",
+    "columns": {
+      "name": "Nom",
+      "email": "Email",
+      "status": "Statut",
+      "roles": "Rôles",
+      "createdAt": "Créé le",
+      "actions": "Actions"
+    },
+    "create": {
+      "title": "Créer un utilisateur",
+      "subtitle": "Identité + compte d'accès + rôle, en une étape.",
+      "firstName": "Prénom",
+      "lastName": "Nom",
+      "email": "Email",
+      "phone": "Téléphone",
+      "roleHint": "Au moins un rôle est requis pour que l'utilisateur puisse se connecter.",
+      "submit": "Créer l'utilisateur",
+      "success": "Utilisateur créé",
+      "tempPasswordTitle": "Mot de passe temporaire",
+      "tempPasswordHint": "Communiquez-le à {name}. Cette information n'est affichée qu'une seule fois.",
+      "copy": "Copier",
+      "copied": "Copié",
+      "openUsers": "Retour à la liste"
+    }
+  },
+  "roles": {
+    "title": "Rôles & permissions",
+    "subtitle": "Modèles de rôles disponibles et rôles activés sur votre tenant.",
+    "provisioned": "Rôles déjà provisionnés",
+    "templates": "Modèles disponibles",
+    "provisionDefaults": "Provisionner les rôles par défaut",
+    "provisioned_success": "Rôles provisionnés",
+    "scopeType": "Portée",
+    "permissionsCount": "Permissions",
+    "code": "Code",
+    "name": "Nom"
+  },
+  "audit": {
+    "title": "Audit",
+    "subtitle": "Dernières actions d'administration.",
+    "columns": {
+      "when": "Date",
+      "action": "Action",
+      "target": "Cible",
+      "actor": "Acteur",
+      "details": "Détails"
+    }
+  }
+}

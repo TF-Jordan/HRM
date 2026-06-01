@@ -1,0 +1,7 @@
+databaseChangeLog:
+  - changeSet:
+      id: 021-client-applications
+      author: Blhack
+      sqlFile:
+        path: ../../r2dbc/V21__client_applications.sql
+        relativeToChangelogFile: true

@@ -1,0 +1,103 @@
+{
+  "ucBadge": "UC-14 · Reviews",
+  "title": "Performance reviews",
+  "subtitle": "Periodic campaigns, objectives and career plans.",
+  "status": {
+    "DRAFT": "Draft",
+    "SUBMITTED": "Submitted",
+    "ACKNOWLEDGED": "Acknowledged",
+    "FINALIZED": "Finalized"
+  },
+  "filters": {
+    "all": "All",
+    "draft": "Draft",
+    "submitted": "Pending",
+    "acknowledged": "Acknowledged",
+    "finalized": "Finalized"
+  },
+  "kpi": {
+    "cycle": "Active cycle",
+    "toClose": "To close",
+    "averageScore": "Average score",
+    "finalized": "Finalized"
+  },
+  "queue": {
+    "title": "Reviews · {periode}",
+    "empty": "No review for this period.",
+    "columns": {
+      "reference": "Ref.",
+      "employee": "Employee",
+      "evaluator": "Evaluator",
+      "cycle": "Cycle",
+      "score": "Score",
+      "status": "Status"
+    }
+  },
+  "mine": {
+    "title": "My reviews",
+    "subtitle": "Your performance reviews and action plans.",
+    "empty": "No review yet."
+  },
+  "new": {
+    "title": "New review",
+    "subtitle": "Start an employee review for the current period.",
+    "submit": "Create",
+    "success": "Review created.",
+    "fields": {
+      "employee": "Employee",
+      "evaluator": "Evaluator (name)",
+      "evaluatorPlaceholder": "e.g. Marc Foga",
+      "periode": "Period",
+      "periodePlaceholder": "e.g. 2026-Q1"
+    }
+  },
+  "detail": {
+    "back": "Back",
+    "periode": "Period",
+    "evaluator": "Evaluator",
+    "score": "Overall score",
+    "comments": "Comments",
+    "planAction": "Action plan",
+    "submitTitle": "Submit review",
+    "submitSubtitle": "Fill the overall score, your comments and the action plan.",
+    "noteLabel": "Overall score (out of 5)",
+    "commentsLabel": "Comments",
+    "planActionLabel": "Action plan",
+    "submitConfirm": "Submit",
+    "submitSuccess": "Review submitted.",
+    "acknowledgeSuccess": "Review acknowledged.",
+    "finalizeSuccess": "Review finalized.",
+    "actions": {
+      "submit": "Submit",
+      "acknowledge": "Acknowledge",
+      "finalize": "Finalize"
+    },
+    "workflow": {
+      "draft": "Draft",
+      "submitted": "Submitted",
+      "acknowledged": "Acknowledged",
+      "finalized": "Finalized"
+    },
+    "objectives": {
+      "title": "Objectives",
+      "empty": "No objective yet.",
+      "addTitle": "Add an objective",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "e.g. Raise test coverage to 80%",
+      "poidsLabel": "Weight (%)",
+      "addConfirm": "Add",
+      "addSuccess": "Objective added.",
+      "evaluateTitle": "Evaluate",
+      "noteLabel": "Achievement score",
+      "commentLabel": "Comment",
+      "evaluateConfirm": "Evaluate",
+      "evaluateSuccess": "Objective evaluated.",
+      "columns": {
+        "description": "Objective",
+        "poids": "Weight",
+        "note": "Score",
+        "actions": ""
+      }
+    }
+  }
+}

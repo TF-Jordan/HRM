@@ -1,0 +1,82 @@
+@startuml ds-hrm-05-loan-advance
+!theme plain
+skinparam sequenceArrowThickness 1.5
+
+title DS-HRM-05 — Demande et déduction d'une avance sur salaire
+
+actor "Employé" as employe
+actor "Comptable / DAF" as comptable
+participant "WebController\n<<adapter/in>>" as ctrl
+participant "LoanAdvanceService\n<<application/service>>" as svc
+participant "LoanAdvanceRepository\n<<port/out>>" as loanRepo
+participant "PayrollService\n<<application/service>>" as paySvc
+database "PostgreSQL" as db
+participant "OutboxEvent\n<<kernel-core>>" as outbox
+
+== Phase 1 : Demande ==
+
+employe -> ctrl : POST /api/v1/hrm/loan-advances\n{montant: 100000, nbEcheances: 2, motif: "..."}
+activate ctrl
+ctrl -> svc : requestLoanAdvance(employeeId, request)
+activate svc
+
+svc -> loanRepo : findActiveByEmployee(employeeId)
+loanRepo --> svc : List<LoanAdvance> (solde total en cours)
+
+alt solde en cours > plafond autorisé
+    svc --> ctrl : LoanAdvanceLimitExceededException
+    ctrl --> employe : HTTP 422 — ApiErrorResponse
+else OK
+    svc -> svc : LoanAdvance{\n  montant=100000,\n  soldeRestant=100000,\n  mensualite=50000,\n  status=PENDING\n}
+    svc -> loanRepo : save(loanAdvance)
+    loanRepo -> db : INSERT hrm_loan_advance
+    svc -> outbox : insertOutboxEvent(LOAN_REQUESTED, {...})
+    svc --> ctrl : LoanAdvance{id, status=PENDING}
+    deactivate svc
+    ctrl --> employe : HTTP 201
+end
+deactivate ctrl
+
+== Phase 2 : Approbation ==
+
+comptable -> ctrl : PUT /api/v1/hrm/loan-advances/{id}/approve
+activate ctrl
+ctrl -> svc : approveLoan(loanId, approverId)
+activate svc
+svc -> loanRepo : findById(loanId)
+loanRepo --> svc : LoanAdvance{status=PENDING}
+svc -> svc : loan.approve(approverId)\nstatus → APPROVED → IN_REPAYMENT
+svc -> loanRepo : save(loan)
+svc -> outbox : insertOutboxEvent(LOAN_APPROVED, {...})
+svc --> ctrl : LoanAdvance{status=IN_REPAYMENT}
+deactivate svc
+ctrl --> comptable : HTTP 200
+deactivate ctrl
+
+== Phase 3 : Déduction automatique lors du calcul de paie ==
+
+note over paySvc
+  Lors de DS-HRM-01 (calcul de paie),
+  pour chaque employé avec des prêts actifs :
+end note
+
+paySvc -> loanRepo : findActiveByEmployee(empId)
+loanRepo --> paySvc : [LoanAdvance{soldeRestant=100000, mensualite=50000}]
+
+paySvc -> paySvc : retenuePret = min(mensualite, soldeRestant)\n= 50000 XAF\najouté comme PayslipLine{type=DEDUCTION}
+
+paySvc -> svc : deduireMensualite(loanId, 50000)
+activate svc
+svc -> svc : loan.deduire(50000)\nsoldeRestant → 50000
+svc -> loanRepo : save(loan)
+loanRepo -> db : UPDATE hrm_loan_advance SET solde_restant=50000
+deactivate svc
+
+note over paySvc
+  Au prochain cycle de paie,
+  la dernière mensualité (50000)
+  sera déduite et le prêt passera
+  en statut FULLY_REPAID.
+end note
+
+@enduml

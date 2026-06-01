@@ -1,0 +1,39 @@
+@startuml sm-leave-request
+!theme plain
+skinparam stateFontSize 12
+
+title Machine à états — LeaveRequest
+
+[*] --> PENDING : submit()\n[solde suffisant]
+
+PENDING --> APPROVED : approve(managerId)
+PENDING --> REJECTED : reject(managerId, comment)
+PENDING --> CANCELLED : cancel()\n[par l'employé]
+
+APPROVED --> CANCELLED : cancel()\n[annulation exceptionnelle\navant date début]
+
+CANCELLED --> [*]
+REJECTED --> [*]
+APPROVED --> [*]
+
+note right of PENDING
+  En attente de validation
+  par le manager identifié
+  dans valideurRef.
+end note
+
+note right of APPROVED
+  Le solde de congés
+  a été débité.
+  Le statut employé
+  passe à ON_LEAVE
+  à la date de début.
+end note
+
+note right of CANCELLED
+  Si le congé était APPROVED,
+  le solde est re-crédité
+  automatiquement.
+end note
+
+@enduml

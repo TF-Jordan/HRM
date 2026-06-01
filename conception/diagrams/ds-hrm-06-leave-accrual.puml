@@ -1,0 +1,49 @@
+@startuml ds-hrm-06-leave-accrual
+!theme plain
+skinparam sequenceArrowThickness 1.5
+
+title DS-HRM-06 — Acquisition mensuelle automatique des congés
+
+participant "Scheduler\n(Cron 1er du mois)" as cron
+participant "LeaveAccrualService\n<<application/service>>" as svc
+participant "SettingsPort\n<<port/out>>" as settings
+participant "EmployeeRepository\n<<port/out>>" as empRepo
+participant "LeaveBalanceRepo\n<<port/out>>" as balRepo
+database "PostgreSQL" as db
+participant "OutboxEvent\n<<kernel-core>>" as outbox
+
+cron -> svc : runMonthlyAccrual(tenantId, orgId)
+activate svc
+
+svc -> settings : getLeaveRules(tenantId, orgId)
+settings --> svc : LeaveRules {\n  acquisitionMensuelle=1.5,\n  majorationAnciennete5=2,\n  majorationAnciennete10=2,\n  majorationEnfantMax=10\n}
+
+svc -> empRepo : findAllActiveByOrganization(orgId)
+empRepo -> db : SELECT ... WHERE status='ACTIVE'
+db --> empRepo : Flux<Employee>
+
+loop pour chaque Employee
+    svc -> svc : calculerAcquisition(employee, rules)
+    note right of svc
+      base = 1.5 j/mois
+      + ancienneté >= 5 ans ? +2j/12 = +0.167
+      + ancienneté >= 10 ans ? +2j/12 = +0.167
+      + enfants < 14 ans : min(nb×2, 10) / 12
+      = total mensuel arrondi
+    end note
+
+    svc -> balRepo : findByEmployeeAndTypeAndAnnee(\n  empId, ANNUAL, 2026)
+    balRepo --> svc : LeaveBalance{acquis=X}
+
+    svc -> svc : balance.crediter(acquisition)\nacquis += calculated
+
+    svc -> balRepo : save(balance)
+    balRepo -> db : UPDATE hrm_leave_balance SET acquis = ?
+
+    svc -> outbox : insertOutboxEvent(\n  LEAVE_BALANCE_UPDATED,\n  {employeeId, type=ANNUAL,\n   newBalance=acquis-pris}\n)
+end
+
+svc --> cron : OK — {nbEmployesTraites}
+deactivate svc
+
+@enduml

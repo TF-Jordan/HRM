@@ -1,0 +1,55 @@
+@startuml sm-payroll
+!theme plain
+skinparam stateFontSize 12
+
+title Machine à états — PayrollRun
+
+[*] --> DRAFT : Ouverture de période
+
+DRAFT --> CALCULATED : runPayroll()\n[tous les employés traités]
+DRAFT --> DRAFT : ajout/retrait employés
+
+CALCULATED --> VALIDATED : validate(validatorId)\n[comptable autorisé]
+CALCULATED --> DRAFT : reject(reason)\n[correction nécessaire]
+
+VALIDATED --> PAID : tous PayrollEntry.paymentStatus == COMPLETED\n[callback treasury-core]
+VALIDATED --> VALIDATED : paymentStatus partiel\n[certains en PROCESSING]
+
+PAID --> [*]
+
+state DRAFT {
+    state "Éditable" as editable
+    note right of editable
+      L'Admin RH peut modifier
+      les éléments variables avant
+      de lancer le calcul.
+    end note
+}
+
+state CALCULATED {
+    note right of CALCULATED
+      Les bulletins sont générés.
+      Les totaux sont visibles.
+      Aucun paiement n'est déclenché.
+    end note
+}
+
+state VALIDATED {
+    note right of VALIDATED
+      Événements PAYROLL_VALIDATED
+      et PAYMENT_ORDER_CREATED
+      publiés via outbox.
+      accounting-core et treasury-core
+      consomment.
+    end note
+}
+
+state PAID {
+    note right of PAID
+      Tous les paiements confirmés.
+      Les bulletins sont figés
+      et consultables par les employés.
+    end note
+}
+
+@enduml

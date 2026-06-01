@@ -1,0 +1,167 @@
+@startuml dc-employee
+!theme plain
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+package "common-core" #EEEEEE {
+    abstract class BaseEntity {
+        # id : UUID
+        # tenantId : UUID
+        # organizationId : UUID
+        # agencyId : UUID
+        # createdBy : UUID
+        # createdAt : Instant
+        # updatedBy : UUID
+        # updatedAt : Instant
+        # version : Long
+    }
+
+    class PartyRef {
+        - partyId : UUID
+        - partyType : String
+        - displayName : String
+        + resolve() : Mono<PartySnapshot>
+    }
+}
+
+package "hrm-core / domain" #F5F5FF {
+
+    class Employee extends BaseEntity {
+        - actorRef : PartyRef
+        - matricule : String
+        - numCnps : String
+        - categorie : int
+        - echelon : String
+        - dateEmbauche : LocalDate
+        - status : EmployeeStatus
+        - departmentCode : String
+        - modePaiement : PaymentChannel
+        - compteBancaire : String
+        - numMobileMoney : String
+        - operateurMm : MobileOperator
+        + hire(actorId, contrat) : Employee
+        + terminate(date, reason) : void
+        + suspend(reason) : void
+        + reactivate() : void
+        + calculateAnciennete() : Period
+        + updatePaymentMethod(channel, account) : void
+    }
+
+    class Contract extends BaseEntity {
+        - employeeId : UUID
+        - type : ContractType
+        - dateDebut : LocalDate
+        - dateFin : LocalDate
+        - salaireBase : BigDecimal
+        - avantagesNature : BigDecimal
+        - periodeEssai : int
+        - status : ContractStatus
+        - motifFin : String
+        - documentFileId : UUID
+        + isActive() : boolean
+        + isExpiringSoon(days) : boolean
+        + renew(newEnd) : void
+        + terminate() : void
+    }
+
+    class Dependent extends BaseEntity {
+        - employeeId : UUID
+        - nom : String
+        - prenom : String
+        - dateNaissance : LocalDate
+        - lienParente : String
+        - certificatFileId : UUID
+        + age() : int
+    }
+
+    class LeaveBalance extends BaseEntity {
+        - employeeId : UUID
+        - type : LeaveType
+        - acquis : BigDecimal
+        - pris : BigDecimal
+        - annee : int
+        + soldeRestant() : BigDecimal
+        + crediter(jours) : void
+        + debiter(jours) : void
+        + reset() : void
+    }
+
+    class LoanAdvance extends BaseEntity {
+        - employeeId : UUID
+        - montant : BigDecimal
+        - soldeRestant : BigDecimal
+        - mensualite : BigDecimal
+        - status : LoanStatus
+        - dateDebut : LocalDate
+        - nbEcheances : int
+        - motif : String
+        - approvedBy : UUID
+        + approve(approver) : void
+        + deduire(montant) : void
+        + isFullyRepaid() : boolean
+    }
+
+    enum EmployeeStatus {
+        ACTIVE
+        ON_LEAVE
+        SUSPENDED
+        TERMINATED
+    }
+
+    enum ContractType {
+        CDD
+        CDI
+        STAGE
+        INTERIM
+    }
+
+    enum ContractStatus {
+        ACTIVE
+        EXPIRED
+        TERMINATED
+        RENEWED
+    }
+
+    enum PaymentChannel {
+        BANK_TRANSFER
+        MTN_MOBILE_MONEY
+        ORANGE_MONEY
+        CASH
+    }
+
+    enum MobileOperator {
+        MTN
+        ORANGE
+    }
+
+    enum LeaveType {
+        ANNUAL
+        SICK
+        MATERNITY
+        UNPAID
+        SPECIAL
+    }
+
+    enum LoanStatus {
+        PENDING
+        APPROVED
+        IN_REPAYMENT
+        FULLY_REPAID
+        REJECTED
+    }
+
+    Employee *-- "0..*" Contract
+    Employee *-- "0..*" Dependent
+    Employee *-- "0..*" LeaveBalance
+    Employee *-- "0..*" LoanAdvance
+    Employee --> EmployeeStatus
+    Employee --> PaymentChannel
+    Employee --> MobileOperator
+    Employee --> PartyRef
+    Contract --> ContractType
+    Contract --> ContractStatus
+    LeaveBalance --> LeaveType
+    LoanAdvance --> LoanStatus
+}
+
+@enduml

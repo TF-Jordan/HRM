@@ -1,0 +1,128 @@
+{
+  "title": "Dashboard",
+  "greeting": "Hi, {name}",
+  "headline": "{actions} actions awaiting you today · {deadlines} deadlines this week",
+  "actions": {
+    "export": "Export report",
+    "newEmployee": "New employee"
+  },
+  "hero": {
+    "effectif": "Total workforce",
+    "effectifSub": "{entries} hires · {departs} departures (month)",
+    "masseSalariale": "Salary mass",
+    "absenteism": "Absenteism rate",
+    "absenteismSub": "last 30 days",
+    "engagement": "Engagement",
+    "engagementSub": "eNPS · Q1 survey"
+  },
+  "evolution": {
+    "title": "Headcount evolution",
+    "subtitle": "Last 12 months · hires vs. departures",
+    "entries": "hires",
+    "departs": "departures",
+    "turnover": "Turnover",
+    "netGrowth": "Net growth"
+  },
+  "departments": {
+    "title": "By department",
+    "empty": "No departments configured"
+  },
+  "todo": {
+    "title": "To handle",
+    "subtitle": "Approvals & pending requests",
+    "all": "All ({count})",
+    "urgent": "Urgent ({count})",
+    "details": "Details",
+    "empty": "Nothing to handle for now"
+  },
+  "urgency": {
+    "today": "Today",
+    "thisWeek": "This week",
+    "later": "Later"
+  },
+  "upcoming": {
+    "title": "Upcoming deadlines",
+    "empty": "No upcoming deadlines"
+  },
+  "quick": {
+    "title": "Quick actions",
+    "employee": "Add an employee",
+    "payroll": "Run payroll",
+    "leaveCal": "Leave calendar",
+    "offer": "Post an offer",
+    "training": "Schedule training",
+    "declaration": "Social declaration"
+  },
+  "activity": {
+    "title": "Recent activity",
+    "seeAll": "See all",
+    "empty": "No recent activity"
+  },
+  "metrics": {
+    "title": "Key metrics",
+    "openOffers": "Open positions",
+    "trainings": "Trainings in progress",
+    "reviewsClose": "Reviews to close",
+    "bulletins": "Payslips this month"
+  },
+  "employee": {
+    "title": "My space",
+    "greetingMorning": "Good morning, {name} 👋",
+    "greetingAfternoon": "Good afternoon, {name} 👋",
+    "greetingEvening": "Good evening, {name} 👋",
+    "headline": "{actions} item(s) awaiting your attention",
+    "kpi": {
+      "leaveBalance": "Leave balance",
+      "leaveUnit": "days",
+      "leaveSub": "{acquis} days accrued this year",
+      "monthHours": "Monthly hours",
+      "monthHoursSub": "Period {periode}",
+      "netMonth": "Monthly net",
+      "netMonthSub": "Last validated payslip",
+      "trainings": "Trainings",
+      "trainingsUnit": "enrollments",
+      "trainingSub": "Active trainings"
+    },
+    "quickActions": {
+      "title": "Quick actions",
+      "leave": "Request leave",
+      "leaveSub": "Submit a request",
+      "expense": "Expense report",
+      "expenseSub": "Claim your expenses",
+      "time": "Timesheet",
+      "timeSub": "Period {periode}",
+      "mission": "Mission order",
+      "missionSub": "Plan a business trip",
+      "training": "My trainings",
+      "trainingSub": "Browse the catalog",
+      "documents": "My documents",
+      "documentsSub": "Download your files"
+    },
+    "requests": {
+      "title": "My recent requests",
+      "subtitle": "Leave, expenses, missions",
+      "seeAll": "See all",
+      "empty": "No recent requests",
+      "stepSubmitted": "Submitted",
+      "stepValidated": "Validated",
+      "stepClosed": "Closed"
+    },
+    "upcoming": {
+      "title": "Upcoming events",
+      "empty": "No upcoming events"
+    },
+    "leaveDonut": {
+      "title": "Leave balances",
+      "remaining": "days remaining",
+      "requestLeave": "Request leave",
+      "noBalances": "No balances configured"
+    },
+    "netEvolution": {
+      "title": "Net evolution",
+      "subtitle": "Last 12 payslips",
+      "noData": "No payroll data yet",
+      "currentNet": "Current net:",
+      "seePayslips": "View my payslips"
+    }
+  }
+}

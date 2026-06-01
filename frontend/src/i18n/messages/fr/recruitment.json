@@ -1,0 +1,215 @@
+{
+  "ucBadge": "UC-16/17/18 · Recrutement & Onboarding",
+  "title": "Recrutement",
+  "subtitle": "Pipeline de talents, offres ouvertes et entretiens.",
+  "jobOfferStatus": {
+    "DRAFT": "Brouillon",
+    "PUBLISHED": "Ouverte",
+    "CLOSED": "Pourvue"
+  },
+  "applicationStatus": {
+    "NEW": "Nouveau",
+    "SHORTLISTED": "Présélectionné",
+    "INTERVIEWING": "Entretien",
+    "OFFERED": "Offre",
+    "REJECTED": "Refusé",
+    "HIRED": "Embauché"
+  },
+  "interviewType": {
+    "RH": "RH",
+    "TECHNIQUE": "Technique",
+    "FINAL": "Final"
+  },
+  "interviewResult": {
+    "PENDING": "À venir",
+    "PASS": "Validé",
+    "FAIL": "Refusé"
+  },
+  "taskStatus": {
+    "PENDING": "À faire",
+    "IN_PROGRESS": "En cours",
+    "COMPLETED": "Terminée"
+  },
+  "kpi": {
+    "openOffers": "Offres ouvertes",
+    "activeApplications": "Candidatures actives",
+    "scheduledInterviews": "Entretiens à venir",
+    "hires": "Embauches"
+  },
+  "filters": {
+    "all": "Toutes",
+    "open": "Ouvertes",
+    "draft": "Brouillons",
+    "closed": "Pourvues"
+  },
+  "pipeline": {
+    "title": "Pipeline candidats",
+    "subtitle": "Glissez un candidat dans une colonne pour faire évoluer son statut.",
+    "addCandidate": "Ajouter",
+    "empty": "Aucun candidat dans cette colonne."
+  },
+  "offers": {
+    "title": "Offres",
+    "empty": "Aucune offre publiée.",
+    "columns": {
+      "reference": "Réf.",
+      "poste": "Poste",
+      "departement": "Département",
+      "site": "Site",
+      "package": "Package",
+      "applications": "Candidatures",
+      "interviews": "Entretiens",
+      "deadline": "Limite",
+      "status": "Statut"
+    }
+  },
+  "new": {
+    "title": "Publier une offre",
+    "subtitle": "Décrivez le poste, le périmètre et le package.",
+    "submit": "Créer le brouillon",
+    "submitAndPublish": "Créer & publier",
+    "success": "Offre créée.",
+    "publishedSuccess": "Offre publiée.",
+    "fields": {
+      "poste": "Poste",
+      "postePlaceholder": "Ex. Tech Lead Mobile",
+      "departement": "Département",
+      "localisation": "Site",
+      "competences": "Compétences requises",
+      "competencesPlaceholder": "Une compétence par ligne…",
+      "dateLimite": "Date limite",
+      "package": "Package salarial",
+      "packagePlaceholder": "Ex. 1,2M–1,6M XAF"
+    }
+  },
+  "detail": {
+    "back": "Retour",
+    "poste": "Poste",
+    "departement": "Département",
+    "site": "Site",
+    "deadline": "Date limite",
+    "package": "Package",
+    "competences": "Compétences requises",
+    "publish": "Publier",
+    "close": "Clôturer",
+    "publishSuccess": "Offre publiée.",
+    "closeSuccess": "Offre clôturée.",
+    "applications": "Candidatures",
+    "addCandidate": "Ajouter un candidat",
+    "addSuccess": "Candidat ajouté.",
+    "workflow": {
+      "draft": "Brouillon",
+      "published": "Ouverte",
+      "closed": "Pourvue"
+    }
+  },
+  "candidate": {
+    "back": "Retour",
+    "email": "Email",
+    "phone": "Téléphone",
+    "cv": "CV",
+    "cover": "Lettre de motivation",
+    "viewFile": "Voir",
+    "noFile": "Aucun",
+    "actions": {
+      "shortlist": "Présélectionner",
+      "interview": "Programmer un entretien",
+      "offer": "Faire une offre",
+      "hire": "Embaucher",
+      "convertToEmployee": "Embaucher & créer l'employé",
+      "reject": "Refuser"
+    },
+    "convert": {
+      "title": "Provisionner {name} comme employé",
+      "subtitle": "Saisissez les informations RH manquantes. Le matricule sera généré automatiquement.",
+      "confirm": "Embaucher & créer",
+      "success": "Employé créé · matricule {matricule}",
+      "fields": {
+        "categorie": "Catégorie",
+        "echelon": "Échelon",
+        "departmentCode": "Code département",
+        "dateEmbauche": "Date d'embauche",
+        "contractType": "Type de contrat",
+        "contractDateDebut": "Début contrat",
+        "contractDateFin": "Fin contrat",
+        "salaireBase": "Salaire de base (XAF)",
+        "avantagesNature": "Avantages en nature (XAF)",
+        "periodeEssai": "Période d'essai (jours)",
+        "modePaiement": "Mode de paiement",
+        "compteBancaire": "Compte bancaire",
+        "numCnps": "Numéro CNPS"
+      }
+    },
+    "transitionSuccess": "Statut mis à jour.",
+    "workflow": {
+      "new": "Nouveau",
+      "shortlisted": "Présélectionné",
+      "interviewing": "Entretien",
+      "decision": "Décision",
+      "hired": "Embauché"
+    },
+    "interviews": {
+      "title": "Entretiens",
+      "empty": "Aucun entretien programmé.",
+      "schedule": "Programmer un entretien",
+      "scheduleSuccess": "Entretien programmé.",
+      "completeSuccess": "Entretien clôturé.",
+      "fields": {
+        "type": "Type",
+        "dateHeure": "Date & heure",
+        "lieu": "Lieu",
+        "interviewer": "Évaluateur"
+      },
+      "complete": "Saisir le compte-rendu",
+      "completeFields": {
+        "notes": "Notes",
+        "result": "Résultat"
+      },
+      "scheduleConfirm": "Programmer",
+      "completeConfirm": "Clôturer"
+    },
+    "add": {
+      "title": "Nouvelle candidature",
+      "fields": {
+        "nom": "Nom",
+        "prenom": "Prénom",
+        "email": "Email",
+        "telephone": "Téléphone",
+        "cv": "CV",
+        "cover": "Lettre de motivation"
+      },
+      "uploading": "Envoi…",
+      "submit": "Ajouter"
+    }
+  },
+  "onboarding": {
+    "title": "Tâches d'onboarding",
+    "subtitle": "Suivi de l'intégration d'un nouveau collaborateur.",
+    "empty": "Aucune tâche d'onboarding.",
+    "addTitle": "Nouvelle tâche",
+    "addSuccess": "Tâche créée.",
+    "startSuccess": "Tâche démarrée.",
+    "completeSuccess": "Tâche terminée.",
+    "fields": {
+      "titre": "Titre",
+      "description": "Description",
+      "echeance": "Échéance",
+      "assignee": "Affectée à (party ID)"
+    },
+    "actions": {
+      "start": "Démarrer",
+      "complete": "Terminer"
+    },
+    "columns": {
+      "title": "Tâche",
+      "deadline": "Échéance",
+      "status": "Statut",
+      "actions": ""
+    }
+  },
+  "mine": {
+    "title": "Mon onboarding",
+    "subtitle": "Vos tâches d'intégration et leur progression.",
+    "empty": "Aucune tâche d'onboarding pour le moment."
+  }
+}

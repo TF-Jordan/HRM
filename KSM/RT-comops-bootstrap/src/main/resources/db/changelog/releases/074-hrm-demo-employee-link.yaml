@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 074-hrm-demo-employee-link
+      author: codex
+      changes:
+        - sqlFile:
+            path: db/r2dbc/V74__hrm_demo_employee_link.sql
+            relativeToChangelogFile: false

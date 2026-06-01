@@ -1,0 +1,97 @@
+{
+  "ucBadge": "UC-26 · Social declarations",
+  "title": "Social declarations",
+  "subtitle": "Create, generate, submit and acknowledge CNPS, DIPE and IRPP/CAC declarations.",
+  "type": {
+    "CNPS": "CNPS",
+    "DIPE": "DIPE",
+    "IRPP_CAC": "IRPP / CAC"
+  },
+  "typeName": {
+    "CNPS": "National Social Welfare Fund",
+    "DIPE": "Employer & employee income declaration",
+    "IRPP_CAC": "Personal income tax / Local additional centimes"
+  },
+  "status": {
+    "DRAFT": "Draft",
+    "GENERATED": "Generated",
+    "SUBMITTED": "Submitted",
+    "ACKNOWLEDGED": "Acknowledged"
+  },
+  "format": {
+    "PDF": "PDF",
+    "CSV": "CSV",
+    "XML": "XML"
+  },
+  "kpi": {
+    "toGenerate": "To generate",
+    "toSubmit": "To submit",
+    "submitted": "Submitted",
+    "acknowledged": "Acknowledged"
+  },
+  "filters": {
+    "all": "All",
+    "draft": "Draft",
+    "generated": "Generated",
+    "submitted": "Submitted",
+    "acknowledged": "Acknowledged"
+  },
+  "list": {
+    "title": "Declarations",
+    "empty": "No declaration on record.",
+    "columns": {
+      "reference": "Ref.",
+      "type": "Type",
+      "periode": "Period",
+      "format": "Format",
+      "status": "Status",
+      "submitted": "Submitted on",
+      "actions": ""
+    }
+  },
+  "new": {
+    "title": "New declaration",
+    "subtitle": "Prepare the draft before attaching the generated file.",
+    "submit": "Create draft",
+    "success": "Draft created.",
+    "fields": {
+      "type": "Declaration type",
+      "periode": "Period",
+      "periodePlaceholder": "e.g. 2026-05 (monthly), 2026-Q1 (quarterly)",
+      "format": "File format"
+    }
+  },
+  "detail": {
+    "back": "Back",
+    "type": "Type",
+    "periode": "Period",
+    "format": "Format",
+    "fichier": "File",
+    "fichierEmpty": "No file attached",
+    "viewFile": "View file",
+    "generatedAt": "Generated on",
+    "submittedAt": "Submitted on",
+    "workflow": {
+      "draft": "Draft",
+      "generated": "Generated",
+      "submitted": "Submitted",
+      "acknowledged": "Acknowledged"
+    },
+    "actions": {
+      "generate": "Generate & attach",
+      "submit": "Submit to authority",
+      "acknowledge": "Confirm acknowledgement"
+    },
+    "generateSuccess": "Declaration generated.",
+    "submitSuccess": "Declaration submitted.",
+    "acknowledgeSuccess": "Declaration acknowledged."
+  },
+  "generate": {
+    "title": "Attach the generated file",
+    "subtitle": "Upload the PDF, CSV or XML produced by your external filing tool.",
+    "uploadCta": "Pick a file",
+    "uploaded": "File uploaded",
+    "uploading": "Uploading…",
+    "confirm": "Attach & generate"
+  }
+}

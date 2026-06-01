@@ -1,0 +1,131 @@
+@startuml comp-hrm-core
+!theme plain
+skinparam componentStyle rectangle
+
+title Diagramme de composants — hrm-core (architecture interne)
+
+package "hrm-core" #E8EAF6 {
+
+    package "adapter/in/web" #C5CAE9 {
+        component [EmployeeController] as ctrlEmp
+        component [PayrollController] as ctrlPay
+        component [LeaveController] as ctrlLeave
+        component [TrainingController] as ctrlTrain
+        component [ReviewController] as ctrlReview
+        component [LoanAdvanceController] as ctrlLoan
+        component [DTO / Mapper] as dto
+    }
+
+    package "application/service" #A5D6A7 {
+        component [EmployeeService] as svcEmp
+        component [PayrollService] as svcPay
+        component [PayrollCalculationEngine] as calcEngine
+        component [LeaveService] as svcLeave
+        component [LeaveAccrualService] as svcAccrual
+        component [TrainingService] as svcTrain
+        component [ReviewService] as svcReview
+        component [LoanAdvanceService] as svcLoan
+    }
+
+    package "application/port/in" #81C784 {
+        interface "ManageEmployeeUseCase" as ucEmp
+        interface "RunPayrollUseCase" as ucPay
+        interface "ManageLeaveUseCase" as ucLeave
+        interface "ManageTrainingUseCase" as ucTrain
+        interface "ManageReviewUseCase" as ucReview
+        interface "ManageLoanAdvanceUseCase" as ucLoan
+    }
+
+    package "application/port/out" #EF9A9A {
+        interface "EmployeeRepository" as repoEmp
+        interface "ContractRepository" as repoCtr
+        interface "PayrollRunRepository" as repoPay
+        interface "LeaveRequestRepository" as repoLeave
+        interface "LeaveBalanceRepository" as repoBal
+        interface "LoanAdvanceRepository" as repoLoan
+        interface "TrainingRepository" as repoTrain
+        interface "ReviewRepository" as repoReview
+        interface "ActorPort" as actorPort
+        interface "SettingsPort" as settingsPort
+        interface "FilePort" as filePort
+    }
+
+    package "domain/" #FFF9C4 {
+        component [Employee\nContract\nDependent] as domEmp
+        component [PayrollRun\nPayrollEntry\nPayslipLine] as domPay
+        component [LeaveRequest\nLeaveBalance] as domLeave
+        component [Training\nTrainingEnrollment] as domTrain
+        component [PerformanceReview\nObjective] as domReview
+        component [LoanAdvance] as domLoan
+    }
+
+    package "adapter/out/persistence" #FFCDD2 {
+        component [R2DBC Implementations\n(Repository adapters)] as r2dbc
+    }
+
+    package "adapter/out/integration" #FFCDD2 {
+        component [ActorAdapter] as adActor
+        component [SettingsAdapter] as adSettings
+        component [FileAdapter] as adFile
+    }
+
+    package "adapter/out/messaging" #FFCDD2 {
+        component [HrmEventConsumer\n(Kafka listener)] as kafkaConsumer
+    }
+
+    package "config/" #ECEFF1 {
+        component [HrmCoreConfiguration\nHrmPermissionRegistrar\nHrmLiquibaseConfig] as config
+    }
+}
+
+' Wiring
+ctrlEmp -down-> ucEmp
+ctrlPay -down-> ucPay
+ctrlLeave -down-> ucLeave
+ctrlTrain -down-> ucTrain
+ctrlReview -down-> ucReview
+ctrlLoan -down-> ucLoan
+
+ucEmp -down-> svcEmp
+ucPay -down-> svcPay
+ucLeave -down-> svcLeave
+ucTrain -down-> svcTrain
+ucReview -down-> svcReview
+ucLoan -down-> svcLoan
+
+svcPay -right-> calcEngine
+svcPay .down.> domPay
+svcEmp .down.> domEmp
+svcLeave .down.> domLeave
+svcTrain .down.> domTrain
+svcReview .down.> domReview
+svcLoan .down.> domLoan
+
+svcEmp -down-> repoEmp
+svcEmp -down-> repoCtr
+svcPay -down-> repoPay
+svcPay -down-> repoLoan
+svcLeave -down-> repoLeave
+svcLeave -down-> repoBal
+svcLoan -down-> repoLoan
+svcTrain -down-> repoTrain
+svcReview -down-> repoReview
+
+svcEmp -down-> actorPort
+svcPay -down-> settingsPort
+svcEmp -down-> filePort
+
+repoEmp -down-> r2dbc
+repoCtr -down-> r2dbc
+repoPay -down-> r2dbc
+repoLeave -down-> r2dbc
+repoBal -down-> r2dbc
+repoLoan -down-> r2dbc
+repoTrain -down-> r2dbc
+repoReview -down-> r2dbc
+
+actorPort -down-> adActor
+settingsPort -down-> adSettings
+filePort -down-> adFile
+
+@enduml

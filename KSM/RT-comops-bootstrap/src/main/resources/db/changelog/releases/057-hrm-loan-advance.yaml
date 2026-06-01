@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 057-hrm-loan-advance
+      author: jordan
+      changes:
+        - sqlFile:
+            path: db/r2dbc/V57__hrm_loan_advance.sql
+            relativeToChangelogFile: false
