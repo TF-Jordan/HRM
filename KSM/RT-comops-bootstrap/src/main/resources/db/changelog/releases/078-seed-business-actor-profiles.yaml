@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 078-seed-business-actor-profiles
+      author: codex
+      changes:
+        - sqlFile:
+            path: db/r2dbc/V78__seed_business_actor_profiles.sql
+            relativeToChangelogFile: false

@@ -1,0 +1,128 @@
+{
+  "title": "Mes avances & prêts",
+  "subtitle": "Demandes, échéanciers et historique de remboursement",
+  "actions": {
+    "newRequest": "Nouvelle demande"
+  },
+  "hero": {
+    "activeLoan": "Prêt actif",
+    "noActiveLoan": "Aucun prêt actif",
+    "noActiveLoanSub": "Vous n'avez aucun prêt en cours de remboursement.",
+    "startedIn": "Démarré en {date}",
+    "installments": "{n} mensualités",
+    "rate": "taux 4%",
+    "repaid": "Remboursé",
+    "monthly": "Mensualité",
+    "remainingDebt": "Restant dû",
+    "remainingInstallments": "Échéances restantes",
+    "amortizationTable": "Tableau d'amortissement"
+  },
+  "kpi": {
+    "pending": "Demandes en attente",
+    "pendingSub": "en cours d'examen",
+    "capacity": "Capacité disponible",
+    "capacitySub": "XAF · max 1 mois salaire",
+    "totalBorrowed": "Cumul emprunté",
+    "totalBorrowedSub": "XAF depuis le début",
+    "incidents": "Taux d'incidents",
+    "incidentsSub": "aucun · merci !"
+  },
+  "table": {
+    "title": "Historique de mes demandes",
+    "ref": "Réf.",
+    "type": "Type",
+    "amount": "Montant (XAF)",
+    "duration": "Échéance",
+    "remaining": "Restant dû (XAF)",
+    "status": "Statut",
+    "months": "{n} mois",
+    "noData": "Aucun prêt ou avance trouvé"
+  },
+  "status": {
+    "PENDING": "En attente",
+    "APPROVED": "Approuvé",
+    "IN_REPAYMENT": "En cours",
+    "FULLY_REPAID": "Remboursé",
+    "REJECTED": "Refusé"
+  },
+  "type": {
+    "advance": "Avance sur salaire",
+    "personal": "Prêt personnel",
+    "housing": "Prêt logement",
+    "vehicle": "Prêt véhicule",
+    "training": "Prêt formation",
+    "other": "Autre"
+  },
+  "form": {
+    "title": "Demande d'avance ou de prêt",
+    "subtitle": "Avance sur salaire (1 échéance) ou prêt amortissable (> 1 échéance)",
+    "sectionApplicant": "Demandeur",
+    "employee": "Employé",
+    "sectionFinancial": "Conditions financières",
+    "amount": "Montant demandé",
+    "amountSuffix": "XAF",
+    "installments": "Nombre d'échéances",
+    "installmentsSuffix": "mois",
+    "installmentsHint": "1 = avance · > 1 = prêt amortissable",
+    "reason": "Motif de la demande",
+    "reasonHint": "Sera revu par le comité prêt si > 5M XAF",
+    "reasonPlaceholder": "Achat de véhicule pour mobilité professionnelle",
+    "submit": "Soumettre la demande",
+    "cancel": "Annuler",
+    "success": "Votre demande a été soumise avec succès.",
+    "error": "Erreur lors de la soumission de la demande.",
+    "simulation": "Simulation",
+    "simMonthly": "XAF/mois",
+    "simMonthlyLabel": "Mensualité prélevée sur le salaire",
+    "simCapital": "Capital",
+    "simInstallments": "Échéances",
+    "simRate": "Taux interne",
+    "simRateValue": "4,0%",
+    "salaryCapWarning": "Plafond légal : la mensualité ne doit pas dépasser 33% du salaire net."
+  },
+  "currency": "XAF",
+  "admin": {
+    "ucBadge": "Rémunération",
+    "title": "Avances & Prêts",
+    "subtitle": "Gestion des avances de salaire et prêts au personnel",
+    "exportAmortization": "Tableau d'amortissement",
+    "tableTitle": "Avances & prêts",
+    "noData": "Aucune demande trouvée",
+    "kpi": {
+      "pending": "En attente",
+      "pendingSub": "à approuver",
+      "active": "Prêts actifs",
+      "activeSub": "en encours",
+      "monthly": "Remboursement (mois)",
+      "monthlySub": "prélèvement paie",
+      "incidents": "Taux d'incidents",
+      "incidentsSub": "aucun défaut · 12 mois"
+    },
+    "filter": {
+      "all": "Tous",
+      "pending": "En attente",
+      "active": "En cours",
+      "repaid": "Remboursés"
+    },
+    "col": {
+      "ref": "Réf.",
+      "employee": "Employé",
+      "type": "Type",
+      "amount": "Montant total (XAF)",
+      "duration": "Échéance",
+      "monthly": "Mensualité (XAF)",
+      "remaining": "Restant dû (XAF)",
+      "progress": "Progression",
+      "status": "Statut"
+    },
+    "approve": "Approuver",
+    "reject": "Refuser",
+    "approveSuccess": "Prêt approuvé avec succès.",
+    "rejectSuccess": "Prêt refusé.",
+    "rejectTitle": "Refuser la demande",
+    "rejectSubtitle": "Indiquez le motif du refus.",
+    "rejectPlaceholder": "Capacité d'endettement dépassée, etc.",
+    "confirmReject": "Confirmer le refus",
+    "cancel": "Annuler"
+  }
+}

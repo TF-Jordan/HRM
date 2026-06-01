@@ -1,0 +1,104 @@
+{
+  "title": "My Profile",
+  "subtitle": "Your personal and professional information",
+  "hero": {
+    "since": "At {company} since {date}",
+    "editProfile": "Edit my profile",
+    "printSheet": "Print my sheet"
+  },
+  "tabs": {
+    "overview": "Personal information",
+    "contact": "Contact & address",
+    "banking": "Bank & payment",
+    "family": "Family & dependents",
+    "emergency": "Emergency contact"
+  },
+  "overview": {
+    "title": "Personal information",
+    "fullName": "Full name",
+    "birthDate": "Date of birth",
+    "birthPlace": "Place of birth",
+    "nationality": "Nationality",
+    "gender": "Gender",
+    "maritalStatus": "Marital status",
+    "idDocument": "ID document",
+    "idIssuedDate": "Issue date",
+    "cnps": "CNPS No.",
+    "niu": "NIU (tax)",
+    "drivingLicense": "Driving license",
+    "languages": "Languages spoken",
+    "edit": "Edit",
+    "noData": "Not specified"
+  },
+  "contact": {
+    "title": "Contact & address",
+    "professionalEmail": "Professional email",
+    "personalEmail": "Personal email",
+    "mobilePhone": "Mobile phone",
+    "homePhone": "Home phone",
+    "whatsapp": "WhatsApp",
+    "postalAddress": "Postal address",
+    "homeAddress": "Home address",
+    "city": "City",
+    "region": "Region",
+    "postalCode": "Postal code",
+    "verified": "Verified",
+    "noData": "Not specified"
+  },
+  "banking": {
+    "title": "Bank & payment",
+    "mainAccount": "Main bank account",
+    "bankName": "Bank",
+    "accountNumber": "Account number",
+    "paymentMode": "Payment mode",
+    "mobileMoney": "Mobile Money",
+    "operator": "Operator",
+    "mobileNumber": "Mobile Money number",
+    "paymentPreference": "Salary payment preference",
+    "noData": "Not specified",
+    "active": "Active · verified"
+  },
+  "family": {
+    "title": "Family & dependents",
+    "dependents": "Dependents",
+    "addDependent": "Add",
+    "relation": "Relation",
+    "birthDate": "Date of birth",
+    "noData": "No declared dependents",
+    "irppNote": "{count} declared dependent(s) · impact on IRPP calculation"
+  },
+  "emergency": {
+    "title": "Emergency contacts",
+    "addContact": "Add a contact",
+    "priority": "Priority {n}",
+    "phone": "Phone",
+    "email": "Email",
+    "relation": "Relation",
+    "noData": "No emergency contact defined",
+    "confirmDelete": "Delete this emergency contact?"
+  },
+  "completeness": {
+    "title": "Profile completeness",
+    "complete": "complete",
+    "toFill": "To complete:",
+    "items": {
+      "birthDate": "Date of birth",
+      "birthPlace": "Place of birth",
+      "idDocument": "ID document",
+      "bankAccount": "Bank details",
+      "dependents": "Dependents",
+      "emergencyContact": "Emergency contact",
+      "address": "Home address",
+      "languages": "Languages spoken"
+    }
+  },
+  "history": {
+    "title": "Recent history"
+  },
+  "form": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "saving": "Saving…",
+    "saved": "Profile updated"
+  }
+}

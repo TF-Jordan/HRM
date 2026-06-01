@@ -1,0 +1,2185 @@
+╭─── Claude Code v2.1.74 ──────────────────────────────────────────────────────╮
+│                                                    │ Tips for getting        │
+│                Welcome back Mayega!                │ started                 │
+│                                                    │ ✔ Run /init to create … │
+│                       ▐▛███▜▌                      │ ─────────────────────── │
+│                      ▝▜█████▛▘                     │ Recent activity         │
+│                        ▘▘ ▝▝                       │ No recent activity      │
+│  Sonnet 4.6 · Claude Pro · maybalock@gmail.com's   │                         │
+│  Organization                                      │                         │
+│                   ~/Bureau/HRM2                    │                         │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+  ↑ Install the PyCharm plugin from the JetBrains Marketplace:
+    https://docs.claude.com/s/claude-code-jetbrains
+
+✻ Conversation compacted (ctrl+o for history)
+
+  ⎿  Read frontend/src/i18n/messages/en/payroll.json (153 lines)
+  ⎿  Read frontend/src/i18n/messages/fr/payroll.json (153 lines)
+  ⎿  Referenced file frontend/src/components/payroll/payroll-list.tsx
+  ⎿  Read frontend/src/app/[locale]/(app)/payroll/new/page.tsx (31 lines)
+  ⎿  Read frontend/src/lib/payroll-status.ts (124 lines)
+  ⎿  Skills restored (init)
+  ⎿  Loaded frontend/CLAUDE.md
+  ⎿  Loaded frontend/AGENTS.md
+
+● Searched for 2 patterns (ctrl+o to expand)
+
+● Read 2 files (ctrl+o to expand)
+
+● Now let me look at the frontend server module for employees and find how file
+  uploads work.
+
+● Searched for 2 patterns, read 1 file (ctrl+o to expand)
+
+● Now let me read the files module and the employees server module.
+
+● Read 2 files (ctrl+o to expand)
+
+● Now let me check the BFF API route and find how actor creation works.
+
+● Searched for 5 patterns, read 1 file (ctrl+o to expand)
+
+● There's already an orchestration layer. Let me read it.
+
+● Read 2 files (ctrl+o to expand)
+
+● Now let me check the i18n translations for employees.
+
+● Searched for 1 pattern, read 2 files (ctrl+o to expand)
+
+● Let me check the employee documents route.
+
+● Read 1 file (ctrl+o to expand)
+
+● Let me quickly check the apiFetch client.
+
+● Searched for 1 pattern, read 1 file (ctrl+o to expand)
+
+● Now I have everything I need. Let me implement the redesigned form and update
+  the i18n files.
+
+● Now I'll implement everything. Starting with i18n updates, then rewriting the
+  form.
+
+● Update(frontend/src/i18n/messages/fr/employees.json)
+  ⎿  Added 20 lines, removed 1 line
+      56    },                                                           
+      57    "create": {                                                  
+      58      "title": "Créer un employé",                               
+      59 -    "subtitle": "4 étapes : identité, RH, rémunération,        
+         -récap.",                                                       
+      59 +    "subtitle": "Onboarding administratif d'un nouveau         
+         +collaborateur · génère le matricule, le contrat initial et le  
+         +compte employé",                                               
+      60 +    "sections": {                                              
+      61 +      "admin": "Identification administrative",                
+      62 +      "contrat": "Premier contrat",                            
+      63 +      "paiement": "Mode de paiement du salaire",               
+      64 +      "upload": "Contrat signé (PDF)"                          
+      65 +    },                                                         
+      66 +    "sidebar": {                                               
+      67 +      "bonASavoirTitle": "Bon à savoir",                       
+      68 +      "bonASavoirText": "La création d'employé déclenche en    
+         +cascade : génération du matricule, contrat initial, solde de   
+         +congés (28 j) et création du compte avec envoi d'un email de   
+         +bienvenue contenant les identifiants provisoires.",            
+      69 +      "etapesTitle": "Étapes du processus",                    
+      70 +      "etape1": "1 · Saisie administrative",                   
+      71 +      "etape2": "2 · Validation DRH",                          
+      72 +      "etape3": "3 · Onboarding planifié",                     
+      73 +      "etape4": "4 · Premier jour"                             
+      74 +    },                                                         
+      75 +    "uploadHint": "Cliquer pour charger le contrat signé       
+         +(PDF)",                                                        
+      76 +    "uploadNote": "Optionnel · peut être joint ultérieurement  
+         +depuis la fiche employé.",                                     
+      77 +    "draft": "Brouillon",                                      
+      78 +    "draftSaved": "Brouillon enregistré",                      
+      79      "steps": {                                                 
+      80        "identity": "Identité",                                  
+      81        "hr": "RH",                                              
+
+● Update(frontend/src/i18n/messages/en/employees.json)
+  ⎿  Added 20 lines, removed 1 line
+      56    },                                                           
+      57    "create": {                                                  
+      58      "title": "Create an employee",                             
+      59 -    "subtitle": "4 steps: identity, HR, compensation,          
+         -review.",                                                      
+      59 +    "subtitle": "Administrative onboarding for a new team      
+         +member · generates employee code, initial contract and login   
+         +account",                                                      
+      60 +    "sections": {                                              
+      61 +      "admin": "Administrative identification",                
+      62 +      "contrat": "Initial contract",                           
+      63 +      "paiement": "Salary payment method",                     
+      64 +      "upload": "Signed contract (PDF)"                        
+      65 +    },                                                         
+      66 +    "sidebar": {                                               
+      67 +      "bonASavoirTitle": "Good to know",                       
+      68 +      "bonASavoirText": "Creating an employee triggers:        
+         +employee code generation, initial contract, leave balance (28  
+         +days) and a login account with a welcome email containing      
+         +temporary credentials.",                                       
+      69 +      "etapesTitle": "Process steps",                          
+      70 +      "etape1": "1 · Administrative entry",                    
+      71 +      "etape2": "2 · HR validation",                           
+      72 +      "etape3": "3 · Onboarding scheduled",                    
+      73 +      "etape4": "4 · First day"                                
+      74 +    },                                                         
+      75 +    "uploadHint": "Click to upload the signed contract (PDF)", 
+      76 +    "uploadNote": "Optional · can be attached later from the   
+         +employee profile.",                                            
+      77 +    "draft": "Save draft",                                     
+      78 +    "draftSaved": "Draft saved",                               
+      79      "steps": {                                                 
+      80        "identity": "Identity",                                  
+      81        "hr": "HR",                                              
+
+● Now rewrite the form component:
+
+● Write(frontend/src/components/employees/employee-create-form.tsx)
+  ⎿  Added 541 lines, removed 441 lines
+       1  "use client";                                                  
+       2                                                                 
+       3  import { useMutation } from "@tanstack/react-query";           
+       4 -import { ChevronLeft, ChevronRight, Loader2                    
+         - } from "lucide-react";                                        
+       4 +import { Loader2, Upload, X } from "lucide-react";             
+       5  import { useTranslations } from "next-intl";                   
+       6  import * as React from "react";                                
+       7 -import { useForm, type FieldErrors, type Path } from           
+         -"react-hook-form";                                             
+       7 +import { Controller, useForm } from "react-hook-form";         
+       8  import { toast } from "sonner";                                
+       9                                                                 
+      10  import { PageHeader } from "@/components/shell/page-header";   
+     ...
+      14  import { SectionTitle } from "@/components/ui/section-title";  
+      15  import { Link, useRouter } from "@/i18n/navigation";           
+      16  import { apiFetch, BffApiError } from "@/lib/api-client";      
+      17 -import { formatMoney } from "@/lib/format";                    
+      17  import { cn } from "@/lib/utils";                              
+      18  import type {                                                  
+      19    ContractType,                                                
+     ...
+      22    PaymentChannel,                                              
+      23  } from "@/server/ksm/modules/employees";                       
+      24                                                                 
+      25 +const DRAFT_KEY = "hrm:employee-draft";                        
+      26 +                                                               
+      27 +const SELECT_CLS =                                             
+      28 +  "w-full rounded-[11px] border border-line bg-white px-3.5    
+         +py-[11px] text-[13.5px] text-ink shadow-xs-brand outline-none  
+         +focus:border-orange-400 focus:ring-4                           
+         +focus:ring-orange-500/12";                                     
+      29 +                                                               
+      30 +const CATEGORIES = [                                           
+      31 +  { value: "1", label: "1 — Manœuvre" },                       
+      32 +  { value: "2", label: "2" },                                  
+      33 +  { value: "3", label: "3" },                                  
+      34 +  { value: "4", label: "4" },                                  
+      35 +  { value: "5", label: "5" },                                  
+      36 +  { value: "6", label: "6" },                                  
+      37 +  { value: "7", label: "7" },                                  
+      38 +  { value: "8", label: "8" },                                  
+      39 +  { value: "9", label: "9 — Agent de maîtrise" },              
+      40 +  { value: "10", label: "10 — Cadre junior" },                 
+      41 +  { value: "11", label: "11 — Cadre confirmé" },               
+      42 +  { value: "12", label: "12 — Cadre supérieur" },              
+      43 +];                                                             
+      44 +                                                               
+      45 +const DEPARTMENTS = [                                          
+      46 +  { value: "ENG", label: "ENG — Engineering" },                
+      47 +  { value: "COM", label: "COM — Commercial" },                 
+      48 +  { value: "OPS", label: "OPS — Opérations" },                 
+      49 +  { value: "SUP", label: "SUP — Support" },                    
+      50 +  { value: "FIN", label: "FIN — Finance & RH" },               
+      51 +  { value: "DIR", label: "DIR — Direction" },                  
+      52 +];                                                             
+      53 +                                                               
+      54  type FormValues = {                                            
+      55 -  // Identity                                                  
+      55    firstName: string;                                           
+      56    lastName: string;                                            
+      57    email: string;                                               
+     ...
+      31    gender: "" | "MALE" | "FEMALE" | "OTHER";                    
+      32    nationality: string;                                         
+      33    birthDate: string;                                           
+      34 -  // HR                                                        
+      34 +  numCnps: string;                                             
+      35 +  dateEmbauche: string;                                        
+      36    categorie: string;                                           
+      37    echelon: string;                                             
+      38    departmentCode: string;                                      
+      39 -  dateEmbauche: string;                                        
+      40 -  numCnps: string;                                             
+      39    contractType: ContractType;                                  
+      40    contractDateDebut: string;                                   
+      41    contractDateFin: string;                                     
+      42 -  periodeEssai: string;                                        
+      43 -  // Compensation                                              
+      42    salaireBase: string;                                         
+      43    avantagesNature: string;                                     
+      44 +  periodeEssai: string;                                        
+      45    modePaiement: "" | PaymentChannel;                           
+      46    compteBancaire: string;                                      
+      47    numMobileMoney: string;                                      
+      48    operateurMm: "" | MobileOperator;                            
+      49  };                                                             
+      50                                                                 
+      51 -const STEPS = ["identity", "hr", "compensation", "summary"] as 
+         - const;                                                        
+      52 -type Step = (typeof STEPS)[number];                            
+      53 -                                                               
+      54 -const STEP_FIELDS: Record<Step, Array<keyof FormValues>> = {   
+      55 -  identity: ["firstName", "lastName", "email", "phoneNumber",  
+         -"gender", "nationality", "birthDate"],                         
+      56 -  hr: [                                                        
+      57 -    "categorie",                                               
+      58 -    "echelon",                                                 
+      59 -    "departmentCode",                                          
+      60 -    "dateEmbauche",                                            
+      61 -    "numCnps",                                                 
+      62 -    "contractType",                                            
+      63 -    "contractDateDebut",                                       
+      64 -    "contractDateFin",                                         
+      65 -    "periodeEssai",                                            
+      66 -  ],                                                           
+      67 -  compensation: [                                              
+      68 -    "salaireBase",                                             
+      69 -    "avantagesNature",                                         
+      70 -    "modePaiement",                                            
+      71 -    "compteBancaire",                                          
+      72 -    "numMobileMoney",                                          
+      73 -    "operateurMm",                                             
+      74 -  ],                                                           
+      75 -  summary: [],                                                 
+      76 -};                                                             
+      77 -                                                               
+      51  export function EmployeeCreateForm() {                         
+      52    const t = useTranslations("employees");                      
+      53    const tCreate = useTranslations("employees.create");         
+     ...
+       84    const tErrors = useTranslations("errors");                  
+       85    const router = useRouter();                                 
+       86                                                                
+       87 -  const [step, setStep] = React.useState<Step>("identity");   
+       88 -  const stepIndex = STEPS.indexOf(step);                      
+       87 +  const [contractFile, setContractFile] = React.useState<File 
+          + | null>(null);                                               
+       88 +  const fileInputRef = React.useRef<HTMLInputElement>(null);  
+       89                                                                
+       90 -  const {                                                     
+       91 -    register,                                                 
+       92 -    handleSubmit,                                             
+       93 -    trigger,                                                  
+       94 -    watch,                                                    
+       95 -    formState: { errors, isValid },                           
+       96 -  } = useForm<FormValues>({                                   
+       97 -    defaultValues: {                                          
+       98 -      firstName: "",                                          
+       99 -      lastName: "",                                           
+      100 -      email: "",                                              
+      101 -      phoneNumber: "",                                        
+      102 -      gender: "",                                             
+      103 -      nationality: "CMR",                                     
+      104 -      birthDate: "",                                          
+      105 -      categorie: "5",                                         
+      106 -      echelon: "A",                                           
+      107 -      departmentCode: "",                                     
+      108 -      dateEmbauche: new Date().toISOString().slice(0, 10),    
+      109 -      numCnps: "",                                            
+      110 -      contractType: "CDI",                                    
+      111 -      contractDateDebut: new Date().toISOString().slice(0,    
+          -10),                                                          
+      112 -      contractDateFin: "",                                    
+      113 -      periodeEssai: "",                                       
+      114 -      salaireBase: "",                                        
+      115 -      avantagesNature: "",                                    
+      116 -      modePaiement: "",                                       
+      117 -      compteBancaire: "",                                     
+      118 -      numMobileMoney: "",                                     
+      119 -      operateurMm: "",                                        
+      120 -    },                                                        
+      121 -    mode: "onTouched",                                        
+      122 -  });                                                         
+       90 +  const savedDraft = React.useMemo<Partial<FormValues> |      
+          +null>(() => {                                                 
+       91 +    if (typeof window === "undefined") return null;           
+       92 +    try {                                                     
+       93 +      const raw = localStorage.getItem(DRAFT_KEY);            
+       94 +      return raw ? (JSON.parse(raw) as Partial<FormValues>) : 
+          + null;                                                        
+       95 +    } catch {                                                 
+       96 +      return null;                                            
+       97 +    }                                                         
+       98 +  }, []);                                                     
+       99                                                                
+      100 -  const watchedAll = watch();                                 
+      101 -  const isCdd = watchedAll.contractType === "CDD" ||          
+          -watchedAll.contractType === "STAGE";                          
+      102 -  const isMobile = watchedAll.modePaiement ===                
+          -"MTN_MOBILE_MONEY" || watchedAll.modePaiement ===             
+          -"ORANGE_MONEY";                                               
+      100 +  const { register, handleSubmit, watch, getValues, control,  
+          +formState: { errors } } =                                     
+      101 +    useForm<FormValues>({                                     
+      102 +      defaultValues: {                                        
+      103 +        firstName: savedDraft?.firstName ?? "",               
+      104 +        lastName: savedDraft?.lastName ?? "",                 
+      105 +        email: savedDraft?.email ?? "",                       
+      106 +        phoneNumber: savedDraft?.phoneNumber ?? "",           
+      107 +        gender: savedDraft?.gender ?? "",                     
+      108 +        nationality: savedDraft?.nationality ?? "CMR",        
+      109 +        birthDate: savedDraft?.birthDate ?? "",               
+      110 +        numCnps: savedDraft?.numCnps ?? "",                   
+      111 +        dateEmbauche: savedDraft?.dateEmbauche ?? new         
+          +Date().toISOString().slice(0, 10),                            
+      112 +        categorie: savedDraft?.categorie ?? "11",             
+      113 +        echelon: savedDraft?.echelon ?? "C",                  
+      114 +        departmentCode: savedDraft?.departmentCode ?? "",     
+      115 +        contractType: savedDraft?.contractType ?? "CDI",      
+      116 +        contractDateDebut: savedDraft?.contractDateDebut ??   
+          +new Date().toISOString().slice(0, 10),                        
+      117 +        contractDateFin: savedDraft?.contractDateFin ?? "",   
+      118 +        salaireBase: savedDraft?.salaireBase ?? "",           
+      119 +        avantagesNature: savedDraft?.avantagesNature ?? "",   
+      120 +        periodeEssai: savedDraft?.periodeEssai ?? "90",       
+      121 +        modePaiement: savedDraft?.modePaiement ?? "",         
+      122 +        compteBancaire: savedDraft?.compteBancaire ?? "",     
+      123 +        numMobileMoney: savedDraft?.numMobileMoney ?? "",     
+      124 +        operateurMm: savedDraft?.operateurMm ?? "",           
+      125 +      },                                                      
+      126 +      mode: "onTouched",                                      
+      127 +    });                                                       
+      128                                                                
+      129 +  const watched = watch();                                    
+      130 +  const isCdd = watched.contractType === "CDD" ||             
+          +watched.contractType === "STAGE";                             
+      131 +  const isMobile =                                            
+      132 +    watched.modePaiement === "MTN_MOBILE_MONEY" ||            
+          +watched.modePaiement === "ORANGE_MONEY";                      
+      133 +  const isBank = watched.modePaiement === "BANK_TRANSFER";    
+      134 +                                                              
+      135    const mutation = useMutation({                              
+      136 -    mutationFn: (v: FormValues) =>                            
+      137 -      apiFetch<{ employeeId: string; matricule: string }>(    
+          -"/api/hrm/employees", {                                       
+      138 -        method: "POST",                                       
+      139 -        body: {                                               
+      140 -          firstName: v.firstName.trim(),                      
+      141 -          lastName: v.lastName.trim(),                        
+      142 -          email: v.email.trim().toLowerCase(),                
+      143 -          phoneNumber: v.phoneNumber.trim() || undefined,     
+      144 -          gender: v.gender || undefined,                      
+      145 -          nationality: v.nationality.trim() || undefined,     
+      146 -          birthDate: v.birthDate || undefined,                
+      147 -          categorie: Number(v.categorie),                     
+      148 -          echelon: v.echelon.trim() || undefined,             
+      149 -          departmentCode: v.departmentCode.trim() ||          
+          -undefined,                                                    
+      150 -          dateEmbauche: v.dateEmbauche,                       
+      151 -          numCnps: v.numCnps.trim() || undefined,             
+      152 -          contractType: v.contractType,                       
+      153 -          contractDateDebut: v.contractDateDebut,             
+      154 -          contractDateFin: isCdd && v.contractDateFin ?       
+          -v.contractDateFin : undefined,                                
+      155 -          periodeEssai: v.periodeEssai ?                      
+          -Number(v.periodeEssai) : undefined,                           
+      156 -          salaireBase: Number(v.salaireBase),                 
+      157 -          avantagesNature: v.avantagesNature ?                
+          -Number(v.avantagesNature) : undefined,                        
+      158 -          modePaiement: v.modePaiement || undefined,          
+      159 -          compteBancaire: !isMobile && v.compteBancaire ?     
+          -v.compteBancaire.trim() : undefined,                          
+      160 -          numMobileMoney: isMobile ? v.numMobileMoney.trim()  
+          -|| undefined : undefined,                                     
+      161 -          operateurMm: isMobile ? v.operateurMm || undefined  
+          -: undefined,                                                  
+      136 +    mutationFn: async (v: FormValues) => {                    
+      137 +      const result = await                                    
+          +apiFetch<{ employeeId: string; matricule: string }>(          
+      138 +        "/api/hrm/employees",                                 
+      139 +        {                                                     
+      140 +          method: "POST",                                     
+      141 +          body: {                                             
+      142 +            firstName: v.firstName.trim(),                    
+      143 +            lastName: v.lastName.trim(),                      
+      144 +            email: v.email.trim().toLowerCase(),              
+      145 +            phoneNumber: v.phoneNumber.trim() || undefined,   
+      146 +            gender: v.gender || undefined,                    
+      147 +            nationality: v.nationality.trim() || undefined,   
+      148 +            birthDate: v.birthDate || undefined,              
+      149 +            numCnps: v.numCnps.trim() || undefined,           
+      150 +            categorie: Number(v.categorie),                   
+      151 +            echelon: v.echelon.trim() || undefined,           
+      152 +            dateEmbauche: v.dateEmbauche,                     
+      153 +            departmentCode: v.departmentCode.trim() ||        
+          +undefined,                                                    
+      154 +            contractType: v.contractType,                     
+      155 +            contractDateDebut: v.contractDateDebut,           
+      156 +            contractDateFin: isCdd && v.contractDateFin ?     
+          +v.contractDateFin : undefined,                                
+      157 +            salaireBase: Number(v.salaireBase),               
+      158 +            avantagesNature: v.avantagesNature ?              
+          +Number(v.avantagesNature) : undefined,                        
+      159 +            periodeEssai: v.periodeEssai ?                    
+          +Number(v.periodeEssai) : undefined,                           
+      160 +            modePaiement: v.modePaiement || undefined,        
+      161 +            compteBancaire: isBank && v.compteBancaire ?      
+          +v.compteBancaire.trim() : undefined,                          
+      162 +            numMobileMoney: isMobile ?                        
+          +v.numMobileMoney.trim() || undefined : undefined,             
+      163 +            operateurMm: isMobile ? v.operateurMm ||          
+          +undefined : undefined,                                        
+      164 +          },                                                  
+      165          },                                                    
+      166 -      }),                                                     
+      166 +      );                                                      
+      167 +                                                              
+      168 +      if (contractFile) {                                     
+      169 +        const fd = new FormData();                            
+      170 +        fd.append("file", contractFile);                      
+      171 +        fd.append("category", "CONTRACT");                    
+      172 +        fd.append("label", "Contrat initial signé");          
+      173 +        try {                                                 
+      174 +          await                                               
+          +apiFetch(`/api/hrm/employees/${result.employeeId}/documents`, 
+          + {                                                            
+      175 +            method: "POST",                                   
+      176 +            body: fd,                                         
+      177 +            json: false,                                      
+      178 +          });                                                 
+      179 +        } catch {                                             
+      180 +          // Non-fatal: contract file can be attached later   
+      181 +        }                                                     
+      182 +      }                                                       
+      183 +                                                              
+      184 +      return result;                                          
+      185 +    },                                                        
+      186      onSuccess: (result) => {                                  
+      187 +      try { localStorage.removeItem(DRAFT_KEY); } catch { /*  
+          +ignore */ }                                                   
+      188        toast.success(tCreate("success") + " · " +              
+           result.matricule);                                            
+      189        router.push(`/employees/${result.employeeId}`);         
+      190      },                                                        
+     ...
+      167      },                                                        
+      168    });                                                         
+      169                                                                
+      170 -  async function goNext() {                                   
+      171 -    const ok = await trigger(STEP_FIELDS[step] as             
+          -Path<FormValues>[]);                                          
+      172 -    if (!ok) return;                                          
+      173 -    const next = STEPS[stepIndex + 1];                        
+      174 -    if (next) setStep(next);                                  
+      170 +  function saveDraft() {                                      
+      171 +    try {                                                     
+      172 +      localStorage.setItem(DRAFT_KEY,                         
+          +JSON.stringify(getValues()));                                 
+      173 +      toast.success(tCreate("draftSaved"));                   
+      174 +    } catch {                                                 
+      175 +      toast.error(tErrors("unknown"));                        
+      176 +    }                                                         
+      177    }                                                           
+      178 -  function goBack() {                                         
+      179 -    const prev = STEPS[stepIndex - 1];                        
+      180 -    if (prev) setStep(prev);                                  
+      181 -  }                                                           
+      178                                                                
+      179    return (                                                    
+      180      <form onSubmit={handleSubmit((v) => mutation.mutate(v))}> 
+     ...
+      184          ucBadge={t("ucBadge")}                                
+      185          breadcrumb={[                                         
+      186            { label: "HR Core" },                               
+      187 -          { label: tCreate("title").replace("Créer un ",      
+          -"").replace("Create an ", "") + "s", href: "/employees" },    
+      187 +          { label: t("list.title"), href: "/employees" },     
+      188            { label: tCreate("title") },                        
+      189          ]}                                                    
+      190          title={tCreate("title")}                              
+      191          subtitle={tCreate("subtitle")}                        
+      192 -        actions={                                             
+      193 -          <Link href="/employees">                            
+      194 -            <Button type="button" variant="secondary">        
+      195 -              {tCommon("actions.cancel")}                     
+      196 -            </Button>                                         
+      197 -          </Link>                                             
+      198 -        }                                                     
+      192        />                                                      
+      193                                                                
+      194 -      {/* Stepper */}                                         
+      195 -      <div className="mb-7 flex flex-wrap items-center        
+          -gap-2">                                                       
+      196 -        {STEPS.map((s, idx) => {                              
+      197 -          const done = idx < stepIndex;                       
+      198 -          const active = idx === stepIndex;                   
+      199 -          return (                                            
+      200 -            <React.Fragment key={s}>                          
+      201 -              <button                                         
+      202 -                type="button"                                 
+      203 -                onClick={() => idx < stepIndex && setStep(s)} 
+      204 -                className={cn(                                
+      205 -                  "rounded-full border px-3.5 py-1.5          
+          -text-[11.5px] font-semibold tracking-wider transition-all",   
+      206 -                  done && "border-transparent bg-success-50   
+          -text-success-600",                                            
+      207 -                  active && "border-transparent               
+          -bg-grad-orange text-white shadow-orange-brand",               
+      208 -                  !done && !active && "border-line bg-white   
+          -text-ink-3",                                                  
+      209 -                )}                                            
+      210 -              >                                               
+      211 -                <span className="mr-1.5 font-mono-tabular     
+          -text-[10px] opacity-70">{idx + 1}</span>                      
+      212 -                {tCreate(`steps.${s}`)}                       
+      213 -              </button>                                       
+      214 -              {idx < STEPS.length - 1 && (                    
+      215 -                <ChevronRight className="h-3.5 w-3.5 shrink-0 
+          - text-ink-4" aria-hidden="true" />                            
+      216 -              )}                                              
+      217 -            </React.Fragment>                                 
+      218 -          );                                                  
+      219 -        })}                                                   
+      220 -      </div>                                                  
+      194 +      <div className="grid grid-cols-1 gap-6                  
+          +lg:grid-cols-[1fr_300px]">                                    
+      195 +        {/* ── Main form                                      
+          +─────────────────────────────────────── */}                   
+      196 +        <div className="space-y-8">                           
+      197                                                                
+      198 -      {step === "identity" && (                               
+      199 -        <IdentityStep register={register} errors={errors}     
+          -tCreate={tCreate} />                                          
+      200 -      )}                                                      
+      201 -      {step === "hr" && (                                     
+      202 -        <HrStep register={register} errors={errors}           
+          -tCreate={tCreate} t={t} isCdd={isCdd} />                      
+      203 -      )}                                                      
+      204 -      {step === "compensation" && (                           
+      205 -        <CompensationStep                                     
+      206 -          register={register}                                 
+      207 -          errors={errors}                                     
+      208 -          tCreate={tCreate}                                   
+      209 -          t={t}                                               
+      210 -          isMobile={isMobile}                                 
+      211 -        />                                                    
+      212 -      )}                                                      
+      213 -      {step === "summary" && <Summary values={watchedAll}     
+          -t={t} tCreate={tCreate} />}                                   
+      198 +          {/* Section 1: Identification administrative */}    
+      199 +          <section>                                           
+      200 +                                                              
+          +<SectionTitle>{tCreate("sections.admin")}</SectionTitle>      
+      201 +            <Card>                                            
+      202 +              <CardContent padding="lg">                      
+      203 +                {/* Identity fields */}                       
+      204 +                <div className="grid grid-cols-2 gap-4">      
+      205 +                  <Field label={tCreate("fields.firstName")}  
+          +error={errors.firstName && "—"}>                              
+      206 +                    <Input {...register("firstName", {        
+          +required: true, minLength: 2 })} />                           
+      207 +                  </Field>                                    
+      208 +                  <Field label={tCreate("fields.lastName")}   
+          +error={errors.lastName && "—"}>                               
+      209 +                    <Input {...register("lastName", {         
+          +required: true, minLength: 2 })} />                           
+      210 +                  </Field>                                    
+      211 +                  <Field label={tCreate("fields.email")}      
+          +error={errors.email && "—"}>                                  
+      212 +                    <Input                                    
+      213 +                      type="email"                            
+      214 +                      placeholder="prenom.nom@example.com"    
+      215 +                      {...register("email", {                 
+      216 +                        required: true,                       
+      217 +                        pattern:                              
+          +/^[^\s@]+@[^\s@]+\.[^\s@]+$/,                                 
+      218 +                      })}                                     
+      219 +                    />                                        
+      220 +                  </Field>                                    
+      221 +                  <Field                                      
+          +label={tCreate("fields.phoneNumber")}>                        
+      222 +                    <Input {...register("phoneNumber")}       
+          +placeholder="+237 6XX XX XX XX" />                            
+      223 +                  </Field>                                    
+      224 +                  <Field label={tCreate("fields.gender")}>    
+      225 +                    <select {...register("gender")}           
+          +className={SELECT_CLS}>                                       
+      226 +                      <option value="">—</option>             
+      227 +                      <option                                 
+          +value="MALE">{tCreate("gender.MALE")}</option>                
+      228 +                      <option                                 
+          +value="FEMALE">{tCreate("gender.FEMALE")}</option>            
+      229 +                      <option                                 
+          +value="OTHER">{tCreate("gender.OTHER")}</option>              
+      230 +                    </select>                                 
+      231 +                  </Field>                                    
+      232 +                  <Field                                      
+          +label={tCreate("fields.nationality")}>                        
+      233 +                    <Input {...register("nationality")}       
+          +placeholder="CMR" />                                          
+      234 +                  </Field>                                    
+      235 +                  <Field label={tCreate("fields.birthDate")}> 
+      236 +                    <Input type="date"                        
+          +{...register("birthDate")} />                                 
+      237 +                  </Field>                                    
+      238 +                </div>                                        
+      239                                                                
+      240 -      <div className="mt-6 flex items-center justify-end      
+          -gap-2">                                                       
+      241 -        {stepIndex > 0 && (                                   
+      242 -          <Button type="button" variant="secondary"           
+          -onClick={goBack}>                                             
+      243 -            <ChevronLeft className="h-4 w-4" />               
+      244 -            {tCommon("actions.previous")}                     
+      245 -          </Button>                                           
+      246 -        )}                                                    
+      247 -        {stepIndex < STEPS.length - 1 ? (                     
+      248 -          <Button type="button" onClick={goNext}>             
+      249 -            {tCommon("actions.next")}                         
+      250 -            <ChevronRight className="h-4 w-4" />              
+      251 -          </Button>                                           
+      252 -        ) : (                                                 
+      253 -          <Button type="submit" disabled={!isValid ||         
+          -mutation.isPending}>                                          
+      254 -            {mutation.isPending ? <Loader2 className="h-4 w-4 
+          - animate-spin" /> : tCreate("submit")}                        
+      255 -          </Button>                                           
+      256 -        )}                                                    
+      257 -      </div>                                                  
+      258 -    </form>                                                   
+      259 -  );                                                          
+      260 -}                                                             
+      240 +                <div className="my-5 h-px bg-line-soft" />    
+      241                                                                
+      242 -/* ============================== Steps                       
+          -============================== */                             
+      242 +                {/* HR admin fields */}                       
+      243 +                <div className="grid grid-cols-3 gap-4">      
+      244 +                  <Field label={tCreate("fields.numCnps")}    
+          +hint="Ex. 110428937H">                                        
+      245 +                    <Input                                    
+      246 +                      {...register("numCnps")}                
+      247 +                      placeholder="110428937H"                
+      248 +                      maxLength={13}                          
+      249 +                    />                                        
+      250 +                  </Field>                                    
+      251 +                  <Field                                      
+      252 +                    label={tCreate("fields.dateEmbauche")}    
+      253 +                    error={errors.dateEmbauche && "—"}        
+      254 +                  >                                           
+      255 +                    <Input                                    
+      256 +                      type="date"                             
+      257 +                      {...register("dateEmbauche", {          
+          +required: true })}                                            
+      258 +                    />                                        
+      259 +                  </Field>                                    
+      260 +                  <div />                                     
+      261 +                  <Field label={tCreate("fields.categorie")}  
+          +hint="1 à 12">                                                
+      262 +                    <select                                   
+      263 +                      {...register("categorie", { required:   
+          +true })}                                                      
+      264 +                      className={SELECT_CLS}                  
+      265 +                    >                                         
+      266 +                      {CATEGORIES.map((c) => (                
+      267 +                        <option key={c.value}                 
+          +value={c.value}>                                              
+      268 +                          {c.label}                           
+      269 +                        </option>                             
+      270 +                      ))}                                     
+      271 +                    </select>                                 
+      272 +                  </Field>                                    
+      273 +                  <Field label={tCreate("fields.echelon")}>   
+      274 +                    <select {...register("echelon")}          
+          +className={SELECT_CLS}>                                       
+      275 +                      {["A", "B", "C", "D", "E"].map((e) => ( 
+      276 +                        <option key={e} value={e}>            
+      277 +                          {e}                                 
+      278 +                        </option>                             
+      279 +                      ))}                                     
+      280 +                    </select>                                 
+      281 +                  </Field>                                    
+      282 +                  <Field                                      
+          +label={tCreate("fields.departmentCode")}>                     
+      283 +                    <select {...register("departmentCode")}   
+          +className={SELECT_CLS}>                                       
+      284 +                      <option value="">—</option>             
+      285 +                      {DEPARTMENTS.map((d) => (               
+      286 +                        <option key={d.value}                 
+          +value={d.value}>                                              
+      287 +                          {d.label}                           
+      288 +                        </option>                             
+      289 +                      ))}                                     
+      290 +                    </select>                                 
+      291 +                  </Field>                                    
+      292 +                </div>                                        
+      293 +              </CardContent>                                  
+      294 +            </Card>                                           
+      295 +          </section>                                          
+      296                                                                
+      297 -type RegProps<K extends keyof FormValues> = {                 
+      298 -  register: ReturnType<typeof                                 
+          -useForm<FormValues>>["register"];                             
+      299 -  errors: FieldErrors<FormValues>;                            
+      300 -  tCreate: ReturnType<typeof                                  
+          -useTranslations<"employees.create">>;                         
+      301 -};                                                            
+      297 +          {/* Section 2: Premier contrat */}                  
+      298 +          <section>                                           
+      299 +                                                              
+          +<SectionTitle>{tCreate("sections.contrat")}</SectionTitle>    
+      300 +            <Card>                                            
+      301 +              <CardContent padding="lg">                      
+      302 +                <div className="mb-5">                        
+      303 +                  <Label className="mb-2.5 block              
+          +text-[11.5px] font-semibold uppercase tracking-wider          
+          +text-ink-3">                                                  
+      304 +                    {tCreate("fields.contractType")}          
+      305 +                  </Label>                                    
+      306 +                  <Controller                                 
+      307 +                    name="contractType"                       
+      308 +                    control={control}                         
+      309 +                    render={({ field }) => (                  
+      310 +                      <RadioCards                             
+      311 +                        value={field.value}                   
+      312 +                        onChange={field.onChange}             
+      313 +                        options={[                            
+      314 +                          { value: "CDI", label: "CDI", sub:  
+          +t("contractType.CDI") },                                      
+      315 +                          { value: "CDD", label: "CDD", sub:  
+          +t("contractType.CDD") },                                      
+      316 +                          { value: "STAGE", label: "Stage",   
+          +sub: t("contractType.STAGE") },                               
+      317 +                          { value: "INTERIM", label:          
+          +"Intérim", sub: t("contractType.INTERIM") },                  
+      318 +                        ]}                                    
+      319 +                      />                                      
+      320 +                    )}                                        
+      321 +                  />                                          
+      322 +                </div>                                        
+      323                                                                
+      324 -function IdentityStep({                                       
+      325 -  register,                                                   
+      326 -  errors,                                                     
+      327 -  tCreate,                                                    
+      328 -}: RegProps<keyof FormValues>) {                              
+      329 -  return (                                                    
+      330 -    <>                                                        
+      331 -                                                              
+          -<SectionTitle>{tCreate("steps.identity")}</SectionTitle>      
+      332 -      <Card>                                                  
+      333 -        <CardContent padding="lg">                            
+      334 -          <div className="grid grid-cols-2 gap-4">            
+      335 -            <Field                                            
+      336 -              label={tCreate("fields.firstName")}             
+      337 -              error={errors.firstName &&                      
+          -(errors.firstName.message || "—")}                            
+      338 -            >                                                 
+      339 -              <Input {...register("firstName", { required:    
+          -true, minLength: 2 })} />                                     
+      340 -            </Field>                                          
+      341 -            <Field                                            
+      342 -              label={tCreate("fields.lastName")}              
+      343 -              error={errors.lastName &&                       
+          -(errors.lastName.message || "—")}                             
+      344 -            >                                                 
+      345 -              <Input {...register("lastName", { required:     
+          -true, minLength: 2 })} />                                     
+      346 -            </Field>                                          
+      347 -            <Field                                            
+      348 -              label={tCreate("fields.email")}                 
+      349 -              error={errors.email && (errors.email.message || 
+          - "—")}                                                        
+      350 -            >                                                 
+      351 -              <Input                                          
+      352 -                type="email"                                  
+      353 -                {...register("email", { required: true,       
+          -pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/ })}                     
+      354 -                placeholder="prenom.nom@example.com"          
+      355 -              />                                              
+      356 -            </Field>                                          
+      357 -            <Field label={tCreate("fields.phoneNumber")}>     
+      358 -              <Input {...register("phoneNumber")}             
+          -placeholder="+237 6XX XX XX XX" />                            
+      359 -            </Field>                                          
+      360 -            <Field label={tCreate("fields.gender")}>          
+      361 -              <select                                         
+      362 -                {...register("gender")}                       
+      363 -                className="w-full rounded-[11px] border       
+          -border-line bg-white px-3.5 py-[11px] text-[13.5px] text-ink  
+          -shadow-xs-brand outline-none focus:border-orange-400          
+          -focus:ring-4 focus:ring-orange-500/12"                        
+      364 -              >                                               
+      365 -                <option value="">—</option>                   
+      366 -                <option                                       
+          -value="MALE">{tCreate("gender.MALE")}</option>                
+      367 -                <option                                       
+          -value="FEMALE">{tCreate("gender.FEMALE")}</option>            
+      368 -                <option                                       
+          -value="OTHER">{tCreate("gender.OTHER")}</option>              
+      369 -              </select>                                       
+      370 -            </Field>                                          
+      371 -            <Field label={tCreate("fields.nationality")}>     
+      372 -              <Input {...register("nationality")}             
+          -placeholder="CMR" />                                          
+      373 -            </Field>                                          
+      374 -            <Field label={tCreate("fields.birthDate")}>       
+      375 -              <Input type="date" {...register("birthDate")}   
+          -/>                                                            
+      376 -            </Field>                                          
+      377 -          </div>                                              
+      378 -        </CardContent>                                        
+      379 -      </Card>                                                 
+      380 -    </>                                                       
+      381 -  );                                                          
+      382 -}                                                             
+      324 +                <div className="grid grid-cols-3 gap-4">      
+      325 +                  <Field                                      
+      326 +                                                              
+          +label={tCreate("fields.contractDateDebut")}                   
+      327 +                    error={errors.contractDateDebut && "—"}   
+      328 +                  >                                           
+      329 +                    <Input                                    
+      330 +                      type="date"                             
+      331 +                      {...register("contractDateDebut", {     
+          +required: true })}                                            
+      332 +                    />                                        
+      333 +                  </Field>                                    
+      334 +                  <Field                                      
+      335 +                    label={tCreate("fields.contractDateFin")} 
+      336 +                    hint={!isCdd ? "—" : undefined}           
+      337 +                  >                                           
+      338 +                    <Input                                    
+      339 +                      type="date"                             
+      340 +                      disabled={!isCdd}                       
+      341 +                      {...register("contractDateFin", {       
+          +required: isCdd })}                                           
+      342 +                    />                                        
+      343 +                  </Field>                                    
+      344 +                  <Field                                      
+          +label={tCreate("fields.periodeEssai")} hint="jours">          
+      345 +                    <Input                                    
+      346 +                      type="number"                           
+      347 +                      min="0"                                 
+      348 +                      max="365"                               
+      349 +                      {...register("periodeEssai")}           
+      350 +                      placeholder="90"                        
+      351 +                    />                                        
+      352 +                  </Field>                                    
+      353 +                  <Field                                      
+      354 +                    label={tCreate("fields.salaireBase")}     
+      355 +                    error={errors.salaireBase && "—"}         
+      356 +                  >                                           
+      357 +                    <Input                                    
+      358 +                      type="number"                           
+      359 +                      min="1"                                 
+      360 +                      placeholder="950 000"                   
+      361 +                      {...register("salaireBase", { required: 
+          + true, min: 1 })}                                             
+      362 +                    />                                        
+      363 +                  </Field>                                    
+      364 +                  <Field                                      
+      365 +                    label={tCreate("fields.avantagesNature")} 
+      366 +                    hint="logement, véhicule…"                
+      367 +                  >                                           
+      368 +                    <Input                                    
+      369 +                      type="number"                           
+      370 +                      min="0"                                 
+      371 +                      placeholder="0"                         
+      372 +                      {...register("avantagesNature")}        
+      373 +                    />                                        
+      374 +                  </Field>                                    
+      375 +                </div>                                        
+      376 +              </CardContent>                                  
+      377 +            </Card>                                           
+      378 +          </section>                                          
+      379                                                                
+      380 -function HrStep({                                             
+      381 -  register,                                                   
+      382 -  errors,                                                     
+      383 -  tCreate,                                                    
+      384 -  t,                                                          
+      385 -  isCdd,                                                      
+      386 -}: RegProps<keyof FormValues> & {                             
+      387 -  t: ReturnType<typeof useTranslations<"employees">>;         
+      388 -  isCdd: boolean;                                             
+      389 -}) {                                                          
+      390 -  return (                                                    
+      391 -    <>                                                        
+      392 -      <SectionTitle>{tCreate("steps.hr")}</SectionTitle>      
+      393 -      <Card>                                                  
+      394 -        <CardContent padding="lg">                            
+      395 -          <div className="grid grid-cols-3 gap-4">            
+      396 -            <Field                                            
+      397 -              label={tCreate("fields.categorie")}             
+      398 -              error={errors.categorie &&                      
+          -(errors.categorie.message || "—")}                            
+      399 -            >                                                 
+      400 -              <Input                                          
+      401 -                type="number"                                 
+      402 -                min="1"                                       
+      403 -                max="12"                                      
+      404 -                {...register("categorie", { required: true,   
+          -min: 1, max: 12 })}                                           
+      405 -              />                                              
+      406 -            </Field>                                          
+      407 -            <Field label={tCreate("fields.echelon")}>         
+      408 -              <Input {...register("echelon")} placeholder="A" 
+          - />                                                           
+      409 -            </Field>                                          
+      410 -            <Field label={tCreate("fields.departmentCode")}>  
+      411 -              <Input {...register("departmentCode")}          
+          -placeholder="IT" />                                           
+      412 -            </Field>                                          
+      413 -            <Field                                            
+      414 -              label={tCreate("fields.dateEmbauche")}          
+      415 -              error={errors.dateEmbauche &&                   
+          -(errors.dateEmbauche.message || "—")}                         
+      416 -            >                                                 
+      417 -              <Input type="date" {...register("dateEmbauche", 
+          - { required: true })} />                                      
+      418 -            </Field>                                          
+      419 -            <Field label={tCreate("fields.numCnps")}>         
+      420 -              <Input {...register("numCnps")}                 
+          -placeholder="123456789" />                                    
+      421 -            </Field>                                          
+      422 -            <div />                                           
+      423 -          </div>                                              
+      380 +          {/* Section 3: Mode de paiement */}                 
+      381 +          <section>                                           
+      382 +                                                              
+          +<SectionTitle>{tCreate("sections.paiement")}</SectionTitle>   
+      383 +            <Card>                                            
+      384 +              <CardContent padding="lg">                      
+      385 +                <div className="mb-5">                        
+      386 +                  <Label className="mb-2.5 block              
+          +text-[11.5px] font-semibold uppercase tracking-wider          
+          +text-ink-3">                                                  
+      387 +                    {tCreate("fields.modePaiement")}          
+      388 +                  </Label>                                    
+      389 +                  <Controller                                 
+      390 +                    name="modePaiement"                       
+      391 +                    control={control}                         
+      392 +                    render={({ field }) => (                  
+      393 +                      <RadioCards                             
+      394 +                        value={field.value}                   
+      395 +                        onChange={field.onChange}             
+      396 +                        options={[                            
+      397 +                          {                                   
+      398 +                            value: "BANK_TRANSFER",           
+      399 +                            label:                            
+          +t("paymentChannel.BANK_TRANSFER"),                            
+      400 +                          },                                  
+      401 +                          { value: "MTN_MOBILE_MONEY", label: 
+          + "MTN Mobile Money" },                                        
+      402 +                          { value: "ORANGE_MONEY", label:     
+          +"Orange Money" },                                             
+      403 +                          { value: "CASH", label:             
+          +t("paymentChannel.CASH") },                                   
+      404 +                        ]}                                    
+      405 +                      />                                      
+      406 +                    )}                                        
+      407 +                  />                                          
+      408 +                </div>                                        
+      409                                                                
+      410 -          <div className="my-5 h-px bg-line-soft" />          
+      410 +                {(isBank || isMobile) && (                    
+      411 +                  <div className="grid grid-cols-2 gap-4">    
+      412 +                    {isBank && (                              
+      413 +                      <Field                                  
+          +label={tCreate("fields.compteBancaire")} hint="24 chiffres">  
+      414 +                        <Input                                
+      415 +                          {...register("compteBancaire")}     
+      416 +                          placeholder="10006 00012            
+          +00000123456 78"                                               
+      417 +                          maxLength={29}                      
+      418 +                        />                                    
+      419 +                      </Field>                                
+      420 +                    )}                                        
+      421 +                    {isMobile && (                            
+      422 +                      <>                                      
+      423 +                        <Field                                
+          +label={tCreate("fields.numMobileMoney")} hint="+237">         
+      424 +                          <Input                              
+      425 +                            {...register("numMobileMoney")}   
+      426 +                            placeholder="6 78 12 34 56"       
+      427 +                            maxLength={11}                    
+      428 +                          />                                  
+      429 +                        </Field>                              
+      430 +                        <div>                                 
+      431 +                          <Label className="mb-2.5 block      
+          +text-[11.5px] font-semibold uppercase tracking-wider          
+          +text-ink-3">                                                  
+      432 +                            {tCreate("fields.operateurMm")}   
+      433 +                          </Label>                            
+      434 +                          <Controller                         
+      435 +                            name="operateurMm"                
+      436 +                            control={control}                 
+      437 +                            render={({ field }) => (          
+      438 +                              <RadioCards                     
+      439 +                                value={field.value}           
+      440 +                                onChange={field.onChange}     
+      441 +                                options={[                    
+      442 +                                  { value: "MTN", label: "MTN 
+          + MoMo" },                                                     
+      443 +                                  { value: "ORANGE", label:   
+          +"Orange Money" },                                             
+      444 +                                ]}                            
+      445 +                              />                              
+      446 +                            )}                                
+      447 +                          />                                  
+      448 +                        </div>                                
+      449 +                      </>                                     
+      450 +                    )}                                        
+      451 +                  </div>                                      
+      452 +                )}                                            
+      453 +              </CardContent>                                  
+      454 +            </Card>                                           
+      455 +          </section>                                          
+      456                                                                
+      457 -          <div className="grid grid-cols-3 gap-4">            
+      458 -            <Field                                            
+      459 -              label={tCreate("fields.contractType")}          
+      460 -              error={errors.contractType &&                   
+          -(errors.contractType.message || "—")}                         
+      461 -            >                                                 
+      462 -              <select                                         
+      463 -                {...register("contractType", { required: true 
+          - })}                                                          
+      464 -                className="w-full rounded-[11px] border       
+          -border-line bg-white px-3.5 py-[11px] text-[13.5px] text-ink  
+          -shadow-xs-brand outline-none focus:border-orange-400          
+          -focus:ring-4 focus:ring-orange-500/12"                        
+      465 -              >                                               
+      466 -                <option                                       
+          -value="CDI">{t("contractType.CDI")}</option>                  
+      467 -                <option                                       
+          -value="CDD">{t("contractType.CDD")}</option>                  
+      468 -                <option                                       
+          -value="STAGE">{t("contractType.STAGE")}</option>              
+      469 -                <option                                       
+          -value="INTERIM">{t("contractType.INTERIM")}</option>          
+      470 -              </select>                                       
+      471 -            </Field>                                          
+      472 -            <Field                                            
+      473 -              label={tCreate("fields.contractDateDebut")}     
+      474 -              error={errors.contractDateDebut &&              
+          -(errors.contractDateDebut.message || "—")}                    
+      475 -            >                                                 
+      476 -              <Input type="date"                              
+          -{...register("contractDateDebut", { required: true })} />     
+      477 -            </Field>                                          
+      478 -            <Field                                            
+      479 -              label={tCreate("fields.contractDateFin")}       
+      480 -              hint={!isCdd ? "—" : undefined}                 
+      481 -            >                                                 
+      482 -              <Input                                          
+      483 -                type="date"                                   
+      484 -                disabled={!isCdd}                             
+      485 -                {...register("contractDateFin", { required:   
+          -isCdd })}                                                     
+      486 -              />                                              
+      487 -            </Field>                                          
+      488 -            <Field label={tCreate("fields.periodeEssai")}>    
+      489 -              <Input type="number" min="0" max="365"          
+          -{...register("periodeEssai")} />                              
+      490 -            </Field>                                          
+      491 -          </div>                                              
+      492 -        </CardContent>                                        
+      493 -      </Card>                                                 
+      494 -    </>                                                       
+      495 -  );                                                          
+      496 -}                                                             
+      457 +          {/* Section 4: Contrat signé PDF */}                
+      458 +          <section>                                           
+      459 +                                                              
+          +<SectionTitle>{tCreate("sections.upload")}</SectionTitle>     
+      460 +            <Card>                                            
+      461 +              <CardContent padding="lg">                      
+      462 +                <input                                        
+      463 +                  ref={fileInputRef}                          
+      464 +                  type="file"                                 
+      465 +                  accept="application/pdf"                    
+      466 +                  className="sr-only"                         
+      467 +                  onChange={(e) =>                            
+          +setContractFile(e.target.files?.[0] ?? null)}                 
+      468 +                />                                            
+      469 +                {contractFile ? (                             
+      470 +                  <div className="flex items-center gap-3     
+          +rounded-[11px] border border-line bg-bg-dim px-4 py-3">       
+      471 +                    <span className="flex-1 truncate          
+          +text-[13.5px] text-ink">                                      
+      472 +                      {contractFile.name}                     
+      473 +                    </span>                                   
+      474 +                    <button                                   
+      475 +                      type="button"                           
+      476 +                      onClick={() => {                        
+      477 +                        setContractFile(null);                
+      478 +                        if (fileInputRef.current)             
+          +fileInputRef.current.value = "";                              
+      479 +                      }}                                      
+      480 +                      className="text-ink-3 transition-colors 
+          + hover:text-red-500"                                          
+      481 +                    >                                         
+      482 +                      <X className="h-4 w-4" />               
+      483 +                    </button>                                 
+      484 +                  </div>                                      
+      485 +                ) : (                                         
+      486 +                  <button                                     
+      487 +                    type="button"                             
+      488 +                    onClick={() =>                            
+          +fileInputRef.current?.click()}                                
+      489 +                    className="flex w-full items-center       
+          +justify-center gap-2.5 rounded-[11px] border border-dashed    
+          +border-line py-5 text-[13.5px] text-ink-3 transition-all      
+          +hover:border-orange-400 hover:text-orange-600"                
+      490 +                  >                                           
+      491 +                    <Upload className="h-4 w-4" />            
+      492 +                    {tCreate("uploadHint")}                   
+      493 +                  </button>                                   
+      494 +                )}                                            
+      495 +                <p className="mt-2 text-[12px]                
+          +text-ink-4">{tCreate("uploadNote")}</p>                       
+      496 +              </CardContent>                                  
+      497 +            </Card>                                           
+      498 +          </section>                                          
+      499 +        </div>                                                
+      500                                                                
+      501 -function CompensationStep({                                   
+      502 -  register,                                                   
+      503 -  errors,                                                     
+      504 -  tCreate,                                                    
+      505 -  t,                                                          
+      506 -  isMobile,                                                   
+      507 -}: RegProps<keyof FormValues> & {                             
+      508 -  t: ReturnType<typeof useTranslations<"employees">>;         
+      509 -  isMobile: boolean;                                          
+      510 -}) {                                                          
+      511 -  return (                                                    
+      512 -    <>                                                        
+      513 -                                                              
+          -<SectionTitle>{tCreate("steps.compensation")}</SectionTitle>  
+      514 -      <Card>                                                  
+      515 -        <CardContent padding="lg">                            
+      516 -          <div className="grid grid-cols-2 gap-4">            
+      517 -            <Field                                            
+      518 -              label={tCreate("fields.salaireBase")}           
+      519 -              error={errors.salaireBase &&                    
+          -(errors.salaireBase.message || "—")}                          
+      520 -            >                                                 
+      521 -              <Input                                          
+      522 -                type="number"                                 
+      523 -                min="1"                                       
+      524 -                {...register("salaireBase", { required: true, 
+          - min: 1 })}                                                   
+      525 -                placeholder="350 000"                         
+      526 -              />                                              
+      527 -            </Field>                                          
+      528 -            <Field label={tCreate("fields.avantagesNature")}> 
+      529 -              <Input type="number" min="0"                    
+          -{...register("avantagesNature")} placeholder="0" />           
+      530 -            </Field>                                          
+      501 +        {/* ── Sidebar                                        
+          +───────────────────────────────────────── */}                 
+      502 +        <aside className="space-y-4 lg:sticky lg:top-6        
+          +lg:self-start">                                               
+      503 +          {/* Bon à savoir */}                                
+      504 +          <div                                                
+      505 +            className="rounded-2xl border border-orange-200   
+          +p-5"                                                          
+      506 +            style={{ background: "linear-gradient(135deg,     
+          +#fff7ed 0%, #fff 100%)" }}                                    
+      507 +          >                                                   
+      508 +            <div className="mb-2 text-[11px] font-bold        
+          +uppercase tracking-widest text-orange-700">                   
+      509 +              {tCreate("sidebar.bonASavoirTitle")}            
+      510 +            </div>                                            
+      511 +            <p className="text-[12.5px] leading-relaxed       
+          +text-ink-2">                                                  
+      512 +              {tCreate("sidebar.bonASavoirText")}             
+      513 +            </p>                                              
+      514            </div>                                              
+      515                                                                
+      516 -          <div className="my-5 h-px bg-line-soft" />          
+      517 -                                                              
+      518 -          <div className="grid grid-cols-2 gap-4">            
+      519 -            <Field label={tCreate("fields.modePaiement")}>    
+      520 -              <select                                         
+      521 -                {...register("modePaiement")}                 
+      522 -                className="w-full rounded-[11px] border       
+          -border-line bg-white px-3.5 py-[11px] text-[13.5px] text-ink  
+          -shadow-xs-brand outline-none focus:border-orange-400          
+          -focus:ring-4 focus:ring-orange-500/12"                        
+      523 -              >                                               
+      524 -                <option value="">—</option>                   
+      525 -                <option value="BANK_TRANSFER">{t("paymentChan 
+          -nel.BANK_TRANSFER")}</option>                                 
+      526 -                <option value="MTN_MOBILE_MONEY">{t("paymentC 
+          -hannel.MTN_MOBILE_MONEY")}</option>                           
+      527 -                <option value="ORANGE_MONEY">{t("paymentChann 
+          -el.ORANGE_MONEY")}</option>                                   
+      528 -                <option                                       
+          -value="CASH">{t("paymentChannel.CASH")}</option>              
+      529 -              </select>                                       
+      530 -            </Field>                                          
+      531 -            {isMobile ? (                                     
+      532 -              <>                                              
+      533 -                <Field                                        
+          -label={tCreate("fields.numMobileMoney")}>                     
+      534 -                  <Input {...register("numMobileMoney")}      
+          -placeholder="6XXXXXXXX" />                                    
+      535 -                </Field>                                      
+      536 -                <Field label={tCreate("fields.operateurMm")}> 
+      537 -                  <select                                     
+      538 -                    {...register("operateurMm")}              
+      539 -                    className="w-full rounded-[11px] border   
+          -border-line bg-white px-3.5 py-[11px] text-[13.5px] text-ink  
+          -shadow-xs-brand outline-none focus:border-orange-400          
+          -focus:ring-4 focus:ring-orange-500/12"                        
+      516 +          {/* Étapes du processus */}                         
+      517 +          <Card>                                              
+      518 +            <CardContent padding="lg">                        
+      519 +              <div className="mb-3 text-[13px] font-bold      
+          +text-ink">                                                    
+      520 +                {tCreate("sidebar.etapesTitle")}              
+      521 +              </div>                                          
+      522 +              <div className="flex flex-col gap-2">           
+      523 +                {(                                            
+      524 +                  [                                           
+      525 +                    tCreate("sidebar.etape1"),                
+      526 +                    tCreate("sidebar.etape2"),                
+      527 +                    tCreate("sidebar.etape3"),                
+      528 +                    tCreate("sidebar.etape4"),                
+      529 +                  ] as string[]                               
+      530 +                ).map((label, idx) => (                       
+      531 +                  <div                                        
+      532 +                    key={idx}                                 
+      533 +                    className={cn(                            
+      534 +                      "rounded-full border px-4 py-2          
+          +text-[12px]",                                                 
+      535 +                      idx === 0                               
+      536 +                        ? "border-transparent bg-grad-orange  
+          +font-semibold text-white"                                     
+      537 +                        : "border-line text-ink-3",           
+      538 +                    )}                                        
+      539                    >                                           
+      540 -                    <option value="">—</option>               
+      541 -                    <option                                   
+          -value="MTN">{tCreate("operator.MTN")}</option>                
+      542 -                    <option                                   
+          -value="ORANGE">{tCreate("operator.ORANGE")}</option>          
+      543 -                  </select>                                   
+      544 -                </Field>                                      
+      545 -              </>                                             
+      546 -            ) : (                                             
+      547 -              <Field                                          
+          -label={tCreate("fields.compteBancaire")}>                     
+      548 -                <Input {...register("compteBancaire")}        
+          -placeholder="100012345678" />                                 
+      549 -              </Field>                                        
+      550 -            )}                                                
+      551 -          </div>                                              
+      552 -        </CardContent>                                        
+      553 -      </Card>                                                 
+      554 -    </>                                                       
+      540 +                    {label}                                   
+      541 +                  </div>                                      
+      542 +                ))}                                           
+      543 +              </div>                                          
+      544 +            </CardContent>                                    
+      545 +          </Card>                                             
+      546 +        </aside>                                              
+      547 +      </div>                                                  
+      548 +                                                              
+      549 +      {/* Footer */}                                          
+      550 +      <div className="mt-8 flex items-center gap-2 border-t   
+          +border-line pt-6">                                            
+      551 +        <Link href="/employees">                              
+      552 +          <Button type="button" variant="ghost">              
+      553 +            {tCommon("actions.cancel")}                       
+      554 +          </Button>                                           
+      555 +        </Link>                                               
+      556 +        <div className="flex-1" />                            
+      557 +        <Button                                               
+      558 +          type="button"                                       
+      559 +          variant="secondary"                                 
+      560 +          onClick={saveDraft}                                 
+      561 +          disabled={mutation.isPending}                       
+      562 +        >                                                     
+      563 +          {tCreate("draft")}                                  
+      564 +        </Button>                                             
+      565 +        <Button type="submit" disabled={mutation.isPending}>  
+      566 +          {mutation.isPending ? (                             
+      567 +            <Loader2 className="h-4 w-4 animate-spin" />      
+      568 +          ) : (                                               
+      569 +            tCreate("submit")                                 
+      570 +          )}                                                  
+      571 +        </Button>                                             
+      572 +      </div>                                                  
+      573 +    </form>                                                   
+      574    );                                                          
+      575  }                                                             
+      576                                                                
+      577 -function Summary({                                            
+      578 -  values,                                                     
+      579 -  t,                                                          
+      580 -  tCreate,                                                    
+      577 +/* ── RadioCards                                              
+          +─────────────────────────────────────────────────────── */    
+      578 +                                                              
+      579 +function RadioCards({                                         
+      580 +  value,                                                      
+      581 +  onChange,                                                   
+      582 +  options,                                                    
+      583  }: {                                                          
+      584 -  values: FormValues;                                         
+      585 -  t: ReturnType<typeof useTranslations<"employees">>;         
+      586 -  tCreate: ReturnType<typeof                                  
+          -useTranslations<"employees.create">>;                         
+      584 +  value: string;                                              
+      585 +  onChange: (v: string) => void;                              
+      586 +  options: Array<{ value: string; label: string; sub?: string 
+          + }>;                                                          
+      587  }) {                                                          
+      588 -  const fullName = `${values.firstName}                       
+          -${values.lastName}`.trim();                                   
+      589 -  const items = [                                             
+      590 -    [tCreate("fields.firstName") + " / " +                    
+          -tCreate("fields.lastName"), fullName],                        
+      591 -    [tCreate("summaryEmail"), values.email],                  
+      592 -    [tCreate("fields.phoneNumber"), values.phoneNumber ||     
+          -"—"],                                                         
+      593 -    [tCreate("fields.dateEmbauche"), values.dateEmbauche],    
+      594 -    [tCreate("fields.contractType"),                          
+          -t(`contractType.${values.contractType}`)],                    
+      595 -    [tCreate("fields.categorie") + " / " +                    
+          -tCreate("fields.echelon"), `${values.categorie} /             
+          -${values.echelon || "—"}`],                                   
+      596 -    [                                                         
+      597 -      tCreate("fields.salaireBase"),                          
+      598 -      values.salaireBase ?                                    
+          -formatMoney(Number(values.salaireBase), { locale: "fr" }) :   
+          -"—",                                                          
+      599 -    ],                                                        
+      600 -    [                                                         
+      601 -      tCreate("fields.modePaiement"),                         
+      602 -      values.modePaiement ?                                   
+          -t(`paymentChannel.${values.modePaiement}`) : "—",             
+      603 -    ],                                                        
+      604 -  ] as const;                                                 
+      605 -                                                              
+      588    return (                                                    
+      589 -    <>                                                        
+      590 -      <SectionTitle>{tCreate("steps.summary")}</SectionTitle> 
+      591 -      <Card>                                                  
+      592 -        <CardContent padding="lg">                            
+      593 -          <dl className="grid grid-cols-2 gap-x-8 gap-y-3.5"> 
+      594 -            {items.map(([k, v]) => (                          
+      595 -              <div key={k} className="flex flex-col">         
+      596 -                <Label className="text-[11.5px] uppercase     
+          -tracking-wider text-ink-4">{k}</Label>                        
+      597 -                <span className="mt-0.5 text-[14px]           
+          -font-medium text-ink">{v}</span>                              
+      598 -              </div>                                          
+      599 -            ))}                                               
+      600 -          </dl>                                               
+      601 -        </CardContent>                                        
+      602 -      </Card>                                                 
+      603 -    </>                                                       
+      589 +    <div className="flex flex-wrap gap-2">                    
+      590 +      {options.map((opt) => (                                 
+      591 +        <button                                               
+      592 +          key={opt.value}                                     
+      593 +          type="button"                                       
+      594 +          onClick={() => onChange(opt.value)}                 
+      595 +          className={cn(                                      
+      596 +            "flex flex-col rounded-[11px] border px-4 py-2.5  
+          +text-left transition-all",                                    
+      597 +            value === opt.value                               
+      598 +              ? "border-orange-400 bg-orange-50 shadow-sm"    
+      599 +              : "border-line bg-white                         
+          +hover:border-orange-300",                                     
+      600 +          )}                                                  
+      601 +        >                                                     
+      602 +          <span                                               
+      603 +            className={cn(                                    
+      604 +              "text-[13.5px] font-semibold",                  
+      605 +              value === opt.value ? "text-orange-700" :       
+          +"text-ink",                                                   
+      606 +            )}                                                
+      607 +          >                                                   
+      608 +            {opt.label}                                       
+      609 +          </span>                                             
+      610 +          {opt.sub && (                                       
+      611 +            <span className="text-[11.5px]                    
+          +text-ink-3">{opt.sub}</span>                                  
+      612 +          )}                                                  
+      613 +        </button>                                             
+      614 +      ))}                                                     
+      615 +    </div>                                                    
+      616    );                                                          
+      617  }                                                             
+
+● Now let me verify the common translations have actions.cancel:
+
+● Searched for 1 pattern (ctrl+o to expand)
+
+● Good. Now let me verify the Field component accepts hint (used in the old form
+   but let me confirm it's supported):
+
+● Searched for 1 pattern (ctrl+o to expand)
+
+● Let me quickly verify variant="ghost" exists on the Button component:
+
+● Searched for 1 pattern (ctrl+o to expand)
+
+● All good. Let me do a final check on the form to make sure there are no issues
+   with the Label import usage in the form — it's used as a regular component
+  for radio group labels:
+
+● Searched for 1 pattern (ctrl+o to expand)
+
+● Good. The implementation is complete. Here's a summary of what was done:
+
+  ---
+  Changes made
+
+  frontend/src/components/employees/employee-create-form.tsx — full rewrite
+
+  - Single-page layout (no wizard stepper) with a grid grid-cols-[1fr_300px]
+  two-column layout
+  - Section 1 — Identification administrative: identity fields (prénom, nom,
+  email, téléphone, genre, nationalité, dateNaissance) + HR admin fields
+  (numCnps, dateEmbauche, catégorie select 1-12, échelon select A-E, département
+   select)
+  - Section 2 — Premier contrat: RadioCards component for CDI/CDD/Stage/Intérim,
+   then dateDebut, dateFin (disabled if CDI), periodeEssai, salaireBase,
+  avantagesNature
+  - Section 3 — Mode de paiement: RadioCards for Virement/MTN/Orange/Espèces,
+  with conditional fields (RIB if bank, numéro + opérateur if mobile)
+  - Section 4 — Contrat signé PDF: file picker that shows the file name + X
+  button to remove; uploaded to /api/hrm/employees/{id}/documents after employee
+   creation (non-fatal if it fails)
+  - Sidebar (sticky): "Bon à savoir" card (orange gradient) + "Étapes du
+  processus" vertical stepper (step 1 active/orange, steps 2-4 pending)
+  - Footer: Annuler (ghost) | Brouillon (secondary, saves to localStorage) |
+  Créer l'employé (submit)
+  - Draft saved/restored via localStorage key hrm:employee-draft
+  - User account creation + welcome email already handled by the existing
+  createEmployeeOrchestrated orchestration (no backend changes needed)
+
+  fr/employees.json + en/employees.json
+
+  Added to the create section: sections.*, sidebar.*, uploadHint, uploadNote,
+  draft, draftSaved
+
+✻ Crunched for 12m 26s
+
+❯ est ce que tout est bien aligné avec le backend ?                             
+
+● Laissez-moi vérifier l'alignement en lisant les fichiers backend critiques.
+
+● Searched for 2 patterns, read 2 files (ctrl+o to expand)
+
+● Laissons le backend parler de lui-même — vérifions les enums critiques et le
+  service de création.
+
+● Searched for 3 patterns, read 3 files (ctrl+o to expand)
+
+● Now let me check the service that processes the command, to verify enum
+  parsing and the modePaiement required constraint.
+
+● Searched for 2 patterns, read 2 files (ctrl+o to expand)
+
+● Problème trouvé. Ligne 93 du service :
+
+  PaymentChannel.valueOf(command.modePaiement())  // NullPointerException si 
+  null
+
+  modePaiement est obligatoire côté backend (Objects.requireNonNull dans
+  Employee.hire()) mais le formulaire ne le valide pas — si l'utilisateur ne
+  sélectionne rien, le serveur plante. Les autres enums sont corrects
+  (PaymentChannel, MobileOperator, ContractType correspondent tous
+  parfaitement).
+
+  Autres points vérifiés :
+  - Enums : ✅ tous alignés
+  - forcePasswordChange: true : ✅ envoyé par l'orchestration
+  - managerId : ✅ nullable côté backend (intentionnel)
+  - Upload contrat : ✅ le BFF /api/hrm/employees/{id}/documents gère multipart
+  + attach
+
+  Correction — ajouter required: true sur le Controller de modePaiement et
+  afficher le message d'erreur :
+
+● Update(frontend/src/components/employees/employee-create-form.tsx)
+  ⎿  Added 7 lines
+      411                  <div className="mb-5">                        
+      412                    <Label className="mb-2.5 block              
+           text-[11.5px] font-semibold uppercase tracking-wider          
+           text-ink-3">                                                  
+      413                      {tCreate("fields.modePaiement")}          
+      414 +                    <span className="ml-1                     
+          +text-danger-600">*</span>                                     
+      415                    </Label>                                    
+      416                    <Controller                                 
+      417                      name="modePaiement"                       
+      418                      control={control}                         
+      419 +                    rules={{ required: true, validate: (v) => 
+          + v !== "" }}                                                  
+      420                      render={({ field }) => (                  
+      421                        <RadioCards                             
+      422                          value={field.value}                   
+     ...
+      431                        />                                      
+      432                      )}                                        
+      433                    />                                          
+      434 +                  {errors.modePaiement && (                   
+      435 +                    <p className="mt-1.5 text-[11.5px]        
+          +text-danger-600">                                             
+      436 +                      {tErrors("required")}                   
+      437 +                    </p>                                      
+      438 +                  )}                                          
+      439                  </div>                                        
+      440                                                                
+      441                  {(isBank || isMobile) && (                    
+
+● Maintenant vérifions que la clé errors.required existe dans les traductions
+  errors :
+
+● Searched for 1 pattern, read 1 file (ctrl+o to expand)
+
+● Pas de clé required dans les erreurs. Deux options : utiliser validationError
+  qui existe, ou ajouter la clé. Je vais ajouter une clé propre dans les deux
+  fichiers d'erreurs et corriger la référence dans le composant.
+
+● Read 1 file (ctrl+o to expand)
+
+● Update(frontend/src/i18n/messages/fr/errors.json)
+  ⎿  Added 1 line
+      12    "loanCeilingExceeded": "Le plafond de prêt est dépassé.",    
+      13    "activeContractExists": "Cet employé a déjà un contrat       
+          actif.",                                                       
+      14    "validationError": "Certains champs contiennent des          
+          erreurs.",                                                     
+      15 +  "fieldRequired": "Ce champ est obligatoire.",                
+      16    "unknown": "Une erreur inattendue est survenue. Réessayez ou 
+           contactez le support."                                        
+      17  }                                                              
+
+● Update(frontend/src/i18n/messages/en/errors.json)
+  ⎿  Added 1 line
+      12    "loanCeilingExceeded": "Loan ceiling exceeded.",             
+      13    "activeContractExists": "This employee already has an active 
+           contract.",                                                   
+      14    "validationError": "Some fields contain errors.",            
+      15 +  "fieldRequired": "This field is required.",                  
+      16    "unknown": "An unexpected error occurred. Retry or contact   
+          support."                                                      
+      17  }                                                              
+
+● Update(frontend/src/components/employees/employee-create-form.tsx)
+  ⎿  Added 1 line, removed 1 line
+      435                    />                                          
+      436                    {errors.modePaiement && (                   
+      437                      <p className="mt-1.5 text-[11.5px]        
+           text-danger-600">                                             
+      438 -                      {tErrors("required")}                   
+      438 +                      {tErrors("fieldRequired")}              
+      439                      </p>                                      
+      440                    )}                                          
+      441                  </div>                                        
+
+● Voici le bilan complet de l'alignement frontend ↔ backend :
+
+  ---
+  Résultat de l'audit
+
+  ✅ Tout aligné
+
+  ┌──────────────────┬────────────────────────────┬────────────────────────┐
+  │      Point       │          Backend           │        Frontend        │
+  ├──────────────────┼────────────────────────────┼────────────────────────┤
+  │ PaymentChannel   │ BANK_TRANSFER,             │                        │
+  │ enum             │ MTN_MOBILE_MONEY,          │ Identique              │
+  │                  │ ORANGE_MONEY, CASH         │                        │
+  ├──────────────────┼────────────────────────────┼────────────────────────┤
+  │ MobileOperator   │ MTN, ORANGE                │ Identique              │
+  │ enum             │                            │                        │
+  ├──────────────────┼────────────────────────────┼────────────────────────┤
+  │ ContractType     │ CDI, CDD, STAGE, INTERIM   │ Identique              │
+  │ enum             │                            │                        │
+  ├──────────────────┼────────────────────────────┼────────────────────────┤
+  │ forcePasswordCha │ Flag lu par auth-core      │ true envoyé par        │
+  │ nge              │                            │ l'orchestration        │
+  ├──────────────────┼────────────────────────────┼────────────────────────┤
+  │                  │                            │ Non envoyé             │
+  │ managerId        │ Nullable (non @NotNull)    │ (intentionnel, assigné │
+  │                  │                            │  plus tard)            │
+  ├──────────────────┼────────────────────────────┼────────────────────────┤
+  │                  │ /api/files +               │ BFF /employees/{id}/do │
+  │ Upload contrat   │ /api/document-hub/links    │ cuments orchestre les  │
+  │                  │                            │ deux                   │
+  ├──────────────────┼────────────────────────────┼────────────────────────┤
+  │ Conversion des   │ PaymentChannel.valueOf(str │ Valeurs string exactes │
+  │ enums            │ ing)                       │  envoyées              │
+  └──────────────────┴────────────────────────────┴────────────────────────┘
+
+  ✅ Bug corrigé
+
+  modePaiement obligatoire : le service fait
+  PaymentChannel.valueOf(command.modePaiement()) — si null, c'est un
+  NullPointerException. Le Controller a maintenant rules={{ required: true, 
+  validate: (v) => v !== "" }} avec message d'erreur affiché.
+
+  Note d'architecture
+
+  Le design personnel.jsx affichait MOBILE_MONEY comme valeur d'enum unique,
+  mais le vrai backend distingue MTN_MOBILE_MONEY et ORANGE_MONEY — le
+  formulaire reprend correctement les vraies valeurs backend avec deux options
+  séparées.
+
+✻ Baked for 4m 0s
+
+❯ tu est d'accrod que en dev on a aucun moyen de savoir si le compte            
+utilisateur de l'employé est focntionnel ou pas , donc apres creation, une      
+modal doit s'afficher avec les infos de connexion de l'employé bien que le mail 
+ soit envoyé                                                                    
+
+● Absolument. Le résultat de l'orchestration retourne déjà
+  login.temporaryPassword — il suffit de le capturer et afficher une modal.
+  Laissez-moi vérifier les composants UI disponibles.
+
+● Searched for 2 patterns, read 1 file (ctrl+o to expand)
+
+● Parfait, le composant Dialog est disponible. Voici le plan :
+  - Après la création, au lieu de rediriger immédiatement, stocker le résultat
+  dans un state
+  - Afficher une modal avec username, mot de passe temporaire (copiable), statut
+   email, avertissements
+  - La modal est non-dismissible (pas de fermeture accidentelle) — seul le
+  bouton "Accéder au profil" redirige
+
+  D'abord, ajout des clés i18n :
+
+● Update(frontend/src/i18n/messages/fr/employees.json)
+  ⎿  Added 14 lines
+      76      "uploadNote": "Optionnel · peut être joint ultérieurement  
+          depuis la fiche employé.",                                     
+      77      "draft": "Brouillon",                                      
+      78      "draftSaved": "Brouillon enregistré",                      
+      79 +    "credentials": {                                           
+      80 +      "title": "Compte employé créé",                          
+      81 +      "subtitle": "Transmettez ces identifiants à l'employé ou 
+         + vérifiez qu'il a bien reçu l'email de bienvenue.",            
+      82 +      "matricule": "Matricule",                                
+      83 +      "username": "Identifiant de connexion",                  
+      84 +      "password": "Mot de passe provisoire",                   
+      85 +      "passwordHint": "À changer obligatoirement dès la        
+         +première connexion",                                           
+      86 +      "emailSent": "Email de bienvenue envoyé",                
+      87 +      "emailFailed": "Email non envoyé — transmettez les       
+         +identifiants manuellement",                                    
+      88 +      "warnings": "Avertissements",                            
+      89 +      "copied": "Copié !",                                     
+      90 +      "continue": "Accéder au profil employé",                 
+      91 +      "noLogin": "Aucun compte créé (provisionnement           
+         +désactivé)"                                                    
+      92 +    },                                                         
+      93      "steps": {                                                 
+      94        "identity": "Identité",                                  
+      95        "hr": "RH",                                              
+
+● Update(frontend/src/i18n/messages/en/employees.json)
+  ⎿  Added 14 lines
+      76      "uploadNote": "Optional · can be attached later from the   
+          employee profile.",                                            
+      77      "draft": "Save draft",                                     
+      78      "draftSaved": "Draft saved",                               
+      79 +    "credentials": {                                           
+      80 +      "title": "Employee account created",                     
+      81 +      "subtitle": "Share these credentials with the employee   
+         +or confirm they received the welcome email.",                  
+      82 +      "matricule": "Employee code",                            
+      83 +      "username": "Login",                                     
+      84 +      "password": "Temporary password",                        
+      85 +      "passwordHint": "Must be changed on first login",        
+      86 +      "emailSent": "Welcome email sent",                       
+      87 +      "emailFailed": "Email not sent — share credentials       
+         +manually",                                                     
+      88 +      "warnings": "Warnings",                                  
+      89 +      "copied": "Copied!",                                     
+      90 +      "continue": "Go to employee profile",                    
+      91 +      "noLogin": "No account created (provisioning disabled)"  
+      92 +    },                                                         
+      93      "steps": {                                                 
+      94        "identity": "Identity",                                  
+      95        "hr": "HR",                                              
+
+● Maintenant, mise à jour du composant :
+
+● Update(frontend/src/components/employees/employee-create-form.tsx)
+  ⎿  Added 2 lines, removed 1 line
+      1  "use client";                                                   
+      2                                                                  
+      3  import { useMutation } from "@tanstack/react-query";            
+      4 -import { Loader2, Upload, X } from "lucide-react";              
+      4 +import { Check, Copy, Eye, EyeOff,                              
+        +Loader2, Upload, X } from "lucide-react";                       
+      5  import { useTranslations } from "next-intl";                    
+      6  import * as React from "react";                                 
+      7  import { Controller, useForm } from "react-hook-form";          
+     ...
+      10  import { PageHeader } from "@/components/shell/page-header";   
+      11  import { Button } from "@/components/ui/button";               
+      12  import { Card, CardContent } from "@/components/ui/card";      
+      13 +import { Dialog } from "@/components/ui/dialog";               
+      14  import { Field, Input, Label } from "@/components/ui/input";   
+      15  import { SectionTitle } from "@/components/ui/section-title";  
+      16  import { Link, useRouter } from "@/i18n/navigation";           
+
+● Maintenant, ajouter le type du résultat de création et le state de la modal,
+  puis modifier onSuccess :
+
+● Update(frontend/src/components/employees/employee-create-form.tsx)
+  ⎿  Added 15 lines
+      24                                                                 
+      25  const DRAFT_KEY = "hrm:employee-draft";                        
+      26                                                                 
+      27 +type CreatedEmployeeResult = {                                 
+      28 +  employeeId: string;                                          
+      29 +  matricule: string;                                           
+      30 +  login?: {                                                    
+      31 +    userId: string;                                            
+      32 +    username: string;                                          
+      33 +    email: string;                                             
+      34 +    temporaryPassword: string;                                 
+      35 +    rolesAssigned: number;                                     
+      36 +    welcomeMailSent: boolean;                                  
+      37 +    welcomeMailProvider: string;                               
+      38 +  };                                                           
+      39 +  warnings: string[];                                          
+      40 +};                                                             
+      41 +                                                               
+      42  const SELECT_CLS =                                             
+      43    "w-full rounded-[11px] border border-line bg-white px-3.5    
+          py-[11px] text-[13.5px] text-ink shadow-xs-brand outline-none  
+          focus:border-orange-400 focus:ring-4                           
+          focus:ring-orange-500/12";                                     
+      44                                                                 
+
+● Maintenant ajouter le state createdResult dans le composant et changer
+  onSuccess :
+
+● Update(frontend/src/components/employees/employee-create-form.tsx)
+  ⎿  Added 1 line
+      100                                                                
+      101    const [contractFile, setContractFile] = React.useState<File 
+            | null>(null);                                               
+      102    const fileInputRef = React.useRef<HTMLInputElement>(null);  
+      103 +  const [createdResult, setCreatedResult] =                   
+          +React.useState<CreatedEmployeeResult | null>(null);           
+      104                                                                
+      105    const savedDraft = React.useMemo<Partial<FormValues> |      
+           null>(() => {                                                 
+      106      if (typeof window === "undefined") return null;           
+
+● Update(frontend/src/components/employees/employee-create-form.tsx)
+  ⎿  Added 1 line, removed 1 line
+      149                                                                
+      150    const mutation = useMutation({                              
+      151      mutationFn: async (v: FormValues) => {                    
+      152 -      const result = await apiFetch<{ employeeId: string;     
+          -matricule: string }>(                                         
+      152 +      const result = await apiFetch<CreatedEmployeeResult>(   
+      153          "/api/hrm/employees",                                 
+      154          {                                                     
+      155            method: "POST",                                     
+
+● Update(frontend/src/components/employees/employee-create-form.tsx)
+  ⎿  Added 1 line, removed 1 line
+      201      onSuccess: (result) => {                                  
+      202        try { localStorage.removeItem(DRAFT_KEY); } catch { /*  
+           ignore */ }                                                   
+      203        toast.success(tCreate("success") + " · " +              
+           result.matricule);                                            
+      204 -      router.push(`/employees/${result.employeeId}`);         
+      204 +      setCreatedResult(result);                               
+      205      },                                                        
+      206      onError: (cause) => {                                     
+      207        if (cause instanceof BffApiError) {                     
+
+● Maintenant ajouter la modal et le CredentialsModal juste avant la balise
+  </form> fermante :
+
+● Update(frontend/src/components/employees/employee-create-form.tsx)
+  ⎿  Added 8 lines
+      596          </aside>                                              
+      597        </div>                                                  
+      598                                                                
+      599 +      {/* Credentials modal — shown after successful creation 
+          + */}                                                          
+      600 +      {createdResult && (                                     
+      601 +        <CredentialsModal                                     
+      602 +          result={createdResult}                              
+      603 +          onContinue={() =>                                   
+          +router.push(`/employees/${createdResult.employeeId}`)}        
+      604 +        />                                                    
+      605 +      )}                                                      
+      606 +                                                              
+      607        {/* Footer */}                                          
+      608        <div className="mt-8 flex items-center gap-2 border-t   
+           border-line pt-6">                                            
+      609          <Link href="/employees">                              
+
+● Maintenant ajouter le composant CredentialsModal en bas du fichier :
+
+● Update(frontend/src/components/employees/employee-create-form.tsx)
+  ⎿  Added 158 lines
+      632    );                                                          
+      633  }                                                             
+      634                                                                
+      635 +/* ── CredentialsModal                                        
+          +───────────────────────────────────────────────── */          
+      636 +                                                              
+      637 +function CredentialsModal({                                   
+      638 +  result,                                                     
+      639 +  onContinue,                                                 
+      640 +}: {                                                          
+      641 +  result: CreatedEmployeeResult;                              
+      642 +  onContinue: () => void;                                     
+      643 +}) {                                                          
+      644 +  const tCreate = useTranslations("employees.create");        
+      645 +  const { login, matricule, warnings } = result;              
+      646 +  const [showPassword, setShowPassword] =                     
+          +React.useState(false);                                        
+      647 +  const [copiedField, setCopiedField] =                       
+          +React.useState<"username" | "password" | null>(null);         
+      648 +                                                              
+      649 +  function copy(value: string, field: "username" |            
+          +"password") {                                                 
+      650 +    navigator.clipboard.writeText(value).then(() => {         
+      651 +      setCopiedField(field);                                  
+      652 +      setTimeout(() => setCopiedField(null), 2000);           
+      653 +    });                                                       
+      654 +  }                                                           
+      655 +                                                              
+      656 +  return (                                                    
+      657 +    <Dialog                                                   
+      658 +      open                                                    
+      659 +      onClose={() => {/* non-dismissible — user must click    
+          +the continue button */}}                                      
+      660 +      title={tCreate("credentials.title")}                    
+      661 +      subtitle={tCreate("credentials.subtitle")}              
+      662 +      size="md"                                               
+      663 +      footer={                                                
+      664 +        <Button onClick={onContinue}>                         
+      665 +          {tCreate("credentials.continue")}                   
+      666 +        </Button>                                             
+      667 +      }                                                       
+      668 +    >                                                         
+      669 +      {/* Matricule */}                                       
+      670 +      <div className="mb-4 flex items-center justify-between  
+          +rounded-[11px] bg-bg-dim px-4 py-3">                          
+      671 +        <div>                                                 
+      672 +          <p className="text-[11px] font-semibold uppercase   
+          +tracking-wider text-ink-4">                                   
+      673 +            {tCreate("credentials.matricule")}                
+      674 +          </p>                                                
+      675 +          <p className="mt-0.5 font-mono-tabular text-[15px]  
+          +font-bold text-ink">{matricule}</p>                           
+      676 +        </div>                                                
+      677 +      </div>                                                  
+      678 +                                                              
+      679 +      {login ? (                                              
+      680 +        <div className="space-y-3">                           
+      681 +          {/* Username */}                                    
+      682 +          <CredentialRow                                      
+      683 +            label={tCreate("credentials.username")}           
+      684 +            value={login.username}                            
+      685 +            copied={copiedField === "username"}               
+      686 +            onCopy={() => copy(login.username, "username")}   
+      687 +            tCreate={tCreate}                                 
+      688 +          />                                                  
+      689 +                                                              
+      690 +          {/* Password */}                                    
+      691 +          <div className="rounded-[11px] border border-line   
+          +bg-white px-4 py-3">                                          
+      692 +            <p className="text-[11px] font-semibold uppercase 
+          + tracking-wider text-ink-4">                                  
+      693 +              {tCreate("credentials.password")}               
+      694 +            </p>                                              
+      695 +            <div className="mt-1.5 flex items-center gap-2">  
+      696 +              <span className="flex-1 font-mono-tabular       
+          +text-[14px] font-semibold text-ink">                          
+      697 +                {showPassword ? login.temporaryPassword :     
+          +"•".repeat(login.temporaryPassword.length)}                   
+      698 +              </span>                                         
+      699 +              <button                                         
+      700 +                type="button"                                 
+      701 +                onClick={() => setShowPassword((v) => !v)}    
+      702 +                className="text-ink-3 hover:text-ink"         
+      703 +              >                                               
+      704 +                {showPassword ? <EyeOff className="h-4 w-4"   
+          +/> : <Eye className="h-4 w-4" />}                             
+      705 +              </button>                                       
+      706 +              <button                                         
+      707 +                type="button"                                 
+      708 +                onClick={() => copy(login.temporaryPassword,  
+          +"password")}                                                  
+      709 +                className="text-ink-3 hover:text-orange-600"  
+      710 +              >                                               
+      711 +                {copiedField === "password" ? (               
+      712 +                  <Check className="h-4 w-4 text-success-600" 
+          + />                                                           
+      713 +                ) : (                                         
+      714 +                  <Copy className="h-4 w-4" />                
+      715 +                )}                                            
+      716 +              </button>                                       
+      717 +            </div>                                            
+      718 +            <p className="mt-1.5 text-[11.5px]                
+          +text-ink-4">{tCreate("credentials.passwordHint")}</p>         
+      719 +          </div>                                              
+      720 +                                                              
+      721 +          {/* Email status */}                                
+      722 +          <div                                                
+      723 +            className={cn(                                    
+      724 +              "flex items-center gap-2 rounded-[11px] px-4    
+          +py-3 text-[12.5px]",                                          
+      725 +              login.welcomeMailSent                           
+      726 +                ? "bg-success-50 text-success-700"            
+      727 +                : "bg-warning-50 text-warning-700",           
+      728 +            )}                                                
+      729 +          >                                                   
+      730 +            {login.welcomeMailSent ? (                        
+      731 +              <Check className="h-3.5 w-3.5 shrink-0" />      
+      732 +            ) : (                                             
+      733 +              <span className="shrink-0                       
+          +text-[14px]">⚠</span>                                         
+      734 +            )}                                                
+      735 +            {login.welcomeMailSent                            
+      736 +              ? tCreate("credentials.emailSent")              
+      737 +              : tCreate("credentials.emailFailed")}           
+      738 +          </div>                                              
+      739 +                                                              
+      740 +          {/* Warnings */}                                    
+      741 +          {warnings.length > 0 && (                           
+      742 +            <div className="rounded-[11px] border             
+          +border-warning-200 bg-warning-50 px-4 py-3">                  
+      743 +              <p className="mb-1.5 text-[11px] font-semibold  
+          +uppercase tracking-wider text-warning-700">                   
+      744 +                {tCreate("credentials.warnings")}             
+      745 +              </p>                                            
+      746 +              <ul className="space-y-1">                      
+      747 +                {warnings.map((w, i) => (                     
+      748 +                  <li key={i} className="text-[12px]          
+          +text-warning-700">                                            
+      749 +                    · {w}                                     
+      750 +                  </li>                                       
+      751 +                ))}                                           
+      752 +              </ul>                                           
+      753 +            </div>                                            
+      754 +          )}                                                  
+      755 +        </div>                                                
+      756 +      ) : (                                                   
+      757 +        <p className="text-[13px]                             
+          +text-ink-3">{tCreate("credentials.noLogin")}</p>              
+      758 +      )}                                                      
+      759 +    </Dialog>                                                 
+      760 +  );                                                          
+      761 +}                                                             
+      762 +                                                              
+      763 +function CredentialRow({                                      
+      764 +  label,                                                      
+      765 +  value,                                                      
+      766 +  copied,                                                     
+      767 +  onCopy,                                                     
+      768 +  tCreate,                                                    
+      769 +}: {                                                          
+      770 +  label: string;                                              
+      771 +  value: string;                                              
+      772 +  copied: boolean;                                            
+      773 +  onCopy: () => void;                                         
+      774 +  tCreate: ReturnType<typeof                                  
+          +useTranslations<"employees.create">>;                         
+      775 +}) {                                                          
+      776 +  return (                                                    
+      777 +    <div className="rounded-[11px] border border-line         
+          +bg-white px-4 py-3">                                          
+      778 +      <p className="text-[11px] font-semibold uppercase       
+          +tracking-wider text-ink-4">{label}</p>                        
+      779 +      <div className="mt-1.5 flex items-center gap-2">        
+      780 +        <span className="flex-1 font-mono-tabular text-[14px] 
+          + text-ink">{value}</span>                                     
+      781 +        <button type="button" onClick={onCopy}                
+          +className="text-ink-3 hover:text-orange-600">                 
+      782 +          {copied ? (                                         
+      783 +            <Check className="h-4 w-4 text-success-600" />    
+      784 +          ) : (                                               
+      785 +            <Copy className="h-4 w-4" />                      
+      786 +          )}                                                  
+      787 +        </button>                                             
+      788 +      </div>                                                  
+      789 +    </div>                                                    
+      790 +  );                                                          
+      791 +}                                                             
+      792 +                                                              
+      793  /* ── RadioCards                                              
+           ─────────────────────────────────────────────────────── */    
+      794                                                                
+      795  function RadioCards({                                         
+
+● Maintenant, vérifier que la clé warning-50/200/700 existe bien dans le projet
+  (sinon utiliser amber) :
+
+● Searched for 2 patterns (ctrl+o to expand)
+
+● warning-* est utilisé dans plusieurs composants, donc c'est bon. Vérification
+  rapide de font-mono-tabular :
+
+● Searched for 1 pattern (ctrl+o to expand)
+
+● font-mono-tabular est déjà utilisé dans le codebase d'origine. La mise en
+  œuvre est complète.
+
+  Voici ce qui se passe maintenant après la création d'un employé :
+
+  Flux complet :
+  1. Formulaire soumis → orchestration (actor + employee + user + email)
+  2. onSuccess → stocke le résultat dans createdResult au lieu de rediriger
+  3. CredentialsModal s'affiche :
+    - Matricule (ex. EMP-0247)
+    - Identifiant (email) avec bouton copier
+    - Mot de passe provisoire avec masquage/démasquage + bouton copier
+    - Statut email : vert si envoyé, orange si échec (avec message pour
+  transmission manuelle)
+    - Avertissements du backend si rôle non assigné, etc.
+  4. La modal est non-dismissible — X et backdrop sont des no-ops — seul le
+  bouton "Accéder au profil employé" redirige vers /employees/{id}
+
+  Pourquoi non-dismissible : si l'admin ferme la modal accidentellement avant de
+   noter le mot de passe, les credentials sont définitivement perdus (le backend
+   ne les re-expose jamais).
+
+✻ Brewed for 4m 26s
+
+❯ toukours concernant le formulaire de creation des employé,                    
+                                                                                
+-deux employé ne peuvent pas avoir le meme Numero de la cnps (il est unique)    
+donc a verifier (en bd) lors de la création d'un employé                        
+                                                                                
+-pour la nationalité tu peux utiliser une api qui donne la liste de tous les    
+pays et affichier un depliant pour que l'on choisisse mais le CAMEROUN est le   
+pays par defaut (dit moi s'il faut une retouche du backend pour ca)             
+                                                                                
+- on ne demande pas la date de naissance, a la place, demander l'age            
+                                                                                
+-pour la cathégorie et les echelons, regarde sur cette page ci                  
+https://www.droitsocialenpratique.com/tout-savoir-sur-les-classifications-profe 
+ssionnelles-au-cameroun/      et peux aussi utiliser d'autre reférences et      
+creee des liste depliables personalisée pour le cameroun                        
+                                                                                
+-pour le departement laisser que ce soit une zone de saisie                     
+                                                                                
+-la date de fin du contrat ne peut etre eujoud'hui ou une date ancienne elle    
+doit obligatoirement une date future                                            
+                                                                                
+                                                                                
+-tu supprime aussi les elements "Étapes du processus" et "Bon à savoir" qui     
+sont juste a droite du formulaire                                               
+                                                                                
+rassure toi que l'envoi du mail focntionne bien                                 
+tu te rassure que tous est bien aligné avec les backend                         
+dit moi si une retouche est necessaire dans le backend tu ùe demande d'abord    
+
+● Laissez-moi d'abord tout vérifier — backend mailer, repository employee, et la
+   logique CNPS — avant de toucher au code.
+
+● Searched for 2 patterns, read 3 files (ctrl+o to expand)
+
+● Vérifions aussi l'env email et le R2DBC adapter pour voir si CNPS existe déjà
+  :
+
+● Searched for 1 pattern, read 2 files (ctrl+o to expand)
+
+● J'ai tout ce qu'il faut. Voici mon analyse complète avant de toucher au code :
+
+  ---
+  Audit — ce qui nécessite ou non une retouche backend
+
+  ❗ 1 backend change nécessaire — CNPS unicité
+
+  Le EmployeeRepository n'a que existsByActorIdAndTenantId. Il n'y a aucun check
+   CNPS côté backend — deux employés peuvent avoir le même numéro CNPS
+  aujourd'hui sans erreur.
+
+  Pour implémenter correctement :
+  - EmployeeRepository interface → ajouter Mono<Boolean> 
+  existsByNumCnpsAndTenantId(String numCnps, UUID tenantId)
+  - EmployeeSpringDataRepository → Spring Data dérive la méthode automatiquement
+  - EmployeeR2dbcRepositoryAdapter → déléguer vers le repository Spring Data
+  - EmployeeService.createEmployee() → injecter le check avant Employee.hire()
+  - BFF → ajouter GET /api/hrm/employees/check-cnps?value=XX pour validation
+  inline (blur)
+
+  Est-ce que je peux implémenter ces 5 changements backend ?
+
+  ---
+  ✅ Tout le reste est frontend-only — pas besoin de t'en parler
+
+  Point: Nationalité
+  Détail: nationality est stocké tel quel sur l'Actor — je mets un combobox
+    statique avec 250 pays (ISO 3-letter codes, CMR par défaut), plus fiable
+    qu'une API externe
+  ────────────────────────────────────────
+  Point: Âge
+  Détail: birthDate est optionnel sur l'Actor — je collecte l'âge, je calcule
+    YYYY-01-01 avant envoi
+  ────────────────────────────────────────
+  Point: Catégorie/Échelon CCNI
+  Détail: Grille CCNI camerounaise complète — les échelons disponibles changent
+    dynamiquement selon la catégorie choisie
+  ────────────────────────────────────────
+  Point: Département
+  Détail: Champ texte libre, plus de liste
+  ────────────────────────────────────────
+  Point: Date fin contrat
+  Détail: Validation > today côté formulaire
+  ────────────────────────────────────────
+  Point: Suppression sidebar
+  Détail: Layout colonne unique
+  ────────────────────────────────────────
+  Point: Email
+  Détail: Architecture OK — en dev EMAIL_PROVIDER=none affiche le contenu dans
+    les logs console + retourne ok: true. Pour que les emails partent vraiment
+  en
+     prod : configurer EMAIL_PROVIDER=smtp ou =resend dans le .env
+
+  ---
+  Donne-moi le feu vert pour le backend CNPS et je lance tout en parallèle.
+
+✻ Cooked for 3m 3s
+
+❯ pour le backend c'est ok                                                      
+pour le front, laisse la date de naissance                                      
+pour le reste c'est ok                                                          
+  ⎿  You've hit your limit · resets 5pm (Africa/Douala)
+     /upgrade or /extra-usage to finish what you’re working on.
+
+❯ continue                                                                      
+  ⎿  You've hit your limit · resets 5pm (Africa/Douala)
+     /upgrade or /extra-usage to finish what you’re working on.
+
+❯ /rate-limit-options                                                           
+  ⎿  Login interrupted
+
+❯ continue                                                                      
+  ⎿  You've hit your limit · resets 5pm (Africa/Douala)
+     /upgrade or /extra-usage to finish what you’re working on.

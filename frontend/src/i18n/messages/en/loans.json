@@ -1,0 +1,128 @@
+{
+  "title": "My Loans & Advances",
+  "subtitle": "Requests, schedules and repayment history",
+  "actions": {
+    "newRequest": "New request"
+  },
+  "hero": {
+    "activeLoan": "Active loan",
+    "noActiveLoan": "No active loan",
+    "noActiveLoanSub": "You have no loan currently in repayment.",
+    "startedIn": "Started {date}",
+    "installments": "{n} installments",
+    "rate": "rate 4%",
+    "repaid": "Repaid",
+    "monthly": "Monthly payment",
+    "remainingDebt": "Outstanding",
+    "remainingInstallments": "Remaining installments",
+    "amortizationTable": "Amortization table"
+  },
+  "kpi": {
+    "pending": "Pending requests",
+    "pendingSub": "under review",
+    "capacity": "Available capacity",
+    "capacitySub": "XAF · max 1 month salary",
+    "totalBorrowed": "Total borrowed",
+    "totalBorrowedSub": "XAF since start",
+    "incidents": "Incident rate",
+    "incidentsSub": "none · thank you!"
+  },
+  "table": {
+    "title": "My request history",
+    "ref": "Ref.",
+    "type": "Type",
+    "amount": "Amount (XAF)",
+    "duration": "Duration",
+    "remaining": "Outstanding (XAF)",
+    "status": "Status",
+    "months": "{n} months",
+    "noData": "No loans or advances found"
+  },
+  "status": {
+    "PENDING": "Pending",
+    "APPROVED": "Approved",
+    "IN_REPAYMENT": "Active",
+    "FULLY_REPAID": "Repaid",
+    "REJECTED": "Rejected"
+  },
+  "type": {
+    "advance": "Salary advance",
+    "personal": "Personal loan",
+    "housing": "Housing loan",
+    "vehicle": "Vehicle loan",
+    "training": "Training loan",
+    "other": "Other"
+  },
+  "form": {
+    "title": "Loan or advance request",
+    "subtitle": "Salary advance (1 installment) or amortizable loan (> 1 installment)",
+    "sectionApplicant": "Applicant",
+    "employee": "Employee",
+    "sectionFinancial": "Financial terms",
+    "amount": "Requested amount",
+    "amountSuffix": "XAF",
+    "installments": "Number of installments",
+    "installmentsSuffix": "months",
+    "installmentsHint": "1 = advance · > 1 = amortizable loan",
+    "reason": "Reason for request",
+    "reasonHint": "Will be reviewed by loan committee if > 5M XAF",
+    "reasonPlaceholder": "Vehicle purchase for professional mobility",
+    "submit": "Submit request",
+    "cancel": "Cancel",
+    "success": "Your request has been submitted successfully.",
+    "error": "Error submitting the request.",
+    "simulation": "Simulation",
+    "simMonthly": "XAF/month",
+    "simMonthlyLabel": "Monthly payroll deduction",
+    "simCapital": "Capital",
+    "simInstallments": "Installments",
+    "simRate": "Internal rate",
+    "simRateValue": "4.0%",
+    "salaryCapWarning": "Legal cap: monthly payment must not exceed 33% of net salary."
+  },
+  "currency": "XAF",
+  "admin": {
+    "ucBadge": "Compensation",
+    "title": "Loans & Advances",
+    "subtitle": "Manage salary advances and employee loan requests",
+    "exportAmortization": "Amortization table",
+    "tableTitle": "Loans & advances",
+    "noData": "No requests found",
+    "kpi": {
+      "pending": "Pending",
+      "pendingSub": "to approve",
+      "active": "Active loans",
+      "activeSub": "outstanding",
+      "monthly": "Monthly repayment",
+      "monthlySub": "payroll deduction",
+      "incidents": "Incident rate",
+      "incidentsSub": "no default · 12 months"
+    },
+    "filter": {
+      "all": "All",
+      "pending": "Pending",
+      "active": "Active",
+      "repaid": "Repaid"
+    },
+    "col": {
+      "ref": "Ref.",
+      "employee": "Employee",
+      "type": "Type",
+      "amount": "Total amount (XAF)",
+      "duration": "Duration",
+      "monthly": "Monthly (XAF)",
+      "remaining": "Outstanding (XAF)",
+      "progress": "Progress",
+      "status": "Status"
+    },
+    "approve": "Approve",
+    "reject": "Reject",
+    "approveSuccess": "Loan approved successfully.",
+    "rejectSuccess": "Loan rejected.",
+    "rejectTitle": "Reject request",
+    "rejectSubtitle": "Please provide a reason for rejection.",
+    "rejectPlaceholder": "Debt capacity exceeded, etc.",
+    "confirmReject": "Confirm rejection",
+    "cancel": "Cancel"
+  }
+}

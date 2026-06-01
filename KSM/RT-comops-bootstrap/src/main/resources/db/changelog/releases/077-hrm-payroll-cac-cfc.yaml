@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 077-hrm-payroll-cac-cfc
+      author: jordan
+      changes:
+        - sqlFile:
+            path: db/r2dbc/V77__hrm_payroll_cac_cfc.sql
+            relativeToChangelogFile: false

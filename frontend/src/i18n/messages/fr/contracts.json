@@ -1,0 +1,166 @@
+{
+  "ucBadge": "Capital humain · Contrats",
+  "title": "Contrats",
+  "subtitle": "Suivi des contrats, avenants et fins de période d'essai",
+  "kpi": {
+    "active": "Actifs",
+    "activeSub": "sur {total} employés",
+    "trialing": "Période d'essai",
+    "trialingSub": "{count} fin(s) ce mois",
+    "expiring": "Fins de CDD / Stage (90j)",
+    "expiringSub": "à anticiper",
+    "cdi": "CDI",
+    "cdd": "CDD",
+    "stage": "Stages",
+    "interim": "Intérim",
+    "ofEffective": "de l'effectif"
+  },
+  "chart": {
+    "title": "Répartition par type",
+    "total": "contrats"
+  },
+  "alert": {
+    "title": "{count} fin(s) de période d'essai à valider ce mois-ci",
+    "body": "Décision à prendre avant l'échéance.",
+    "cta": "Voir les essais"
+  },
+  "contractStatus": {
+    "ACTIVE": "Actif",
+    "TRIAL": "Période d'essai",
+    "EXPIRED": "Expiré",
+    "TERMINATED": "Résilié",
+    "RENEWED": "Renouvelé"
+  },
+  "contractType": {
+    "CDI": "CDI",
+    "CDD": "CDD",
+    "STAGE": "Stage",
+    "INTERIM": "Intérim"
+  },
+  "form": {
+    "title": "Nouveau contrat",
+    "titleAmendment": "Avenant — nouveau contrat",
+    "stepEmployee": "Sélectionner un employé",
+    "stepEmployeeHint": "Choisissez l'employé pour lequel vous créez ce contrat.",
+    "searchEmployee": "Rechercher un employé…",
+    "noEmployees": "Aucun employé disponible",
+    "next": "Suivant",
+    "contractSection": "Type et durée",
+    "compensationSection": "Rémunération",
+    "permanentHint": "Contrat permanent — aucune date de fin requise.",
+    "fixedTermHint": "Date de fin obligatoire et doit être dans le futur.",
+    "trialHint": "Indiquez 0 ou laissez vide s'il n'y a pas de période d'essai.",
+    "fields": {
+      "type": "Type de contrat",
+      "dateDebut": "Date de début",
+      "dateFin": "Date de fin",
+      "periodeEssai": "Période d'essai (jours)",
+      "salaireBase": "Salaire de base (FCFA)",
+      "avantagesNature": "Avantages en nature (FCFA)",
+      "dateFinFuture": "La date de fin doit être dans le futur",
+      "dateFinRequired": "La date de fin est obligatoire pour ce type de contrat"
+    },
+    "submit": "Créer le contrat",
+    "success": "Contrat créé avec succès"
+  },
+  "table": {
+    "title": "Tous les contrats",
+    "filters": {
+      "all": "Tous",
+      "cdi": "CDI",
+      "cdd": "CDD",
+      "stage": "Stage",
+      "trial": "Essai"
+    },
+    "columns": {
+      "ref": "Réf.",
+      "employee": "Employé",
+      "type": "Type",
+      "dateDebut": "Début",
+      "dateFin": "Fin",
+      "salary": "Salaire (XAF)",
+      "status": "Statut"
+    },
+    "noEnd": "—",
+    "empty": "Aucun contrat trouvé."
+  },
+  "detail": {
+    "back": "Retour aux contrats",
+    "notFound": "Contrat introuvable.",
+    "hero": {
+      "ref": "Contrat",
+      "employee": "Employé",
+      "actions": {
+        "pdf": "Exporter PDF",
+        "amendment": "Avenant",
+        "print": "Imprimer"
+      }
+    },
+    "characteristics": {
+      "title": "Caractéristiques",
+      "type": "Type de contrat",
+      "dateDebut": "Date de début",
+      "dateFin": "Date de fin",
+      "noEnd": "Indéterminée",
+      "periodeEssai": "Période d'essai",
+      "periodeEssaiDays": "{days} jour(s)",
+      "noPeriod": "Aucune",
+      "status": "Statut",
+      "createdAt": "Créé le",
+      "updatedAt": "Modifié le"
+    },
+    "salary": {
+      "title": "Composition salariale",
+      "base": "Salaire de base",
+      "seniority": "Prime d'ancienneté (8%)",
+      "transport": "Indemnité de transport",
+      "benefits": "Avantages en nature",
+      "gross": "Brut estimé",
+      "xaf": "XAF"
+    },
+    "history": {
+      "title": "Historique & avenants",
+      "empty": "Aucun événement enregistré."
+    },
+    "actions": {
+      "title": "Actions",
+      "renew": "Renouveler",
+      "renewHint": "Prolonger la durée du contrat",
+      "attachDoc": "Joindre un document",
+      "createAmendment": "Créer un avenant",
+      "terminate": "Résilier",
+      "terminateHint": "Clôturer ce contrat"
+    },
+    "document": {
+      "title": "Document contractuel",
+      "attached": "Document joint",
+      "noDoc": "Aucun document joint",
+      "attach": "Joindre"
+    },
+    "metadata": {
+      "title": "Métadonnées",
+      "id": "Identifiant",
+      "created": "Créé le",
+      "updated": "Modifié le"
+    },
+    "expiry": {
+      "title": "Échéance proche",
+      "body": "Ce contrat expire dans moins de 90 jours.",
+      "cta": "Renouveler"
+    },
+    "renew": {
+      "dialogTitle": "Renouveler le contrat",
+      "newDateFin": "Nouvelle date de fin",
+      "submit": "Confirmer le renouvellement",
+      "success": "Contrat renouvelé avec succès"
+    },
+    "terminate": {
+      "dialogTitle": "Résilier le contrat",
+      "motif": "Motif de résiliation",
+      "motifPlaceholder": "Ex : fin de mission, démission…",
+      "submit": "Confirmer la résiliation",
+      "success": "Contrat résilié avec succès",
+      "warning": "Cette action est irréversible."
+    }
+  }
+}

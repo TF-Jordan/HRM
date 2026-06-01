@@ -1,0 +1,61 @@
+{
+  "title": "My Pay",
+  "subtitle": "Payslips, year-to-date summaries and payment history",
+  "actions": {
+    "downloadAll": "Download all (ZIP)",
+    "salaryAttestation": "Salary certificate",
+    "downloadMyPayslip": "Download my payslip"
+  },
+  "hero": {
+    "badge": "Next payslip",
+    "title": "Payslip · {period}",
+    "subtitle": "Available on {date} · payment via {channel}",
+    "estimatedGross": "Est. gross",
+    "estimatedNet": "Est. net",
+    "workedDays": "Days worked",
+    "detailEstimate": "Estimate details",
+    "noPending": "No payslip being calculated"
+  },
+  "ytd": {
+    "cumulGross": "YTD gross {year}",
+    "cumulNet": "YTD net {year}",
+    "irpp": "IRPP withheld",
+    "cnps": "CNPS contributions",
+    "suffix": "XAF · {note}"
+  },
+  "history": {
+    "title": "My payslip history",
+    "period": "Period",
+    "ref": "Reference",
+    "gross": "Gross (XAF)",
+    "net": "Net payable (XAF)",
+    "paymentDate": "Payment date",
+    "channel": "Channel",
+    "paid": "✓ Received",
+    "noData": "No payslips for this year"
+  },
+  "detail": {
+    "back": "Back",
+    "breadcrumb": "My pay / {period}",
+    "title": "Payslip · {period}",
+    "statusPaid": "Received on {date}",
+    "statusPending": "Pending",
+    "print": "Print",
+    "sendEmail": "Send by email",
+    "downloadPdf": "Download PDF",
+    "employer": "Employer",
+    "payment": "Payment",
+    "paidOn": "Paid on {date}",
+    "labelCol": "Description",
+    "baseCol": "Base",
+    "rateCol": "Rate",
+    "earnCol": "Earnings (XAF)",
+    "deductCol": "Deductions (XAF)",
+    "sectionGross": "GROSS EARNINGS",
+    "grossLine": "Taxable gross",
+    "sectionDeductions": "SALARY DEDUCTIONS",
+    "totalDeductions": "Total deductions",
+    "netToPay": "NET PAYABLE"
+  },
+  "currency": "XAF"
+}

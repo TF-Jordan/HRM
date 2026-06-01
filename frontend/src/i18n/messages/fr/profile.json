@@ -1,0 +1,104 @@
+{
+  "title": "Mon profil",
+  "subtitle": "Vos informations personnelles et professionnelles",
+  "hero": {
+    "since": "Chez {company} depuis le {date}",
+    "editProfile": "Modifier mon profil",
+    "printSheet": "Imprimer ma fiche"
+  },
+  "tabs": {
+    "overview": "Informations personnelles",
+    "contact": "Contact & adresse",
+    "banking": "Banque & paiement",
+    "family": "Famille & dépendants",
+    "emergency": "Contact d'urgence"
+  },
+  "overview": {
+    "title": "Informations personnelles",
+    "fullName": "Nom complet",
+    "birthDate": "Date de naissance",
+    "birthPlace": "Lieu de naissance",
+    "nationality": "Nationalité",
+    "gender": "Sexe",
+    "maritalStatus": "Situation matrimoniale",
+    "idDocument": "Pièce d'identité",
+    "idIssuedDate": "Date d'émission",
+    "cnps": "N° CNPS",
+    "niu": "NIU (fiscalité)",
+    "drivingLicense": "Permis de conduire",
+    "languages": "Langues parlées",
+    "edit": "Modifier",
+    "noData": "Non renseigné"
+  },
+  "contact": {
+    "title": "Contact & adresse",
+    "professionalEmail": "Email professionnel",
+    "personalEmail": "Email personnel",
+    "mobilePhone": "Téléphone mobile",
+    "homePhone": "Téléphone domicile",
+    "whatsapp": "WhatsApp",
+    "postalAddress": "Adresse postale",
+    "homeAddress": "Adresse domicile",
+    "city": "Ville",
+    "region": "Région",
+    "postalCode": "Code postal",
+    "verified": "Vérifié",
+    "noData": "Non renseigné"
+  },
+  "banking": {
+    "title": "Banque & paiement",
+    "mainAccount": "Compte bancaire principal",
+    "bankName": "Banque",
+    "accountNumber": "Numéro de compte",
+    "paymentMode": "Mode de paiement",
+    "mobileMoney": "Mobile Money",
+    "operator": "Opérateur",
+    "mobileNumber": "Numéro Mobile Money",
+    "paymentPreference": "Préférence de paiement salaire",
+    "noData": "Non renseigné",
+    "active": "Actif · vérifié"
+  },
+  "family": {
+    "title": "Famille & dépendants",
+    "dependents": "Personnes à charge",
+    "addDependent": "Ajouter",
+    "relation": "Lien de parenté",
+    "birthDate": "Date de naissance",
+    "noData": "Aucune personne à charge déclarée",
+    "irppNote": "{count} personne(s) à charge déclarée(s) · impact sur le calcul IRPP"
+  },
+  "emergency": {
+    "title": "Contacts d'urgence",
+    "addContact": "Ajouter un contact",
+    "priority": "Priorité {n}",
+    "phone": "Téléphone",
+    "email": "Email",
+    "relation": "Relation",
+    "noData": "Aucun contact d'urgence défini",
+    "confirmDelete": "Supprimer ce contact d'urgence ?"
+  },
+  "completeness": {
+    "title": "Complétude du profil",
+    "complete": "complété",
+    "toFill": "À compléter :",
+    "items": {
+      "birthDate": "Date de naissance",
+      "birthPlace": "Lieu de naissance",
+      "idDocument": "Pièce d'identité",
+      "bankAccount": "Coordonnées bancaires",
+      "dependents": "Personnes à charge",
+      "emergencyContact": "Contact d'urgence",
+      "address": "Adresse domicile",
+      "languages": "Langues parlées"
+    }
+  },
+  "history": {
+    "title": "Historique récent"
+  },
+  "form": {
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "saving": "Enregistrement…",
+    "saved": "Profil mis à jour"
+  }
+}

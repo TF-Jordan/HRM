@@ -1,0 +1,166 @@
+{
+  "ucBadge": "Human Capital · Contracts",
+  "title": "Contracts",
+  "subtitle": "Track contracts, amendments and end of probationary periods",
+  "kpi": {
+    "active": "Active",
+    "activeSub": "out of {total} employees",
+    "trialing": "Probation",
+    "trialingSub": "{count} ending this month",
+    "expiring": "CDD / Internship endings (90d)",
+    "expiringSub": "to anticipate",
+    "cdi": "Permanent",
+    "cdd": "Fixed-term",
+    "stage": "Internships",
+    "interim": "Temp",
+    "ofEffective": "of headcount"
+  },
+  "chart": {
+    "title": "Distribution by type",
+    "total": "contracts"
+  },
+  "alert": {
+    "title": "{count} probation period(s) ending this month",
+    "body": "Decision required before the deadline.",
+    "cta": "View probations"
+  },
+  "contractStatus": {
+    "ACTIVE": "Active",
+    "TRIAL": "Probation",
+    "EXPIRED": "Expired",
+    "TERMINATED": "Terminated",
+    "RENEWED": "Renewed"
+  },
+  "contractType": {
+    "CDI": "Permanent",
+    "CDD": "Fixed-term",
+    "STAGE": "Internship",
+    "INTERIM": "Temp"
+  },
+  "form": {
+    "title": "New contract",
+    "titleAmendment": "Amendment — new contract",
+    "stepEmployee": "Select an employee",
+    "stepEmployeeHint": "Choose the employee for whom this contract is created.",
+    "searchEmployee": "Search employee…",
+    "noEmployees": "No employees available",
+    "next": "Next",
+    "contractSection": "Type & duration",
+    "compensationSection": "Compensation",
+    "permanentHint": "Permanent contract — no end date required.",
+    "fixedTermHint": "End date is mandatory and must be in the future.",
+    "trialHint": "Enter 0 or leave blank if there is no probationary period.",
+    "fields": {
+      "type": "Contract type",
+      "dateDebut": "Start date",
+      "dateFin": "End date",
+      "periodeEssai": "Probation period (days)",
+      "salaireBase": "Base salary (XAF)",
+      "avantagesNature": "Benefits in kind (XAF)",
+      "dateFinFuture": "End date must be in the future",
+      "dateFinRequired": "End date is required for this contract type"
+    },
+    "submit": "Create contract",
+    "success": "Contract created successfully"
+  },
+  "table": {
+    "title": "All contracts",
+    "filters": {
+      "all": "All",
+      "cdi": "Permanent",
+      "cdd": "Fixed-term",
+      "stage": "Internship",
+      "trial": "Probation"
+    },
+    "columns": {
+      "ref": "Ref.",
+      "employee": "Employee",
+      "type": "Type",
+      "dateDebut": "Start",
+      "dateFin": "End",
+      "salary": "Salary (XAF)",
+      "status": "Status"
+    },
+    "noEnd": "—",
+    "empty": "No contracts found."
+  },
+  "detail": {
+    "back": "Back to contracts",
+    "notFound": "Contract not found.",
+    "hero": {
+      "ref": "Contract",
+      "employee": "Employee",
+      "actions": {
+        "pdf": "Export PDF",
+        "amendment": "Amendment",
+        "print": "Print"
+      }
+    },
+    "characteristics": {
+      "title": "Characteristics",
+      "type": "Contract type",
+      "dateDebut": "Start date",
+      "dateFin": "End date",
+      "noEnd": "Open-ended",
+      "periodeEssai": "Probation period",
+      "periodeEssaiDays": "{days} day(s)",
+      "noPeriod": "None",
+      "status": "Status",
+      "createdAt": "Created at",
+      "updatedAt": "Updated at"
+    },
+    "salary": {
+      "title": "Salary breakdown",
+      "base": "Base salary",
+      "seniority": "Seniority bonus (8%)",
+      "transport": "Transport allowance",
+      "benefits": "Benefits in kind",
+      "gross": "Estimated gross",
+      "xaf": "XAF"
+    },
+    "history": {
+      "title": "History & amendments",
+      "empty": "No events recorded."
+    },
+    "actions": {
+      "title": "Actions",
+      "renew": "Renew",
+      "renewHint": "Extend the contract period",
+      "attachDoc": "Attach document",
+      "createAmendment": "Create amendment",
+      "terminate": "Terminate",
+      "terminateHint": "Close this contract"
+    },
+    "document": {
+      "title": "Contract document",
+      "attached": "Document attached",
+      "noDoc": "No document attached",
+      "attach": "Attach"
+    },
+    "metadata": {
+      "title": "Metadata",
+      "id": "Identifier",
+      "created": "Created at",
+      "updated": "Updated at"
+    },
+    "expiry": {
+      "title": "Upcoming expiry",
+      "body": "This contract expires in less than 90 days.",
+      "cta": "Renew"
+    },
+    "renew": {
+      "dialogTitle": "Renew contract",
+      "newDateFin": "New end date",
+      "submit": "Confirm renewal",
+      "success": "Contract renewed successfully"
+    },
+    "terminate": {
+      "dialogTitle": "Terminate contract",
+      "motif": "Termination reason",
+      "motifPlaceholder": "E.g. end of mission, resignation…",
+      "submit": "Confirm termination",
+      "success": "Contract terminated successfully",
+      "warning": "This action is irreversible."
+    }
+  }
+}

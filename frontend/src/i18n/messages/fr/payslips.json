@@ -1,0 +1,61 @@
+{
+  "title": "Ma paie",
+  "subtitle": "Bulletins de paie, cumuls et historique de versement",
+  "actions": {
+    "downloadAll": "Tout télécharger (ZIP)",
+    "salaryAttestation": "Attestation de salaire",
+    "downloadMyPayslip": "Télécharger ma fiche de paie"
+  },
+  "hero": {
+    "badge": "Prochain bulletin",
+    "title": "Bulletin · {period}",
+    "subtitle": "Disponible le {date} · paiement prévu via {channel}",
+    "estimatedGross": "Brut estimé",
+    "estimatedNet": "Net estimé",
+    "workedDays": "Jours travaillés",
+    "detailEstimate": "Détail estimation",
+    "noPending": "Aucun bulletin en cours de calcul"
+  },
+  "ytd": {
+    "cumulGross": "Cumul brut {year}",
+    "cumulNet": "Cumul net {year}",
+    "irpp": "IRPP retenu",
+    "cnps": "Cotisations CNPS",
+    "suffix": "XAF · {note}"
+  },
+  "history": {
+    "title": "Historique de mes bulletins",
+    "period": "Période",
+    "ref": "Référence",
+    "gross": "Brut (XAF)",
+    "net": "Net à payer (XAF)",
+    "paymentDate": "Date versement",
+    "channel": "Canal",
+    "paid": "✓ Reçu",
+    "noData": "Aucun bulletin pour cette année"
+  },
+  "detail": {
+    "back": "Retour",
+    "breadcrumb": "Ma paie / {period}",
+    "title": "Bulletin · {period}",
+    "statusPaid": "Reçu le {date}",
+    "statusPending": "En cours",
+    "print": "Imprimer",
+    "sendEmail": "Envoyer par email",
+    "downloadPdf": "Télécharger PDF",
+    "employer": "Employeur",
+    "payment": "Versement",
+    "paidOn": "Versé le {date}",
+    "labelCol": "Libellé",
+    "baseCol": "Base",
+    "rateCol": "Taux",
+    "earnCol": "Gain (XAF)",
+    "deductCol": "Retenue (XAF)",
+    "sectionGross": "RÉMUNÉRATION BRUTE",
+    "grossLine": "Brut imposable",
+    "sectionDeductions": "RETENUES SALARIALES",
+    "totalDeductions": "Total retenues",
+    "netToPay": "NET À PAYER"
+  },
+  "currency": "XAF"
+}
