@@ -7,6 +7,6 @@ import { readSession } from "@/server/session";
 export default async function Layout({ children }: LayoutProps<"/[locale]/hr-admin">) {
   const session = await readSession();
   if (!session) redirect("/login");
-  if (roleSlug(session.user.roles) !== "hr-admin") redirect(roleHomePath(session.user.roles));
+  if (roleSlug(session.user.roles, session.user.permissions) !== "hr-admin") redirect(roleHomePath(session.user.roles, session.user.permissions));
   return <>{children}</>;
 }

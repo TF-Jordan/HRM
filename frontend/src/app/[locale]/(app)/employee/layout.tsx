@@ -8,6 +8,6 @@ import { readSession } from "@/server/session";
 export default async function EmployeeLayout({ children }: LayoutProps<"/[locale]/employee">) {
   const session = await readSession();
   if (!session) redirect("/login");
-  if (roleSlug(session.user.roles) !== "employee") redirect(roleHomePath(session.user.roles));
+  if (roleSlug(session.user.roles, session.user.permissions) !== "employee") redirect(roleHomePath(session.user.roles, session.user.permissions));
   return <>{children}</>;
 }

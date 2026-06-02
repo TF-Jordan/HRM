@@ -13,7 +13,7 @@ export default async function DashboardPage({ params }: PageProps<"/[locale]/das
   // own dashboard. Non-migrated roles keep rendering the shared dashboard here.
   const session = await readSession();
   if (!session) redirect("/login");
-  const home = roleHomePath(session.user.roles);
+  const home = roleHomePath(session.user.roles, session.user.permissions);
   if (home !== "/dashboard") redirect(home);
 
   return <DashboardContent />;

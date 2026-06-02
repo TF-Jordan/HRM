@@ -12,15 +12,18 @@ public record UserOrganizationAccessResponse(
         String longName,
         String displayName,
         String legalName,
-        List<String> services) {
+        List<String> services,
+        List<String> roleCodes) {
 
     public static UserOrganizationAccessResponse from(UserOrganizationAccess access) {
         return new UserOrganizationAccessResponse(access.organizationId(), access.organizationCode(),
-                access.shortName(), access.longName(), access.displayName(), access.legalName(), access.services());
+                access.shortName(), access.longName(), access.displayName(), access.legalName(),
+                access.services(), access.roleCodes() == null ? List.of() : access.roleCodes());
     }
 
     public static UserOrganizationAccessResponse from(AuthSharedSessionService.SharedSsoOrganizationAccess access) {
         return new UserOrganizationAccessResponse(access.organizationId(), access.organizationCode(),
-                access.shortName(), access.longName(), access.displayName(), access.legalName(), access.services());
+                access.shortName(), access.longName(), access.displayName(), access.legalName(),
+                access.services(), List.of());
     }
 }

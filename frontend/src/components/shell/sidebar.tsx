@@ -182,7 +182,7 @@ export function Sidebar() {
   // reach. Employees get the self-service nav; every other role keeps the full
   // HR nav (filtered per-item by permission). Hrefs are prefixed with the role
   // slug for migrated roles, and left flat (legacy routes) for the rest.
-  const slug = roleSlug(session?.user.roles);
+  const slug = roleSlug(session?.user.roles, session?.user.permissions);
   const isEmployee = slug === "employee";
   const prefix = isMigratedRole(slug) ? `/${slug}` : "";
   const rawSections = isEmployee ? EMP_SECTIONS : SECTIONS;

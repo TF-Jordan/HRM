@@ -20,7 +20,7 @@ import { isMigratedRole, roleSlug } from "@/lib/roles";
  */
 function useRolePrefix(): string {
   const { session } = useSession();
-  const slug = roleSlug(session?.user.roles);
+  const slug = roleSlug(session?.user.roles, session?.user.permissions);
   return isMigratedRole(slug) ? `/${slug}` : "";
 }
 

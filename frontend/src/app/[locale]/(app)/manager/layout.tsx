@@ -8,6 +8,6 @@ import { readSession } from "@/server/session";
 export default async function ManagerLayout({ children }: LayoutProps<"/[locale]/manager">) {
   const session = await readSession();
   if (!session) redirect("/login");
-  if (roleSlug(session.user.roles) !== "manager") redirect(roleHomePath(session.user.roles));
+  if (roleSlug(session.user.roles, session.user.permissions) !== "manager") redirect(roleHomePath(session.user.roles, session.user.permissions));
   return <>{children}</>;
 }
