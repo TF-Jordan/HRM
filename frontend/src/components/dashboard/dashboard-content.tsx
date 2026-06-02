@@ -100,6 +100,8 @@ export function DashboardContent() {
 
   if (!session) return null;
   const user = session.user;
+  const owned = new Set(user.permissions.map((p) => p.split("#")[0] ?? p));
+  const can = (p: string) => owned.has(p);
   const data = query.data;
   const greeting = user.fullName.split(" ")[0] ?? user.fullName;
 
@@ -117,7 +119,9 @@ export function DashboardContent() {
         actions={
           <>
             <Button variant="secondary"><Download className="h-4 w-4" /> {t("actions.export")}</Button>
-            <Link href="/employees/new"><Button><UserPlus className="h-4 w-4" /> {t("actions.newEmployee")}</Button></Link>
+            {can("hrm:employee:create") && (
+              <Link href="/employees/new"><Button><UserPlus className="h-4 w-4" /> {t("actions.newEmployee")}</Button></Link>
+            )}
           </>
         }
       />
@@ -135,7 +139,7 @@ export function DashboardContent() {
           <HeroRow data={data} locale={locale} t={t} />
           <EvolutionRow data={data} t={t} />
           <TodoRow data={data} t={t} />
-          <QuickActivityRow data={data} t={t} />
+          <QuickActivityRow data={data} t={t} owned={owned} />
           <MetricsRow data={data} t={t} />
         </div>
       )}
@@ -609,12 +613,12 @@ function monthShort(i: number) {
 // ────────────────────────────────────────────────────────────────────────
 
 const QUICK_ACTIONS = [
-  { key: "employee", icon: UserPlus, tone: "orange" as const, href: "/employees/new" },
-  { key: "payroll", icon: Wallet, tone: "warning" as const, href: "/payroll" },
-  { key: "leaveCal", icon: CalendarRange, tone: "violet" as const, href: "/leaves" },
-  { key: "offer", icon: Briefcase, tone: "info" as const, href: "/recruitment/offers/new" },
-  { key: "training", icon: GraduationCap, tone: "success" as const, href: "/trainings/new" },
-  { key: "declaration", icon: ShieldCheck, tone: "danger" as const, href: "/declarations/new" },
+  { key: "employee", icon: UserPlus, tone: "orange" as const, href: "/employees/new", perm: "hrm:employee:create" },
+  { key: "payroll", icon: Wallet, tone: "warning" as const, href: "/payroll", perm: "hrm:payroll:read" },
+  { key: "leaveCal", icon: CalendarRange, tone: "violet" as const, href: "/leaves", perm: "hrm:leave:approve" },
+  { key: "offer", icon: Briefcase, tone: "info" as const, href: "/recruitment/offers/new", perm: "hrm:recruitment:manage" },
+  { key: "training", icon: GraduationCap, tone: "success" as const, href: "/trainings/new", perm: "hrm:training:create" },
+  { key: "declaration", icon: ShieldCheck, tone: "danger" as const, href: "/declarations/new", perm: "hrm:declaration:manage" },
 ];
 
 const ACTIVITY_META: Record<ActivityTone, { icon: LucideIcon; tone: "orange" | "success" | "warning" | "violet" | "info" | "gray" }> = {
@@ -629,10 +633,13 @@ const ACTIVITY_META: Record<ActivityTone, { icon: LucideIcon; tone: "orange" | "
 function QuickActivityRow({
   data,
   t,
+  owned,
 }: {
   data: DashboardPayload;
   t: ReturnType<typeof useTranslations<"dashboard">>;
+  owned: Set<string>;
 }) {
+  const actions = QUICK_ACTIONS.filter((a) => owned.has(a.perm));
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_1.4fr]">
       <Card>
@@ -640,7 +647,7 @@ function QuickActivityRow({
           <h3 className="text-[15px] font-bold tracking-tight text-ink">{t("quick.title")}</h3>
         </div>
         <div className="grid grid-cols-2 gap-3 p-5">
-          {QUICK_ACTIONS.map((a) => (
+          {actions.map((a) => (
             <Link
               key={a.key}
               href={a.href}

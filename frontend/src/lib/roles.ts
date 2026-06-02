@@ -46,7 +46,7 @@ export const ROLE_CODE_TO_SLUG: Record<string, RoleSlug> = {
  * legacy flat routes — so the migration can roll out one role at a time without
  * breaking the others.
  */
-export const MIGRATED_ROLES: ReadonlySet<RoleSlug> = new Set<RoleSlug>(["employee"]);
+export const MIGRATED_ROLES: ReadonlySet<RoleSlug> = new Set<RoleSlug>(["employee", "manager"]);
 
 /** Least-privilege fallback when a session carries no recognised role. */
 export const DEFAULT_ROLE_SLUG: RoleSlug = "employee";
