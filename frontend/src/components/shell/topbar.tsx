@@ -50,10 +50,10 @@ export function Topbar({ notificationsCount }: TopbarProps) {
       return;
     }
     if (canAccept && (b?.pendingAcceptance ?? 0) > 0) {
-      router.push("/mission-orders/mine");
+      router.push("/mission-orders");
       return;
     }
-    router.push(canManageExpenses ? "/expenses" : canManageMissions ? "/mission-orders" : "/mission-orders/mine");
+    router.push(canManageExpenses ? "/expenses" : "/mission-orders");
   }
 
   return (

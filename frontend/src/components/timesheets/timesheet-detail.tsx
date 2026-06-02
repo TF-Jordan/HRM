@@ -135,7 +135,7 @@ export function TimesheetDetail({ timesheetId }: { timesheetId: string }) {
         }
         actions={
           <>
-            <Link href="/timesheets/my">
+            <Link href="/timesheets">
               <Button type="button" variant="secondary">
                 <ChevronLeft className="h-4 w-4" />
                 {t("my.title")}

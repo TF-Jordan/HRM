@@ -22,7 +22,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { IconTile } from "@/components/ui/icon-tile";
-import { Link } from "@/i18n/navigation";
+import { AppLink as Link } from "@/components/ui/app-link";
 import { apiFetch, BffApiError } from "@/lib/api-client";
 import { cn } from "@/lib/utils";
 
@@ -267,14 +267,14 @@ function QuickActionsSection({
       sub: t("quickActions.missionSub"),
     },
     {
-      href: "/trainings/mine",
+      href: "/trainings",
       icon: BookOpen,
       tone: "violet" as const,
       label: t("quickActions.training"),
       sub: t("quickActions.trainingSub"),
     },
     {
-      href: "/documents",
+      href: "/profile",
       icon: Download,
       tone: "gray" as const,
       label: t("quickActions.documents"),
@@ -325,7 +325,7 @@ function RequestsAndEvents({
             <h3 className="text-[15px] font-bold tracking-tight text-ink">{t("requests.title")}</h3>
             <p className="mt-0.5 text-[12px] text-ink-3">{t("requests.subtitle")}</p>
           </div>
-          <Link href="/leaves/my">
+          <Link href="/leaves">
             <Button variant="ghost" size="sm">{t("requests.seeAll")} <ChevronRight className="h-3 w-3" /></Button>
           </Link>
         </div>

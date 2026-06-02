@@ -97,7 +97,7 @@ export function ExpenseDetail({ expenseReportId }: { expenseReportId: string }) 
         ucBadge={t("ucBadge")}
         breadcrumb={[
           { label: "HR Core" },
-          { label: canManage ? t("title") : t("mine.title"), href: canManage ? "/expenses" : "/expenses/mine" },
+          { label: canManage ? t("title") : t("mine.title"), href: canManage ? "/expenses" : "/expenses" },
           { label: reference },
         ]}
         title={
@@ -115,7 +115,7 @@ export function ExpenseDetail({ expenseReportId }: { expenseReportId: string }) 
         }
         actions={
           <>
-            <Link href={canManage ? "/expenses" : "/expenses/mine"}>
+            <Link href={canManage ? "/expenses" : "/expenses"}>
               <Button type="button" variant="secondary">
                 <ChevronLeft className="h-4 w-4" />
                 {t("detail.back")}

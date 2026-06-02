@@ -48,7 +48,7 @@ export function MyTrainings() {
         title={t("mine.title")}
         subtitle={t("mine.subtitle")}
         actions={
-          <Link href="/trainings">
+          <Link href="/trainings/catalog">
             <Button type="button" variant="secondary">
               <GraduationCap className="h-4 w-4" />
               {t("mine.browse")}

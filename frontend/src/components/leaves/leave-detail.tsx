@@ -158,7 +158,7 @@ export function LeaveDetail({ leaveRequestId }: { leaveRequestId: string }) {
         }
         actions={
           <>
-            <Link href={canApprove ? "/leaves" : "/leaves/my"}>
+            <Link href={canApprove ? "/leaves" : "/leaves"}>
               <Button type="button" variant="secondary">
                 <ChevronLeft className="h-4 w-4" />
                 {canApprove ? t("queue.title") : t("my.title")}

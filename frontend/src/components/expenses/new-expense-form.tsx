@@ -145,14 +145,14 @@ export function NewExpenseForm() {
         ucBadge={t("ucBadge")}
         breadcrumb={[
           { label: "HR Core" },
-          { label: t("mine.title"), href: "/expenses/mine" },
+          { label: t("mine.title"), href: "/expenses" },
           { label: t("new.title") },
         ]}
         title={t("new.title")}
         subtitle={t("new.subtitle")}
         actions={
           <>
-            <Link href="/expenses/mine">
+            <Link href="/expenses">
               <Button type="button" variant="secondary">
                 {tCommon("actions.cancel")}
               </Button>

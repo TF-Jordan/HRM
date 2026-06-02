@@ -90,14 +90,14 @@ export function NewLeaveForm() {
         ucBadge={t("ucBadge")}
         breadcrumb={[
           { label: "HR Core" },
-          { label: "Mes congés", href: "/leaves/my" },
+          { label: "Mes congés", href: "/leaves" },
           { label: tNew("title") },
         ]}
         title={tNew("title")}
         subtitle={tNew("subtitle")}
         actions={
           <>
-            <Link href="/leaves/my">
+            <Link href="/leaves">
               <Button type="button" variant="secondary">
                 {tCommon("actions.cancel")}
               </Button>

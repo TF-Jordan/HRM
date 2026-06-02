@@ -173,7 +173,7 @@ export function MissionDetail({ missionOrderId }: { missionOrderId: string }) {
         ucBadge={t("ucBadge")}
         breadcrumb={[
           { label: "HR Core" },
-          { label: t("queue.title"), href: canManage ? "/mission-orders" : "/mission-orders/mine" },
+          { label: t("queue.title"), href: canManage ? "/mission-orders" : "/mission-orders" },
           { label: reference },
         ]}
         title={
@@ -193,7 +193,7 @@ export function MissionDetail({ missionOrderId }: { missionOrderId: string }) {
         }
         actions={
           <>
-            <Link href={canManage ? "/mission-orders" : "/mission-orders/mine"}>
+            <Link href={canManage ? "/mission-orders" : "/mission-orders"}>
               <Button type="button" variant="secondary">
                 <ChevronLeft className="h-4 w-4" />
                 {t("detail.back")}

@@ -111,14 +111,14 @@ export function NewTimesheetForm({ initialPeriode }: { initialPeriode?: string }
         ucBadge={t("ucBadge")}
         breadcrumb={[
           { label: "HR Core" },
-          { label: t("my.title"), href: "/timesheets/my" },
+          { label: t("my.title"), href: "/timesheets" },
           { label: tNew("title") },
         ]}
         title={tNew("title")}
         subtitle={tNew("subtitle")}
         actions={
           <>
-            <Link href="/timesheets/my">
+            <Link href="/timesheets">
               <Button type="button" variant="secondary">
                 {tCommon("actions.cancel")}
               </Button>

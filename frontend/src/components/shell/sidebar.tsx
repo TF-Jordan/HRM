@@ -62,22 +62,22 @@ const EMP_SECTIONS: NavSection[] = [
     labelKey: "sections.compensation",
     items: [
       { href: "/payslips",       labelKey: "nav.myPayslips", icon: Wallet },
-      { href: "/expenses/mine",  labelKey: "nav.myExpenses", icon: ClipboardList, permission: "hrm:expense:read" },
+      { href: "/expenses",  labelKey: "nav.myExpenses", icon: ClipboardList, permission: "hrm:expense:read" },
       { href: "/loans",          labelKey: "nav.myLoans",    icon: Coins },
     ],
   },
   {
     labelKey: "sections.activity",
     items: [
-      { href: "/leaves/my",            labelKey: "nav.myLeaves",   icon: CalendarRange, permission: "hrm:leave:read" },
-      { href: "/timesheets/my",        labelKey: "nav.myTime",     icon: Clock,         permission: "hrm:timesheet:read" },
-      { href: "/mission-orders/mine",  labelKey: "nav.myMissions", icon: Map,           permission: "hrm:mission:read" },
+      { href: "/leaves",            labelKey: "nav.myLeaves",   icon: CalendarRange, permission: "hrm:leave:read" },
+      { href: "/timesheets",        labelKey: "nav.myTime",     icon: Clock,         permission: "hrm:timesheet:read" },
+      { href: "/mission-orders",  labelKey: "nav.myMissions", icon: Map,           permission: "hrm:mission:read" },
     ],
   },
   {
     labelKey: "sections.development",
     items: [
-      { href: "/trainings/mine", labelKey: "nav.myTrainings", icon: GraduationCap, permission: "hrm:training:read" },
+      { href: "/trainings", labelKey: "nav.myTrainings", icon: GraduationCap, permission: "hrm:training:read" },
       { href: "/reviews",        labelKey: "nav.myReviews",   icon: Target,        permission: "hrm:review:read" },
       { href: "/skills",         labelKey: "nav.mySkills",    icon: Sparkles,      permission: "hrm:skill:read" },
     ],
