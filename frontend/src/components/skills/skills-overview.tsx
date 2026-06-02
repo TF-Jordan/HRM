@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useCan } from "@/hooks/use-can";
-import { Link, useRouter } from "@/i18n/navigation";
+import { AppLink as Link, useAppRouter as useRouter } from "@/components/ui/app-link";
 import { apiFetch, BffApiError } from "@/lib/api-client";
 import { buildSkillAggregates, categoryTone, type SkillAggregate } from "@/lib/skill-aggregates";
 import { cn } from "@/lib/utils";

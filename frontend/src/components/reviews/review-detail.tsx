@@ -15,7 +15,7 @@ import { Dialog } from "@/components/ui/dialog";
 import { Field, Input, Label, Textarea } from "@/components/ui/input";
 import { WorkflowStepper, type WorkflowStep } from "@/components/ui/workflow-stepper";
 import { useCan } from "@/hooks/use-can";
-import { Link } from "@/i18n/navigation";
+import { AppLink as Link } from "@/components/ui/app-link";
 import { apiFetch, BffApiError } from "@/lib/api-client";
 import { reviewStatusTone } from "@/lib/training-status";
 import type { ObjectiveResponse, ReviewResponse, ReviewStatus } from "@/server/ksm/modules/reviews";

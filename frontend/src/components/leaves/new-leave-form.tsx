@@ -11,7 +11,7 @@ import { PageHeader } from "@/components/shell/page-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Field, Input, Textarea } from "@/components/ui/input";
-import { Link, useRouter } from "@/i18n/navigation";
+import { AppLink as Link, useAppRouter as useRouter } from "@/components/ui/app-link";
 import { apiFetch, BffApiError } from "@/lib/api-client";
 import { workingDaysBetween } from "@/lib/holidays-cm";
 import type { EmployeeResponse, LeaveType } from "@/server/ksm/modules/employees";

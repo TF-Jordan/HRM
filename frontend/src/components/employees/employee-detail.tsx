@@ -29,7 +29,7 @@ import { Column, DataTable } from "@/components/ui/data-table";
 import { Dialog } from "@/components/ui/dialog";
 import { Field, Input, Label, Textarea } from "@/components/ui/input";
 import { IconTile } from "@/components/ui/icon-tile";
-import { Link, useRouter } from "@/i18n/navigation";
+import { AppLink as Link, useAppRouter as useRouter } from "@/components/ui/app-link";
 import { apiFetch, BffApiError } from "@/lib/api-client";
 import { employeeStatusTone } from "@/lib/employee-status";
 import { formatDate, formatMoney } from "@/lib/format";

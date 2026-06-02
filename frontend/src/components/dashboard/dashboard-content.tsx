@@ -34,7 +34,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Chip } from "@/components/ui/chip";
 import { IconTile } from "@/components/ui/icon-tile";
-import { Link } from "@/i18n/navigation";
+import { AppLink as Link } from "@/components/ui/app-link";
 import { useCan } from "@/hooks/use-can";
 import { apiFetch, BffApiError } from "@/lib/api-client";
 import { formatNumber } from "@/lib/format";

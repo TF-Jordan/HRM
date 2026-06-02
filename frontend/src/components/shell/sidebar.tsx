@@ -29,10 +29,12 @@ import { useTranslations } from "next-intl";
 import * as React from "react";
 
 import { useSession } from "@/components/providers/session-provider";
+import { withRolePrefix } from "@/components/ui/app-link";
 import { Avatar } from "@/components/ui/avatar";
 import { useCan } from "@/hooks/use-can";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { apiFetch } from "@/lib/api-client";
+import { isMigratedRole, roleSlug } from "@/lib/roles";
 import { cn } from "@/lib/utils";
 
 type NavItem = {
@@ -54,31 +56,30 @@ const EMP_SECTIONS: NavSection[] = [
     items: [
       { href: "/dashboard",  labelKey: "nav.myDashboard",  icon: LayoutDashboard },
       { href: "/profile",    labelKey: "nav.myProfile",    icon: Users },
-      { href: "/documents",  labelKey: "nav.myDocuments",  icon: FileText },
     ],
   },
   {
     labelKey: "sections.compensation",
     items: [
-      { href: "/payslips",      labelKey: "nav.myPayslips", icon: Wallet },
-      { href: "/expenses",      labelKey: "nav.myExpenses", icon: ClipboardList, permission: "hrm:expense:read" },
-      { href: "/loans",         labelKey: "nav.myLoans",    icon: Coins },
+      { href: "/payslips",       labelKey: "nav.myPayslips", icon: Wallet },
+      { href: "/expenses/mine",  labelKey: "nav.myExpenses", icon: ClipboardList, permission: "hrm:expense:read" },
+      { href: "/loans",          labelKey: "nav.myLoans",    icon: Coins },
     ],
   },
   {
     labelKey: "sections.activity",
     items: [
-      { href: "/leaves",         labelKey: "nav.myLeaves",   icon: CalendarRange, permission: "hrm:leave:read" },
-      { href: "/timesheets",     labelKey: "nav.myTime",     icon: Clock,         permission: "hrm:timesheet:read" },
-      { href: "/mission-orders", labelKey: "nav.myMissions", icon: Map,           permission: "hrm:mission:read" },
+      { href: "/leaves/my",            labelKey: "nav.myLeaves",   icon: CalendarRange, permission: "hrm:leave:read" },
+      { href: "/timesheets/my",        labelKey: "nav.myTime",     icon: Clock,         permission: "hrm:timesheet:read" },
+      { href: "/mission-orders/mine",  labelKey: "nav.myMissions", icon: Map,           permission: "hrm:mission:read" },
     ],
   },
   {
     labelKey: "sections.development",
     items: [
-      { href: "/trainings", labelKey: "nav.myTrainings", icon: GraduationCap, permission: "hrm:training:read" },
-      { href: "/reviews",   labelKey: "nav.myReviews",   icon: Target,        permission: "hrm:review:read" },
-      { href: "/skills",    labelKey: "nav.mySkills",    icon: Sparkles,      permission: "hrm:skill:read" },
+      { href: "/trainings/mine", labelKey: "nav.myTrainings", icon: GraduationCap, permission: "hrm:training:read" },
+      { href: "/reviews",        labelKey: "nav.myReviews",   icon: Target,        permission: "hrm:review:read" },
+      { href: "/skills",         labelKey: "nav.mySkills",    icon: Sparkles,      permission: "hrm:skill:read" },
     ],
   },
   {
@@ -176,9 +177,27 @@ export function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const { session, setSession } = useSession();
-  const isHrManager = useCan(["hrm:leave:approve", "hrm:employee:create"]);
 
-  const sections = isHrManager ? SECTIONS : EMP_SECTIONS;
+  // One account = one role. The role's slug namespaces every link the user can
+  // reach. Employees get the self-service nav; every other role keeps the full
+  // HR nav (filtered per-item by permission). Hrefs are prefixed with the role
+  // slug for migrated roles, and left flat (legacy routes) for the rest.
+  const slug = roleSlug(session?.user.roles);
+  const isEmployee = slug === "employee";
+  const prefix = isMigratedRole(slug) ? `/${slug}` : "";
+  const rawSections = isEmployee ? EMP_SECTIONS : SECTIONS;
+  const sections = React.useMemo(
+    () =>
+      rawSections.map((section) => ({
+        ...section,
+        items: section.items.map((item) => ({
+          ...item,
+          href: withRolePrefix(prefix, item.href),
+        })),
+      })),
+    [rawSections, prefix],
+  );
+  const homeHref = withRolePrefix(prefix, "/dashboard");
   const firstName = session?.user.firstName ?? session?.user.fullName.split(" ")[0] ?? "";
 
   async function logout() {
@@ -200,7 +219,7 @@ export function Sidebar() {
       )}
     >
       <Link
-        href="/dashboard"
+        href={homeHref}
         className="mb-3.5 flex items-center gap-3 border-b border-line-soft px-2 pb-5 pt-2"
       >
         <span
@@ -223,7 +242,7 @@ export function Sidebar() {
       </Link>
 
       {/* Employee mini-profile chip */}
-      {!isHrManager && session?.user && (
+      {isEmployee && session?.user && (
         <div className="mb-1 flex items-center gap-2.5 rounded-[14px] border border-orange-100 bg-[linear-gradient(135deg,#FFF4EB_0%,#fff_100%)] px-3 py-2.5">
           <Avatar name={session.user.fullName} size="md" tone="orange" />
           <div className="min-w-0 flex-1">

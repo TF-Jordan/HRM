@@ -9,7 +9,7 @@ import { PageHeader } from "@/components/shell/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Column, DataTable } from "@/components/ui/data-table";
-import { Link, useRouter } from "@/i18n/navigation";
+import { AppLink as Link, useAppRouter as useRouter } from "@/components/ui/app-link";
 import { apiFetch, BffApiError } from "@/lib/api-client";
 import { formatNumber } from "@/lib/format";
 import { expenseStatusTone } from "@/lib/expense-status";

@@ -15,7 +15,7 @@ import { Dialog } from "@/components/ui/dialog";
 import { Field, Label } from "@/components/ui/input";
 import { WorkflowStepper, type WorkflowStep } from "@/components/ui/workflow-stepper";
 import { useCan } from "@/hooks/use-can";
-import { Link } from "@/i18n/navigation";
+import { AppLink as Link } from "@/components/ui/app-link";
 import { apiFetch, BffApiError } from "@/lib/api-client";
 import { formatDate, formatNumber } from "@/lib/format";
 import { enrollmentStatusTone, trainingStatusTone } from "@/lib/training-status";

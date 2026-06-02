@@ -8,7 +8,7 @@ import { useSession } from "@/components/providers/session-provider";
 import { LocaleSwitcher } from "@/components/shell/locale-switcher";
 import { Avatar } from "@/components/ui/avatar";
 import { useCan } from "@/hooks/use-can";
-import { useRouter } from "@/i18n/navigation";
+import { useAppRouter as useRouter } from "@/components/ui/app-link";
 import { apiFetch } from "@/lib/api-client";
 import { cn } from "@/lib/utils";
 

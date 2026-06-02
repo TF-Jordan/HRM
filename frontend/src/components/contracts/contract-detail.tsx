@@ -22,7 +22,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog } from "@/components/ui/dialog";
 import { Field, Input, Label, Textarea } from "@/components/ui/input";
 import { useCan } from "@/hooks/use-can";
-import { Link } from "@/i18n/navigation";
+import { AppLink as Link } from "@/components/ui/app-link";
 import { apiFetch, BffApiError } from "@/lib/api-client";
 import { formatDate, formatMoney } from "@/lib/format";
 import type { ContractResponse, ContractStatusValue, ContractType } from "@/server/ksm/modules/employees";

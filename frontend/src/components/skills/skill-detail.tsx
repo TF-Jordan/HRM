@@ -15,7 +15,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Dialog } from "@/components/ui/dialog";
 import { Field, Input, Label } from "@/components/ui/input";
 import { useCan } from "@/hooks/use-can";
-import { Link } from "@/i18n/navigation";
+import { AppLink as Link } from "@/components/ui/app-link";
 import { apiFetch, BffApiError } from "@/lib/api-client";
 import { formatDate } from "@/lib/format";
 import { categoryTone } from "@/lib/skill-aggregates";

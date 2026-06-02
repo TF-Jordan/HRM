@@ -7,7 +7,7 @@ import { useTranslations } from "next-intl";
 import { PageHeader } from "@/components/shell/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { useRouter } from "@/i18n/navigation";
+import { useAppRouter as useRouter } from "@/components/ui/app-link";
 import { apiFetch, BffApiError } from "@/lib/api-client";
 import { reviewStatusTone } from "@/lib/training-status";
 import { cn } from "@/lib/utils";
