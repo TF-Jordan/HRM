@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 080-payroll-core-schema
+      author: jordan
+      changes:
+        - sqlFile:
+            path: db/r2dbc/V80__payroll_core_schema.sql
+            relativeToChangelogFile: false

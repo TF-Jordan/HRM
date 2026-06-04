@@ -26,6 +26,7 @@ import org.springframework.data.r2dbc.repository.config.EnableR2dbcRepositories;
         "yowyob.comops.api.administration.adapter.out.persistence",
         "yowyob.comops.api.file.adapter.out.persistence",
         "yowyob.comops.api.hrm.adapter.out.persistence",
+        "yowyob.comops.api.payroll.adapter.out.persistence",
         "yowyob.comops.api.blockchain.adapter.out.persistence",
         "yowyob.comops.api.kernel.adapter.out.persistence"
 })

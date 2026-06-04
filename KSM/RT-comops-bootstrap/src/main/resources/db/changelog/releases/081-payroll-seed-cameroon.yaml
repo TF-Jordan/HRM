@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 081-payroll-seed-cameroon
+      author: jordan
+      changes:
+        - sqlFile:
+            path: db/r2dbc/V81__payroll_seed_cameroon.sql
+            relativeToChangelogFile: false

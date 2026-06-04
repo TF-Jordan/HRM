@@ -237,3 +237,9 @@ databaseChangeLog:
   - include:
       file: releases/079-hrm-employee-extended-profile.yaml
       relativeToChangelogFile: true
+  - include:
+      file: releases/080-payroll-core-schema.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: releases/081-payroll-seed-cameroon.yaml
+      relativeToChangelogFile: true
