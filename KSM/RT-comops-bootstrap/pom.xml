@@ -167,6 +167,11 @@
     </dependency>
     <dependency>
       <groupId>yowyob.comops.api</groupId>
+      <artifactId>RT-comops-payroll-core</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>yowyob.comops.api</groupId>
       <artifactId>RT-comops-blockchain-core</artifactId>
       <version>${project.version}</version>
     </dependency>
