@@ -293,7 +293,26 @@ public class PayrollRunService implements RunPayrollUseCase {
                         .map(run -> run.approve(ctx.userId()))
                         .flatMap(payrollRunRepository::save)
                         .flatMap(saved -> publish(ctx, "PAYROLL_APPROVED", "PAYROLL_RUN", saved.id(),
-                                Map.of("periode", saved.period().format())).thenReturn(saved)));
+                                Map.of("periode", saved.period().format()))
+                                .then(publishAccountingEntry(ctx, saved))
+                                .thenReturn(saved)));
+    }
+
+    /**
+     * Builds the balanced OHADA journal for the run and publishes it as a
+     * PAYROLL_ACCOUNTING_ENTRY event for accounting-core to post — keeping the modules
+     * decoupled through the existing event/outbox channel.
+     */
+    private Mono<Void> publishAccountingEntry(TenantContext ctx, PayrollRun run) {
+        JournalEntry journal = AccountingEntryBuilder.build(run);
+        List<Map<String, Object>> lines = journal.lines().stream()
+                .map(l -> orderedMap("account", l.accountCode(), "label", l.label(),
+                        "debit", l.debit(), "credit", l.credit()))
+                .toList();
+        return publish(ctx, "PAYROLL_ACCOUNTING_ENTRY", "PAYROLL_RUN", run.id(),
+                orderedMap("reference", journal.reference(), "periode", run.period().format(),
+                        "totalDebit", journal.totalDebit(), "totalCredit", journal.totalCredit(),
+                        "lines", lines));
     }
 
     @Override
