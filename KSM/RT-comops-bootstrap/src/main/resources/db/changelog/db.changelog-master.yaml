@@ -246,3 +246,6 @@ databaseChangeLog:
   - include:
       file: releases/082-drop-legacy-hrm-payroll.yaml
       relativeToChangelogFile: true
+  - include:
+      file: releases/083-payroll-final-settlement.yaml
+      relativeToChangelogFile: true

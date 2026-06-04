@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 083-payroll-final-settlement
+      author: jordan
+      changes:
+        - sqlFile:
+            path: db/r2dbc/V83__payroll_final_settlement.sql
+            relativeToChangelogFile: false
