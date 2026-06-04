@@ -37,6 +37,7 @@ public final class PayElement extends BaseEntity {
     private final BigDecimal rate;
     private final BigDecimal ceiling;
     private final BigDecimal floor;
+    private final BigDecimal exemptionThreshold;
     private final BigDecimal flatAmount;
     private final String bracketTableCode;
     private final String lookupTableCode;
@@ -51,9 +52,10 @@ public final class PayElement extends BaseEntity {
     private PayElement(UUID id, UUID tenantId, Instant createdAt, Instant updatedAt,
                        String code, String label, PayElementCategory category, CalculationMethod method,
                        String baseReference, BigDecimal rate, BigDecimal ceiling, BigDecimal floor,
-                       BigDecimal flatAmount, String bracketTableCode, String lookupTableCode,
-                       boolean taxable, boolean socialContributable, String countryCode,
-                       int displayOrder, boolean active, LocalDate effectiveFrom, LocalDate effectiveTo) {
+                       BigDecimal exemptionThreshold, BigDecimal flatAmount, String bracketTableCode,
+                       String lookupTableCode, boolean taxable, boolean socialContributable,
+                       String countryCode, int displayOrder, boolean active,
+                       LocalDate effectiveFrom, LocalDate effectiveTo) {
         super(id, tenantId, createdAt, updatedAt);
         this.code = Objects.requireNonNull(code, "code is required");
         this.label = Objects.requireNonNull(label, "label is required");
@@ -63,6 +65,7 @@ public final class PayElement extends BaseEntity {
         this.rate = rate;
         this.ceiling = ceiling;
         this.floor = floor;
+        this.exemptionThreshold = exemptionThreshold;
         this.flatAmount = flatAmount;
         this.bracketTableCode = bracketTableCode;
         this.lookupTableCode = lookupTableCode;
@@ -78,33 +81,37 @@ public final class PayElement extends BaseEntity {
     public static PayElement create(UUID tenantId, String code, String label,
                                     PayElementCategory category, CalculationMethod method,
                                     String baseReference, BigDecimal rate, BigDecimal ceiling,
-                                    BigDecimal floor, BigDecimal flatAmount, String bracketTableCode,
-                                    String lookupTableCode, boolean taxable, boolean socialContributable,
-                                    String countryCode, int displayOrder, LocalDate effectiveFrom,
-                                    LocalDate effectiveTo) {
+                                    BigDecimal floor, BigDecimal exemptionThreshold, BigDecimal flatAmount,
+                                    String bracketTableCode, String lookupTableCode, boolean taxable,
+                                    boolean socialContributable, String countryCode, int displayOrder,
+                                    LocalDate effectiveFrom, LocalDate effectiveTo) {
         Instant now = Instant.now();
         return new PayElement(UUID.randomUUID(), tenantId, now, now, code, label, category, method,
-                baseReference, rate, ceiling, floor, flatAmount, bracketTableCode, lookupTableCode,
-                taxable, socialContributable, countryCode, displayOrder, true, effectiveFrom, effectiveTo);
+                baseReference, rate, ceiling, floor, exemptionThreshold, flatAmount, bracketTableCode,
+                lookupTableCode, taxable, socialContributable, countryCode, displayOrder, true,
+                effectiveFrom, effectiveTo);
     }
 
     public static PayElement rehydrate(UUID id, UUID tenantId, Instant createdAt, Instant updatedAt,
                                        String code, String label, PayElementCategory category,
                                        CalculationMethod method, String baseReference, BigDecimal rate,
-                                       BigDecimal ceiling, BigDecimal floor, BigDecimal flatAmount,
-                                       String bracketTableCode, String lookupTableCode, boolean taxable,
-                                       boolean socialContributable, String countryCode, int displayOrder,
-                                       boolean active, LocalDate effectiveFrom, LocalDate effectiveTo) {
+                                       BigDecimal ceiling, BigDecimal floor, BigDecimal exemptionThreshold,
+                                       BigDecimal flatAmount, String bracketTableCode, String lookupTableCode,
+                                       boolean taxable, boolean socialContributable, String countryCode,
+                                       int displayOrder, boolean active, LocalDate effectiveFrom,
+                                       LocalDate effectiveTo) {
         return new PayElement(id, tenantId, createdAt, updatedAt, code, label, category, method,
-                baseReference, rate, ceiling, floor, flatAmount, bracketTableCode, lookupTableCode,
-                taxable, socialContributable, countryCode, displayOrder, active, effectiveFrom, effectiveTo);
+                baseReference, rate, ceiling, floor, exemptionThreshold, flatAmount, bracketTableCode,
+                lookupTableCode, taxable, socialContributable, countryCode, displayOrder, active,
+                effectiveFrom, effectiveTo);
     }
 
     /** Returns a deactivated copy (closes the element to future runs); bumps updatedAt. */
     public PayElement deactivate() {
         return new PayElement(id(), tenantId(), createdAt(), Instant.now(), code, label, category, method,
-                baseReference, rate, ceiling, floor, flatAmount, bracketTableCode, lookupTableCode,
-                taxable, socialContributable, countryCode, displayOrder, false, effectiveFrom, effectiveTo);
+                baseReference, rate, ceiling, floor, exemptionThreshold, flatAmount, bracketTableCode,
+                lookupTableCode, taxable, socialContributable, countryCode, displayOrder, false,
+                effectiveFrom, effectiveTo);
     }
 
     public boolean isEffectiveOn(LocalDate date) {
@@ -129,6 +136,7 @@ public final class PayElement extends BaseEntity {
     public BigDecimal rate() { return rate; }
     public BigDecimal ceiling() { return ceiling; }
     public BigDecimal floor() { return floor; }
+    public BigDecimal exemptionThreshold() { return exemptionThreshold; }
     public BigDecimal flatAmount() { return flatAmount; }
     public String bracketTableCode() { return bracketTableCode; }
     public String lookupTableCode() { return lookupTableCode; }
