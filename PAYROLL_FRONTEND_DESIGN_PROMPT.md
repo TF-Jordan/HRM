@@ -11,7 +11,9 @@ Je construis le frontend d'un **module Paie** qui s'intègre dans une plateforme
 1. **Un workspace dédié `/payroll/*`** — produit dans le produit, identité visuelle propre, sidebar dédiée — réservé au **Responsable Paie** (et lecture seule pour l'Admin RH)
 2. **Des insertions ciblées dans les sidebars HRM existantes** des autres rôles (Employé, Comptable, DRH, Contrôleur) — qui consultent ou agissent ponctuellement sur la paie depuis leur HRM normal
 
-L'objectif : que la Paie ressemble à un **vrai outil métier autonome** quand le Responsable Paie y entre, tout en restant **invisible** pour les rôles qui n'en ont pas besoin, et **intégrée naturellement** pour les rôles qui consomment ses données.
+L'objectif : que la Paie soit un **workspace métier autonome** quand le Responsable Paie y entre (sidebar dédiée, URL dédiée, contenu dédié), tout en restant **invisible** pour les rôles qui n'en ont pas besoin, et **intégrée naturellement** pour les rôles qui consomment ses données.
+
+**Règle stricte sur le design system** : le module Paie utilise **exactement le même design system que HRM**, **sans aucune variation visuelle** : mêmes couleurs (aucun accent indigo dédié, aucune couleur signature pour la Paie), même typographie, mêmes composants, même densité, même mode sombre, même sidebar visuellement. Ce qui distingue le workspace Paie du HRM c'est **le contenu de la sidebar et les pages**, pas l'apparence. Aucune nouvelle teinte, aucun token visuel propre à la Paie.
 
 ---
 
@@ -56,24 +58,23 @@ La plateforme est déjà partitionnée par rôle. Chaque rôle a son namespace H
 
 ## PARTIE 1 — LE WORKSPACE PAIE DÉDIÉ (`/payroll/*`) — 80% DU BRIEF
 
-C'est ici que tu peux exprimer une **identité visuelle dédiée**. Le Responsable Paie y passe ses journées. Le workspace ressemble à un produit autonome (style Linear, Stripe Dashboard, Ramp, Mercury) tout en restant cohérent avec le design system global de la plateforme.
+Le Responsable Paie y passe ses journées. Le workspace est dédié dans son **contenu** (sidebar propre, pages spécifiques, URLs `/payroll/*`) mais **visuellement identique à HRM** : mêmes couleurs, même typographie, mêmes composants, même sidebar visuelle, même header, même mode sombre. Ce qui change c'est ce qu'il y a **dans** la sidebar et dans les pages, pas la peau.
 
-### 1.1 Identité visuelle du workspace Paie
+### 1.1 Apparence du workspace Paie
 
-- **Couleur signature** : un indigo profond ou bleu-violet électrique (style Linear `#5E6AD2`) qui se distingue du primaire HRM mais reste de la même famille
-- **Sidebar** : sombre par défaut même en mode clair (charbon `zinc-900`), texte clair, accent indigo sur l'item actif
-- **Header workspace** : bandeau sticky avec à gauche un bouton **"← Retour HRM"** discret mais visible, au centre le sélecteur de période + organisation/agence, à droite le statut du cycle en cours + notifications
-- **Typographie** : Inter Display pour les titres, Geist Mono pour tous les montants, codes de rubrique, matricules, numéros CNPS
-- **Densité** : option "compact" par défaut dans les tableaux (le Responsable Paie veut voir beaucoup d'infos d'un coup)
-- **Tabular numbers** activés systématiquement pour les colonnes de montants
+- **Couleurs** : strictement celles du design system HRM, primaire HRM inchangé, aucune couleur dédiée à la Paie
+- **Sidebar** : structurellement et visuellement identique à la sidebar HRM (même fond, même typographie, même comportement actif/hover, même mode sombre)
+- **Header** : bandeau sticky identique à celui de HRM, avec à gauche un bouton **"← Retour HRM"** discret, au centre le sélecteur de période + organisation/agence, à droite les notifications
+- **Typographie, espacements, border-radius, élévations** : identiques à HRM
+- **Densité tableau** : utilise les mêmes patterns que les tableaux HRM existants (le Responsable Paie pourra basculer en mode compact via la même option globale que HRM)
 
 ### 1.2 Transition HRM → Workspace Paie
 
 Designe explicitement :
-- **Côté HRM** : l'item de sidebar "Aller dans Paie →" du Responsable Paie (avec petite flèche, séparateur visuel)
-- **Animation de transition** : fondu rapide vers le workspace, le header change d'identité visuelle, la sidebar HRM est remplacée par la sidebar Paie
+- **Côté HRM** : l'item de sidebar "Aller dans Paie →" du Responsable Paie (avec petite flèche, séparateur visuel) — apparence strictement HRM
+- **Animation de transition** : fondu rapide vers le workspace. **Pas** de changement visuel d'identité — la sidebar et le header restent visuellement les mêmes, seul leur **contenu** (items de menu, breadcrumb, titre de section) change
 - **Côté Paie** : le bouton "← Retour HRM" en haut à gauche qui ramène vers le dashboard HRM du Responsable Paie
-- **Bandeau "Vous êtes dans le module Paie"** discret la première fois qu'on entre, dismissible
+- **Indicateur de section** : un libellé textuel ou un petit indicateur de breadcrumb signale qu'on est "dans le module Paie" — pas de bandeau coloré spécifique
 
 ### 1.3 Sidebar du workspace Paie
 
@@ -281,27 +282,36 @@ Sur le dashboard HRM de chaque rôle, designe les widgets Paie qui s'insèrent *
 
 ---
 
-## PARTIE 4 — DESIGN SYSTEM PARTAGÉ HRM + PAIE
+## PARTIE 4 — DESIGN SYSTEM (STRICTEMENT CELUI DE HRM)
 
-**Un seul design system** pour toute la plateforme. Le workspace Paie utilise les mêmes tokens, composants, patterns que HRM — juste avec :
-- Une **couleur d'accent secondaire** (indigo Paie) qui marque visuellement qu'on est dans la Paie
-- Une **densité de tableau** par défaut "compact" dans le workspace Paie
-- Une **sidebar sombre** par défaut dans le workspace Paie (même en mode clair)
+**Un seul design system pour toute la plateforme HRM + Paie. Aucune divergence visuelle.**
 
-À produire **en premier** avant les écrans :
+Le workspace Paie réutilise **tels quels** :
+- Les **mêmes tokens couleurs** que HRM (primaire, sémantiques, surfaces) — **aucune couleur dédiée à la Paie**
+- La **même typographie** que HRM (familles, échelle, poids)
+- Les **mêmes espacements, border-radius, élévations**
+- Les **mêmes composants atomiques et moléculaires** que HRM
+- Le **même comportement de sidebar, header, dark mode**
 
-### 4.1 Tokens
-- **Couleurs** : modes clair + sombre, primaire HRM (à conserver), secondaire Paie (indigo), sémantiques (success/warning/danger/info), couleurs domaines paie (gains=vert, retenues=ambre, charges patronales=violet, info=graphite)
-- **Typographie** : échelle display → caption, monospace pour montants/codes/matricules, tabular numbers activés
-- **Espacement** : 4/8/12/16/24/32/48/64/96
-- **Border-radius** : sm 6 / md 10 / lg 14 / xl 20 / pill
-- **Élévations** : subtle / small / medium / large
+Les composants spécifiques au métier paie (PayElementRow, PayslipPreview, CalculationTraceViewer, etc.) sont **construits à partir des primitives HRM existantes** sans introduire de nouveaux tokens visuels.
 
-### 4.2 Composants atomiques
-Button, Input, AmountInput, Badge, Avatar, Tooltip, Popover, Switch, Checkbox, Radio, Select, DatePicker, PeriodPicker
+À produire en premier (rappel des tokens HRM existants pour cadrage) :
 
-### 4.3 Composants moléculaires
-Card, KpiCard, Drawer, Modal, Table (sortable + filterable + sticky header + sélection multiple + pagination + infinite scroll), Tabs, Stepper (horizontal + vertical), EmptyState, Toast, CommandPalette (cmd+K)
+### 4.1 Tokens (à reprendre tels quels depuis HRM)
+- **Couleurs** : modes clair + sombre, primaire, sémantiques (success/warning/danger/info), surfaces
+- **Couleurs sémantiques métier paie** : si tu utilises des couleurs pour différencier Gains / Retenues / Charges patronales dans les tableaux, réutilise **les sémantiques existantes** (success/warning/info), **sans introduire de nouvelles teintes**
+- **Typographie** : échelle existante HRM, monospace pour montants/codes/matricules, tabular numbers activés sur les colonnes de montants
+- **Espacement, border-radius, élévations** : identiques HRM
+
+### 4.2 Composants atomiques (utiliser ceux de HRM)
+Button, Input, Badge, Avatar, Tooltip, Popover, Switch, Checkbox, Radio, Select, DatePicker.
+
+Si tu introduis **AmountInput** et **PeriodPicker**, ils sont construits comme variantes de l'Input et du DatePicker HRM, sans nouveau style visuel.
+
+### 4.3 Composants moléculaires (utiliser ceux de HRM)
+Card, KpiCard, Drawer, Modal, Table, Tabs, Stepper, EmptyState, Toast, CommandPalette.
+
+Les variantes paie (PayrollKpiCard, PayrollRunStatusStepper) **héritent** des composants HRM existants sans créer de nouveau langage visuel.
 
 ---
 
@@ -375,18 +385,18 @@ La DRH se connecte. Sur **son dashboard HRM**, elle voit la carte "Masse salaria
 
 ---
 
-## PARTIE 9 — RÉFÉRENCES VISUELLES À ÉMULER
+## PARTIE 9 — RÉFÉRENCES VISUELLES
 
-Pour le **workspace Paie** :
-- **Linear** (densité, typographie, micro-interactions)
-- **Stripe Dashboard** (tableaux, formulaires, navigation)
-- **Ramp / Mercury** (KPI cards, finance UX premium)
-- **Deel** (paie internationale moderne)
-- **Notion** (drawers, command palette)
+**Le design system de référence absolu est celui du HRM existant.** Toutes les références ci-dessous sont des **inspirations en termes de patterns UX et de densité d'information** (organisation des tableaux, micro-interactions, hiérarchie visuelle, layouts de wizards), **pas en termes de couleurs ou d'identité visuelle**.
 
-Pour les **insertions HRM** :
-- Reste **strictement dans la continuité du HRM existant**
-- Sobriété maximale, aucune fioriture, le contenu prime
+Patterns à émuler :
+- **Linear** : densité d'info, micro-interactions, command palette
+- **Stripe Dashboard** : organisation des tableaux financiers, layouts de validation
+- **Ramp / Mercury** : présentation des KPI financiers, lecture rapide des chiffres
+- **Deel** : layouts spécifiques paie multi-pays
+- **Notion** : drawers, hover states
+
+Toutes les couleurs, typographies, formes et tokens visuels viennent **exclusivement du design system HRM existant**.
 
 ---
 
