@@ -78,6 +78,7 @@
     "salaireBase": "Salaire de base",
     "brut": "Brut",
     "retenues": "Retenues",
+    "totalDeductions": "Total retenues",
     "net": "Net",
     "channel": "Mode",
     "paymentStatus": "Paiement",

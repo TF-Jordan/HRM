@@ -178,20 +178,17 @@ export function PayrollRunDetail({ runId }: { runId: string }) {
             <TotalTile
               icon={Download}
               label={t("detail.brut")}
-              value={formatMoney(Number(run.totalBrut ?? 0), { locale, withCurrency: false })}
+              value={formatMoney(Number(run.totalGross ?? 0), { locale, withCurrency: false })}
               sub="XAF"
               tone="info"
             />
             <TotalTile
               icon={Download}
-              label={t("detail.cnpsEmploye") + " + " + t("detail.irpp") + " + CAC + CFC"}
-              value={formatMoney(
-                Number(run.totalCnpsEmploye ?? 0) +
-                  Number(run.totalIrpp ?? 0) +
-                  Number(run.totalCac ?? 0) +
-                  Number(run.totalCfc ?? 0),
-                { locale, withCurrency: false },
-              )}
+              label={t("detail.totalDeductions")}
+              value={formatMoney(Number(run.totalEmployeeDeductions ?? 0), {
+                locale,
+                withCurrency: false,
+              })}
               sub="XAF"
               tone="warning"
             />
@@ -333,7 +330,7 @@ function EntriesTable({
                   {formatMoney(Number(e.brut ?? 0), { locale, withCurrency: false })}
                 </td>
                 <td className="font-mono-tabular px-4 py-3 text-right text-danger-600">
-                  −{formatMoney(Number(e.retenues ?? 0), { locale, withCurrency: false })}
+                  −{formatMoney(Number(e.totalDeductions ?? 0), { locale, withCurrency: false })}
                 </td>
                 <td className="font-mono-tabular px-4 py-3 text-right font-bold text-ink">
                   {formatMoney(Number(e.net ?? 0), { locale, withCurrency: false })}

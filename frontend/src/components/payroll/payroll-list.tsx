@@ -187,13 +187,9 @@ function Hero({
     { key: "validation", label: t("stepper.validation") },
     { key: "payment", label: t("stepper.payment") },
   ];
-  const total = Number(run.totalBrut ?? 0);
+  const total = Number(run.totalGross ?? 0);
   const net = Number(run.totalNet ?? 0);
-  const deductionsEmploye =
-    Number(run.totalCnpsEmploye ?? 0) +
-    Number(run.totalIrpp ?? 0) +
-    Number(run.totalCac ?? 0) +
-    Number(run.totalCfc ?? 0);
+  const deductionsEmploye = Number(run.totalEmployeeDeductions ?? 0);
 
   return (
     <div
@@ -324,7 +320,7 @@ function EvolutionRow({
   t: ReturnType<typeof useTranslations<"payroll">>;
   locale: "fr" | "en";
 }) {
-  const total = active ? Number(active.totalBrut ?? 0) : 0;
+  const total = active ? Number(active.totalGross ?? 0) : 0;
   const baseShare = 0.62, primesShare = 0.18, hsShare = 0.12, avantShare = 0.08;
   const slices = [
     { color: "#F97316", label: t("chart.salaireBase"), pct: baseShare, value: total * baseShare },
@@ -448,7 +444,7 @@ function RunsTable({
                 </td>
                 <td className="font-mono-tabular px-4 py-3.5 text-right">{r.nbEmployes}</td>
                 <td className="font-mono-tabular px-4 py-3.5 text-right font-semibold text-ink">
-                  {formatMoneyXAF(Number(r.totalBrut ?? 0), locale)}
+                  {formatMoneyXAF(Number(r.totalGross ?? 0), locale)}
                 </td>
                 <td className="font-mono-tabular px-4 py-3.5 text-right text-ink-2">
                   {formatMoneyXAF(Number(r.totalNet ?? 0), locale)}
@@ -598,7 +594,7 @@ function buildEvolution(runs: PayrollRunResponse[]): { label: string; value: num
     const [_, m] = r.periode.split("-").map(Number);
     const monthIdx = (m ?? 1) - 1;
     const labels = ["Jan", "Fév", "Mar", "Avr", "Mai", "Jui", "Juil", "Aoû", "Sep", "Oct", "Nov", "Déc"];
-    return { label: labels[monthIdx] ?? r.periode.slice(5), value: Number(r.totalBrut ?? 0) };
+    return { label: labels[monthIdx] ?? r.periode.slice(5), value: Number(r.totalGross ?? 0) };
   });
 }
 
@@ -766,7 +762,7 @@ function InlinePayslip({
               ))}
               <tr className="bg-bg-soft">
                 <td colSpan={3} className="px-2 py-2.5 text-[12.5px] font-bold text-ink">
-                  {t("payslip.subtotalBrut")}
+                  {t("payslip.subtotalGross")}
                 </td>
                 <td className="px-2 py-2.5 text-right text-[12.5px] font-bold text-ink">
                   {formatMoney(Number(entry.brut ?? 0), { locale, withCurrency: false })}
@@ -786,7 +782,7 @@ function InlinePayslip({
                   {t("payslip.subtotalRetenues")}
                 </td>
                 <td className="px-2 py-2.5 text-right text-[12.5px] font-bold text-ink">
-                  {formatMoney(Number(entry.retenues ?? 0), { locale, withCurrency: false })}
+                  {formatMoney(Number(entry.totalDeductions ?? 0), { locale, withCurrency: false })}
                 </td>
               </tr>
               <tr className="bg-ink text-white">
@@ -810,7 +806,7 @@ function InlinePayslip({
             <span>
               {t("payslip.footerCumulIrpp", { year: new Date().getFullYear().toString() })}:{" "}
               <b className="font-mono-tabular text-ink-2">
-                {formatMoney(Number(entry.irpp ?? 0), { locale, withCurrency: false })}
+                {formatMoney(Number(entry.incomeTax ?? 0), { locale, withCurrency: false })}
               </b>{" "}
               XAF
             </span>
@@ -971,7 +967,6 @@ function RunDownloadButton({
           nbEmployeesLabel={t("hero.employeesPaid")}
           grossMassLabel={t("hero.grossMass")}
           netPayableLabel={t("payslip.netLabel")}
-          cnpsEmployeLabel={t("detail.cnpsEmploye")}
           cnpsEmployeurLabel={t("detail.cnpsEmployeur")}
           irppLabel={t("detail.irpp")}
           totalRetenuesLabel={t("pdf.totalRetenues")}
@@ -984,7 +979,7 @@ function RunDownloadButton({
           noEmployeeLabel={t("payslip.noEmployee")}
           rubricBrutLabel={t("payslip.rubricBrut")}
           rubricRetenuesLabel={t("payslip.rubricRetenues")}
-          subtotalBrutLabel={t("payslip.subtotalBrut")}
+          subtotalGrossLabel={t("payslip.subtotalGross")}
           subtotalRetenuesLabel={t("payslip.subtotalRetenues")}
           netLabel={t("payslip.netLabel")}
           colLibelle={t("payslip.tableLibelle")}
@@ -1242,7 +1237,6 @@ type CyclePdfProps = {
   nbEmployeesLabel: string;
   grossMassLabel: string;
   netPayableLabel: string;
-  cnpsEmployeLabel: string;
   cnpsEmployeurLabel: string;
   irppLabel: string;
   totalRetenuesLabel: string;
@@ -1255,7 +1249,7 @@ type CyclePdfProps = {
   noEmployeeLabel: string;
   rubricBrutLabel: string;
   rubricRetenuesLabel: string;
-  subtotalBrutLabel: string;
+  subtotalGrossLabel: string;
   subtotalRetenuesLabel: string;
   netLabel: string;
   colLibelle: string;
@@ -1270,10 +1264,10 @@ function PayrollCyclePdfDocument(props: CyclePdfProps) {
     organizationName, organizationRef, organizationContact, logoDataUrl,
     run, entries, locale,
     reportTitle, periodLabel, nbEmployeesLabel, grossMassLabel, netPayableLabel,
-    cnpsEmployeLabel, cnpsEmployeurLabel, irppLabel, totalRetenuesLabel,
+    cnpsEmployeurLabel, irppLabel, totalRetenuesLabel,
     validatedByLabel: _vbl, validatedAtLabel, calculatedAtLabel, statusLabel,
     payslipTitle, employeeLabel, noEmployeeLabel,
-    rubricBrutLabel, rubricRetenuesLabel, subtotalBrutLabel, subtotalRetenuesLabel,
+    rubricBrutLabel, rubricRetenuesLabel, subtotalGrossLabel, subtotalRetenuesLabel,
     netLabel, colLibelle, colBase, colTaux, colGain, colRetenue,
   } = props;
 
@@ -1296,11 +1290,7 @@ function PayrollCyclePdfDocument(props: CyclePdfProps) {
   };
 
   const initial = organizationName?.[0]?.toUpperCase() ?? "R";
-  const totalRetenues =
-    Number(run.totalCnpsEmploye ?? 0) +
-    Number(run.totalIrpp ?? 0) +
-    Number(run.totalCac ?? 0) +
-    Number(run.totalCfc ?? 0);
+  const totalRetenues = Number(run.totalEmployeeDeductions ?? 0);
 
   return (
     <Document>
@@ -1340,7 +1330,7 @@ function PayrollCyclePdfDocument(props: CyclePdfProps) {
           </View>
           <View style={SC.statBox}>
             <Text style={SC.statLabel}>{grossMassLabel}</Text>
-            <Text style={SC.statValue}>{fmt(run.totalBrut)}</Text>
+            <Text style={SC.statValue}>{fmt(run.totalGross)}</Text>
             <Text style={SC.statSub}>XAF brut</Text>
           </View>
           <View style={SC.statBox}>
@@ -1355,27 +1345,15 @@ function PayrollCyclePdfDocument(props: CyclePdfProps) {
           <Text style={SC.tableSectionTitle}>RÉCAPITULATIF DES CHARGES</Text>
           <View style={SC.tableRow}>
             <Text style={SC.tableLabel}>Masse salariale brute</Text>
-            <Text style={SC.tableValue}>{fmt(run.totalBrut)}</Text>
-          </View>
-          <View style={SC.tableRow}>
-            <Text style={SC.tableLabel}>{cnpsEmployeLabel} (4,2%)</Text>
-            <Text style={SC.tableValue}>{fmt(run.totalCnpsEmploye)}</Text>
-          </View>
-          <View style={SC.tableRow}>
-            <Text style={SC.tableLabel}>{cnpsEmployeurLabel}</Text>
-            <Text style={SC.tableValue}>{fmt(run.totalCnpsEmployeur)}</Text>
+            <Text style={SC.tableValue}>{fmt(run.totalGross)}</Text>
           </View>
           <View style={SC.tableRow}>
             <Text style={SC.tableLabel}>{irppLabel}</Text>
-            <Text style={SC.tableValue}>{fmt(run.totalIrpp)}</Text>
+            <Text style={SC.tableValue}>{fmt(run.totalIncomeTax)}</Text>
           </View>
           <View style={SC.tableRow}>
-            <Text style={SC.tableLabel}>CAC (10% IRPP)</Text>
-            <Text style={SC.tableValue}>{fmt(run.totalCac)}</Text>
-          </View>
-          <View style={SC.tableRow}>
-            <Text style={SC.tableLabel}>CFC (1% brut)</Text>
-            <Text style={SC.tableValue}>{fmt(run.totalCfc)}</Text>
+            <Text style={SC.tableLabel}>{cnpsEmployeurLabel}</Text>
+            <Text style={SC.tableValue}>{fmt(run.totalEmployerCharges)}</Text>
           </View>
           <View style={[SC.tableRow, SC.tableRowBg]}>
             <Text style={SC.tableLabelBold}>{totalRetenuesLabel}</Text>
@@ -1480,7 +1458,7 @@ function PayrollCyclePdfDocument(props: CyclePdfProps) {
               </View>
             ))}
             <View style={SC.subtotalRow}>
-              <Text style={SC.subtotalLabel}>{subtotalBrutLabel}</Text>
+              <Text style={SC.subtotalLabel}>{subtotalGrossLabel}</Text>
               <Text style={[SC.subtotalValue, { width: 72 + 44 }]}>{fmt(entry.brut)}</Text>
               <Text style={SC.subtotalEmpty}>{""}</Text>
             </View>
@@ -1500,7 +1478,7 @@ function PayrollCyclePdfDocument(props: CyclePdfProps) {
             <View style={SC.subtotalRow}>
               <Text style={SC.subtotalLabel}>{subtotalRetenuesLabel}</Text>
               <Text style={[SC.subtotalValue, { width: 72 + 44 + 82 }]}>
-                {fmt(entry.retenues)}
+                {fmt(entry.totalDeductions)}
               </Text>
             </View>
 

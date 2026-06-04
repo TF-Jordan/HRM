@@ -74,19 +74,16 @@ async function downloadPayslipPdf(
   const entryForPdf = {
     id: summary.entryId,
     employeeId: employee?.id ?? "",
+    currency: "XAF",
     salaireBase: 0,
     brut: summary.brut,
+    totalDeductions: summary.totalDeductions ?? totalRetenues,
+    incomeTax: summary.incomeTax,
+    employerCharges: 0,
     net: summary.net,
-    cnpsEmploye: summary.cnpsEmploye,
-    cnpsEmployeur: 0,
-    irpp: summary.irpp,
-    cac: summary.cac,
-    cfc: summary.cfc,
-    primes: 0,
-    retenues: totalRetenues,
-    avancesDeduites: 0,
     paymentStatus: summary.paymentStatus,
     paymentChannel: summary.paymentChannel ?? "—",
+    accountRef: null,
   } as Parameters<typeof PayslipPdfDocument>[0]["entry"];
 
   const blob = await pdf(
@@ -154,8 +151,8 @@ function computeYtd(items: MyPayslipSummaryResponse[], year: string) {
   return {
     gross: filtered.reduce((s, p) => s + num(p.brut), 0),
     net: filtered.reduce((s, p) => s + num(p.net), 0),
-    irpp: filtered.reduce((s, p) => s + num(p.irpp) + num(p.cac), 0),
-    cnps: filtered.reduce((s, p) => s + num(p.cnpsEmploye), 0),
+    irpp: filtered.reduce((s, p) => s + num(p.incomeTax), 0),
+    cnps: filtered.reduce((s, p) => s + Math.max(num(p.totalDeductions) - num(p.incomeTax), 0), 0),
   };
 }
 

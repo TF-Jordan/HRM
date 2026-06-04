@@ -40,7 +40,7 @@ export function NewPayrollForm() {
   const mutation = useMutation({
     mutationFn: (v: FormValues) => {
       const body: RunPayrollRequest = {
-        periode: v.periode.trim(),
+        period: v.periode.trim(),
         agencyId: v.agencyId.trim() || null,
       };
       return apiFetch<PayrollRunResponse>("/api/hrm/payroll", {

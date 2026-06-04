@@ -348,7 +348,7 @@ export function PayslipPreview({ runId, entryId }: { runId: string; entryId: str
                     {t("payslip.subtotalRetenues")}
                   </td>
                   <td className="px-2 py-2.5 text-right text-[12.5px] font-bold text-ink">
-                    {formatMoney(Number(entry.retenues ?? 0), { locale, withCurrency: false })}
+                    {formatMoney(Number(entry.totalDeductions ?? 0), { locale, withCurrency: false })}
                   </td>
                 </tr>
 
@@ -373,7 +373,7 @@ export function PayslipPreview({ runId, entryId }: { runId: string; entryId: str
               <span>
                 {t("payslip.footerCumulIrpp", { year: run.periode.slice(0, 4) })}:{" "}
                 <b className="font-mono-tabular text-ink-2">
-                  {formatMoney(Number(entry.irpp ?? 0), { locale, withCurrency: false })}
+                  {formatMoney(Number(entry.incomeTax ?? 0), { locale, withCurrency: false })}
                 </b>{" "}
                 XAF
               </span>
@@ -678,7 +678,7 @@ export function PayslipPdfDocument(props: PdfProps) {
         ))}
         <View style={S.subtotalRow}>
           <Text style={S.subtotalLabel}>{subtotalRetenuesLabel}</Text>
-          <Text style={[S.subtotalValue, { width: 72 + 44 + 82 }]}>{fmt(entry.retenues)}</Text>
+          <Text style={[S.subtotalValue, { width: 72 + 44 + 82 }]}>{fmt(entry.totalDeductions)}</Text>
         </View>
 
         {/* ── NET À PAYER ── */}
