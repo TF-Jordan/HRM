@@ -14,6 +14,7 @@ import yowyob.comops.api.payroll.application.port.in.RunPayrollCommand;
 import yowyob.comops.api.payroll.application.port.in.RunPayrollUseCase;
 import yowyob.comops.api.payroll.application.port.out.AnnualAccumulatorRepository;
 import yowyob.comops.api.payroll.application.port.out.EmployeePayrollView;
+import yowyob.comops.api.payroll.application.port.out.GarnishmentOrderRepository;
 import yowyob.comops.api.payroll.application.port.out.HrmEmployeeDataPort;
 import yowyob.comops.api.payroll.application.port.out.LoanInstallmentView;
 import yowyob.comops.api.payroll.application.port.out.LookupTableRepository;
@@ -24,6 +25,7 @@ import yowyob.comops.api.payroll.application.port.out.PayrollRunRepository;
 import yowyob.comops.api.payroll.application.port.out.PayslipLineRepository;
 import yowyob.comops.api.payroll.application.port.out.TaxBracketTableRepository;
 import yowyob.comops.api.payroll.domain.model.AnnualAccumulator;
+import yowyob.comops.api.payroll.domain.model.GarnishmentOrder;
 import yowyob.comops.api.payroll.domain.model.LookupTable;
 import yowyob.comops.api.payroll.domain.model.PayElement;
 import yowyob.comops.api.payroll.domain.model.PayPeriod;
@@ -37,6 +39,8 @@ import yowyob.comops.api.payroll.domain.model.PayslipLineType;
 import yowyob.comops.api.payroll.domain.model.TaxBracketTable;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -68,6 +72,15 @@ public class PayrollRunService implements RunPayrollUseCase {
     private static final BigDecimal OT_NIGHT = new BigDecimal("1.50");
     private static final BigDecimal OT_SUNDAY = new BigDecimal("1.75");
 
+    // Seizable-quota barème for garnishments (progressive fraction of net). Cameroon default;
+    // extracted to configuration in a future iteration.
+    private static final List<GarnishmentCalculator.Band> GARNISHMENT_BANDS = List.of(
+            new GarnishmentCalculator.Band(new BigDecimal("50000"), new BigDecimal("0.05")),
+            new GarnishmentCalculator.Band(new BigDecimal("100000"), new BigDecimal("0.10")),
+            new GarnishmentCalculator.Band(new BigDecimal("200000"), new BigDecimal("0.20")),
+            new GarnishmentCalculator.Band(new BigDecimal("300000"), new BigDecimal("0.25")),
+            new GarnishmentCalculator.Band(null, new BigDecimal("0.33")));
+
     private final PayrollRunRepository payrollRunRepository;
     private final PayrollEntryRepository payrollEntryRepository;
     private final PayslipLineRepository payslipLineRepository;
@@ -76,6 +89,7 @@ public class PayrollRunService implements RunPayrollUseCase {
     private final LookupTableRepository lookupTableRepository;
     private final PayVariableRepository payVariableRepository;
     private final AnnualAccumulatorRepository annualAccumulatorRepository;
+    private final GarnishmentOrderRepository garnishmentOrderRepository;
     private final HrmEmployeeDataPort hrmEmployeeDataPort;
     private final BusinessEventPublisher businessEventPublisher;
 
@@ -87,6 +101,7 @@ public class PayrollRunService implements RunPayrollUseCase {
                              LookupTableRepository lookupTableRepository,
                              PayVariableRepository payVariableRepository,
                              AnnualAccumulatorRepository annualAccumulatorRepository,
+                             GarnishmentOrderRepository garnishmentOrderRepository,
                              HrmEmployeeDataPort hrmEmployeeDataPort,
                              BusinessEventPublisher businessEventPublisher) {
         this.payrollRunRepository = payrollRunRepository;
@@ -97,6 +112,7 @@ public class PayrollRunService implements RunPayrollUseCase {
         this.lookupTableRepository = lookupTableRepository;
         this.payVariableRepository = payVariableRepository;
         this.annualAccumulatorRepository = annualAccumulatorRepository;
+        this.garnishmentOrderRepository = garnishmentOrderRepository;
         this.hrmEmployeeDataPort = hrmEmployeeDataPort;
         this.businessEventPublisher = businessEventPublisher;
     }
@@ -156,29 +172,64 @@ public class PayrollRunService implements RunPayrollUseCase {
                 .map(Optional::of).defaultIfEmpty(Optional.empty());
         Mono<List<LoanInstallmentView>> loansMono = hrmEmployeeDataPort
                 .findActiveLoanInstallments(ctx.tenantId(), view.employeeId()).collectList();
+        Mono<List<GarnishmentOrder>> garnishMono = garnishmentOrderRepository
+                .findActiveByEmployee(ctx.tenantId(), view.employeeId())
+                .sort(Comparator.comparingInt(o -> o.type().ordinal()))
+                .collectList();
 
-        return Mono.zip(variableMono, loansMono).flatMap(tuple -> {
+        return Mono.zip(variableMono, loansMono, garnishMono).flatMap(tuple -> {
             Optional<PayVariable> variable = tuple.getT1();
             List<LoanInstallmentView> loans = tuple.getT2();
+            List<GarnishmentOrder> garnishments = tuple.getT3();
 
             GrossComponents gross = assembleGross(period, view, variable);
-            BigDecimal voluntary = voluntaryDeductions(loans, variable);
+            BigDecimal loansAdvances = voluntaryDeductions(loans, variable);
             CalculationRequest request = new CalculationRequest(gross, config.abatementRate(),
                     config.abatementCap(), config.elements(), config.bracketTables(),
-                    config.lookupTables(), voluntary, INCOME_TAX_CODES);
+                    config.lookupTables(), loansAdvances, INCOME_TAX_CODES);
             CalculationResult result = PayrollCalculationEngine.calculate(request);
+
+            // Garnishments are seized from the net remaining after statutory deductions, loans
+            // and advances, allocated by legal priority within the seizable quota.
+            GarnishmentCalculator.Result garnishResult = allocateGarnishments(result.net(), garnishments);
+            BigDecimal totalGarnished = garnishResult.totalWithheld();
+            BigDecimal finalNet = result.net().subtract(totalGarnished);
 
             PayrollEntry entry = PayrollEntry.create(ctx.tenantId(), ctx.organizationId(), run.id(),
                     view.employeeId(), CURRENCY, gross.proratedBaseSalary(), result.gross(),
-                    result.totalDeductions(), result.incomeTax(), result.employerCharges(), result.net(),
+                    result.totalDeductions(), result.incomeTax(), result.employerCharges(), finalNet,
                     view.paymentChannel(), view.accountRef());
 
             return payrollEntryRepository.save(entry).flatMap(saved ->
-                    persistPayslip(ctx.tenantId(), saved, result, voluntary)
-                            .then(updateAccumulator(ctx, view, period.year(), result))
+                    persistPayslip(ctx.tenantId(), saved, result, loansAdvances)
+                            .then(persistGarnishmentLine(ctx.tenantId(), saved, totalGarnished))
+                            .then(updateAccumulator(ctx, view, period.year(), result, finalNet))
                             .then(deductLoans(ctx.tenantId(), loans))
+                            .then(decrementGarnishments(garnishments, garnishResult))
                             .thenReturn(saved));
         });
+    }
+
+    private GarnishmentCalculator.Result allocateGarnishments(BigDecimal net,
+                                                              List<GarnishmentOrder> orders) {
+        List<GarnishmentCalculator.Request> requests = orders.stream()
+                .map(o -> new GarnishmentCalculator.Request(o.type(), o.installmentDue()))
+                .toList();
+        return GarnishmentCalculator.allocate(net, requests, GARNISHMENT_BANDS);
+    }
+
+    /** Decrements each order's balance by the amount actually withheld (same priority order). */
+    private Mono<Void> decrementGarnishments(List<GarnishmentOrder> orders,
+                                             GarnishmentCalculator.Result result) {
+        List<GarnishmentCalculator.Allocation> allocations = result.allocations();
+        List<GarnishmentOrder> toUpdate = new ArrayList<>();
+        for (int i = 0; i < orders.size() && i < allocations.size(); i++) {
+            BigDecimal allocated = allocations.get(i).allocated();
+            if (allocated.signum() > 0) {
+                toUpdate.add(orders.get(i).applyDeduction(allocated));
+            }
+        }
+        return Flux.fromIterable(toUpdate).concatMap(garnishmentOrderRepository::save).then();
     }
 
     private GrossComponents assembleGross(PayPeriod period, EmployeePayrollView view,
@@ -219,13 +270,21 @@ public class PayrollRunService implements RunPayrollUseCase {
                         : Mono.empty()));
     }
 
+    private Mono<Void> persistGarnishmentLine(UUID tenantId, PayrollEntry entry, BigDecimal totalGarnished) {
+        if (totalGarnished == null || totalGarnished.signum() <= 0) {
+            return Mono.empty();
+        }
+        return payslipLineRepository.save(PayslipLine.create(tenantId, entry.id(), "SAISIES",
+                "Saisies sur salaire", PayslipLineType.DEDUCTION, null, null, totalGarnished, 998)).then();
+    }
+
     private Mono<Void> updateAccumulator(TenantContext ctx, EmployeePayrollView view, int year,
-                                         CalculationResult result) {
+                                         CalculationResult result, BigDecimal finalNet) {
         return annualAccumulatorRepository.findByEmployeeAndYear(ctx.tenantId(), view.employeeId(), year)
                 .defaultIfEmpty(AnnualAccumulator.start(ctx.tenantId(), ctx.organizationId(),
                         view.employeeId(), year))
                 .map(acc -> acc.accumulate(result.gross(), result.totalDeductions(), result.incomeTax(),
-                        result.net(), result.employerCharges()))
+                        finalNet, result.employerCharges()))
                 .flatMap(annualAccumulatorRepository::save)
                 .then();
     }

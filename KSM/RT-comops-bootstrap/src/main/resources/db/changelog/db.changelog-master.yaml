@@ -249,3 +249,6 @@ databaseChangeLog:
   - include:
       file: releases/083-payroll-final-settlement.yaml
       relativeToChangelogFile: true
+  - include:
+      file: releases/084-payroll-garnishment.yaml
+      relativeToChangelogFile: true

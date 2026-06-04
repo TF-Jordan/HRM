@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 084-payroll-garnishment
+      author: jordan
+      changes:
+        - sqlFile:
+            path: db/r2dbc/V84__payroll_garnishment.sql
+            relativeToChangelogFile: false

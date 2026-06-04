@@ -64,6 +64,7 @@ class PayrollRunServiceTest {
     private LookupTableRepository lookupRepo;
     private PayVariableRepository variableRepo;
     private AnnualAccumulatorRepository accumulatorRepo;
+    private yowyob.comops.api.payroll.application.port.out.GarnishmentOrderRepository garnishmentRepo;
     private HrmEmployeeDataPort hrmPort;
     private BusinessEventPublisher events;
     private PayrollRunService service;
@@ -78,10 +79,11 @@ class PayrollRunServiceTest {
         lookupRepo = mock(LookupTableRepository.class);
         variableRepo = mock(PayVariableRepository.class);
         accumulatorRepo = mock(AnnualAccumulatorRepository.class);
+        garnishmentRepo = mock(yowyob.comops.api.payroll.application.port.out.GarnishmentOrderRepository.class);
         hrmPort = mock(HrmEmployeeDataPort.class);
         events = mock(BusinessEventPublisher.class);
         service = new PayrollRunService(runRepo, entryRepo, lineRepo, elementRepo, bracketRepo,
-                lookupRepo, variableRepo, accumulatorRepo, hrmPort, events);
+                lookupRepo, variableRepo, accumulatorRepo, garnishmentRepo, hrmPort, events);
     }
 
     @Test
@@ -102,6 +104,7 @@ class PayrollRunServiceTest {
         when(hrmPort.findActiveEmployees(TENANT, ORG, null)).thenReturn(Flux.just(employee()));
         when(variableRepo.findByEmployeeAndPeriod(any(), any(), any())).thenReturn(Mono.empty());
         when(hrmPort.findActiveLoanInstallments(any(), any())).thenReturn(Flux.empty());
+        when(garnishmentRepo.findActiveByEmployee(any(), any())).thenReturn(Flux.empty());
 
         RunPayrollCommand command = new RunPayrollCommand("2026-10", null, null);
 
@@ -120,6 +123,45 @@ class PayrollRunServiceTest {
                     org.assertj.core.api.Assertions.assertThat(run.nbEmployes()).isEqualTo(1);
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    void runAppliesGarnishmentToNetAndDecrementsOrder() {
+        when(runRepo.findByOrganizationAndPeriodAndType(eq(TENANT), eq(ORG), eq("2026-10"), eq("REGULAR")))
+                .thenReturn(Mono.empty());
+        when(runRepo.save(any())).thenAnswer(inv -> Mono.just(inv.getArgument(0)));
+        when(entryRepo.save(any())).thenAnswer(inv -> Mono.just(inv.getArgument(0)));
+        when(lineRepo.save(any())).thenAnswer(inv -> Mono.just(inv.getArgument(0)));
+        when(accumulatorRepo.findByEmployeeAndYear(any(), any(), anyInt())).thenReturn(Mono.empty());
+        when(accumulatorRepo.save(any())).thenAnswer(inv -> Mono.just(inv.getArgument(0)));
+        when(events.publish(any())).thenReturn(Mono.empty());
+        when(elementRepo.findActiveByCountry(TENANT, "CM")).thenReturn(Flux.fromIterable(cameroonElements()));
+        when(bracketRepo.findByCountry(TENANT, "CM")).thenReturn(Flux.just(irppTable()));
+        when(lookupRepo.findByCountry(TENANT, "CM")).thenReturn(Flux.just(ravTable(), tdlTable()));
+        when(hrmPort.findActiveEmployees(TENANT, ORG, null)).thenReturn(Flux.just(employee()));
+        when(variableRepo.findByEmployeeAndPeriod(any(), any(), any())).thenReturn(Mono.empty());
+        when(hrmPort.findActiveLoanInstallments(any(), any())).thenReturn(Flux.empty());
+
+        // An active alimony garnishment: monthly 50 000 (bounded only by net, paid first).
+        yowyob.comops.api.payroll.domain.model.GarnishmentOrder order =
+                yowyob.comops.api.payroll.domain.model.GarnishmentOrder.create(TENANT, ORG, EMP_ID(),
+                        yowyob.comops.api.payroll.domain.model.GarnishmentType.ALIMONY, "Ex-conjoint",
+                        "JUG-1", new BigDecimal("200000"), new BigDecimal("50000"));
+        when(garnishmentRepo.findActiveByEmployee(any(), any())).thenReturn(Flux.just(order));
+        when(garnishmentRepo.save(any())).thenAnswer(inv -> Mono.just(inv.getArgument(0)));
+
+        StepVerifier.create(service.runPayroll(new RunPayrollCommand("2026-10", null, null))
+                        .contextWrite(withContext()))
+                .assertNext(run -> org.assertj.core.api.Assertions.assertThat(run.totalNet())
+                        .isEqualByComparingTo("282066"))   // 332066 net − 50000 garnished
+                .verifyComplete();
+
+        // the order's balance was decremented (saved once)
+        org.mockito.Mockito.verify(garnishmentRepo).save(any());
+    }
+
+    private static UUID EMP_ID() {
+        return UUID.randomUUID();
     }
 
     @Test
