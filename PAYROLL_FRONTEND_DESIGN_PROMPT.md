@@ -1,610 +1,414 @@
-# PROMPT DESIGN — Frontend du module Payroll (RT-comops-payroll-core)
+# PROMPT DESIGN — Module Paie (workspace dédié + insertions HRM)
 
-## CONTEXTE
+## CONTEXTE GLOBAL
 
-Je construis le **frontend du nouveau module Payroll** d'une plateforme HRM SaaS multi-tenant déployée pour des entreprises camerounaises (zone CEMAC/OHADA). Ce module remplace toute la logique de paie qui était auparavant dans le module HRM générique. Il devient un domaine fonctionnel à part entière, avec son propre namespace de pages, ses propres écrans, sa propre identité visuelle.
+Je construis le frontend d'un **module Paie** qui s'intègre dans une plateforme HRM SaaS multi-tenant déjà en production. Backend : deux modules Spring Boot séparés (`hrm_core` et `payroll_core`), le module Paie consomme uniquement les données employé via un port d'intégration — il est totalement autonome.
 
-Tu dois me livrer un **design futuriste, premium, dense en information mais lisible**, dans l'esprit des produits comme **Linear, Vercel, Stripe Dashboard, Ramp, Pleo, Deel, Mercury, Notion**. Pas de skeuomorphisme, pas de gradients criards, pas de "neon glow" excessif. Un design **éditorial, technique, sobre, premium, avec une typographie soignée et des micro-interactions raffinées**. Mode sombre par défaut, mais le mode clair doit être tout aussi soigné.
+**Cible** : entreprises camerounaises, zone CEMAC/OHADA. Locale principale **français**, locale secondaire anglais. Devise XAF.
 
-La plateforme est en **français (locale principale)** avec une version anglaise. Tous les libellés, écrans, tableaux, formulaires sont rédigés en français pour le design principal.
+**Architecture frontend retenue** : **un seul Next.js**, mais le module Paie se manifeste de **deux manières distinctes** :
+
+1. **Un workspace dédié `/payroll/*`** — produit dans le produit, identité visuelle propre, sidebar dédiée — réservé au **Responsable Paie** (et lecture seule pour l'Admin RH)
+2. **Des insertions ciblées dans les sidebars HRM existantes** des autres rôles (Employé, Comptable, DRH, Contrôleur) — qui consultent ou agissent ponctuellement sur la paie depuis leur HRM normal
+
+L'objectif : que la Paie ressemble à un **vrai outil métier autonome** quand le Responsable Paie y entre, tout en restant **invisible** pour les rôles qui n'en ont pas besoin, et **intégrée naturellement** pour les rôles qui consomment ses données.
 
 ---
 
-## STACK TECHNIQUE (à respecter dans le design)
+## STACK TECHNIQUE (à respecter strictement)
 
-- **Next.js 16** App Router, React Server Components, Turbopack
+- **Next.js 16** App Router, React Server Components, Turbopack — *attention : breaking changes vs versions antérieures*
 - **TypeScript** strict
 - **Tailwind CSS v4** (variables CSS, design tokens)
-- **shadcn/ui** comme base de composants (Radix UI sous le capot)
+- **shadcn/ui** comme base (Radix UI sous le capot)
 - **Lucide React** pour les icônes (pas d'emojis dans l'UI)
 - **Recharts** pour les graphes
-- **React PDF** pour les bulletins exportables
+- **React PDF** pour les bulletins
 - **React Hook Form + Zod** pour les formulaires
-- **TanStack Query** pour la data, **Zustand** pour le state client
+- **TanStack Query** pour la data, **Zustand** pour l'état client
 - **next-intl** pour i18n
 
-Tous les écrans doivent être pensés pour être :
-- **Réactifs** : skeletons pendant le chargement, états optimistes pour les mutations
+Les écrans doivent être :
+- **Réactifs** : skeletons précis pendant le loading, états optimistes pour les mutations
 - **Accessibles** : navigation clavier complète, ARIA, contraste WCAG AA
-- **Responsifs** : desktop d'abord (vrai usage métier), tablette tolérée, mobile pour le self-service employé uniquement
-- **Multi-tenant** : header avec sélecteur d'organisation et d'agence en haut de chaque page
+- **Responsifs desktop-first** ; mobile soigné uniquement pour les pages employé (self-service) et le portail Comptable
+- **Multi-tenant** : sticky context switcher (organisation + agence) en haut de chaque page
 
 ---
 
-## IDENTITÉ VISUELLE À PRODUIRE
+## RÔLES ET PARTITIONNEMENT URL
 
-### Palette
-- **Primaire** : un bleu-violet électrique premium type Linear (#5E6AD2) ou un indigo profond (#4F46E5)
-- **Surfaces** : blancs cassés en mode clair, charbons en mode sombre (zinc-950 / zinc-900 / zinc-800)
-- **Couleurs sémantiques** : success (emerald), warning (amber), danger (rose), info (sky)
-- **Couleurs domaines** :
-  - Gains/Earnings : vert sapin
-  - Retenues/Deductions : ambré-doré
-  - Cotisations patronales : violet-indigo
-  - Information : gris graphite
-- **Texte** : hiérarchie claire entre titre, sous-titre, label, métadonnée
+La plateforme est déjà partitionnée par rôle. Chaque rôle a son namespace HRM existant. **Tu ne dois rien casser de ces sidebars HRM** — tu y **ajoutes** des entrées Paie où c'est pertinent.
 
-### Typographie
-- **Headings** : Inter Display ou Geist Sans, tracking serré pour les gros titres
-- **Body** : Inter ou Geist Sans
-- **Monospaced** : Geist Mono ou JetBrains Mono pour les montants, codes de rubrique, numéros CNPS, matricules
-- **Tabular numbers** activés pour toutes les colonnes de montants
-
-### Composants signature à designer en premier
-1. **Carte KPI** (statistique de tableau de bord avec mini-graphe et delta)
-2. **Tableau de données** (sortable, filterable, sticky header, sélection multiple, pagination, infinite scroll)
-3. **Drawer/Sheet latéral** (pour fiches détail et formulaires sans changement de page)
-4. **Modale de confirmation critique** (pour valider la paie, signer un STC)
-5. **Stepper horizontal** (pour le workflow de cycle de paie)
-6. **Badge de statut** (couleurs sémantiques avec point coloré)
-7. **Empty state** (illustration légère + CTA)
-8. **Toast de notification** (avec progression, action de défaire)
-9. **Composant "Pay element row"** (ligne de bulletin avec base, taux, montant)
-10. **Composant "Payslip preview"** (aperçu du bulletin PDF stylisé)
+| Rôle | Namespace HRM existant | Périmètre Paie |
+|---|---|---|
+| **Responsable Paie** | `/payroll-manager/*` | Entrée "Aller dans Paie →" qui ouvre le workspace dédié |
+| **Admin RH** | `/hr-admin/*` | Carte dashboard "Cycle en cours" + lecture seule workspace Paie |
+| **Comptable / DAF** | `/accountant/*` | Section "Paie" dans sa sidebar : validation, écritures, ordres |
+| **DRH** | `/drh/*` | Widget analytique "Masse salariale" |
+| **Employé** | `/employee/*` | Section "Mes bulletins" dans sa sidebar |
+| **Manager d'équipe** | `/manager/*` | Rien — les variables se valident dans Timesheets |
+| **Médecin du travail** | `/doctor/*` | Rien |
+| **Recruteur** | `/recruiter/*` | Rien |
+| **Contrôleur RH** | `/controller/*` | Carte dashboard "KPI paie" en lecture seule |
 
 ---
 
-## ARCHITECTURE PAR RÔLE (ce que tu dois designer)
-
-La plateforme est **partitionnée par rôle** : chaque rôle a son propre namespace URL `/{role-slug}/...` et sa propre sidebar.
-
-Le module Payroll concerne **5 rôles distincts**, chacun avec une expérience différente. Tu dois designer **toutes les pages de chaque rôle**.
-
-| Rôle | Slug URL | Sidebar Section | Périmètre Payroll |
-|---|---|---|---|
-| **Responsable Paie** | `/payroll-manager/...` | Toutes les sections | Cœur métier : configurer, lancer, vérifier, déclarer |
-| **Admin RH** | `/hr-admin/payroll/...` | Section Rémunération | Lance la paie, gère les rubriques de base |
-| **Comptable / DAF** | `/accountant/payroll/...` | Section Paie & Trésorerie | Valide, comptabilise, génère ordres de paiement |
-| **DRH** | `/drh/payroll/...` | Section Rémunération | Vue stratégique, KPI, analytics |
-| **Employé** | `/employee/payslips/...` | Section Personnel | Self-service : consultation bulletins, cumuls, simulations |
-
----
-
-## SCÉNARIOS UTILISATEURS DÉTAILLÉS PAR PAGE
-
-Pour chaque page ci-dessous, tu dois designer :
-- L'écran principal (état "happy path" avec données)
-- Les états dérivés (loading, empty, error)
-- Les variants pertinents (mobile pour les pages employé, hover et focus pour les éléments interactifs)
-- Les modales et drawers ouverts depuis la page
-
----
-
-### A) RESPONSABLE PAIE (`payroll-manager`)
-
-C'est le **persona principal** du module. Designe avec le plus de soin. ~18 pages.
-
-#### A1. `/payroll-manager/dashboard` — Tableau de bord paie
-
-**Objectif** : vue à 360° du dernier cycle de paie + alertes.
-
-**Contenu** :
-- **Bandeau hero** : période en cours (ex. "Octobre 2026"), statut global du cycle (un grand stepper horizontal : DRAFT → VARIABLES_LOCKED → CALCULATED → REVIEW → VALIDATED → APPROVED → PAID), date du prochain run automatique, bouton **"Lancer la paie"** primaire si pas encore lancé
-- **4 cartes KPI** :
-  1. Masse salariale brute du mois (avec variation vs M-1)
-  2. Net total à verser (avec mini-graphe sparkline sur 6 mois)
-  3. Cotisations CNPS à reverser (avec compteur de jours avant échéance du 15)
-  4. Nombre d'employés dans le run (vs effectif total)
-- **Bloc Anomalies & Alertes** (liste actionnable) :
-  - Employés sans contrat actif détectés (3)
-  - Écart de plus de 20% vs M-1 sur 5 employés (lien vers comparateur)
-  - Plafond CNPS atteint ce mois pour 12 employés
-  - Rubrique "Prime ancienneté" non calculée pour 2 employés (date d'embauche manquante)
-- **Bloc "Échéances déclaratives"** : tuiles cliquables vers DIPE, CNPS, IRPP avec compte à rebours
-- **Graphe principal** : évolution masse salariale sur 12 mois avec décomposition brut / charges patronales / net
-- **Activité récente** : journal des dernières actions (calcul, validation, modification rubrique, anomalie résolue)
-
-**Micro-interactions** :
-- Hover sur le stepper révèle la timeline détaillée (qui a fait quoi, quand)
-- Click sur une carte KPI ouvre un drawer avec décomposition par agence/département
-
----
-
-#### A2. `/payroll-manager/runs` — Liste des cycles de paie
-
-**Objectif** : historique de tous les runs avec filtres puissants.
-
-**Contenu** :
-- **Header** : titre "Cycles de paie", bouton "Nouveau cycle" primaire, bouton secondaire "Importer variables"
-- **Barre de filtres** : période (date range), statut (multi-select), agence, type (régulier / complémentaire / 13ème mois)
-- **Toggle vue** : liste / calendrier / cartes
-- **Vue liste (tableau dense)** :
-  - Colonnes : Période, Agence, Type, Statut (badge), Effectif, Brut total, Net total, Cotisations, Date validation, Validé par, Actions
-  - Ligne cliquable pour ouvrir le détail
-  - Hover révèle des actions rapides : "Voir", "Dupliquer", "Exporter PDF récapitulatif"
-- **Vue calendrier** : grille année, chaque mois est une cellule colorée selon le statut du run
-
----
-
-#### A3. `/payroll-manager/runs/new` — Lancement d'un nouveau cycle
-
-**Objectif** : assistant en étapes pour lancer un cycle de paie.
-
-**Contenu** : un grand **wizard à 5 étapes** avec stepper en haut :
-
-1. **Configuration**
-   - Période (sélecteur mois-année)
-   - Agence (multi-select, "Toutes" par défaut)
-   - Type de run (Régulier / Complémentaire / 13ème mois / Prime exceptionnelle)
-   - Date de paiement prévue
-   - Mode de calcul (Calcul réel / Simulation seulement)
-
-2. **Variables de paie**
-   - Tableau des employés avec colonnes éditables : Heures sup, Primes ponctuelles, Absences (j), Acomptes versés
-   - Bouton "Importer depuis Excel" + drag & drop CSV
-   - Bouton "Importer depuis Timesheets" (pré-rempli automatique)
-   - Validation en temps réel avec icônes d'erreur en bout de ligne
-
-3. **Aperçu / Simulation**
-   - Récapitulatif chiffré : nombre d'employés, brut prévisionnel, net prévisionnel, total cotisations
-   - Bouton "Calculer en aperçu" qui lance une simulation
-   - Tableau des 10 plus gros écarts vs M-1 avec drill-down
-
-4. **Confirmation**
-   - Récapitulatif final
-   - Checklist visuelle : "J'ai vérifié les variables", "J'ai contrôlé les anomalies", "Je confirme le lancement"
-   - Bouton "Lancer le calcul" en danger (action irréversible)
-
-5. **Calcul en cours**
-   - Animation de progression employé par employé (compteur "Calcul en cours : 156 / 248 employés")
-   - Log streaming des étapes : "Chargement contrats", "Application rubriques", "Vérification cohérence"
-   - À la fin, redirection vers la page détail du run
-
----
-
-#### A4. `/payroll-manager/runs/[id]` — Détail d'un cycle de paie
-
-**Objectif** : vue complète d'un run avec tous les outils pour vérifier et finaliser.
-
-**Layout 3 colonnes** :
-
-**Colonne gauche (sticky)** : carte d'identité du run
-- Période, statut (avec stepper vertical)
-- Totaux principaux (Brut, Net, Cotisations, Charges patronales)
-- Effectif
-- Validé par / Approuvé par / Payé par
-- Boutons d'action selon le statut :
-  - DRAFT : "Verrouiller variables", "Lancer calcul"
-  - CALCULATED : "Mettre en revue", "Recalculer"
-  - REVIEW : "Valider"
-  - VALIDATED : "Approuver"
-  - APPROVED : "Générer ordres de paiement"
-  - PAID : "Clôturer le cycle"
-
-**Colonne centrale** : 4 onglets
-1. **Vue d'ensemble** : graphes, KPI, comparaison M-1, top 10 salaires, répartition par catégorie
-2. **Bulletins** : tableau filtrable de toutes les `PayrollEntry` (Matricule, Nom, Brut, Net, Statut paiement)
-3. **Anomalies** : liste des contrôles, avec résolution inline
-4. **Audit** : timeline complète qui a fait quoi
-
-**Colonne droite (drawer)** : ouvre une fiche bulletin quand on clique sur une entrée
-
----
-
-#### A5. `/payroll-manager/runs/[id]/entries/[entryId]` — Détail d'un bulletin
-
-**Objectif** : voir et corriger un bulletin individuel.
-
-**Contenu** :
-- **Header sticky** : Nom, matricule, photo, catégorie, agence, période, statut
-- **Section identité** : 2 colonnes (employeur / employé)
-- **Section "Bulletin de paie"** :
-  - Liste de toutes les `PayslipLine` groupées par catégorie : Gains, Retenues salariales, Charges patronales (info)
-  - Chaque ligne : libellé, base, taux, montant
-  - Ligne récapitulative : Brut, Net imposable, IRPP, Net à payer
-- **Section "Cumuls annuels"** : brut cumulé, net cumulé, IRPP cumulé, CNPS cumulé
-- **Section "Paiement"** : mode, compte, statut, référence
-- **Section "Congés"** : solde au début/fin de mois
-- **Boutons d'action** : Télécharger PDF, Envoyer par email, Corriger (ouvre formulaire d'ajustement), Recalculer ce bulletin
-- **Aperçu PDF du bulletin** côté droit, scrollable, fidèle au PDF final
-
----
-
-#### A6. `/payroll-manager/pay-elements` — Catalogue des rubriques de paie
-
-**Objectif** : gérer toutes les rubriques configurables (CNPS_PV_EE, IRPP, PRIME_ANCIENNETE, etc.).
-
-**Contenu** :
-- **Header** : "Rubriques de paie", bouton "Nouvelle rubrique"
-- **Filtres** : Catégorie (Gain/Retenue/Charge patronale/Info), Méthode de calcul, Pays, Actif/Inactif
-- **Tableau** :
-  - Code (monospace), Libellé, Catégorie (badge coloré), Méthode (RATE/BRACKET/FLAT/LOOKUP), Taux ou ref barème, Plafond, Base de calcul, Imposable, Cotisable, Date d'effet, Statut
-- Click sur une ligne → drawer latéral d'édition
-
----
-
-#### A7. `/payroll-manager/pay-elements/[code]` — Édition d'une rubrique
-
-**Drawer ou page** : formulaire d'édition d'une rubrique.
-
-**Contenu** :
-- Onglet **Configuration** : champs Code, Libellé FR/EN, Catégorie, Pays, Date d'effet début/fin
-- Onglet **Calcul** : Méthode (RATE/BRACKET/FLAT/LOOKUP), Base de référence (BRUT/SALAIRE_BASE/PLAFOND_CNPS/IRPP), Taux, Plafond, Plancher
-- Onglet **Soumissions** : checkboxes "Soumis à l'IRPP", "Cotisable CNPS", "Inclus dans le net imposable"
-- Onglet **Versions** : timeline de toutes les versions historiques de cette rubrique
-- Onglet **Test** : simulateur — on entre un brut, on voit le calcul résultant
-- Footer : "Désactiver à date", "Créer une nouvelle version", "Sauvegarder"
-
----
-
-#### A8. `/payroll-manager/tax-brackets` — Barèmes fiscaux
-
-**Objectif** : gérer les tables de tranches d'imposition (IRPP, etc.).
-
-**Contenu** :
-- Liste des tables : IRPP_CM_2026, IRPP_CM_2025, etc.
-- Édition tableau dense des tranches : Min, Max, Taux
-- Visualisation graphique de la courbe progressive
-- Bouton "Créer un nouveau barème (clone + date d'effet)"
-
----
-
-#### A9. `/payroll-manager/lookup-tables` — Tables de référence (RAV, TDL)
-
-Édition des barèmes forfaitaires par tranche : Min brut, Max brut, Montant forfaitaire.
-
----
-
-#### A10. `/payroll-manager/variables` — Saisie des variables mensuelles
-
-**Objectif** : interface principale pour saisir les variables de paie du mois.
-
-**Contenu** :
-- **Header** : sélecteur de période, bouton "Importer Excel/CSV", bouton "Importer Timesheets"
-- **Tableau éditable inline** :
-  - Filtres : Agence, Département, Statut (saisi/non saisi)
-  - Colonnes : Matricule, Nom, Catégorie, Heures sup (j et nuit), Primes, Absences (j sans solde), Acomptes
-  - Édition en place avec sauvegarde auto sur blur
-  - Indicateur de progression "187 / 248 employés saisis"
-- **Bouton "Verrouiller la saisie"** quand prêt
-
----
-
-#### A11. `/payroll-manager/declarations` — Déclarations sociales et fiscales
-
-**Objectif** : générer et suivre les déclarations CNPS, DIPE, IRPP.
-
-**Contenu** :
-- **Onglets par type** : CNPS / DIPE / IRPP / Bordereau
-- **Pour chaque type** :
-  - Liste des déclarations passées (Période, Statut, Date génération, Date envoi, Fichier)
-  - Bouton "Générer pour le mois en cours"
-  - Workflow visuel : DRAFT → GENERATED → SUBMITTED → ACKNOWLEDGED
-  - Aperçu du fichier généré
-  - Download du fichier au format officiel
-
----
-
-#### A12. `/payroll-manager/declarations/[id]` — Détail d'une déclaration
-
-- Récapitulatif chiffré
-- Aperçu du fichier
-- Workflow d'envoi (manuel ou via API si disponible)
-- Historique d'événements
-
----
-
-#### A13. `/payroll-manager/payments` — Ordres de paiement
-
-**Objectif** : gérer les lots de paiement après validation de la paie.
-
-**Contenu** :
-- **Liste des batches** : Période, Mode (Virement bancaire / Mobile Money), Nombre d'instructions, Montant total, Statut
-- **Détail d'un batch** :
-  - Liste des instructions (employé, montant, compte, statut)
-  - Bouton "Télécharger fichier bancaire (XML CEMAC)"
-  - Bouton "Pousser vers MTN MoMo / Orange Money"
-  - Statuts individuels mis à jour via callbacks
-
----
-
-#### A14. `/payroll-manager/retroactive` — Régularisations rétroactives
-
-**Objectif** : gérer les rappels de salaire et corrections rétroactives.
-
-**Contenu** :
-- **Tableau** : Employé, Période d'origine, Période de paiement, Motif, Montant, Statut
-- **Bouton "Nouvelle régularisation"** : sélection employé, période à recalculer, motif (changement salaire / correction erreur / accord collectif)
-- Visualisation comparative "Avant / Après" de la période recalculée
-
----
-
-#### A15. `/payroll-manager/final-settlements` — Soldes de tout compte
-
-**Objectif** : calculer le STC d'un employé qui quitte.
-
-**Contenu** :
-- Liste des employés en départ (date sortie < 30 jours ou marqué pour STC)
-- **Détail STC** : assistant qui calcule
-  - Salaire prorata mois de sortie
-  - Indemnité compensatrice de congés non pris
-  - Indemnité de préavis
-  - Indemnité de licenciement (selon ancienneté)
-  - Gratifications prorata
-  - Soldes de prêts à apurer
-  - Net STC à verser
+## PARTIE 1 — LE WORKSPACE PAIE DÉDIÉ (`/payroll/*`) — 80% DU BRIEF
+
+C'est ici que tu peux exprimer une **identité visuelle dédiée**. Le Responsable Paie y passe ses journées. Le workspace ressemble à un produit autonome (style Linear, Stripe Dashboard, Ramp, Mercury) tout en restant cohérent avec le design system global de la plateforme.
+
+### 1.1 Identité visuelle du workspace Paie
+
+- **Couleur signature** : un indigo profond ou bleu-violet électrique (style Linear `#5E6AD2`) qui se distingue du primaire HRM mais reste de la même famille
+- **Sidebar** : sombre par défaut même en mode clair (charbon `zinc-900`), texte clair, accent indigo sur l'item actif
+- **Header workspace** : bandeau sticky avec à gauche un bouton **"← Retour HRM"** discret mais visible, au centre le sélecteur de période + organisation/agence, à droite le statut du cycle en cours + notifications
+- **Typographie** : Inter Display pour les titres, Geist Mono pour tous les montants, codes de rubrique, matricules, numéros CNPS
+- **Densité** : option "compact" par défaut dans les tableaux (le Responsable Paie veut voir beaucoup d'infos d'un coup)
+- **Tabular numbers** activés systématiquement pour les colonnes de montants
+
+### 1.2 Transition HRM → Workspace Paie
+
+Designe explicitement :
+- **Côté HRM** : l'item de sidebar "Aller dans Paie →" du Responsable Paie (avec petite flèche, séparateur visuel)
+- **Animation de transition** : fondu rapide vers le workspace, le header change d'identité visuelle, la sidebar HRM est remplacée par la sidebar Paie
+- **Côté Paie** : le bouton "← Retour HRM" en haut à gauche qui ramène vers le dashboard HRM du Responsable Paie
+- **Bandeau "Vous êtes dans le module Paie"** discret la première fois qu'on entre, dismissible
+
+### 1.3 Sidebar du workspace Paie
+
+Sections :
+- **Pilotage** : Dashboard
+- **Cycles** : Cycles de paie, Saisie variables, Régularisations
+- **Configuration** : Rubriques, Barèmes fiscaux, Tables de référence
+- **Sortie** : Bulletins, Ordres de paiement, Déclarations
+- **Spécial** : Soldes de tout compte, Saisies sur salaire, Simulateur
+- **Analyse** : Analytique, Audit
+
+### 1.4 Les ~18 pages du workspace Paie
+
+Pour chaque page, designe : état happy path, loading (skeleton précis), empty state, erreur, et les drawers/modales ouverts depuis la page.
+
+#### P1. `/payroll/dashboard` — Tableau de bord paie
+- Hero : période en cours (ex. "Octobre 2026"), stepper horizontal des 9 statuts (`DRAFT → VARIABLES_LOCKED → CALCULATED → REVIEW → VALIDATED → APPROVED → PAYMENT_INITIATED → PAID → CLOSED`), bouton primaire **"Lancer la paie"** si pas encore lancé
+- 4 cartes KPI : Masse salariale brute (delta M-1), Net total à verser (sparkline 6 mois), Cotisations CNPS à reverser (compte à rebours échéance 15), Effectif payé / effectif total
+- Bloc "Anomalies & Alertes" actionnable (employés sans contrat, écarts > 20%, rubriques manquantes)
+- Bloc "Échéances déclaratives" : tuiles DIPE/CNPS/IRPP avec compte à rebours
+- Graphe principal : masse salariale 12 mois décomposée brut/charges/net
+- Activité récente : journal des actions
+
+#### P2. `/payroll/runs` — Liste des cycles
+- Toggle vue liste / calendrier annuel
+- Filtres : période, statut multi-select, agence, type (régulier/complémentaire/13ème mois/prime exceptionnelle)
+- Tableau dense : Période, Agence, Type, Statut (badge), Effectif, Brut, Net, Cotisations, Validation, Actions
+- Hover ligne : actions rapides (Voir, Dupliquer, Exporter)
+
+#### P3. `/payroll/runs/new` — Wizard de lancement (5 étapes)
+Stepper en haut, contenu dynamique :
+1. **Configuration** : période, agence, type, date paiement, mode (calcul/simulation)
+2. **Variables** : tableau éditable des employés (heures sup, primes, absences, acomptes) + import Excel/CSV + import Timesheets
+3. **Aperçu** : récapitulatif + top 10 écarts vs M-1 + drill-down
+4. **Confirmation** : checklist visuelle + bouton danger "Lancer le calcul"
+5. **Calcul en cours** : progression employé par employé, log streaming des étapes
+
+#### P4. `/payroll/runs/[id]` — Détail cycle
+Layout 3 colonnes :
+- **Gauche sticky** : carte d'identité (période, statut avec stepper vertical, totaux, validateurs), boutons d'action contextuels selon le statut
+- **Centre** : 4 onglets (Vue d'ensemble avec graphes, Bulletins liste filtrable, Anomalies, Audit timeline)
+- **Droite** : drawer qui s'ouvre sur la fiche bulletin sélectionnée
+
+#### P5. `/payroll/runs/[id]/entries/[entryId]` — Détail bulletin
+- Header sticky : identité employé (photo, matricule, catégorie, agence)
+- Section "Bulletin" : `PayslipLine`s groupées par catégorie (Gains, Retenues, Charges patronales info)
+- Section "Cumuls annuels" : brut/net/IRPP/CNPS cumulés depuis janvier
+- Section "Paiement" : mode, compte, statut, référence
+- Section "Congés" : solde début/fin de mois
+- Aperçu PDF fidèle côté droit, scrollable
+- Boutons : PDF, Email, Corriger (ouvre formulaire d'ajustement), Recalculer
+
+#### P6. `/payroll/variables` — Saisie des variables mensuelles
+- Sélecteur période + boutons "Importer Excel/CSV" et "Importer Timesheets"
+- Tableau éditable inline : Matricule, Nom, Catégorie, Heures sup (jour/nuit), Primes, Absences sans solde, Acomptes
+- Sauvegarde auto sur blur
+- Indicateur de progression "187 / 248 saisis"
+- Bouton "Verrouiller la saisie" en bas
+
+#### P7. `/payroll/pay-elements` — Catalogue des rubriques
+- Filtres : Catégorie (Gain/Retenue/Charge patronale/Info), Méthode (RATE/BRACKET/FLAT/LOOKUP), Pays, Actif/Inactif
+- Tableau : Code (mono), Libellé, Catégorie (badge), Méthode, Taux/ref barème, Plafond, Base, Imposable, Cotisable, Date d'effet, Statut
+- Click → drawer d'édition
+
+#### P8. `/payroll/pay-elements/[code]` — Édition rubrique (drawer)
+Onglets :
+- **Configuration** : Code, Libellé FR/EN, Catégorie, Pays, Date d'effet
+- **Calcul** : Méthode, Base de référence, Taux, Plafond, Plancher
+- **Soumissions** : Imposable, Cotisable, Inclus dans le net imposable
+- **Versions** : timeline historique
+- **Test** : simulateur (entrer un brut, voir le calcul résultant)
+
+#### P9. `/payroll/tax-brackets` — Barèmes fiscaux
+- Liste des tables (IRPP_CM_2026, IRPP_CM_2025, …)
+- Édition tranches Min/Max/Taux
+- Courbe progressive visualisée
+- Bouton "Cloner + nouvelle date d'effet"
+
+#### P10. `/payroll/lookup-tables` — Tables RAV/TDL
+Édition barèmes forfaitaires Min/Max/Montant.
+
+#### P11. `/payroll/declarations` — Déclarations sociales et fiscales
+- Onglets : CNPS / DIPE / IRPP / Bordereau
+- Liste des déclarations (Période, Statut, Génération, Envoi, Fichier)
+- Workflow visuel `DRAFT → GENERATED → SUBMITTED → ACKNOWLEDGED`
+- Bouton "Générer pour la période en cours"
+- Aperçu du fichier généré, download au format officiel
+
+#### P12. `/payroll/payments` — Ordres de paiement
+- Liste des batches (Période, Mode, Nombre, Montant, Statut)
+- Détail batch : instructions individuelles, bouton "Télécharger fichier bancaire (XML CEMAC)", bouton "Pousser vers MTN MoMo / Orange Money", statuts mis à jour via callbacks
+
+#### P13. `/payroll/retroactive` — Régularisations rétroactives
+- Tableau : Employé, Période d'origine, Période de paiement, Motif, Montant, Statut
+- Wizard "Nouvelle régularisation" : sélection employé, période à recalculer, motif
+- Vue comparative Avant/Après par mois
+
+#### P14. `/payroll/final-settlements` — Soldes de tout compte
+- Liste employés en départ
+- Assistant STC : salaire prorata, indemnité congés non pris, préavis, indemnité licenciement (selon ancienneté), gratifications prorata, soldes prêts à apurer, net STC
 - Bouton "Générer document légal" (PDF signé)
 
----
+#### P15. `/payroll/garnishments` — Saisies sur salaire
+- Liste : Employé, Bénéficiaire, Type (pension alimentaire / saisie Trésor / créancier), Total, Restant dû, Mensualité, Priorité
+- Création nouvelle saisie + calcul quotité saisissable automatique
 
-#### A16. `/payroll-manager/simulator` — Simulateur de paie
+#### P16. `/payroll/simulator` — Simulateur
+4 modes :
+- **Brut → Net** : entrée brut → détail cotisations/impôts → net
+- **Net → Brut** : calcul inverse depuis un net cible
+- **What-if global** : augmentation X% sur catégorie Y → impact masse salariale
+- **Embauche** : coût employeur total d'un nouveau recrutement
 
-**Objectif** : tester un scénario sans impact sur les données réelles.
+#### P17. `/payroll/analytics` — Analytique paie
+- Graphes Recharts interactifs : masse salariale par département/agence/catégorie sur 12 mois, coût employeur vs net, répartition cotisations, effectif vs masse salariale
+- Filtres : période, agence, département, catégorie
+- Export CSV/PDF
 
-**Contenu** :
-- **Mode "Brut → Net"** : on entre un brut, on voit le détail des cotisations et impôts, le net résultant
-- **Mode "Net → Brut"** : on entre un net cible, on remonte au brut nécessaire (calcul inverse)
-- **Mode "What-if global"** : on simule une augmentation de X% sur Y catégorie, on voit l'impact sur la masse salariale
-- **Mode "Embauche"** : on simule le coût employeur d'un nouveau recrutement
+#### P18. `/payroll/audit` — Journal d'audit
+- Timeline filtrable de toutes les actions critiques (validation, modification rubrique, recalcul, génération déclaration)
+- Qui / Quand / Quoi / Avant / Après
 
-Tous les modes affichent un détail de calcul ligne par ligne, comme un bulletin.
+### 1.5 Composants signature du workspace Paie
 
----
-
-#### A17. `/payroll-manager/garnishments` — Saisies sur salaire
-
-**Objectif** : gérer les saisies sur salaire (pension alimentaire, saisie-arrêt).
-
-**Contenu** :
-- Liste : Employé, Bénéficiaire, Type (Pension alimentaire / Saisie Trésor / Créancier), Montant total, Restant dû, Mensualité, Priorité
-- Création d'une nouvelle saisie avec calcul automatique de la quotité saisissable
-- Détail avec historique des prélèvements
-
----
-
-#### A18. `/payroll-manager/analytics` — Analytique paie
-
-**Objectif** : analyser la masse salariale en profondeur.
-
-**Contenu** :
-- Graphes interactifs (Recharts) :
-  - Masse salariale par département / agence / catégorie sur 12 mois
-  - Coût employeur total vs net versé
-  - Répartition des cotisations
-  - Évolution de l'effectif vs masse salariale
-- Filtres puissants : période, agence, département, catégorie
-- Export CSV / PDF
+Designe en détail :
+1. **PayrollRunStatusStepper** (horizontal + vertical, interactif)
+2. **PayslipPreview** (aperçu fidèle du PDF, utilisé en P5, P14, P16)
+3. **PayElementRow** (libellé + base + taux + montant + tooltip formule)
+4. **AmountInput** (auto-format espaces milliers, devise, indicateur delta)
+5. **AnomalyCard** (sévérité info/warning/error, employés concernés, résolution inline)
+6. **PeriodPicker** (sélecteur mensuel avec nav rapide année)
+7. **CalculationTraceViewer** (déroulé étape par étape : brut → cotisations → impôts → net avec formules)
+8. **PayrollKpiCard** (statistique avec mini-graphe et delta M-1)
+9. **DeclarationStatusBadge** (badge avec workflow visuel intégré)
+10. **PaymentChannelChip** (Virement bancaire / MTN MoMo / Orange Money / Espèces avec icône)
 
 ---
 
-### B) ADMIN RH (`hr-admin/payroll`)
+## PARTIE 2 — INSERTIONS PAIE DANS LES SIDEBARS HRM EXISTANTES (15% DU BRIEF)
 
-Vue allégée, focus opérationnel. ~6 pages.
+**Règle absolue** : tu ne touches pas aux sidebars HRM existantes. Tu ajoutes uniquement les items listés ci-dessous, exactement à la place indiquée, **dans le design system HRM existant** (mêmes tokens, mêmes composants, mêmes patterns que le reste de HRM).
 
-- `/hr-admin/payroll` — Liste des cycles (mêmes filtres que A2, mais sans config rubriques)
-- `/hr-admin/payroll/new` — Lancement du cycle (wizard simplifié)
-- `/hr-admin/payroll/[id]` — Détail cycle
-- `/hr-admin/payroll/[id]/entries/[entryId]` — Détail bulletin
-- `/hr-admin/payroll/variables` — Saisie variables (lecture seule sur la config, édition sur les variables)
-- `/hr-admin/payroll/payslips` — Recherche d'un bulletin par employé/période
+### 2.1 Sidebar EMPLOYÉ (`/employee/*`)
 
----
+Ajout dans la section **Personnel** :
+- "Mes bulletins de paie" → `/employee/payslips`
 
-### C) COMPTABLE (`accountant/payroll`)
+#### Écrans à designer (4) — mobile-first, design system HRM
+- **`/employee/payslips`** : liste vue timeline ou grille de cartes, filtre année, carte "Récap annuel" (brut/net cumulé) en haut
+- **`/employee/payslips/[entryId]`** : aperçu PDF stylisé du bulletin + section "Comprendre mon bulletin" avec tooltips explicatifs ligne par ligne + bouton Download + lien vers simulateur
+- **`/employee/payslips/annual`** : récap annuel, graphe d'évolution, tableau récapitulatif pour aide déclaration fiscale, bouton "Demander attestation fiscale"
+- **`/employee/payslips/documents`** : attestations de travail, attestations fiscales, STC, demandes en cours
 
-Focus validation et comptabilisation. ~7 pages.
+### 2.2 Sidebar COMPTABLE (`/accountant/*`)
 
-- `/accountant/payroll/validation` — File d'attente des cycles en attente de validation
-- `/accountant/payroll/[id]/validate` — Écran de validation avec rapprochement comptable
-- `/accountant/payroll/journal` — Journal des écritures comptables générées
-- `/accountant/payroll/journal/[entryId]` — Détail écriture OHADA
-- `/accountant/payroll/payments` — Suivi des ordres de paiement (mêmes données que A13 mais focus paiement)
-- `/accountant/payroll/payments/reconciliation` — Rapprochement bancaire
-- `/accountant/payroll/reports` — États comptables (état des salaires, état des cotisations)
+Ajout d'une section **"Paie"** dans la sidebar (sous Notes de frais existant) :
+- "Validation paie" → `/accountant/payroll-validation`
+- "Écritures paie" → `/accountant/payroll-journal`
+- "Ordres de paiement" → `/accountant/payroll-payments`
 
----
+#### Écrans à designer (5) — design system HRM
+- **`/accountant/payroll-validation`** : file d'attente des cycles en attente, tableau avec montants, bouton "Valider" qui ouvre la fiche de validation
+- **`/accountant/payroll-validation/[runId]`** : écran de validation détaillé avec rapprochement comptable, comparaison vs prévisionnel, boutons "Valider" / "Renvoyer pour correction"
+- **`/accountant/payroll-journal`** : tableau des écritures comptables OHADA générées par cycle, regroupées par compte
+- **`/accountant/payroll-journal/[entryId]`** : détail écriture avec débit/crédit, compte SYSCOHADA, libellé
+- **`/accountant/payroll-payments`** : suivi des ordres de paiement, rapprochement bancaire, statuts individuels
 
-### D) DRH (`drh/payroll`)
+### 2.3 Sidebar DRH (`/drh/*`)
 
-Vue stratégique, KPI, gouvernance. ~5 pages.
+Ajout dans la section **Pilotage** existante :
+- "Masse salariale" → `/drh/payroll-analytics` (lecture seule)
 
-- `/drh/payroll` — Dashboard analytique haut niveau (masse salariale annuelle, évolution effectif, ratios)
-- `/drh/payroll/budget` — Suivi du budget paie vs réel
-- `/drh/payroll/analytics` — Drilldown par BU/département/catégorie
-- `/drh/payroll/benchmarks` — Comparaison interne (médiane, p75, p25 par catégorie)
-- `/drh/payroll/approvals` — Approbations finales avant paiement
+#### Écran à designer (1) — design system HRM
+- **`/drh/payroll-analytics`** : dashboard analytique haut niveau, masse salariale annuelle, évolution effectif, ratios, drilldown par BU/département/catégorie, comparaisons N-1
 
----
+### 2.4 Sidebar ADMIN RH (`/hr-admin/*`)
 
-### E) EMPLOYÉ (`employee/payslips`)
+Pas d'ajout de section, mais ajout d'un item en bas de la section **Personnel** existante :
+- "Bulletins de mes employés" → `/hr-admin/payroll-readonly` (lecture seule, recherche par employé/période, redirige vers le workspace Paie en mode lecture)
 
-Self-service mobile-first. ~5 pages.
+### 2.5 Sidebar CONTRÔLEUR RH (`/controller/*`)
 
-#### E1. `/employee/payslips` — Mes bulletins
+Ajout dans la section **Pilotage** existante :
+- "Indicateurs paie" → `/controller/payroll-kpi` (lecture seule)
 
-- Vue **liste / timeline** alternative
-- Chaque bulletin : période, brut, net, statut paiement, bouton télécharger
-- Filtre par année
-- Card "Récap annuel" en haut (brut cumulé, net cumulé)
+### 2.6 Sidebars sans ajout
 
-#### E2. `/employee/payslips/[entryId]` — Détail d'un bulletin
-
-- Aperçu PDF stylisé du bulletin
-- Bouton Download
-- Section "Comprendre mon bulletin" avec tooltips explicatifs sur chaque ligne
-- Lien vers le simulateur personnel
-
-#### E3. `/employee/payslips/annual` — Mon cumul annuel
-
-- Vue annuelle de tous les bulletins
-- Graphe d'évolution du salaire
-- Tableau récapitulatif pour aide à la déclaration fiscale
-- Bouton "Demander mon attestation fiscale annuelle"
-
-#### E4. `/employee/payslips/simulator` — Mon simulateur de salaire
-
-- Simulateur personnel : "Si j'ai X heures sup ce mois, mon net sera Y"
-- Mode "augmentation" : "Si mon brut passait à X, mon net serait Y"
-- Mode "départ" : estimation du STC
-
-#### E5. `/employee/payslips/documents` — Mes documents légaux
-
-- Attestations de travail
-- Attestations fiscales annuelles
-- STC (si départ)
-- Bouton "Demander un nouveau document"
+Aucun changement pour : **Manager**, **Médecin du travail**, **Recruteur**, **Admin système**.
 
 ---
 
-## ÉCRANS TRANSVERSES À DESIGNER (multi-rôles)
+## PARTIE 3 — DASHBOARDS HRM PAR RÔLE : WIDGETS PAIE (5% DU BRIEF)
 
-### F1. Composant **PayrollRunStatusStepper**
-Stepper horizontal et vertical des 9 statuts du cycle de paie avec timeline interactive.
+Sur le dashboard HRM de chaque rôle, designe les widgets Paie qui s'insèrent **parmi les autres widgets existants du dashboard**. Pas de page séparée — un widget ou une carte par rôle.
 
-### F2. Composant **PayslipPreview**
-Aperçu fidèle du bulletin de paie PDF, utilisé dans plusieurs contextes (détail bulletin, simulateur, STC).
-
-### F3. Composant **PayElementRow**
-Ligne d'une rubrique sur un bulletin : libellé, base, taux, montant, avec hover qui montre le détail de la formule.
-
-### F4. Composant **AmountInput**
-Input numérique pour montants avec :
-- Auto-formatage (espace milliers, devise XAF/EUR)
-- Conversion brut ↔ net en temps réel optionnelle
-- Indicateur de variation vs valeur de référence
-
-### F5. Composant **AnomalyCard**
-Carte d'anomalie détectée avec sévérité (info/warning/error), description, employés concernés, bouton de résolution.
-
-### F6. Composant **PeriodPicker**
-Sélecteur de période mensuelle avec navigation rapide année.
-
-### F7. Composant **OrganizationAgencyContextSwitcher**
-Sticky header avec sélecteur organisation + agence, breadcrumb du contexte courant.
-
-### F8. Composant **CalculationTraceViewer**
-Visualisation du "trace de calcul" pour un bulletin : étapes successives (brut → cotisations → impôts → net) avec déroulé des formules.
+| Rôle | Widget Paie à designer sur son dashboard HRM |
+|---|---|
+| **Employé** | Carte "Dernier bulletin" : période + net du mois + statut paiement + bouton "Voir le bulletin" |
+| **Admin RH** | Carte "Cycle de paie en cours" : période, statut, effectif, brut prévisionnel, lien vers workspace Paie |
+| **Comptable** | Carte "À valider" (nombre de cycles + montant total) + carte "Échéances CNPS/IRPP" (compte à rebours) |
+| **DRH** | Carte "Masse salariale du mois" avec sparkline 6 mois + delta vs N-1 |
+| **Contrôleur** | Carte "KPI paie" : effectif payé, brut moyen, top 3 alertes |
+| **Responsable Paie** | Bandeau hero "Cycle en cours" avec statut + bouton primaire "Entrer dans le workspace Paie →" |
+| **Manager / Médecin / Recruteur** | Rien |
 
 ---
 
-## ÉTATS À DESIGNER POUR CHAQUE PAGE
+## PARTIE 4 — DESIGN SYSTEM PARTAGÉ HRM + PAIE
 
-Pour les pages critiques (A1, A4, A5, A6, A10, E1, E2), designe explicitement :
-1. **État initial / loading** (skeletons précis)
-2. **État avec données** (happy path)
-3. **État empty** (avec illustration et CTA)
-4. **État erreur** (avec retry)
-5. **État permission insuffisante** (avec explication et CTA "Contacter votre admin")
-6. **État action en cours** (boutons disabled, spinners, banner de progression)
-7. **État succès post-action** (toast + mise à jour optimiste)
+**Un seul design system** pour toute la plateforme. Le workspace Paie utilise les mêmes tokens, composants, patterns que HRM — juste avec :
+- Une **couleur d'accent secondaire** (indigo Paie) qui marque visuellement qu'on est dans la Paie
+- Une **densité de tableau** par défaut "compact" dans le workspace Paie
+- Une **sidebar sombre** par défaut dans le workspace Paie (même en mode clair)
 
----
+À produire **en premier** avant les écrans :
 
-## SCÉNARIOS D'USAGE BOUT-EN-BOUT À METTRE EN SCÈNE
+### 4.1 Tokens
+- **Couleurs** : modes clair + sombre, primaire HRM (à conserver), secondaire Paie (indigo), sémantiques (success/warning/danger/info), couleurs domaines paie (gains=vert, retenues=ambre, charges patronales=violet, info=graphite)
+- **Typographie** : échelle display → caption, monospace pour montants/codes/matricules, tabular numbers activés
+- **Espacement** : 4/8/12/16/24/32/48/64/96
+- **Border-radius** : sm 6 / md 10 / lg 14 / xl 20 / pill
+- **Élévations** : subtle / small / medium / large
 
-Conçois des **storyboards visuels** pour ces parcours :
+### 4.2 Composants atomiques
+Button, Input, AmountInput, Badge, Avatar, Tooltip, Popover, Switch, Checkbox, Radio, Select, DatePicker, PeriodPicker
 
-### Scénario 1 : "Le 28 du mois — Run mensuel"
-Le Responsable Paie ouvre la plateforme. Le dashboard affiche que le run d'octobre n'est pas encore lancé. Il clique sur "Saisir les variables", contrôle les heures sup importées des timesheets, lance le calcul, vérifie les anomalies (un employé sans contrat actif → ouvre l'écran de résolution), valide une nouvelle fois, soumet à la comptable. La comptable reçoit une notification, valide, génère les ordres de paiement. Le run passe à PAID le 30.
-
-### Scénario 2 : "Régularisation rétroactive"
-Un employé a obtenu une promotion effective au 1er septembre, mais elle n'est saisie qu'en novembre. Le Responsable Paie crée une régularisation rétroactive : sélectionne l'employé, indique la période à recalculer, le nouveau salaire. Le système calcule le delta, affiche un comparatif "Avant/Après" pour chaque mois, et le delta sera intégré au prochain run de novembre.
-
-### Scénario 3 : "Solde de tout compte"
-Un employé démissionne avec un préavis de 1 mois. L'Admin RH marque l'employé "En départ". Le Responsable Paie va sur la liste STC, ouvre la fiche de cet employé. L'assistant calcule : salaire prorata du mois, congés non pris, préavis, indemnité de licenciement, soldes de prêts. Le PDF du STC est généré et envoyé pour signature.
-
-### Scénario 4 : "Employé qui consulte son bulletin"
-Un employé reçoit une notification "Votre bulletin d'octobre est disponible". Il ouvre l'app sur son mobile, clique sur le bulletin, voit l'aperçu, télécharge le PDF, va sur "Comprendre mon bulletin" et lit les explications de chaque ligne. Puis il va sur "Simulateur" et joue avec son brut pour voir l'impact d'une augmentation.
-
-### Scénario 5 : "Configurer une nouvelle rubrique"
-Le Responsable Paie veut ajouter une "Prime de risque" pour une catégorie spécifique. Il va sur le catalogue des rubriques, clique "Nouvelle rubrique", remplit le formulaire (code PRIME_RISQUE, méthode RATE, taux 5% du salaire de base, applicable à la catégorie X), choisit la date d'effet au 1er du mois suivant, et active. Au prochain run, la rubrique est automatiquement appliquée.
-
-### Scénario 6 : "Génération de la DIPE annuelle"
-En janvier, le Responsable Paie doit générer la DIPE annuelle de l'année passée. Il va sur `/declarations`, sélectionne "DIPE annuelle 2026", clique "Générer". Le système agrège tous les bulletins, génère le fichier au format CNPS, propose une vérification (totaux par employé), et permet le téléchargement et la soumission.
+### 4.3 Composants moléculaires
+Card, KpiCard, Drawer, Modal, Table (sortable + filterable + sticky header + sélection multiple + pagination + infinite scroll), Tabs, Stepper (horizontal + vertical), EmptyState, Toast, CommandPalette (cmd+K)
 
 ---
 
-## CONTRAINTES BUSINESS À RESPECTER
+## PARTIE 5 — ÉTATS À DESIGNER POUR CHAQUE PAGE CRITIQUE
 
-1. **Multi-tenant strict** : chaque écran porte explicitement le contexte tenant + organisation + agence en cours
-2. **Audit-friendly** : chaque action critique (validation, modification rubrique) doit demander confirmation et tracer "qui, quand, pourquoi"
-3. **Permissions UI** : les boutons d'action critiques ne sont visibles que pour les rôles autorisés
+Pour les pages **P1, P3, P4, P5, P6, P7, P11, P12** du workspace Paie et **/employee/payslips, /accountant/payroll-validation/[runId], /drh/payroll-analytics**, designe explicitement :
+
+1. **Loading** : skeletons précis qui reflètent la structure finale
+2. **Happy path** : avec données réalistes
+3. **Empty** : illustration légère + CTA
+4. **Error** : message clair + retry
+5. **Permission insuffisante** : explication + CTA "Contacter votre administrateur"
+6. **Action en cours** : boutons disabled, banner de progression, mise à jour optimiste
+7. **Succès post-action** : toast + confirmation visuelle
+
+---
+
+## PARTIE 6 — STORYBOARDS BOUT-EN-BOUT (6 SCÉNARIOS)
+
+Mets en scène ces parcours sous forme de planches successives :
+
+### Storyboard 1 : "Le 28 du mois — Run mensuel"
+Le Responsable Paie ouvre HRM, voit le bandeau "Cycle d'octobre non lancé" sur son dashboard HRM, clique "Entrer dans le workspace Paie". Transition vers le workspace. Il va sur "Saisie variables", importe les timesheets, contrôle les heures sup, lance le calcul via le wizard. Pendant le calcul, il voit la progression. Une fois terminé, il consulte les anomalies, en résout une, transmet à la validation. Notification poussée au Comptable.
+
+### Storyboard 2 : "Le Comptable valide"
+Le Comptable se connecte, voit sur **son dashboard HRM** la carte "À valider — 1 cycle 245M XAF". Clique. Atterrit sur `/accountant/payroll-validation`, voit la liste. Ouvre la fiche du cycle, vérifie les totaux, le rapprochement, signe la validation. Le système génère automatiquement les ordres de paiement.
+
+### Storyboard 3 : "L'employé consulte son bulletin"
+L'employé reçoit une notification mobile "Votre bulletin d'octobre est disponible". Ouvre l'app, atterrit sur son dashboard HRM, voit la carte "Dernier bulletin". Clique. Atterrit sur `/employee/payslips/[entryId]`. Lit l'aperçu PDF, télécharge, lit les explications via "Comprendre mon bulletin". Va sur le simulateur personnel et joue avec son brut.
+
+### Storyboard 4 : "Régularisation rétroactive"
+Un employé a obtenu une promotion effective au 1er septembre, traitée en novembre. Le Responsable Paie va dans le workspace Paie, ouvre "Régularisations", crée une nouvelle régularisation. L'écran calcule le delta, affiche le comparatif Avant/Après pour septembre et octobre. Le delta sera intégré au prochain run de novembre.
+
+### Storyboard 5 : "Configurer une nouvelle rubrique"
+Le Responsable Paie va dans "Rubriques" dans le workspace Paie. Clique "Nouvelle rubrique". Drawer s'ouvre. Remplit : code `PRIME_RISQUE`, méthode RATE, 5% du salaire de base, catégorie X, date d'effet 1er du mois suivant. Onglet "Test" : entre un brut, voit le calcul résultant. Active. Au prochain run, la rubrique apparaît automatiquement sur les bulletins éligibles.
+
+### Storyboard 6 : "DRH consulte la masse salariale"
+La DRH se connecte. Sur **son dashboard HRM**, elle voit la carte "Masse salariale du mois" avec delta vs N-1. Clique sur la carte → atterrit sur `/drh/payroll-analytics`. Voit les graphes 12 mois, drilldown par BU. Tout en lecture seule, aucun bouton d'action. Reste dans son namespace HRM.
+
+---
+
+## PARTIE 7 — CONTRAINTES BUSINESS À RESPECTER
+
+1. **Multi-tenant strict** : chaque écran porte explicitement le contexte tenant + organisation + agence dans le header
+2. **Audit-friendly** : chaque action critique demande confirmation et trace "qui, quand, pourquoi"
+3. **Permissions UI** : les boutons d'action ne sont visibles que pour les rôles autorisés (gating frontend, KSM enforce authoritativement)
 4. **Immutabilité** : un bulletin validé ne se modifie plus — seul un ajustement crée une nouvelle ligne
-5. **Conformité légale** : le bulletin doit respecter le Code du travail camerounais (Art. 68) — en-têtes employeur/employé complets, mentions obligatoires, montant en lettres
-6. **Devise XAF par défaut** mais le système doit pouvoir afficher en EUR ou USD pour les expatriés
-7. **Format de date** français (JJ/MM/AAAA) sauf en mode anglais
-8. **Format de montant** avec espace comme séparateur des milliers : `1 250 000 XAF`
+5. **Conformité légale Cameroun** : le bulletin de paie doit respecter le Code du travail Art. 68 — en-têtes employeur/employé complets, mentions obligatoires, montant en lettres
+6. **Devise XAF par défaut**, EUR/USD possibles pour expatriés
+7. **Format date français** : JJ/MM/AAAA
+8. **Format montant** : espace comme séparateur des milliers, code devise après : `1 250 000 XAF`
+9. **Aucune fuite cross-tenant** : changement de contexte = invalidation cache + refetch complet
 
 ---
 
-## DÉTAILS UI/UX À NE PAS OUBLIER
+## PARTIE 8 — DÉTAILS UI/UX NON NÉGOCIABLES
 
-- **Sidebar** : la section "Paie" doit être designée pour chacun des 5 rôles avec leurs items spécifiques
-- **Breadcrumbs** systématiques en haut de chaque page de détail
-- **Recherche globale** (cmd+K) qui indexe les employés, les bulletins, les runs, les rubriques
-- **Notifications** : centre de notif en haut à droite avec : run terminé, anomalie détectée, échéance déclarative, validation en attente
-- **Dark mode** soigné, switch dans la sidebar
-- **Densité** : option "compact" / "normal" / "confortable" pour les tableaux
-- **Export** : tous les tableaux ont un bouton d'export CSV / Excel / PDF
-- **Filtres avancés** : pouvoir sauvegarder des filtres en presets nommés
-- **Bulk actions** : sélection multiple sur tous les tableaux principaux (entries, employés, rubriques)
-- **Comparaison M-1** : presque toutes les valeurs chiffrées affichent un delta % vs M-1
-- **Tooltips explicatifs** sur tous les termes techniques (CNPS, IRPP, CAC, etc.)
+- **Sidebar Paie** dédiée au workspace, **distincte** de la sidebar HRM
+- **Sticky header context switcher** (organisation + agence) en haut de chaque page du workspace Paie
+- **Breadcrumbs** systématiques en haut de chaque page de détail (avec retour HRM en première position quand pertinent)
+- **Command Palette (cmd+K)** dans le workspace Paie : recherche employés, bulletins, cycles, rubriques
+- **Centre de notifications** en haut à droite : cycle terminé, anomalie détectée, échéance déclarative, validation en attente
+- **Dark mode** soigné, switch dans le menu utilisateur
+- **Densité tableau** : option compact/normal/confortable, compact par défaut dans Paie
+- **Export** : tous les tableaux ont CSV / Excel / PDF
+- **Filtres avancés** : sauvegarde en presets nommés
+- **Bulk actions** : sélection multiple sur les tableaux principaux
+- **Comparaisons M-1** : toutes les valeurs chiffrées affichent un delta % vs M-1
+- **Tooltips explicatifs** sur tous les termes techniques (CNPS, IRPP, CAC, RAV, TDL, CFC, FNE)
 - **Glossaire intégré** accessible depuis le menu utilisateur
 
 ---
 
-## DESIGN SYSTEM À PRODUIRE
+## PARTIE 9 — RÉFÉRENCES VISUELLES À ÉMULER
 
-Avant les écrans, produis le **design system de base** :
-- Tokens couleur (modes clair et sombre)
-- Échelle typographique (display, h1-h6, body, small, label, caption, code)
-- Échelle d'espacement (4, 8, 12, 16, 24, 32, 48, 64, 96)
-- Échelle de border-radius (sm 6px, md 10px, lg 14px, xl 20px, pill)
-- Élévations (subtle, small, medium, large)
-- Composants atomiques (button, input, badge, avatar, tooltip, popover)
-- Composants moléculaires (card, drawer, modal, table, tabs, stepper)
+Pour le **workspace Paie** :
+- **Linear** (densité, typographie, micro-interactions)
+- **Stripe Dashboard** (tableaux, formulaires, navigation)
+- **Ramp / Mercury** (KPI cards, finance UX premium)
+- **Deel** (paie internationale moderne)
+- **Notion** (drawers, command palette)
+
+Pour les **insertions HRM** :
+- Reste **strictement dans la continuité du HRM existant**
+- Sobriété maximale, aucune fioriture, le contenu prime
+
+---
+
+## PARTIE 10 — TON ET PERSONNALITÉ
+
+Le **workspace Paie** doit transmettre : **rigueur, confiance, expertise métier, modernité**. Le Responsable Paie doit se sentir aux commandes d'un outil professionnel sérieux et premium. Aucun ton "fun startup", aucun emoji, aucune fioriture — c'est un outil métier exigeant.
+
+Les **insertions HRM** doivent rester invisibles dans le sens où elles s'intègrent naturellement, sans rupture de cohérence avec le reste de la plateforme HRM.
+
+L'**Employé** doit se sentir respecté et bien informé : son bulletin est compréhensible, ses droits sont clairs, ses documents légaux accessibles facilement.
 
 ---
 
 ## LIVRABLE ATTENDU
 
-1. **Design system complet** : pages de présentation des tokens et composants
-2. **Tous les écrans listés ci-dessus** (au moins ~40 écrans uniques)
-3. **3-5 variations clé** par écran critique (loading/empty/error/desktop/mobile)
-4. **Storyboards des 6 scénarios** bout-en-bout
-5. **Annexe** : guide d'utilisation du design system, principes d'interaction, motion principles
+1. **Design system complet** : pages de présentation des tokens et composants partagés HRM/Paie
+2. **Workspace Paie complet** : ~18 pages avec états (loading/happy/empty/error/permission/action en cours/succès)
+3. **Insertions HRM** : tous les écrans listés dans la partie 2, dans le design system HRM existant
+4. **Widgets dashboards HRM** : un par rôle (partie 3)
+5. **6 storyboards** bout-en-bout
+6. **Annexe** : guide d'utilisation du design system, principes d'interaction, motion principles, matrice rôle × écrans accessibles
 
 ---
 
-## RÉFÉRENCES VISUELLES À ÉMULER
-
-- **Linear** (typographie, densité, micro-interactions)
-- **Vercel Dashboard** (sobriété, cards, dark mode)
-- **Stripe Dashboard** (tableaux, formulaires, navigation)
-- **Ramp / Mercury** (KPI cards, finance UX premium)
-- **Deel** (interface paie internationale moderne)
-- **Notion** (drawers, hovers, command palette)
-- **Pleo** (mobile self-service employé)
-
----
-
-## TON ET PERSONNALITÉ
-
-Le produit doit transmettre : **rigueur, confiance, modernité, expertise**. Le Responsable Paie doit se sentir aux commandes d'un outil professionnel sérieux. L'Employé doit se sentir respecté et bien informé. La comptabilité doit avoir une vue exhaustive et auditable. Aucune fioriture, aucun emoji, aucun ton "fun startup" — c'est de la paie, c'est sérieux, mais c'est moderne et clair.
-
-Fais en sorte que chaque écran donne envie de l'utiliser tous les mois.
-
----
-
-**Démarre par le design system, puis le dashboard A1 du Responsable Paie, puis enchaîne dans l'ordre listé.**
+**Démarre par le design system partagé, puis le dashboard P1 du workspace Paie, puis enchaîne le workspace Paie dans l'ordre des pages, puis les insertions HRM rôle par rôle.**
