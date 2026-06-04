@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 082-drop-legacy-hrm-payroll
+      author: jordan
+      changes:
+        - sqlFile:
+            path: db/r2dbc/V82__drop_legacy_hrm_payroll.sql
+            relativeToChangelogFile: false

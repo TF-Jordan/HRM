@@ -243,3 +243,6 @@ databaseChangeLog:
   - include:
       file: releases/081-payroll-seed-cameroon.yaml
       relativeToChangelogFile: true
+  - include:
+      file: releases/082-drop-legacy-hrm-payroll.yaml
+      relativeToChangelogFile: true
