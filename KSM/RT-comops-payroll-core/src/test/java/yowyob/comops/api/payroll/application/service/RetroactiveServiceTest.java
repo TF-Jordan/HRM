@@ -128,7 +128,7 @@ class RetroactiveServiceTest {
     private EmployeePayrollView employeeView() {
         return new EmployeePayrollView(EMP, ORG, null, UUID.randomUUID(), "EMP-1", "Alice", "CNPS-1", 6,
                 "B", "DEP", LocalDate.of(2020, 1, 1), null, MaritalStatus.SINGLE, 0,
-                new BigDecimal("400000"), BigDecimal.ZERO, "CM", PaymentChannel.BANK_TRANSFER, "ACC-1");
+                new BigDecimal("400000"), BigDecimal.ZERO, "CM", null, PaymentChannel.BANK_TRANSFER, "ACC-1");
     }
 
     // Cameroon config (mirrors V81 seed) — same as the run pipeline test.

@@ -6,12 +6,19 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import yowyob.comops.api.hrm.application.port.out.ContractRepository;
+import yowyob.comops.api.hrm.application.port.out.DependentRepository;
+import yowyob.comops.api.hrm.application.port.out.EmployeePersonalInfoRepository;
 import yowyob.comops.api.hrm.application.port.out.EmployeeRepository;
+import yowyob.comops.api.hrm.application.port.out.LeaveBalanceRepository;
 import yowyob.comops.api.hrm.application.port.out.LoanAdvanceRepository;
 import yowyob.comops.api.hrm.domain.model.Contract;
+import yowyob.comops.api.hrm.domain.model.Dependent;
 import yowyob.comops.api.hrm.domain.model.Employee;
+import yowyob.comops.api.hrm.domain.model.EmployeePersonalInfo;
+import yowyob.comops.api.hrm.domain.model.LeaveType;
 import yowyob.comops.api.payroll.application.port.out.EmployeePayrollView;
 import yowyob.comops.api.payroll.application.port.out.HrmEmployeeDataPort;
+import yowyob.comops.api.payroll.application.port.out.LeaveBalanceView;
 import yowyob.comops.api.payroll.application.port.out.LoanInstallmentView;
 import yowyob.comops.api.payroll.domain.model.MaritalStatus;
 import yowyob.comops.api.payroll.domain.model.PaymentChannel;
@@ -27,9 +34,13 @@ import java.util.UUID;
  * and maps them onto payroll's own {@code *View} records. Replacing the HR backend means
  * rewriting only this class.
  *
- * Employees without an active contract are skipped — there is no base salary to pay.
- * Country code defaults to {@code CM}; marital status / dependents default to neutral values
- * (the MVP engine does not yet apply the family quotient — these fields carry the future input).
+ * <p>Family-quotient inputs (marital status, dependent children) are now resolved from HR:
+ * {@code EmployeePersonalInfoRepository} for the marital status and {@code DependentRepository}
+ * for the count of children under {@link #DEPENDENT_AGE_LIMIT} — closing a real Cameroonian
+ * IRPP bug where married employees with children were sur-taxed.
+ *
+ * <p>Employees without an active contract are skipped — there is no base salary to pay.
+ * The country code is hardcoded to {@code CM} until Organization carries it (Priority 3).
  */
 @Component
 @Profile("r2dbc")
@@ -37,16 +48,28 @@ public class HrmEmployeeDataAdapter implements HrmEmployeeDataPort {
 
     private static final String DEFAULT_COUNTRY = "CM";
 
+    /** Age below which a dependent counts for the family quotient. */
+    private static final int DEPENDENT_AGE_LIMIT = 21;
+
     private final EmployeeRepository employeeRepository;
     private final ContractRepository contractRepository;
     private final LoanAdvanceRepository loanAdvanceRepository;
+    private final EmployeePersonalInfoRepository personalInfoRepository;
+    private final DependentRepository dependentRepository;
+    private final LeaveBalanceRepository leaveBalanceRepository;
 
     public HrmEmployeeDataAdapter(EmployeeRepository employeeRepository,
                                   ContractRepository contractRepository,
-                                  LoanAdvanceRepository loanAdvanceRepository) {
+                                  LoanAdvanceRepository loanAdvanceRepository,
+                                  EmployeePersonalInfoRepository personalInfoRepository,
+                                  DependentRepository dependentRepository,
+                                  LeaveBalanceRepository leaveBalanceRepository) {
         this.employeeRepository = employeeRepository;
         this.contractRepository = contractRepository;
         this.loanAdvanceRepository = loanAdvanceRepository;
+        this.personalInfoRepository = personalInfoRepository;
+        this.dependentRepository = dependentRepository;
+        this.leaveBalanceRepository = leaveBalanceRepository;
     }
 
     @Override
@@ -54,17 +77,19 @@ public class HrmEmployeeDataAdapter implements HrmEmployeeDataPort {
         Flux<Employee> employees = agencyId != null
                 ? employeeRepository.findActiveByOrganizationIdAndAgencyId(tenantId, organizationId, agencyId)
                 : employeeRepository.findActiveByOrganizationId(tenantId, organizationId);
-        return employees.flatMap(emp -> withContract(tenantId, emp));
+        return employees.flatMap(emp -> assembleView(tenantId, emp));
     }
 
     @Override
     public Mono<EmployeePayrollView> findEmployee(UUID tenantId, UUID employeeId) {
-        return employeeRepository.findById(tenantId, employeeId).flatMap(emp -> withContract(tenantId, emp));
+        return employeeRepository.findById(tenantId, employeeId)
+                .flatMap(emp -> assembleView(tenantId, emp));
     }
 
     @Override
     public Mono<EmployeePayrollView> findEmployeeByActorId(UUID tenantId, UUID actorId) {
-        return employeeRepository.findByActorId(tenantId, actorId).flatMap(emp -> withContract(tenantId, emp));
+        return employeeRepository.findByActorId(tenantId, actorId)
+                .flatMap(emp -> assembleView(tenantId, emp));
     }
 
     @Override
@@ -82,12 +107,37 @@ public class HrmEmployeeDataAdapter implements HrmEmployeeDataPort {
                 .then();
     }
 
-    private Mono<EmployeePayrollView> withContract(UUID tenantId, Employee emp) {
-        return contractRepository.findActiveByEmployeeId(tenantId, emp.id())
-                .map(contract -> toView(emp, contract));
+    @Override
+    public Mono<LeaveBalanceView> findAnnualLeaveBalance(UUID tenantId, UUID employeeId, int year) {
+        return leaveBalanceRepository
+                .findByEmployeeIdAndTypeAndAnnee(tenantId, employeeId, LeaveType.ANNUAL, year)
+                .map(b -> new LeaveBalanceView(b.acquis(), b.pris(), b.soldeRestant()))
+                .defaultIfEmpty(LeaveBalanceView.empty());
     }
 
-    private EmployeePayrollView toView(Employee emp, Contract contract) {
+    // ---------------------------------------------------------------------- assembly
+
+    /**
+     * Pulls the employee's contract (required), personal info (marital status) and dependents
+     * concurrently, then maps the lot onto the payroll view. An employee without an active
+     * contract is filtered out — there is no base salary to pay.
+     */
+    private Mono<EmployeePayrollView> assembleView(UUID tenantId, Employee emp) {
+        Mono<Contract> contractMono = contractRepository.findActiveByEmployeeId(tenantId, emp.id());
+        Mono<MaritalStatus> maritalMono = personalInfoRepository.findByEmployeeId(tenantId, emp.id())
+                .map(HrmEmployeeDataAdapter::mapMaritalStatus)
+                .defaultIfEmpty(MaritalStatus.SINGLE);
+        Mono<Integer> dependentsMono = dependentRepository.findByEmployeeId(tenantId, emp.id())
+                .filter(d -> d.dateNaissance() != null && d.isUnderAge(DEPENDENT_AGE_LIMIT))
+                .count()
+                .map(Long::intValue);
+
+        return Mono.zip(contractMono, maritalMono, dependentsMono)
+                .map(t -> toView(emp, t.getT1(), t.getT2(), t.getT3()));
+    }
+
+    private EmployeePayrollView toView(Employee emp, Contract contract, MaritalStatus marital,
+                                       int dependentChildren) {
         return new EmployeePayrollView(
                 emp.id(),
                 emp.organizationId(),
@@ -100,14 +150,36 @@ public class HrmEmployeeDataAdapter implements HrmEmployeeDataPort {
                 emp.echelon(),
                 emp.departmentCode(),
                 emp.dateEmbauche(),
-                null,
-                MaritalStatus.SINGLE,
-                0,
+                emp.dateSortie(),
+                marital,
+                dependentChildren,
                 contract.salaireBase(),
                 contract.avantagesNature() != null ? contract.avantagesNature() : BigDecimal.ZERO,
                 DEFAULT_COUNTRY,
+                contract.position(),
                 mapChannel(emp.modePaiement()),
                 resolveAccountRef(emp));
+    }
+
+    static MaritalStatus mapMaritalStatus(EmployeePersonalInfo info) {
+        return mapMaritalStatus(info.situationMatrimoniale());
+    }
+
+    /**
+     * Maps the HR personal-info free-form string onto payroll's {@link MaritalStatus} enum.
+     * Case- and whitespace-tolerant. Unknown values, {@code SEPARATED}, and {@code null} fall
+     * back to {@code SINGLE} (most conservative for the tax quotient).
+     */
+    static MaritalStatus mapMaritalStatus(String value) {
+        if (value == null) {
+            return MaritalStatus.SINGLE;
+        }
+        return switch (value.trim().toUpperCase()) {
+            case "MARRIED" -> MaritalStatus.MARRIED;
+            case "DIVORCED" -> MaritalStatus.DIVORCED;
+            case "WIDOWED" -> MaritalStatus.WIDOWED;
+            default -> MaritalStatus.SINGLE;
+        };
     }
 
     private static PaymentChannel mapChannel(yowyob.comops.api.hrm.domain.model.PaymentChannel channel) {

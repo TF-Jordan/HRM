@@ -38,6 +38,11 @@ public final class Organization extends BaseEntity {
     private final boolean isActive;
     private final String status;
     private final Instant deletedAt;
+    // Payroll/HR extensions (Priority 3 — required for legal payslips and multi-country payroll).
+    // Optional on read; defaulted to safe values on legacy rows that pre-date them.
+    private final String countryCode;
+    private final String cnpsEmployerNumber;
+    private final BigDecimal atRiskRate;
 
     private Organization(
             UUID id,
@@ -70,7 +75,10 @@ public final class Organization extends BaseEntity {
             String legalForm,
             boolean isActive,
             String status,
-            Instant deletedAt) {
+            Instant deletedAt,
+            String countryCode,
+            String cnpsEmployerNumber,
+            BigDecimal atRiskRate) {
         super(id, tenantId, createdAt, updatedAt);
         this.businessActorId = Objects.requireNonNull(businessActorId, "businessActorId is required");
         this.governanceStatus = governanceStatus == null ? OrganizationGovernanceStatus.PENDING_APPROVAL : governanceStatus;
@@ -99,6 +107,9 @@ public final class Organization extends BaseEntity {
         this.isActive = isActive;
         this.status = normalizeStatus(status, this.governanceStatus, isActive);
         this.deletedAt = deletedAt;
+        this.countryCode = normalizeOptional(countryCode);
+        this.cnpsEmployerNumber = normalizeOptional(cnpsEmployerNumber);
+        this.atRiskRate = atRiskRate;
     }
 
     public static Organization create(UUID tenantId, UUID businessActorId, String code, String legalName, String displayName,
@@ -118,7 +129,7 @@ public final class Organization extends BaseEntity {
                 OrganizationGovernanceStatus.PENDING_APPROVAL, null, null, null, code, service,
                 isIndividualBusiness, email, shortName, longName, description, logoUri, logoId, websiteUrl,
                 socialNetwork, businessRegistrationNumber, taxNumber, capitalShare, ceoName, yearFounded, keywords,
-                numberOfEmployees, legalForm, isActive, status, null);
+                numberOfEmployees, legalForm, isActive, status, null, null, null, null);
     }
 
     public static Organization rehydrate(UUID id, UUID tenantId, Instant createdAt, Instant updatedAt,
@@ -136,11 +147,39 @@ public final class Organization extends BaseEntity {
             String socialNetwork, String businessRegistrationNumber, String taxNumber, BigDecimal capitalShare,
             String ceoName, Integer yearFounded, Set<String> keywords, Integer numberOfEmployees, String legalForm,
             boolean isActive, String status, Instant deletedAt) {
+        return rehydrate(id, tenantId, createdAt, updatedAt, businessActorId, governanceStatus, governedByUserId,
+                governedAt, governanceReason, code, service, isIndividualBusiness, email, shortName, longName,
+                description, logoUri, logoId, websiteUrl, socialNetwork, businessRegistrationNumber, taxNumber,
+                capitalShare, ceoName, yearFounded, keywords, numberOfEmployees, legalForm, isActive, status,
+                deletedAt, null, null, null);
+    }
+
+    /** Full rehydrate including the payroll extensions; used by the persistence adapter. */
+    public static Organization rehydrate(UUID id, UUID tenantId, Instant createdAt, Instant updatedAt,
+            UUID businessActorId, String governanceStatus, UUID governedByUserId, Instant governedAt,
+            String governanceReason, String code, String service, boolean isIndividualBusiness, String email,
+            String shortName, String longName, String description, String logoUri, UUID logoId, String websiteUrl,
+            String socialNetwork, String businessRegistrationNumber, String taxNumber, BigDecimal capitalShare,
+            String ceoName, Integer yearFounded, Set<String> keywords, Integer numberOfEmployees, String legalForm,
+            boolean isActive, String status, Instant deletedAt,
+            String countryCode, String cnpsEmployerNumber, BigDecimal atRiskRate) {
         return new Organization(id, tenantId, createdAt, updatedAt, businessActorId,
                 OrganizationGovernanceStatus.from(governanceStatus), governedByUserId, governedAt, governanceReason,
                 code, service, isIndividualBusiness, email, shortName, longName, description, logoUri, logoId,
                 websiteUrl, socialNetwork, businessRegistrationNumber, taxNumber, capitalShare, ceoName,
-                yearFounded, keywords, numberOfEmployees, legalForm, isActive, status, deletedAt);
+                yearFounded, keywords, numberOfEmployees, legalForm, isActive, status, deletedAt,
+                countryCode, cnpsEmployerNumber, atRiskRate);
+    }
+
+    /** Returns a copy with the payroll extension fields set; preserves all other fields. */
+    public Organization withPayrollExtensions(String countryCode, String cnpsEmployerNumber,
+                                              BigDecimal atRiskRate) {
+        return new Organization(id(), tenantId(), createdAt(), Instant.now(), businessActorId, governanceStatus,
+                governedByUserId, governedAt, governanceReason, code, service, isIndividualBusiness, email,
+                shortName, longName, description, logoUri, logoId, websiteUrl, socialNetwork,
+                businessRegistrationNumber, taxNumber, capitalShare, ceoName, yearFounded, keywords,
+                numberOfEmployees, legalForm, isActive, status, deletedAt,
+                countryCode, cnpsEmployerNumber, atRiskRate);
     }
 
     public Organization update(String code, String legalName, String displayName, String organizationType) {
@@ -158,7 +197,8 @@ public final class Organization extends BaseEntity {
                 governedByUserId, governedAt, governanceReason, code, service, isIndividualBusiness, email,
                 shortName, longName, description, logoUri, logoId, websiteUrl, socialNetwork,
                 businessRegistrationNumber, taxNumber, capitalShare, ceoName, yearFounded, keywords,
-                numberOfEmployees, legalForm, isActive, status, deletedAt);
+                numberOfEmployees, legalForm, isActive, status, deletedAt,
+                countryCode, cnpsEmployerNumber, atRiskRate);
     }
 
     public Organization transferOwnership(UUID newBusinessActorId) {
@@ -166,7 +206,8 @@ public final class Organization extends BaseEntity {
                 governedByUserId, governedAt, governanceReason, code, service, isIndividualBusiness, email,
                 shortName, longName, description, logoUri, logoId, websiteUrl, socialNetwork,
                 businessRegistrationNumber, taxNumber, capitalShare, ceoName, yearFounded, keywords,
-                numberOfEmployees, legalForm, isActive, status, deletedAt);
+                numberOfEmployees, legalForm, isActive, status, deletedAt,
+                countryCode, cnpsEmployerNumber, atRiskRate);
     }
 
     public Organization approve(UUID adminUserId, String reason) {
@@ -200,7 +241,8 @@ public final class Organization extends BaseEntity {
                 nextStatus, adminUserId, Instant.now(), reason, code, service, isIndividualBusiness, email,
                 shortName, longName, description, logoUri, logoId, websiteUrl, socialNetwork,
                 businessRegistrationNumber, taxNumber, capitalShare, ceoName, yearFounded, keywords,
-                numberOfEmployees, legalForm, active, nextStatus.name(), deletedAt);
+                numberOfEmployees, legalForm, active, nextStatus.name(), deletedAt,
+                countryCode, cnpsEmployerNumber, atRiskRate);
     }
 
     public UUID businessActorId() { return businessActorId; }
@@ -233,6 +275,9 @@ public final class Organization extends BaseEntity {
     public String legalName() { return longName; }
     public String displayName() { return shortName; }
     public String organizationType() { return service; }
+    public String countryCode() { return countryCode; }
+    public String cnpsEmployerNumber() { return cnpsEmployerNumber; }
+    public BigDecimal atRiskRate() { return atRiskRate; }
 
     private static String requireText(String value, String field) {
         if (value == null || value.isBlank()) {

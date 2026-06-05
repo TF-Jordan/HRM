@@ -151,7 +151,8 @@ public class PayrollDocumentService implements GeneratePayrollDocumentUseCase {
                             EmployerInfo employer = t.getT2();
                             WorkCertificateView view = new WorkCertificateView(employeeId, emp.displayName(),
                                     emp.matricule(),
-                                    position != null ? position : emp.departmentCode(),
+                                    position != null ? position
+                                            : (emp.position() != null ? emp.position() : emp.departmentCode()),
                                     emp.hireDate(), emp.departureDate());
                             String canonical = PayrollPdfRenderer.certificateCanonical(view, employer);
                             DocumentSeal seal = seal(ctx, canonical);

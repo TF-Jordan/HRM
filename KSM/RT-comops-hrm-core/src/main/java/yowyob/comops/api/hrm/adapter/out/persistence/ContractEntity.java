@@ -20,6 +20,7 @@ public record ContractEntity(
         UUID agencyId,
         UUID employeeId,
         String type,
+        String position,
         LocalDate dateDebut,
         LocalDate dateFin,
         BigDecimal salaireBase,

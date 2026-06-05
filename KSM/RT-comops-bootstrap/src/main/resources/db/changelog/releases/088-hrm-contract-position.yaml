@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 088-hrm-contract-position
+      author: jordan
+      changes:
+        - sqlFile:
+            path: db/r2dbc/V88__hrm_contract_position.sql
+            relativeToChangelogFile: false

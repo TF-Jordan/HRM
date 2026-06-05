@@ -25,13 +25,15 @@ public final class Employee extends BaseEntity {
     private final String numMobileMoney;
     private final MobileOperator operateurMm;
     private final String actorDisplayName;
+    private final LocalDate dateSortie;
+    private final String motifSortie;
 
     private Employee(UUID id, UUID tenantId, Instant createdAt, Instant updatedAt,
                      UUID organizationId, UUID agencyId, UUID actorId, UUID managerId, String matricule,
                      String numCnps, int categorie, String echelon, LocalDate dateEmbauche,
                      EmployeeStatus status, String departmentCode, PaymentChannel modePaiement,
                      String compteBancaire, String numMobileMoney, MobileOperator operateurMm,
-                     String actorDisplayName) {
+                     String actorDisplayName, LocalDate dateSortie, String motifSortie) {
         super(id, tenantId, createdAt, updatedAt);
         this.organizationId = Objects.requireNonNull(organizationId, "organizationId is required");
         this.agencyId = agencyId;
@@ -49,6 +51,8 @@ public final class Employee extends BaseEntity {
         this.numMobileMoney = numMobileMoney;
         this.operateurMm = operateurMm;
         this.actorDisplayName = actorDisplayName;
+        this.dateSortie = dateSortie;
+        this.motifSortie = motifSortie;
     }
 
     public static Employee hire(UUID tenantId, UUID organizationId, UUID agencyId, UUID actorId,
@@ -69,7 +73,8 @@ public final class Employee extends BaseEntity {
         Instant now = Instant.now();
         return new Employee(UUID.randomUUID(), tenantId, now, now, organizationId, agencyId, actorId, managerId,
                 matricule, numCnps, categorie, echelon, dateEmbauche, EmployeeStatus.ACTIVE,
-                departmentCode, modePaiement, compteBancaire, numMobileMoney, operateurMm, actorDisplayName);
+                departmentCode, modePaiement, compteBancaire, numMobileMoney, operateurMm, actorDisplayName,
+                null, null);
     }
 
     public static Employee rehydrate(UUID id, UUID tenantId, Instant createdAt, Instant updatedAt,
@@ -78,23 +83,45 @@ public final class Employee extends BaseEntity {
                                      EmployeeStatus status, String departmentCode, PaymentChannel modePaiement,
                                      String compteBancaire, String numMobileMoney, MobileOperator operateurMm,
                                      String actorDisplayName) {
-        return new Employee(id, tenantId, createdAt, updatedAt, organizationId, agencyId, actorId, managerId,
-                matricule, numCnps, categorie, echelon, dateEmbauche, status, departmentCode,
-                modePaiement, compteBancaire, numMobileMoney, operateurMm, actorDisplayName);
+        return rehydrate(id, tenantId, createdAt, updatedAt, organizationId, agencyId, actorId, managerId,
+                matricule, numCnps, categorie, echelon, dateEmbauche, status, departmentCode, modePaiement,
+                compteBancaire, numMobileMoney, operateurMm, actorDisplayName, null, null);
     }
 
-    private Employee withStatus(EmployeeStatus newStatus) {
+    public static Employee rehydrate(UUID id, UUID tenantId, Instant createdAt, Instant updatedAt,
+                                     UUID organizationId, UUID agencyId, UUID actorId, UUID managerId, String matricule,
+                                     String numCnps, int categorie, String echelon, LocalDate dateEmbauche,
+                                     EmployeeStatus status, String departmentCode, PaymentChannel modePaiement,
+                                     String compteBancaire, String numMobileMoney, MobileOperator operateurMm,
+                                     String actorDisplayName, LocalDate dateSortie, String motifSortie) {
+        return new Employee(id, tenantId, createdAt, updatedAt, organizationId, agencyId, actorId, managerId,
+                matricule, numCnps, categorie, echelon, dateEmbauche, status, departmentCode,
+                modePaiement, compteBancaire, numMobileMoney, operateurMm, actorDisplayName,
+                dateSortie, motifSortie);
+    }
+
+    private Employee withStatusAndDeparture(EmployeeStatus newStatus, LocalDate newDateSortie,
+                                            String newMotifSortie) {
         return new Employee(id(), tenantId(), createdAt(), Instant.now(), organizationId, agencyId,
                 actorId, managerId, matricule, numCnps, categorie, echelon, dateEmbauche,
                 newStatus, departmentCode, modePaiement, compteBancaire, numMobileMoney, operateurMm,
-                actorDisplayName);
+                actorDisplayName, newDateSortie, newMotifSortie);
     }
 
+    private Employee withStatus(EmployeeStatus newStatus) {
+        return withStatusAndDeparture(newStatus, dateSortie, motifSortie);
+    }
+
+    /**
+     * Terminates the employment, persisting the departure date and reason — both arguments were
+     * previously dropped, which made it impossible to prorate the final month's salary or build
+     * a final settlement from the real exit date.
+     */
     public Employee terminate(LocalDate terminationDate, String reason) {
         if (this.status != EmployeeStatus.ACTIVE && this.status != EmployeeStatus.SUSPENDED) {
             throw new IllegalStateException("Cannot terminate employee in status " + this.status);
         }
-        return withStatus(EmployeeStatus.TERMINATED);
+        return withStatusAndDeparture(EmployeeStatus.TERMINATED, terminationDate, reason);
     }
 
     public Employee suspend(String reason) {
@@ -137,7 +164,8 @@ public final class Employee extends BaseEntity {
                            MobileOperator operateurMm, UUID managerId) {
         return new Employee(id(), tenantId(), createdAt(), Instant.now(), organizationId, agencyId,
                 actorId, managerId, matricule, numCnps, categorie, echelon, dateEmbauche, status,
-                departmentCode, modePaiement, compteBancaire, numMobileMoney, operateurMm, actorDisplayName);
+                departmentCode, modePaiement, compteBancaire, numMobileMoney, operateurMm, actorDisplayName,
+                dateSortie, motifSortie);
     }
 
     public UUID organizationId() { return organizationId; }
@@ -156,4 +184,6 @@ public final class Employee extends BaseEntity {
     public String numMobileMoney() { return numMobileMoney; }
     public MobileOperator operateurMm() { return operateurMm; }
     public String actorDisplayName() { return actorDisplayName; }
+    public LocalDate dateSortie() { return dateSortie; }
+    public String motifSortie() { return motifSortie; }
 }

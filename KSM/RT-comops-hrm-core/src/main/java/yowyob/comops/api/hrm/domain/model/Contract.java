@@ -15,6 +15,7 @@ public final class Contract extends BaseEntity {
     private final UUID agencyId;
     private final UUID employeeId;
     private final ContractType type;
+    private final String position;
     private final LocalDate dateDebut;
     private final LocalDate dateFin;
     private final BigDecimal salaireBase;
@@ -26,7 +27,7 @@ public final class Contract extends BaseEntity {
 
     private Contract(UUID id, UUID tenantId, Instant createdAt, Instant updatedAt,
                      UUID organizationId, UUID agencyId, UUID employeeId, ContractType type,
-                     LocalDate dateDebut, LocalDate dateFin, BigDecimal salaireBase,
+                     String position, LocalDate dateDebut, LocalDate dateFin, BigDecimal salaireBase,
                      BigDecimal avantagesNature, Integer periodeEssai, ContractStatus status,
                      String motifFin, UUID documentFileId) {
         super(id, tenantId, createdAt, updatedAt);
@@ -34,6 +35,7 @@ public final class Contract extends BaseEntity {
         this.agencyId = agencyId;
         this.employeeId = Objects.requireNonNull(employeeId, "employeeId is required");
         this.type = Objects.requireNonNull(type, "type is required");
+        this.position = position;
         this.dateDebut = Objects.requireNonNull(dateDebut, "dateDebut is required");
         this.dateFin = dateFin;
         this.salaireBase = Objects.requireNonNull(salaireBase, "salaireBase is required");
@@ -47,7 +49,7 @@ public final class Contract extends BaseEntity {
     public static Contract create(UUID tenantId, UUID organizationId, UUID agencyId, UUID employeeId,
                                   ContractType type, LocalDate dateDebut, LocalDate dateFin,
                                   BigDecimal salaireBase, BigDecimal avantagesNature, Integer periodeEssai) {
-        return create(tenantId, organizationId, agencyId, employeeId, type, dateDebut, dateFin,
+        return create(tenantId, organizationId, agencyId, employeeId, type, null, dateDebut, dateFin,
                 salaireBase, avantagesNature, periodeEssai, null);
     }
 
@@ -55,9 +57,17 @@ public final class Contract extends BaseEntity {
                                   ContractType type, LocalDate dateDebut, LocalDate dateFin,
                                   BigDecimal salaireBase, BigDecimal avantagesNature, Integer periodeEssai,
                                   UUID documentFileId) {
+        return create(tenantId, organizationId, agencyId, employeeId, type, null, dateDebut, dateFin,
+                salaireBase, avantagesNature, periodeEssai, documentFileId);
+    }
+
+    public static Contract create(UUID tenantId, UUID organizationId, UUID agencyId, UUID employeeId,
+                                  ContractType type, String position, LocalDate dateDebut, LocalDate dateFin,
+                                  BigDecimal salaireBase, BigDecimal avantagesNature, Integer periodeEssai,
+                                  UUID documentFileId) {
         Instant now = Instant.now();
         return new Contract(UUID.randomUUID(), tenantId, now, now, organizationId, agencyId,
-                employeeId, type, dateDebut, dateFin, salaireBase, avantagesNature, periodeEssai,
+                employeeId, type, position, dateDebut, dateFin, salaireBase, avantagesNature, periodeEssai,
                 ContractStatus.ACTIVE, null, documentFileId);
     }
 
@@ -66,8 +76,18 @@ public final class Contract extends BaseEntity {
                                      LocalDate dateDebut, LocalDate dateFin, BigDecimal salaireBase,
                                      BigDecimal avantagesNature, Integer periodeEssai, ContractStatus status,
                                      String motifFin, UUID documentFileId) {
+        return rehydrate(id, tenantId, createdAt, updatedAt, organizationId, agencyId, employeeId, type,
+                null, dateDebut, dateFin, salaireBase, avantagesNature, periodeEssai, status, motifFin,
+                documentFileId);
+    }
+
+    public static Contract rehydrate(UUID id, UUID tenantId, Instant createdAt, Instant updatedAt,
+                                     UUID organizationId, UUID agencyId, UUID employeeId, ContractType type,
+                                     String position, LocalDate dateDebut, LocalDate dateFin,
+                                     BigDecimal salaireBase, BigDecimal avantagesNature, Integer periodeEssai,
+                                     ContractStatus status, String motifFin, UUID documentFileId) {
         return new Contract(id, tenantId, createdAt, updatedAt, organizationId, agencyId, employeeId,
-                type, dateDebut, dateFin, salaireBase, avantagesNature, periodeEssai, status,
+                type, position, dateDebut, dateFin, salaireBase, avantagesNature, periodeEssai, status,
                 motifFin, documentFileId);
     }
 
@@ -78,19 +98,19 @@ public final class Contract extends BaseEntity {
 
     public Contract terminate(String motif) {
         return new Contract(id(), tenantId(), createdAt(), Instant.now(), organizationId, agencyId,
-                employeeId, type, dateDebut, dateFin, salaireBase, avantagesNature, periodeEssai,
+                employeeId, type, position, dateDebut, dateFin, salaireBase, avantagesNature, periodeEssai,
                 ContractStatus.TERMINATED, motif, documentFileId);
     }
 
     public Contract renew(LocalDate newDateFin) {
         return new Contract(id(), tenantId(), createdAt(), Instant.now(), organizationId, agencyId,
-                employeeId, type, dateDebut, newDateFin, salaireBase, avantagesNature, periodeEssai,
+                employeeId, type, position, dateDebut, newDateFin, salaireBase, avantagesNature, periodeEssai,
                 ContractStatus.RENEWED, null, documentFileId);
     }
 
     public Contract attachDocument(UUID fileId) {
         return new Contract(id(), tenantId(), createdAt(), Instant.now(), organizationId, agencyId,
-                employeeId, type, dateDebut, dateFin, salaireBase, avantagesNature, periodeEssai,
+                employeeId, type, position, dateDebut, dateFin, salaireBase, avantagesNature, periodeEssai,
                 status, motifFin, fileId);
     }
 
@@ -98,6 +118,7 @@ public final class Contract extends BaseEntity {
     public UUID agencyId() { return agencyId; }
     public UUID employeeId() { return employeeId; }
     public ContractType type() { return type; }
+    public String position() { return position; }
     public LocalDate dateDebut() { return dateDebut; }
     public LocalDate dateFin() { return dateFin; }
     public BigDecimal salaireBase() { return salaireBase; }

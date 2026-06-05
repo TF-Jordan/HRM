@@ -185,7 +185,7 @@ class PayrollRunServiceTest {
     private EmployeePayrollView employee() {
         return new EmployeePayrollView(UUID.randomUUID(), ORG, null, ACTOR, "EMP-001", "Jean Test",
                 "CNPS-1", 6, "B", "DEP", LocalDate.of(2020, 1, 1), null, MaritalStatus.SINGLE, 0,
-                new BigDecimal("400000"), BigDecimal.ZERO, "CM", PaymentChannel.BANK_TRANSFER, "ACC-1");
+                new BigDecimal("400000"), BigDecimal.ZERO, "CM", null, PaymentChannel.BANK_TRANSFER, "ACC-1");
     }
 
     private List<PayElement> cameroonElements() {

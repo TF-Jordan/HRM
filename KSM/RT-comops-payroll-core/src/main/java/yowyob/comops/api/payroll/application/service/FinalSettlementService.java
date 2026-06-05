@@ -49,20 +49,37 @@ public class FinalSettlementService implements ManageFinalSettlementUseCase {
         return ReactiveRequestContextHolder.getRequiredContext().flatMap(ctx ->
                 hrmEmployeeDataPort.findEmployee(ctx.tenantId(), cmd.employeeId())
                         .switchIfEmpty(Mono.error(new IllegalArgumentException("Employee not found")))
-                        .flatMap(view -> hrmEmployeeDataPort
-                                .findActiveLoanInstallments(ctx.tenantId(), cmd.employeeId())
-                                .map(l -> l.remainingBalance() == null ? BigDecimal.ZERO : l.remainingBalance())
-                                .reduce(BigDecimal.ZERO, BigDecimal::add)
-                                .flatMap(outstandingLoan ->
-                                        persist(ctx, cmd, view, outstandingLoan))));
+                        .flatMap(view -> Mono.zip(
+                                hrmEmployeeDataPort.findActiveLoanInstallments(ctx.tenantId(),
+                                                cmd.employeeId())
+                                        .map(l -> l.remainingBalance() == null
+                                                ? BigDecimal.ZERO : l.remainingBalance())
+                                        .reduce(BigDecimal.ZERO, BigDecimal::add),
+                                resolveLeaveDays(ctx, cmd))
+                                .flatMap(t -> persist(ctx, cmd, view, t.getT1(), t.getT2()))));
+    }
+
+    /**
+     * Uses {@code cmd.unusedLeaveDays()} when the caller passed an explicit value, otherwise
+     * pre-fills it from HR's annual-leave balance for the departure year — so the leave
+     * compensation is not silently zero when the caller forgets to pass it.
+     */
+    private Mono<BigDecimal> resolveLeaveDays(TenantContext ctx, CalculateFinalSettlementCommand cmd) {
+        if (cmd.unusedLeaveDays() != null) {
+            return Mono.just(cmd.unusedLeaveDays());
+        }
+        return hrmEmployeeDataPort
+                .findAnnualLeaveBalance(ctx.tenantId(), cmd.employeeId(), cmd.departureDate().getYear())
+                .map(b -> b.remaining() == null ? BigDecimal.ZERO : b.remaining());
     }
 
     private Mono<FinalSettlement> persist(TenantContext ctx, CalculateFinalSettlementCommand cmd,
-                                          EmployeePayrollView view, BigDecimal outstandingLoan) {
+                                          EmployeePayrollView view, BigDecimal outstandingLoan,
+                                          BigDecimal unusedLeaveDays) {
         BigDecimal referenceSalary = nz(view.baseSalary()).add(nz(view.benefitsInKind()));
         FinalSettlementInput input = new FinalSettlementInput(
                 referenceSalary, view.hireDate(), cmd.departureDate(), cmd.reason(),
-                nz(cmd.unusedLeaveDays()), cmd.departureDate().getDayOfMonth(),
+                nz(unusedLeaveDays), cmd.departureDate().getDayOfMonth(),
                 cmd.departureDate().lengthOfMonth(), cmd.noticeMonths(),
                 nz(cmd.accruedGratification()), outstandingLoan);
 

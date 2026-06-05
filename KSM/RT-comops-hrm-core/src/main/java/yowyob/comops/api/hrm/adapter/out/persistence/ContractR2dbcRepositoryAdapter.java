@@ -45,14 +45,15 @@ public class ContractR2dbcRepositoryAdapter implements ContractRepository {
 
     private ContractEntity toEntity(Contract c) {
         return new ContractEntity(c.id(), c.tenantId(), c.createdAt(), c.updatedAt(), c.organizationId(),
-                c.agencyId(), c.employeeId(), c.type().name(), c.dateDebut(), c.dateFin(), c.salaireBase(),
-                c.avantagesNature(), c.periodeEssai(), c.status().name(), c.motifFin(), c.documentFileId());
+                c.agencyId(), c.employeeId(), c.type().name(), c.position(), c.dateDebut(), c.dateFin(),
+                c.salaireBase(), c.avantagesNature(), c.periodeEssai(), c.status().name(), c.motifFin(),
+                c.documentFileId());
     }
 
     private Contract toDomain(ContractEntity e) {
         return Contract.rehydrate(e.id(), e.tenantId(), e.createdAt(), e.updatedAt(), e.organizationId(),
-                e.agencyId(), e.employeeId(), ContractType.valueOf(e.type()), e.dateDebut(), e.dateFin(),
-                e.salaireBase(), e.avantagesNature(), e.periodeEssai(), ContractStatus.valueOf(e.status()),
-                e.motifFin(), e.documentFileId());
+                e.agencyId(), e.employeeId(), ContractType.valueOf(e.type()), e.position(), e.dateDebut(),
+                e.dateFin(), e.salaireBase(), e.avantagesNature(), e.periodeEssai(),
+                ContractStatus.valueOf(e.status()), e.motifFin(), e.documentFileId());
     }
 }

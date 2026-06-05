@@ -34,4 +34,11 @@ public interface HrmEmployeeDataPort {
 
     /** Notifies hrm-core that {@code amount} was withheld against a loan this period. */
     Mono<Void> registerLoanDeduction(UUID tenantId, UUID loanId, BigDecimal amount);
+
+    /**
+     * Annual-leave balance for the given year ({@code ANNUAL} type only), used to pre-fill the
+     * final-settlement leave compensation when the caller does not pass an explicit value.
+     * Returns an empty balance ({@code LeaveBalanceView.empty()}) when no row exists yet.
+     */
+    Mono<LeaveBalanceView> findAnnualLeaveBalance(UUID tenantId, UUID employeeId, int year);
 }

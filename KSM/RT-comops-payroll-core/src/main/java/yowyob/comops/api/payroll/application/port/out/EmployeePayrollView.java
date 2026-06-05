@@ -31,6 +31,7 @@ import java.util.UUID;
  * @param baseSalary       contractual monthly base salary
  * @param benefitsInKind   valued benefits in kind (avantages en nature)
  * @param countryCode      jurisdiction selecting the applicable pay elements (e.g. "CM")
+ * @param position         contractual job title (fonction), used on the work certificate
  * @param paymentChannel   how net pay is disbursed
  * @param accountRef       bank account / mobile-money number, per channel
  */
@@ -52,6 +53,7 @@ public record EmployeePayrollView(
         BigDecimal baseSalary,
         BigDecimal benefitsInKind,
         String countryCode,
+        String position,
         PaymentChannel paymentChannel,
         String accountRef) {
 }

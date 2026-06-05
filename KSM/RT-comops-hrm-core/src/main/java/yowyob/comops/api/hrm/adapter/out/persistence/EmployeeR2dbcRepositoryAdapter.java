@@ -91,7 +91,8 @@ public class EmployeeR2dbcRepositoryAdapter implements EmployeeRepository {
                 e.agencyId(), e.actorId(), e.managerId(), e.matricule(), e.numCnps(), e.categorie(), e.echelon(),
                 e.dateEmbauche(), e.status().name(), e.departmentCode(), e.modePaiement().name(),
                 e.compteBancaire(), e.numMobileMoney(),
-                e.operateurMm() != null ? e.operateurMm().name() : null, e.actorDisplayName());
+                e.operateurMm() != null ? e.operateurMm().name() : null, e.actorDisplayName(),
+                e.dateSortie(), e.motifSortie());
     }
 
     private Employee toDomain(EmployeeEntity e) {
@@ -99,6 +100,7 @@ public class EmployeeR2dbcRepositoryAdapter implements EmployeeRepository {
                 e.agencyId(), e.actorId(), e.managerId(), e.matricule(), e.numCnps(), e.categorie(), e.echelon(),
                 e.dateEmbauche(), EmployeeStatus.valueOf(e.status()), e.departmentCode(),
                 PaymentChannel.valueOf(e.modePaiement()), e.compteBancaire(), e.numMobileMoney(),
-                e.operateurMm() != null ? MobileOperator.valueOf(e.operateurMm()) : null, e.actorDisplayName());
+                e.operateurMm() != null ? MobileOperator.valueOf(e.operateurMm()) : null, e.actorDisplayName(),
+                e.dateSortie(), e.motifSortie());
     }
 }

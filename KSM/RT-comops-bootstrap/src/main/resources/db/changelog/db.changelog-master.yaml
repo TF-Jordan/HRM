@@ -258,3 +258,12 @@ databaseChangeLog:
   - include:
       file: releases/086-payroll-document.yaml
       relativeToChangelogFile: true
+  - include:
+      file: releases/087-hrm-employee-dateSortie.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: releases/088-hrm-contract-position.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: releases/089-organization-payroll-extensions.yaml
+      relativeToChangelogFile: true

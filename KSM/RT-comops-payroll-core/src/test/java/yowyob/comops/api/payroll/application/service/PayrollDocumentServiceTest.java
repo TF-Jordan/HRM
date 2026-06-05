@@ -138,7 +138,7 @@ class PayrollDocumentServiceTest {
     private EmployeePayrollView employee() {
         return new EmployeePayrollView(EMP, ORG, null, UUID.randomUUID(), "EMP-001", "Alice Mbarga",
                 "CNPS-123", 6, "B", "DEP", LocalDate.of(2020, 1, 1), null, MaritalStatus.SINGLE, 0,
-                new BigDecimal("400000"), BigDecimal.ZERO, "CM", PaymentChannel.BANK_TRANSFER, "ACC-1");
+                new BigDecimal("400000"), BigDecimal.ZERO, "CM", null, PaymentChannel.BANK_TRANSFER, "ACC-1");
     }
 
     private EmployerInfo employer() {

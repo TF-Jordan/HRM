@@ -51,7 +51,7 @@ class FinalSettlementServiceTest {
     void computesPersistsAndPublishes() {
         EmployeePayrollView view = new EmployeePayrollView(EMP, ORG, null, UUID.randomUUID(), "EMP-1",
                 "Alice", "CNPS-1", 6, "B", "DEP", LocalDate.of(2019, 6, 1), null, MaritalStatus.SINGLE, 0,
-                new BigDecimal("400000"), BigDecimal.ZERO, "CM", PaymentChannel.BANK_TRANSFER, "ACC-1");
+                new BigDecimal("400000"), BigDecimal.ZERO, "CM", null, PaymentChannel.BANK_TRANSFER, "ACC-1");
 
         when(hrmPort.findEmployee(TENANT, EMP)).thenReturn(Mono.just(view));
         when(hrmPort.findActiveLoanInstallments(TENANT, EMP)).thenReturn(Flux.empty());

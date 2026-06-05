@@ -43,5 +43,8 @@ public record OrganizationEntity(
         Instant deletedAt,
         String legalName,
         String displayName,
-        String organizationType) implements PersistableEntity {
+        String organizationType,
+        String countryCode,
+        String cnpsEmployerNumber,
+        BigDecimal atRiskRate) implements PersistableEntity {
 }
