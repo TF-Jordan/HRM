@@ -180,3 +180,52 @@ export function getMyPayslipLines(entryId: string, session: AppSession) {
     { session },
   );
 }
+
+/* ===================== Pay variables (monthly inputs) ===================== */
+
+export type PayVariableResponse = {
+  id: string;
+  organizationId: string;
+  employeeId: string;
+  periode: string;
+  overtimeHoursDay: number | string;
+  overtimeHoursNight: number | string;
+  overtimeHoursSundayHoliday: number | string;
+  bonuses: number | string;
+  unpaidAbsenceDays: number | string;
+  advances: number | string;
+  workedDaysOverride: number | null;
+  locked: boolean;
+};
+
+export type CapturePayVariableRequest = {
+  organizationId: string;
+  employeeId: string;
+  period: string;
+  overtimeHoursDay: number;
+  overtimeHoursNight: number;
+  overtimeHoursSundayHoliday: number;
+  bonuses: number;
+  unpaidAbsenceDays: number;
+  advances: number;
+  workedDaysOverride: number | null;
+};
+
+export function listPayVariables(session: AppSession, period: string, organizationId?: string) {
+  const orgId = organizationId ?? session.workspace?.organizationId;
+  if (!orgId) throw new Error("organizationId is required");
+  const params = new URLSearchParams({ organizationId: orgId, period });
+  return callKsm<PayVariableResponse[]>(
+    `/api/v1/payroll/variables?${params}`,
+    {},
+    { session },
+  );
+}
+
+export function capturePayVariable(body: CapturePayVariableRequest, session: AppSession) {
+  return callKsm<PayVariableResponse>(
+    `/api/v1/payroll/variables`,
+    { method: "POST", body },
+    { session },
+  );
+}

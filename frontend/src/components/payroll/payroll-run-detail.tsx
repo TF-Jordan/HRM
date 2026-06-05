@@ -3,12 +3,14 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ArrowLeft,
+  Banknote,
   CheckCircle2,
   ChevronRight,
   Download,
   Loader2,
-  Printer,
+  Lock,
   ShieldCheck,
+  Stamp,
   Users,
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
@@ -23,11 +25,13 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useCan } from "@/hooks/use-can";
 import { Link } from "@/i18n/navigation";
 import { apiFetch, BffApiError } from "@/lib/api-client";
-import { formatDate, formatMoney } from "@/lib/format";
+import { formatMoney } from "@/lib/format";
 import {
   formatPeriodFr,
+  nextPayrollAction,
   payrollStatusTone,
   payrollStepperState,
+  type PayrollRunAction,
 } from "@/lib/payroll-status";
 import { cn } from "@/lib/utils";
 import type {
@@ -58,12 +62,13 @@ export function PayrollRunDetail({ runId }: { runId: string }) {
     queryFn: () => apiFetch<EmployeeResponse[]>("/api/hrm/employees"),
   });
 
-  const validate = useMutation({
-    mutationFn: () =>
-      apiFetch<PayrollRunResponse>(`/api/hrm/payroll/${runId}/validate`, { method: "POST" }),
-    onSuccess: () => {
-      toast.success(t("status.VALIDATED"));
+  const transition = useMutation({
+    mutationFn: (action: PayrollRunAction) =>
+      apiFetch<PayrollRunResponse>(`/api/hrm/payroll/${runId}/${action}`, { method: "POST" }),
+    onSuccess: (data) => {
+      toast.success(t(`status.${data.status as PayrollRunStatus}`));
       qc.invalidateQueries({ queryKey: ["hrm", "payroll", runId] });
+      qc.invalidateQueries({ queryKey: ["hrm", "payroll", runId, "entries"] });
       qc.invalidateQueries({ queryKey: ["hrm", "payroll", "runs"] });
     },
     onError: (cause) => {
@@ -72,6 +77,7 @@ export function PayrollRunDetail({ runId }: { runId: string }) {
   });
 
   const run = runQuery.data;
+  const action = run ? nextPayrollAction(run.status) : null;
   const entries = entriesQuery.data ?? [];
   const employeesById = React.useMemo(() => {
     const m = new Map<string, EmployeeResponse>();
@@ -113,15 +119,13 @@ export function PayrollRunDetail({ runId }: { runId: string }) {
                 <ArrowLeft className="h-4 w-4" /> {t("actions.back")}
               </Button>
             </Link>
-            {run && run.status === "CALCULATED" && canValidate && (
-              <Button onClick={() => validate.mutate()} disabled={validate.isPending}>
-                {validate.isPending ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <ShieldCheck className="h-4 w-4" />
-                )}
-                {validate.isPending ? t("actions.validating") : t("actions.validate")}
-              </Button>
+            {run && action && canValidate && (
+              <ActionButton
+                action={action}
+                isPending={transition.isPending}
+                onRun={() => transition.mutate(action)}
+                t={t}
+              />
             )}
           </>
         }
@@ -223,6 +227,40 @@ export function PayrollRunDetail({ runId }: { runId: string }) {
         </div>
       )}
     </>
+  );
+}
+
+const ACTION_CONFIG: Record<
+  PayrollRunAction,
+  { icon: React.ComponentType<{ className?: string }>; labelKey: string; pendingKey: string }
+> = {
+  validate: { icon: ShieldCheck, labelKey: "actions.validate", pendingKey: "actions.validating" },
+  approve: { icon: Stamp, labelKey: "actions.approve", pendingKey: "actions.approving" },
+  "initiate-payment": {
+    icon: Banknote,
+    labelKey: "actions.initiatePayment",
+    pendingKey: "actions.initiatingPayment",
+  },
+  close: { icon: Lock, labelKey: "actions.close", pendingKey: "actions.closing" },
+};
+
+function ActionButton({
+  action,
+  isPending,
+  onRun,
+  t,
+}: {
+  action: PayrollRunAction;
+  isPending: boolean;
+  onRun: () => void;
+  t: ReturnType<typeof useTranslations<"payroll">>;
+}) {
+  const { icon: Icon, labelKey, pendingKey } = ACTION_CONFIG[action];
+  return (
+    <Button onClick={onRun} disabled={isPending}>
+      {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Icon className="h-4 w-4" />}
+      {isPending ? t(pendingKey) : t(labelKey)}
+    </Button>
   );
 }
 
@@ -363,7 +401,7 @@ function paymentLabel(
   s: string,
   t: ReturnType<typeof useTranslations<"payroll">>,
 ): string {
-  const keys = ["PENDING", "SCHEDULED", "SENT", "PAID", "FAILED"];
+  const keys = ["PENDING", "PROCESSING", "COMPLETED", "FAILED"];
   return keys.includes(s) ? t(`payment.${s as "PENDING"}`) : s;
 }
 
@@ -379,9 +417,8 @@ function channelLabel(
 function paymentTone(s: string): "warning" | "info" | "success" | "danger" | "gray" {
   switch (s) {
     case "PENDING": return "warning";
-    case "SCHEDULED": return "info";
-    case "SENT": return "info";
-    case "PAID": return "success";
+    case "PROCESSING": return "info";
+    case "COMPLETED": return "success";
     case "FAILED": return "danger";
     default: return "gray";
   }

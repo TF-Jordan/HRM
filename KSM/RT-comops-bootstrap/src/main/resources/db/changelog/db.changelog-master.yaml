@@ -267,3 +267,9 @@ databaseChangeLog:
   - include:
       file: releases/089-organization-payroll-extensions.yaml
       relativeToChangelogFile: true
+  - include:
+      file: releases/090-hrm-payroll-demo-inputs.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: releases/091-hrm-contract-single-active.yaml
+      relativeToChangelogFile: true

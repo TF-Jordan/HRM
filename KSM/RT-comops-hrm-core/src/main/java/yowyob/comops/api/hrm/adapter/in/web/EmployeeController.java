@@ -14,6 +14,7 @@ import yowyob.comops.api.hrm.application.port.in.UpdateEmergencyContactCommand;
 import yowyob.comops.api.hrm.application.port.in.UpdateEmployeeCommand;
 import yowyob.comops.api.hrm.application.port.in.UpsertPersonalInfoCommand;
 import yowyob.comops.api.hrm.application.port.out.ActorPort;
+import yowyob.comops.api.hrm.domain.ActiveContractAlreadyExistsException;
 import yowyob.comops.api.hrm.domain.ContractNotFoundException;
 import yowyob.comops.api.hrm.domain.DuplicateCnpsException;
 import yowyob.comops.api.hrm.domain.DuplicateEmployeeException;
@@ -508,6 +509,12 @@ public class EmployeeController {
         ResponseEntity<ApiResponse<Void>> handleContractNotFound(ContractNotFoundException ex) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(ApiResponse.failure(ex.getMessage(), "CONTRACT_NOT_FOUND"));
+        }
+
+        @ExceptionHandler(ActiveContractAlreadyExistsException.class)
+        ResponseEntity<ApiResponse<Void>> handleActiveContractExists(ActiveContractAlreadyExistsException ex) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(ApiResponse.failure(ex.getMessage(), "ACTIVE_CONTRACT_EXISTS"));
         }
     }
 }

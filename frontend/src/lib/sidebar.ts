@@ -442,7 +442,6 @@ const PAYROLL_MANAGER_SECTIONS: NavSection[] = [
         labelKey: "nav.variables",
         icon: ClipboardList,
         permission: "hrm:payroll:run",
-        comingSoon: true,
       },
       {
         href: "/retroactive",

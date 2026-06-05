@@ -29,6 +29,7 @@ import { toast } from "sonner";
 import {
   formatPeriodFr,
   getPayrollWindowState,
+  isPayrollRunTerminal,
   payrollStatusProgress,
   payrollStatusTone,
   payrollStepperState,
@@ -59,7 +60,7 @@ export function PayrollList() {
       .sort((a, b) => (a.periode < b.periode ? 1 : -1));
   }, [query.data]);
 
-  const active = runs.find((r) => r.status !== "PAID") ?? runs[0] ?? null;
+  const active = runs.find((r) => !isPayrollRunTerminal(r.status)) ?? runs[0] ?? null;
 
   // Only compute once data is loaded so an empty array doesn't look like "no run this month"
   const windowState = React.useMemo(
@@ -92,18 +93,18 @@ export function PayrollList() {
           <>
             {canCreate && (
               <div className="flex flex-col items-end gap-1">
-                {!windowState || windowState.canRun ? (
-                  <Link href={windowState?.canRun ? "/payroll/new" : "#"}>
+                {windowState && !windowState.canRun && windowState.reason === "already_run" ? (
+                  <Button disabled>
+                    <Plus className="h-4 w-4" />
+                    {t("actions.newRun")}
+                  </Button>
+                ) : (
+                  <Link href="/payroll/new">
                     <Button disabled={!windowState}>
                       <Plus className="h-4 w-4" />
                       {t("actions.newRun")}
                     </Button>
                   </Link>
-                ) : (
-                  <Button disabled>
-                    <Plus className="h-4 w-4" />
-                    {t("actions.newRun")}
-                  </Button>
                 )}
                 {windowState && (
                   <span className="text-[11px] text-ink-3">
@@ -111,7 +112,7 @@ export function PayrollList() {
                       ? t("cycle.openWindow", { days: windowState.daysUntilMonthEnd })
                       : windowState.reason === "already_run"
                       ? t("cycle.alreadyRun")
-                      : t("cycle.tooEarly", { days: windowState.daysUntilOpen })}
+                      : t("cycle.tooEarlyHint", { days: windowState.daysUntilOpen })}
                   </span>
                 )}
               </div>
@@ -248,13 +249,7 @@ function Hero({
 
         <div className="flex w-full flex-col gap-2 sm:w-auto sm:min-w-[210px]">
           <Link href={`/payroll/${run.id}`}>
-            <Button className="w-full">
-              {run.status === "CALCULATED"
-                ? t("actions.continueReview")
-                : run.status === "VALIDATED"
-                ? t("actions.startPayment")
-                : t("actions.details")}
-            </Button>
+            <Button className="w-full">{heroCtaLabel(run.status, t)}</Button>
           </Link>
           <Link href={`/payroll/${run.id}`}>
             <Button
@@ -585,6 +580,27 @@ function DonutCenter({
 // ────────────────────────────────────────────────────────────────────────
 // Helpers
 // ────────────────────────────────────────────────────────────────────────
+
+function heroCtaLabel(
+  status: PayrollRunStatus | string,
+  t: ReturnType<typeof useTranslations<"payroll">>,
+): string {
+  switch (status) {
+    case "CALCULATED":
+    case "REVIEW":
+      return t("actions.continueReview");
+    case "VALIDATED":
+      return t("actions.approve");
+    case "APPROVED":
+      return t("actions.startPayment");
+    case "PAYMENT_INITIATED":
+      return t("actions.trackPayment");
+    case "PAID":
+      return t("actions.close");
+    default:
+      return t("actions.details");
+  }
+}
 
 function buildEvolution(runs: PayrollRunResponse[]): { label: string; value: number }[] {
   if (runs.length === 0) return [];

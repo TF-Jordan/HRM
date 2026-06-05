@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 090-hrm-payroll-demo-inputs
+      author: cursor
+      changes:
+        - sqlFile:
+            path: db/r2dbc/V90__hrm_payroll_demo_inputs.sql
+            relativeToChangelogFile: false

@@ -12,6 +12,13 @@
     "downloadRun": "Download cycle",
     "validate": "Validate payroll",
     "validating": "Validating…",
+    "approve": "Approve payroll",
+    "approving": "Approving…",
+    "initiatePayment": "Initiate payment",
+    "initiatingPayment": "Initiating…",
+    "trackPayment": "Track payment",
+    "close": "Close cycle",
+    "closing": "Closing…",
     "calculate": "Run calculation",
     "calculating": "Calculating…",
     "previewPayslip": "Preview payslips",
@@ -21,9 +28,15 @@
     "viewPayslip": "View payslip"
   },
   "status": {
+    "DRAFT": "Draft",
+    "VARIABLES_LOCKED": "Variables locked",
     "CALCULATED": "Calculated",
+    "REVIEW": "Under review",
     "VALIDATED": "Validated",
+    "APPROVED": "Approved",
+    "PAYMENT_INITIATED": "Payment initiated",
     "PAID": "Paid",
+    "CLOSED": "Closed",
     "active": "Active cycle"
   },
   "stepper": {
@@ -126,6 +139,7 @@
   "cycle": {
     "alreadyRun": "Payroll already run this month",
     "tooEarly": "Window opens in {days} day(s)",
+    "tooEarlyHint": "Outside the recommended end-of-month window — off-cycle / test run possible",
     "openWindow": "Window open · {days} day(s) left — auto-runs at 23:59 if not triggered",
     "downloadRequiresValidation": "Available after cycle validation"
   },
@@ -138,10 +152,9 @@
     "statusLabel": "Cycle status"
   },
   "payment": {
-    "PENDING": "To schedule",
-    "SCHEDULED": "Scheduled",
-    "SENT": "Sent",
-    "PAID": "Paid",
+    "PENDING": "Pending",
+    "PROCESSING": "Processing",
+    "COMPLETED": "Paid",
     "FAILED": "Failed"
   },
   "channel": {
@@ -149,5 +162,62 @@
     "MTN_MOBILE_MONEY": "MTN Mobile Money",
     "ORANGE_MONEY": "Orange Money",
     "CASH": "Cash"
+  },
+  "variables": {
+    "uc": "Payroll preparation",
+    "title": "Monthly variables",
+    "subtitle": "Capture the month's variable inputs before running payroll",
+    "period": "Period",
+    "searchPlaceholder": "Search an employee…",
+    "capture": "Capture",
+    "edit": "Edit",
+    "saved": "Variables saved",
+    "saveError": "Could not save the variables",
+    "stats": {
+      "employees": "Employees in scope",
+      "employeesSub": "{count} with captured variables",
+      "captured": "Captured",
+      "capturedSub": "employees covered for the period",
+      "overtime": "Overtime hours",
+      "overtimeSub": "day + night + sunday/holiday total",
+      "bonuses": "Bonuses this month",
+      "bonusesSub": "XAF · total captured"
+    },
+    "table": {
+      "title": "Capture per employee",
+      "subtitle": "Period · {period}",
+      "employee": "Employee",
+      "empty": "No active employee for this organization."
+    },
+    "cols": {
+      "overtimeDay": "OT day",
+      "overtimeNight": "OT night",
+      "overtimeSunday": "OT sun./hol.",
+      "bonuses": "Bonuses (XAF)",
+      "absences": "Absences (d)",
+      "advances": "Advances (XAF)",
+      "workedDays": "Worked days",
+      "state": "State"
+    },
+    "state": {
+      "captured": "Captured",
+      "empty": "Not captured",
+      "locked": "Locked",
+      "lockedHint": "Variables locked: the payroll run has started for this period."
+    },
+    "hints": {
+      "hours": "In hours",
+      "days": "In days",
+      "money": "In XAF",
+      "workedDays": "Leave empty to use the month's default working days.",
+      "workedDaysPlaceholder": "Default"
+    },
+    "dialog": {
+      "captureTitle": "Capture variables",
+      "editTitle": "Edit variables",
+      "save": "Save",
+      "saving": "Saving…",
+      "cancel": "Cancel"
+    }
   }
 }

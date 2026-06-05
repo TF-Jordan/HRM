@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 091-hrm-contract-single-active
+      author: cursor
+      changes:
+        - sqlFile:
+            path: db/r2dbc/V91__hrm_contract_single_active.sql
+            relativeToChangelogFile: false

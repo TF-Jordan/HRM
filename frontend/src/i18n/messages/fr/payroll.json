@@ -12,6 +12,13 @@
     "downloadRun": "Télécharger le cycle",
     "validate": "Valider la paie",
     "validating": "Validation…",
+    "approve": "Approuver la paie",
+    "approving": "Approbation…",
+    "initiatePayment": "Initier le paiement",
+    "initiatingPayment": "Initialisation…",
+    "trackPayment": "Suivre le paiement",
+    "close": "Clôturer le cycle",
+    "closing": "Clôture…",
     "calculate": "Lancer le calcul",
     "calculating": "Calcul en cours…",
     "previewPayslip": "Aperçu bulletins",
@@ -21,9 +28,15 @@
     "viewPayslip": "Voir le bulletin"
   },
   "status": {
+    "DRAFT": "Brouillon",
+    "VARIABLES_LOCKED": "Variables figées",
     "CALCULATED": "Calculée",
+    "REVIEW": "En vérification",
     "VALIDATED": "Validée",
+    "APPROVED": "Approuvée",
+    "PAYMENT_INITIATED": "Paiement initié",
     "PAID": "Payée",
+    "CLOSED": "Clôturée",
     "active": "Cycle actif"
   },
   "stepper": {
@@ -126,6 +139,7 @@
   "cycle": {
     "alreadyRun": "Paie déjà lancée ce mois",
     "tooEarly": "Fenêtre disponible dans {days} j.",
+    "tooEarlyHint": "Hors fenêtre recommandée (fin de mois) — cycle hors-cycle / de test possible",
     "openWindow": "Fenêtre ouverte · {days} j. restants — auto à 23h59 si non déclenché",
     "downloadRequiresValidation": "Disponible après validation du cycle"
   },
@@ -138,10 +152,9 @@
     "statusLabel": "Statut du cycle"
   },
   "payment": {
-    "PENDING": "À ordonner",
-    "SCHEDULED": "Ordonné",
-    "SENT": "Envoyé",
-    "PAID": "Payé",
+    "PENDING": "En attente",
+    "PROCESSING": "En cours",
+    "COMPLETED": "Payé",
     "FAILED": "Échec"
   },
   "channel": {
@@ -149,5 +162,62 @@
     "MTN_MOBILE_MONEY": "MTN Mobile Money",
     "ORANGE_MONEY": "Orange Money",
     "CASH": "Espèces"
+  },
+  "variables": {
+    "uc": "Préparation paie",
+    "title": "Variables mensuelles",
+    "subtitle": "Saisie des éléments variables du mois avant le calcul de la paie",
+    "period": "Période",
+    "searchPlaceholder": "Rechercher un employé…",
+    "capture": "Saisir",
+    "edit": "Modifier",
+    "saved": "Variables enregistrées",
+    "saveError": "Impossible d'enregistrer les variables",
+    "stats": {
+      "employees": "Employés concernés",
+      "employeesSub": "{count} avec variables saisies",
+      "captured": "Saisies effectuées",
+      "capturedSub": "employés couverts pour la période",
+      "overtime": "Heures supplémentaires",
+      "overtimeSub": "cumul jour + nuit + dimanche/férié",
+      "bonuses": "Primes du mois",
+      "bonusesSub": "XAF · total saisi"
+    },
+    "table": {
+      "title": "Saisie par employé",
+      "subtitle": "Période · {period}",
+      "employee": "Employé",
+      "empty": "Aucun employé actif pour cette organisation."
+    },
+    "cols": {
+      "overtimeDay": "HS jour",
+      "overtimeNight": "HS nuit",
+      "overtimeSunday": "HS dim./férié",
+      "bonuses": "Primes (XAF)",
+      "absences": "Absences (j)",
+      "advances": "Avances (XAF)",
+      "workedDays": "Jours travaillés",
+      "state": "État"
+    },
+    "state": {
+      "captured": "Saisi",
+      "empty": "Non saisi",
+      "locked": "Verrouillé",
+      "lockedHint": "Variables figées : le cycle de paie a été lancé pour cette période."
+    },
+    "hints": {
+      "hours": "En heures",
+      "days": "En jours",
+      "money": "En XAF",
+      "workedDays": "Laisser vide pour utiliser les jours ouvrés par défaut du mois.",
+      "workedDaysPlaceholder": "Par défaut"
+    },
+    "dialog": {
+      "captureTitle": "Saisir les variables",
+      "editTitle": "Modifier les variables",
+      "save": "Enregistrer",
+      "saving": "Enregistrement…",
+      "cancel": "Annuler"
+    }
   }
 }

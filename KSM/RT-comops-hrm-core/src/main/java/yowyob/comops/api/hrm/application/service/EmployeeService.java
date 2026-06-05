@@ -22,6 +22,7 @@ import yowyob.comops.api.hrm.application.port.out.LeaveBalanceRepository;
 import yowyob.comops.api.hrm.application.port.out.PerformanceReviewRepository;
 import yowyob.comops.api.hrm.application.port.out.SettingsPort;
 import yowyob.comops.api.hrm.application.port.out.ThirdPartyProfilePort;
+import yowyob.comops.api.hrm.domain.ActiveContractAlreadyExistsException;
 import yowyob.comops.api.hrm.domain.ActorNotFoundException;
 import yowyob.comops.api.hrm.domain.ContractNotFoundException;
 import yowyob.comops.api.hrm.domain.DuplicateCnpsException;
@@ -268,18 +269,25 @@ public class EmployeeService implements ManageEmployeeUseCase {
         return ReactiveRequestContextHolder.getRequiredContext()
                 .flatMap(context -> employeeRepository.findById(context.tenantId(), employeeId)
                         .switchIfEmpty(Mono.error(new EmployeeNotFoundException(employeeId)))
-                        .flatMap(employee -> {
-                            Contract contract = Contract.create(context.tenantId(), context.organizationId(),
-                                    context.agencyId(), employeeId, ContractType.valueOf(command.type()),
-                                    command.dateDebut(), command.dateFin(), command.salaireBase(),
-                                    command.avantagesNature(), command.periodeEssai(), command.documentFileId());
-                            return contractRepository.save(contract)
-                                    .flatMap(saved -> businessEventPublisher.publish(
-                                            BusinessEvent.now(context.tenantId(), context.organizationId(),
-                                                    "CONTRACT_CREATED", "CONTRACT", saved.id(),
-                                                    payload("employeeId", employeeId,
-                                                            "type", saved.type().name()))).thenReturn(saved));
-                        }));
+                        // Invariant (non-negotiable): an employee may hold at most one ACTIVE
+                        // contract. Reject the creation if one already exists — it must be
+                        // terminated or renewed first.
+                        .flatMap(employee -> contractRepository
+                                .findActiveByEmployeeId(context.tenantId(), employeeId)
+                                .flatMap(existing -> Mono.<Contract>error(
+                                        new ActiveContractAlreadyExistsException(employeeId)))
+                                .switchIfEmpty(Mono.defer(() -> {
+                                    Contract contract = Contract.create(context.tenantId(), context.organizationId(),
+                                            context.agencyId(), employeeId, ContractType.valueOf(command.type()),
+                                            command.dateDebut(), command.dateFin(), command.salaireBase(),
+                                            command.avantagesNature(), command.periodeEssai(), command.documentFileId());
+                                    return contractRepository.save(contract)
+                                            .flatMap(saved -> businessEventPublisher.publish(
+                                                    BusinessEvent.now(context.tenantId(), context.organizationId(),
+                                                            "CONTRACT_CREATED", "CONTRACT", saved.id(),
+                                                            payload("employeeId", employeeId,
+                                                                    "type", saved.type().name()))).thenReturn(saved));
+                                }))));
     }
 
     @Override
