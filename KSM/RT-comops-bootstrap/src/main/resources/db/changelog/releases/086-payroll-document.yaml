@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 086-payroll-document
+      author: jordan
+      changes:
+        - sqlFile:
+            path: db/r2dbc/V86__payroll_document.sql
+            relativeToChangelogFile: false

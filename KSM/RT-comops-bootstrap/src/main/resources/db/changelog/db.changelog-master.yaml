@@ -255,3 +255,6 @@ databaseChangeLog:
   - include:
       file: releases/085-payroll-retroactive.yaml
       relativeToChangelogFile: true
+  - include:
+      file: releases/086-payroll-document.yaml
+      relativeToChangelogFile: true
