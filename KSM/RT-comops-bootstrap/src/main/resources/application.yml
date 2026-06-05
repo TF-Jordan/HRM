@@ -100,6 +100,15 @@ iwm:
       issuer: ${IWM_JWT_ISSUER:iwm-backend}
       access-token-ttl: ${IWM_JWT_ACCESS_TOKEN_TTL:15m}
       auto-generate-key-pair: ${IWM_JWT_AUTO_GENERATE_KEY_PAIR:true}
+  payroll:
+    # RSA key used to seal generated payroll documents (payslips, STC, attestations).
+    # In production, set both paths to PEM files so historical seals stay verifiable across
+    # restarts. If left empty, an in-memory key is generated at startup (development only;
+    # documents signed before a restart will NOT verify afterwards).
+    document-signing:
+      key-id: ${IWM_PAYROLL_DOC_SIGNING_KEY_ID:payroll-doc-key-1}
+      private-key-path: ${IWM_PAYROLL_DOC_SIGNING_PRIVATE_KEY_PATH:}
+      public-key-path: ${IWM_PAYROLL_DOC_SIGNING_PUBLIC_KEY_PATH:}
   redis:
     permission-cache:
       enabled: ${IWM_REDIS_PERMISSION_CACHE_ENABLED:false}
