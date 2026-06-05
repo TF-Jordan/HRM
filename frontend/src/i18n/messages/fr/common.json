@@ -42,5 +42,11 @@
     "french": "Français",
     "english": "Anglais",
     "switchTo": "Changer la langue"
+  },
+  "comingSoon": {
+    "badge": "Bientôt disponible",
+    "pill": "Bientôt",
+    "body": "Cette fonctionnalité sera disponible dans une prochaine version. L'équipe travaille dessus.",
+    "backToDashboard": "Retour au tableau de bord"
   }
 }

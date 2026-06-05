@@ -42,5 +42,11 @@
     "french": "French",
     "english": "English",
     "switchTo": "Switch language"
+  },
+  "comingSoon": {
+    "badge": "Coming soon",
+    "pill": "Soon",
+    "body": "This feature will be available in an upcoming release. The team is working on it.",
+    "backToDashboard": "Back to dashboard"
   }
 }

@@ -10,7 +10,12 @@
     "administration": "ADMINISTRATION",
     "personal": "ESPACE PERSONNEL",
     "health": "SANTÉ",
-    "company": "ENTREPRISE"
+    "company": "ENTREPRISE",
+    "payrollCycle": "Cycle de paie",
+    "payrollConfig": "Configuration paie",
+    "payrollOutput": "Sortie paie",
+    "payrollSpecial": "Cas spéciaux",
+    "recruitment": "Recrutement"
   },
   "nav": {
     "dashboard": "Tableau de bord",
@@ -50,7 +55,21 @@
     "myReviews": "Mes évaluations",
     "mySkills": "Mes compétences",
     "myMedical": "Suivi médical",
-    "directory": "Annuaire"
+    "directory": "Annuaire",
+    "documents": "Documents",
+    "finalSettlements": "Soldes de tout compte",
+    "garnishments": "Saisies sur salaire",
+    "kpi": "Indicateurs",
+    "newCertificate": "Nouveau certificat",
+    "newVisit": "Nouvelle visite",
+    "onboarding": "Onboarding",
+    "payElements": "Rubriques de paie",
+    "payrollOverview": "Aperçu paie",
+    "retroactive": "Régularisations",
+    "runs": "Cycles de paie",
+    "taxBrackets": "Barèmes fiscaux",
+    "team": "Mon équipe",
+    "variables": "Variables mensuelles"
   },
   "topbar": {
     "searchPlaceholder": "Rechercher employés, congés, paie…",

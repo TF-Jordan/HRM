@@ -10,7 +10,12 @@
     "administration": "ADMINISTRATION",
     "personal": "MY SPACE",
     "health": "HEALTH",
-    "company": "COMPANY"
+    "company": "COMPANY",
+    "payrollCycle": "Payroll cycle",
+    "payrollConfig": "Payroll configuration",
+    "payrollOutput": "Payroll output",
+    "payrollSpecial": "Special cases",
+    "recruitment": "Recruitment"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -50,7 +55,21 @@
     "myReviews": "My reviews",
     "mySkills": "My skills",
     "myMedical": "Medical follow-up",
-    "directory": "Directory"
+    "directory": "Directory",
+    "documents": "Documents",
+    "finalSettlements": "Final settlements",
+    "garnishments": "Wage garnishments",
+    "kpi": "KPI",
+    "newCertificate": "New certificate",
+    "newVisit": "New visit",
+    "onboarding": "Onboarding",
+    "payElements": "Pay elements",
+    "payrollOverview": "Payroll overview",
+    "retroactive": "Retroactive",
+    "runs": "Payroll runs",
+    "taxBrackets": "Tax brackets",
+    "team": "My team",
+    "variables": "Monthly variables"
   },
   "topbar": {
     "searchPlaceholder": "Search employees, leaves, payroll…",

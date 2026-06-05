@@ -1,30 +1,6 @@
 "use client";
 
-import {
-  Bell,
-  Briefcase,
-  Building2,
-  CalendarRange,
-  ChartLine,
-  ChartPie,
-  ClipboardList,
-  Clock,
-  Coins,
-  FileSearch,
-  FileText,
-  GraduationCap,
-  HeartPulse,
-  LayoutDashboard,
-  LogOut,
-  Map,
-  Settings,
-  ShieldCheck,
-  Sparkles,
-  Stethoscope,
-  Target,
-  Users,
-  Wallet,
-} from "lucide-react";
+import { LogOut } from "lucide-react";
 import { useTranslations } from "next-intl";
 import * as React from "react";
 
@@ -35,140 +11,8 @@ import { useCan } from "@/hooks/use-can";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { apiFetch } from "@/lib/api-client";
 import { isMigratedRole, roleSlug } from "@/lib/roles";
+import { type NavItem, type NavSection, sidebarForRole } from "@/lib/sidebar";
 import { cn } from "@/lib/utils";
-
-type NavItem = {
-  href: string;
-  labelKey: string;
-  icon: React.ComponentType<{ className?: string }>;
-  permission?: string;
-};
-
-type NavSection = {
-  labelKey: string;
-  items: NavItem[];
-};
-
-// ── Employee self-service navigation (matches pages-employee design) ─────────
-const EMP_SECTIONS: NavSection[] = [
-  {
-    labelKey: "sections.personal",
-    items: [
-      { href: "/dashboard",  labelKey: "nav.myDashboard",  icon: LayoutDashboard },
-      { href: "/profile",    labelKey: "nav.myProfile",    icon: Users },
-    ],
-  },
-  {
-    labelKey: "sections.compensation",
-    items: [
-      { href: "/payslips",       labelKey: "nav.myPayslips", icon: Wallet },
-      { href: "/expenses",  labelKey: "nav.myExpenses", icon: ClipboardList, permission: "hrm:expense:read" },
-      { href: "/loans",          labelKey: "nav.myLoans",    icon: Coins },
-    ],
-  },
-  {
-    labelKey: "sections.activity",
-    items: [
-      { href: "/leaves",            labelKey: "nav.myLeaves",   icon: CalendarRange, permission: "hrm:leave:read" },
-      { href: "/timesheets",        labelKey: "nav.myTime",     icon: Clock,         permission: "hrm:timesheet:read" },
-      { href: "/mission-orders",  labelKey: "nav.myMissions", icon: Map,           permission: "hrm:mission:read" },
-    ],
-  },
-  {
-    labelKey: "sections.development",
-    items: [
-      { href: "/trainings", labelKey: "nav.myTrainings", icon: GraduationCap, permission: "hrm:training:read" },
-      { href: "/reviews",        labelKey: "nav.myReviews",   icon: Target,        permission: "hrm:review:read" },
-      { href: "/skills",         labelKey: "nav.mySkills",    icon: Sparkles,      permission: "hrm:skill:read" },
-    ],
-  },
-  {
-    labelKey: "sections.health",
-    items: [
-      { href: "/medical", labelKey: "nav.myMedical", icon: Stethoscope, permission: "hrm:medical:read" },
-    ],
-  },
-  {
-    labelKey: "sections.company",
-    items: [
-      { href: "/employees", labelKey: "nav.directory", icon: Users, permission: "hrm:employee:read" },
-    ],
-  },
-];
-
-// ── HR manager navigation ─────────────────────────────────────────────────────
-const SECTIONS: NavSection[] = [
-  {
-    labelKey: "sections.pilotage",
-    items: [
-      { href: "/dashboard", labelKey: "nav.dashboard", icon: LayoutDashboard },
-      { href: "/analytics", labelKey: "nav.analytics", icon: ChartLine, permission: "hrm:kpi:read" },
-    ],
-  },
-  {
-    labelKey: "sections.personnel",
-    items: [
-      { href: "/employees", labelKey: "nav.employees", icon: Users, permission: "hrm:employee:read" },
-      { href: "/contracts", labelKey: "nav.contracts", icon: FileText, permission: "hrm:contract:read" },
-      { href: "/skills", labelKey: "nav.skills", icon: Sparkles, permission: "hrm:skill:read" },
-      { href: "/recruitment", labelKey: "nav.recruitment", icon: Briefcase, permission: "hrm:recruitment:read" },
-    ],
-  },
-  {
-    labelKey: "sections.activity",
-    items: [
-      { href: "/timesheets", labelKey: "nav.time", icon: Clock, permission: "hrm:timesheet:read" },
-      { href: "/leaves", labelKey: "nav.leaves", icon: CalendarRange, permission: "hrm:leave:read" },
-      { href: "/mission-orders", labelKey: "nav.missions", icon: Map, permission: "hrm:mission:read" },
-    ],
-  },
-  {
-    labelKey: "sections.compensation",
-    items: [
-      { href: "/payroll", labelKey: "nav.payroll", icon: Wallet, permission: "hrm:payroll:read" },
-      { href: "/loans", labelKey: "nav.loans", icon: Coins, permission: "hrm:loan:read" },
-      { href: "/expenses", labelKey: "nav.expenses", icon: ClipboardList, permission: "hrm:expense:read" },
-    ],
-  },
-  {
-    labelKey: "sections.development",
-    items: [
-      { href: "/reviews", labelKey: "nav.reviews", icon: Target, permission: "hrm:review:read" },
-      { href: "/trainings", labelKey: "nav.trainings", icon: GraduationCap, permission: "hrm:training:read" },
-      { href: "/training-budgets", labelKey: "nav.budget", icon: ChartPie, permission: "hrm:budget:read" },
-    ],
-  },
-  {
-    labelKey: "sections.compliance",
-    items: [
-      { href: "/medical", labelKey: "nav.medical", icon: Stethoscope, permission: "hrm:medical:read" },
-      { href: "/declarations", labelKey: "nav.declarations", icon: ShieldCheck, permission: "hrm:declaration:read" },
-    ],
-  },
-  {
-    labelKey: "sections.system",
-    items: [{ href: "/settings", labelKey: "nav.settings", icon: Settings }],
-  },
-  {
-    labelKey: "sections.administration",
-    items: [
-      { href: "/admin", labelKey: "nav.administration", icon: Building2, permission: "tenant:admin" },
-      { href: "/admin/users", labelKey: "nav.users", icon: Users, permission: "tenant:admin" },
-      {
-        href: "/admin/roles",
-        labelKey: "nav.roles",
-        icon: ShieldCheck,
-        permission: "administration:roles:read",
-      },
-      {
-        href: "/admin/audit",
-        labelKey: "nav.audit",
-        icon: FileSearch,
-        permission: "administration:audit:read",
-      },
-    ],
-  },
-];
 
 export function Sidebar() {
   const t = useTranslations("shell");
@@ -179,13 +23,13 @@ export function Sidebar() {
   const { session, setSession } = useSession();
 
   // One account = one role. The role's slug namespaces every link the user can
-  // reach. Employees get the self-service nav; every other role keeps the full
-  // HR nav (filtered per-item by permission). Hrefs are prefixed with the role
-  // slug for migrated roles, and left flat (legacy routes) for the rest.
+  // reach and selects the sidebar config in {@link sidebarForRole}. Hrefs are
+  // prefixed with the role slug for migrated roles, and left flat (legacy
+  // routes) for the rest. Per-item permissions provide an additional gate.
   const slug = roleSlug(session?.user.roles, session?.user.permissions);
   const isEmployee = slug === "employee";
   const prefix = isMigratedRole(slug) ? `/${slug}` : "";
-  const rawSections = isEmployee ? EMP_SECTIONS : SECTIONS;
+  const rawSections = React.useMemo(() => sidebarForRole(slug), [slug]);
   const sections = React.useMemo(
     () =>
       rawSections.map((section) => ({
@@ -324,6 +168,7 @@ function SidebarItem({
   active: boolean;
   t: ReturnType<typeof useTranslations<"shell">>;
 }) {
+  const tCommon = useTranslations("common.comingSoon");
   const can = useCan(item.permission ?? "");
   if (item.permission && !can) return null;
   const Icon = item.icon;
@@ -339,6 +184,16 @@ function SidebarItem({
     >
       <Icon className="relative h-[18px] w-[18px] shrink-0" />
       <span className="relative">{t(item.labelKey)}</span>
+      {item.comingSoon && (
+        <span
+          className={cn(
+            "relative ml-auto rounded-full px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider",
+            active ? "bg-white/25 text-white" : "bg-orange-100 text-orange-700",
+          )}
+        >
+          {tCommon("pill")}
+        </span>
+      )}
     </Link>
   );
 }
