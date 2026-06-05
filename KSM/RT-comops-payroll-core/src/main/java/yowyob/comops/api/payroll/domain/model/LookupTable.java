@@ -78,6 +78,12 @@ public final class LookupTable extends BaseEntity {
         return active && started && notEnded;
     }
 
+    /** Returns a deactivated copy (closes the scale to future runs); bumps updatedAt. */
+    public LookupTable deactivate() {
+        return new LookupTable(id(), tenantId(), createdAt(), Instant.now(), code, label,
+                countryCode, effectiveFrom, effectiveTo, false, entries);
+    }
+
     public String code() { return code; }
     public String label() { return label; }
     public String countryCode() { return countryCode; }

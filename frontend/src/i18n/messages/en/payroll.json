@@ -219,5 +219,154 @@
       "saving": "Saving…",
       "cancel": "Cancel"
     }
+  },
+  "category": {
+    "EARNING": "Earning",
+    "DEDUCTION": "Employee deduction",
+    "EMPLOYER_CHARGE": "Employer charge",
+    "INFORMATIONAL": "Informational"
+  },
+  "method": {
+    "RATE": "Rate",
+    "BRACKET": "Bracket",
+    "FLAT": "Flat",
+    "LOOKUP_TABLE": "Lookup",
+    "FORMULA": "Formula"
+  },
+  "elements": {
+    "uc": "Payroll configuration",
+    "title": "Pay elements",
+    "subtitle": "Configurable catalogue of calculation rules (earnings, deductions, charges)",
+    "country": "Legislation (country)",
+    "new": "New pay element",
+    "activeRubrics": "active elements",
+    "filterAll": "All",
+    "showInactive": "Show inactive",
+    "searchPlaceholder": "Code or label…",
+    "taxable": "Taxable",
+    "contributable": "Contributable",
+    "active": "Active",
+    "inactive": "Inactive",
+    "created": "Pay element created",
+    "createError": "Could not create the pay element",
+    "deactivated": "Pay element deactivated",
+    "deactivateError": "Could not deactivate the pay element",
+    "deactivate": "Deactivate",
+    "deactivating": "Deactivating…",
+    "deactivateTitle": "Deactivate pay element",
+    "deactivateConfirm": "This element will no longer apply to future payroll runs. Already calculated payslips are unaffected. To change an element, deactivate it and create a new version.",
+    "emptyCountry": "No pay element configured for this legislation.",
+    "emptyFilter": "No pay element matches the filters.",
+    "cols": {
+      "code": "Code / Label",
+      "category": "Category",
+      "method": "Method",
+      "base": "Base",
+      "params": "Parameters",
+      "flags": "Tax",
+      "effect": "Effective",
+      "state": "State"
+    },
+    "fields": {
+      "label": "Label",
+      "labelPlaceholder": "Transport allowance",
+      "rate": "Rate (%)",
+      "floor": "Floor",
+      "ceiling": "Ceiling",
+      "flatAmount": "Flat amount",
+      "bracketTableCode": "Bracket table code",
+      "lookupTableCode": "Lookup table code",
+      "exemptionThreshold": "Exemption threshold",
+      "displayOrder": "Display order",
+      "effectiveFrom": "Effective from",
+      "effectiveTo": "Effective to",
+      "taxable": "Taxable (counts in taxable net)",
+      "contributable": "Contributable (counts in CNPS base)"
+    },
+    "hints": {
+      "code": "Unique uppercase identifier",
+      "base": "Calculation slot: GROSS, BASE_SALARY, TAXABLE_NET… or an element code",
+      "rate": "E.g. 4.2 for 4.2 %",
+      "money": "In XAF",
+      "bracket": "E.g. IRPP_CM_2026",
+      "lookup": "E.g. RAV_CM",
+      "exemption": "Optional · exempt when gross is below",
+      "order": "Position on the payslip",
+      "effectiveFrom": "First day of application",
+      "effectiveTo": "Leave empty if open-ended"
+    },
+    "validation": {
+      "required": "Code, label and effective date are required."
+    },
+    "dialog": {
+      "title": "New pay element",
+      "subtitle": "Legislation · {country}",
+      "save": "Create element",
+      "saving": "Creating…",
+      "cancel": "Cancel"
+    }
+  },
+  "brackets": {
+    "uc": "Payroll configuration",
+    "title": "Tax scales",
+    "subtitle": "Progressive scales (IRPP) and stepped grids (RAV, TDL) used by the payroll engine",
+    "country": "Legislation (country)",
+    "progressiveTitle": "Progressive scales",
+    "progressiveSubtitle": "Marginal rates per bracket (IRPP)",
+    "lookupTitle": "Stepped grids",
+    "lookupSubtitle": "Flat amounts per step (RAV, TDL)",
+    "newScale": "New scale",
+    "newGrid": "New grid",
+    "bracketCount": "{count} brackets",
+    "stepCount": "{count} steps",
+    "active": "Active",
+    "inactive": "Inactive",
+    "emptyScales": "No progressive scale for this legislation.",
+    "emptyGrids": "No stepped grid for this legislation.",
+    "addRow": "Add a row",
+    "openTop": "∞ (no ceiling)",
+    "rangeFrom": "≥ {from}",
+    "created": "Table created",
+    "createError": "Could not create the table",
+    "deactivated": "Table deactivated",
+    "deactivateError": "Could not deactivate the table",
+    "deactivate": "Deactivate",
+    "deactivating": "Deactivating…",
+    "deactivateTitle": "Deactivate table",
+    "deactivateConfirm": "This table will no longer be used by future payroll runs. Already calculated payslips are unaffected. To change a table, deactivate it and create a new version.",
+    "cols": {
+      "order": "Order",
+      "range": "Bracket (XAF)",
+      "rate": "Rate",
+      "amount": "Amount (XAF)",
+      "lower": "Lower bound",
+      "upper": "Upper bound"
+    },
+    "fields": {
+      "code": "Code",
+      "label": "Label",
+      "rate": "Rate (%)",
+      "effectiveFrom": "Effective from",
+      "effectiveTo": "Effective to"
+    },
+    "hints": {
+      "code": "Unique uppercase identifier",
+      "effectiveTo": "Leave empty if open-ended",
+      "rate": "Marginal rate in % (e.g. 10 for 10%). Leave the upper bound empty for the open top bracket."
+    },
+    "validation": {
+      "header": "Code, label and effective date are required.",
+      "rows": "At least one complete row is required."
+    },
+    "dialog": {
+      "bracketTitle": "New progressive scale",
+      "lookupTitle": "New stepped grid",
+      "subtitle": "Legislation · {country}",
+      "bracketsTitle": "Brackets",
+      "stepsTitle": "Steps",
+      "save": "Create",
+      "saving": "Creating…",
+      "cancel": "Cancel"
+    }
   }
 }

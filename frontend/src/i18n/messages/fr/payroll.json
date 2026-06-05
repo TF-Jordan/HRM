@@ -219,5 +219,154 @@
       "saving": "Enregistrement…",
       "cancel": "Annuler"
     }
+  },
+  "category": {
+    "EARNING": "Gain",
+    "DEDUCTION": "Retenue salariale",
+    "EMPLOYER_CHARGE": "Charge patronale",
+    "INFORMATIONAL": "Informatif"
+  },
+  "method": {
+    "RATE": "Taux",
+    "BRACKET": "Barème",
+    "FLAT": "Forfait",
+    "LOOKUP_TABLE": "Grille",
+    "FORMULA": "Formule"
+  },
+  "elements": {
+    "uc": "Configuration paie",
+    "title": "Rubriques de paie",
+    "subtitle": "Catalogue paramétrable des éléments de calcul (gains, retenues, charges)",
+    "country": "Législation (pays)",
+    "new": "Nouvelle rubrique",
+    "activeRubrics": "rubriques actives",
+    "filterAll": "Toutes",
+    "showInactive": "Afficher inactives",
+    "searchPlaceholder": "Code ou libellé…",
+    "taxable": "Imposable",
+    "contributable": "Cotisable",
+    "active": "Active",
+    "inactive": "Inactive",
+    "created": "Rubrique créée",
+    "createError": "Impossible de créer la rubrique",
+    "deactivated": "Rubrique désactivée",
+    "deactivateError": "Impossible de désactiver la rubrique",
+    "deactivate": "Désactiver",
+    "deactivating": "Désactivation…",
+    "deactivateTitle": "Désactiver la rubrique",
+    "deactivateConfirm": "La rubrique ne sera plus appliquée aux prochains cycles de paie. Les bulletins déjà calculés ne sont pas affectés. Pour modifier une rubrique, désactivez-la puis créez une nouvelle version.",
+    "emptyCountry": "Aucune rubrique configurée pour cette législation.",
+    "emptyFilter": "Aucune rubrique ne correspond aux filtres.",
+    "cols": {
+      "code": "Code / Libellé",
+      "category": "Catégorie",
+      "method": "Méthode",
+      "base": "Base",
+      "params": "Paramètres",
+      "flags": "Fiscal",
+      "effect": "Effet",
+      "state": "État"
+    },
+    "fields": {
+      "label": "Libellé",
+      "labelPlaceholder": "Prime de transport",
+      "rate": "Taux (%)",
+      "floor": "Plancher",
+      "ceiling": "Plafond",
+      "flatAmount": "Montant forfaitaire",
+      "bracketTableCode": "Code barème",
+      "lookupTableCode": "Code grille",
+      "exemptionThreshold": "Seuil d'exonération",
+      "displayOrder": "Ordre d'affichage",
+      "effectiveFrom": "Date d'effet",
+      "effectiveTo": "Fin d'effet",
+      "taxable": "Imposable (entre dans le net imposable)",
+      "contributable": "Cotisable (entre dans la base CNPS)"
+    },
+    "hints": {
+      "code": "Identifiant unique en majuscules",
+      "base": "Slot de calcul : GROSS, BASE_SALARY, TAXABLE_NET… ou code d'une rubrique",
+      "rate": "Ex. 4,2 pour 4,2 %",
+      "money": "En XAF",
+      "bracket": "Ex. IRPP_CM_2026",
+      "lookup": "Ex. RAV_CM",
+      "exemption": "Optionnel · rubrique exonérée si brut inférieur",
+      "order": "Position sur le bulletin",
+      "effectiveFrom": "Premier jour d'application",
+      "effectiveTo": "Laisser vide si sans fin"
+    },
+    "validation": {
+      "required": "Code, libellé et date d'effet sont obligatoires."
+    },
+    "dialog": {
+      "title": "Nouvelle rubrique de paie",
+      "subtitle": "Législation · {country}",
+      "save": "Créer la rubrique",
+      "saving": "Création…",
+      "cancel": "Annuler"
+    }
+  },
+  "brackets": {
+    "uc": "Configuration paie",
+    "title": "Barèmes fiscaux",
+    "subtitle": "Barèmes progressifs (IRPP) et grilles forfaitaires (RAV, TDL) du moteur de paie",
+    "country": "Législation (pays)",
+    "progressiveTitle": "Barèmes progressifs",
+    "progressiveSubtitle": "Échelles marginales par tranche (IRPP)",
+    "lookupTitle": "Grilles forfaitaires",
+    "lookupSubtitle": "Forfaits par palier (RAV, TDL)",
+    "newScale": "Nouveau barème",
+    "newGrid": "Nouvelle grille",
+    "bracketCount": "{count} tranches",
+    "stepCount": "{count} paliers",
+    "active": "Actif",
+    "inactive": "Inactif",
+    "emptyScales": "Aucun barème progressif pour cette législation.",
+    "emptyGrids": "Aucune grille forfaitaire pour cette législation.",
+    "addRow": "Ajouter une ligne",
+    "openTop": "∞ (sans plafond)",
+    "rangeFrom": "≥ {from}",
+    "created": "Table créée",
+    "createError": "Impossible de créer la table",
+    "deactivated": "Table désactivée",
+    "deactivateError": "Impossible de désactiver la table",
+    "deactivate": "Désactiver",
+    "deactivating": "Désactivation…",
+    "deactivateTitle": "Désactiver la table",
+    "deactivateConfirm": "La table ne sera plus utilisée par les prochains cycles de paie. Les bulletins déjà calculés ne sont pas affectés. Pour modifier une table, désactivez-la puis créez une nouvelle version.",
+    "cols": {
+      "order": "Ordre",
+      "range": "Tranche (XAF)",
+      "rate": "Taux",
+      "amount": "Montant (XAF)",
+      "lower": "Borne basse",
+      "upper": "Borne haute"
+    },
+    "fields": {
+      "code": "Code",
+      "label": "Libellé",
+      "rate": "Taux (%)",
+      "effectiveFrom": "Date d'effet",
+      "effectiveTo": "Fin d'effet"
+    },
+    "hints": {
+      "code": "Identifiant unique en majuscules",
+      "effectiveTo": "Laisser vide si sans fin",
+      "rate": "Taux marginal en % (ex. 10 pour 10 %). Laisser la borne haute vide pour la tranche supérieure ouverte."
+    },
+    "validation": {
+      "header": "Code, libellé et date d'effet sont obligatoires.",
+      "rows": "Au moins une ligne complète est requise."
+    },
+    "dialog": {
+      "bracketTitle": "Nouveau barème progressif",
+      "lookupTitle": "Nouvelle grille forfaitaire",
+      "subtitle": "Législation · {country}",
+      "bracketsTitle": "Tranches",
+      "stepsTitle": "Paliers",
+      "save": "Créer",
+      "saving": "Création…",
+      "cancel": "Annuler"
+    }
   }
 }

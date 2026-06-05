@@ -89,6 +89,12 @@ public final class TaxBracketTable extends BaseEntity {
         return active && started && notEnded;
     }
 
+    /** Returns a deactivated copy (closes the scale to future runs); bumps updatedAt. */
+    public TaxBracketTable deactivate() {
+        return new TaxBracketTable(id(), tenantId(), createdAt(), Instant.now(), code, label,
+                countryCode, effectiveFrom, effectiveTo, false, brackets);
+    }
+
     public String code() { return code; }
     public String label() { return label; }
     public String countryCode() { return countryCode; }

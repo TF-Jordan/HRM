@@ -229,3 +229,185 @@ export function capturePayVariable(body: CapturePayVariableRequest, session: App
     { session },
   );
 }
+
+/* ===================== Pay elements (rubric catalogue) ===================== */
+
+export type PayElementCategory = "EARNING" | "DEDUCTION" | "EMPLOYER_CHARGE" | "INFORMATIONAL";
+export type CalculationMethod = "RATE" | "BRACKET" | "FLAT" | "LOOKUP_TABLE" | "FORMULA";
+
+export type PayElementResponse = {
+  id: string;
+  code: string;
+  label: string;
+  category: PayElementCategory;
+  method: CalculationMethod;
+  baseReference: string | null;
+  rate: number | string | null;
+  ceiling: number | string | null;
+  floor: number | string | null;
+  exemptionThreshold: number | string | null;
+  flatAmount: number | string | null;
+  bracketTableCode: string | null;
+  lookupTableCode: string | null;
+  taxable: boolean;
+  socialContributable: boolean;
+  countryCode: string;
+  displayOrder: number;
+  active: boolean;
+  effectiveFrom: string;
+  effectiveTo: string | null;
+};
+
+export type CreatePayElementRequest = {
+  code: string;
+  label: string;
+  category: PayElementCategory;
+  method: CalculationMethod;
+  baseReference?: string | null;
+  rate?: number | null;
+  ceiling?: number | null;
+  floor?: number | null;
+  exemptionThreshold?: number | null;
+  flatAmount?: number | null;
+  bracketTableCode?: string | null;
+  lookupTableCode?: string | null;
+  taxable: boolean;
+  socialContributable: boolean;
+  countryCode: string;
+  displayOrder: number;
+  effectiveFrom: string;
+  effectiveTo?: string | null;
+};
+
+export function listPayElements(session: AppSession, countryCode: string) {
+  const params = new URLSearchParams({ countryCode });
+  return callKsm<PayElementResponse[]>(
+    `/api/v1/payroll/pay-elements?${params}`,
+    {},
+    { session },
+  );
+}
+
+export function createPayElement(body: CreatePayElementRequest, session: AppSession) {
+  return callKsm<PayElementResponse>(
+    `/api/v1/payroll/pay-elements`,
+    { method: "POST", body },
+    { session },
+  );
+}
+
+export function deactivatePayElement(id: string, session: AppSession) {
+  return callKsm<PayElementResponse>(
+    `/api/v1/payroll/pay-elements/${id}`,
+    { method: "DELETE" },
+    { session },
+  );
+}
+
+/* ===================== Tax bracket tables (progressive scales) ===================== */
+
+export type BracketLine = {
+  ordre: number;
+  lowerBound: number | string;
+  upperBound: number | string | null;
+  rate: number | string;
+};
+
+export type TaxBracketTableResponse = {
+  id: string;
+  code: string;
+  label: string;
+  countryCode: string;
+  effectiveFrom: string;
+  effectiveTo: string | null;
+  active: boolean;
+  brackets: BracketLine[];
+};
+
+export type CreateTaxBracketTableRequest = {
+  code: string;
+  label: string;
+  countryCode: string;
+  effectiveFrom: string;
+  effectiveTo?: string | null;
+  brackets: BracketLine[];
+};
+
+export function listTaxBracketTables(session: AppSession, countryCode: string) {
+  const params = new URLSearchParams({ countryCode });
+  return callKsm<TaxBracketTableResponse[]>(
+    `/api/v1/payroll/tax-brackets?${params}`,
+    {},
+    { session },
+  );
+}
+
+export function createTaxBracketTable(body: CreateTaxBracketTableRequest, session: AppSession) {
+  return callKsm<TaxBracketTableResponse>(
+    `/api/v1/payroll/tax-brackets`,
+    { method: "POST", body },
+    { session },
+  );
+}
+
+export function deactivateTaxBracketTable(id: string, session: AppSession) {
+  return callKsm<TaxBracketTableResponse>(
+    `/api/v1/payroll/tax-brackets/${id}`,
+    { method: "DELETE" },
+    { session },
+  );
+}
+
+/* ===================== Lookup tables (stepped forfaits: RAV/TDL) ===================== */
+
+export type EntryLine = {
+  ordre: number;
+  lowerBound: number | string;
+  upperBound: number | string | null;
+  amount: number | string;
+};
+
+export type LookupTableResponse = {
+  id: string;
+  code: string;
+  label: string;
+  countryCode: string;
+  effectiveFrom: string;
+  effectiveTo: string | null;
+  active: boolean;
+  entries: EntryLine[];
+};
+
+export type CreateLookupTableRequest = {
+  code: string;
+  label: string;
+  countryCode: string;
+  effectiveFrom: string;
+  effectiveTo?: string | null;
+  entries: EntryLine[];
+};
+
+export function listLookupTables(session: AppSession, countryCode: string) {
+  const params = new URLSearchParams({ countryCode });
+  return callKsm<LookupTableResponse[]>(
+    `/api/v1/payroll/lookup-tables?${params}`,
+    {},
+    { session },
+  );
+}
+
+export function createLookupTable(body: CreateLookupTableRequest, session: AppSession) {
+  return callKsm<LookupTableResponse>(
+    `/api/v1/payroll/lookup-tables`,
+    { method: "POST", body },
+    { session },
+  );
+}
+
+export function deactivateLookupTable(id: string, session: AppSession) {
+  return callKsm<LookupTableResponse>(
+    `/api/v1/payroll/lookup-tables/${id}`,
+    { method: "DELETE" },
+    { session },
+  );
+}
