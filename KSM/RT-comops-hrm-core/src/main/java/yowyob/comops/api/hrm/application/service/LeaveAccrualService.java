@@ -1,6 +1,7 @@
 package yowyob.comops.api.hrm.application.service;
 
 import org.springframework.context.annotation.Profile;
+import yowyob.comops.api.hrm.application.port.in.RunLeaveAccrualUseCase;
 import yowyob.comops.api.hrm.application.port.out.DependentRepository;
 import yowyob.comops.api.hrm.application.port.out.EmployeeRepository;
 import yowyob.comops.api.hrm.application.port.out.LeaveBalanceRepository;
@@ -8,11 +9,13 @@ import yowyob.comops.api.hrm.domain.model.Employee;
 import yowyob.comops.api.hrm.domain.model.LeaveBalance;
 import yowyob.comops.api.hrm.domain.model.LeaveType;
 import yowyob.comops.api.kernel.application.port.out.BusinessEventPublisher;
+import yowyob.comops.api.kernel.application.service.ReactiveRequestContextHolder;
 import yowyob.comops.api.kernel.domain.model.BusinessEvent;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.time.temporal.ChronoUnit;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -23,7 +26,7 @@ import reactor.core.publisher.Mono;
 
 @Profile("!test-memory")
 @Service
-public class LeaveAccrualService {
+public class LeaveAccrualService implements RunLeaveAccrualUseCase {
 
     private static final BigDecimal BASE_MONTHLY_ACCRUAL = new BigDecimal("1.5");
     private static final BigDecimal SENIORITY_BONUS_PER_BRACKET = new BigDecimal("2");
@@ -48,18 +51,41 @@ public class LeaveAccrualService {
         this.businessEventPublisher = businessEventPublisher;
     }
 
+    @Override
     public Mono<Integer> runMonthlyAccrual(UUID tenantId, UUID organizationId) {
-        int currentYear = LocalDate.now().getYear();
         LocalDate today = LocalDate.now();
+        int currentYear = today.getYear();
+        String period = YearMonth.from(today).toString(); // YYYY-MM
 
         return employeeRepository.findActiveByOrganizationId(tenantId, organizationId)
-                .flatMap(employee -> computeAndCreditAccrual(tenantId, organizationId, employee, currentYear, today))
-                .collectList()
-                .map(java.util.List::size);
+                .flatMap(employee -> computeAndCreditAccrual(tenantId, organizationId, employee,
+                        currentYear, period, today))
+                .count()
+                .map(Long::intValue);
     }
 
+    @Override
+    public Mono<Integer> runForAllActiveOrganizations() {
+        return employeeRepository.findDistinctActiveOrganizations()
+                .concatMap(pair -> runMonthlyAccrual(pair.tenantId(), pair.organizationId())
+                        .onErrorReturn(0))
+                .reduce(0, Integer::sum);
+    }
+
+    @Override
+    public Mono<Integer> runForCurrentContext() {
+        return ReactiveRequestContextHolder.getRequiredContext()
+                .flatMap(ctx -> runMonthlyAccrual(ctx.tenantId(), ctx.organizationId()));
+    }
+
+    /**
+     * Credits one employee's ANNUAL balance for {@code period}, creating the row if missing.
+     * Returns empty (contributing nothing to the run count) when the balance has already been
+     * accrued for this month — making the whole job idempotent.
+     */
     private Mono<LeaveBalance> computeAndCreditAccrual(UUID tenantId, UUID organizationId,
-                                                        Employee employee, int currentYear, LocalDate today) {
+                                                       Employee employee, int currentYear,
+                                                       String period, LocalDate today) {
         long seniorityYears = ChronoUnit.YEARS.between(employee.dateEmbauche(), today);
 
         return dependentRepository.findByEmployeeId(tenantId, employee.id())
@@ -74,20 +100,26 @@ public class LeaveAccrualService {
 
                     return leaveBalanceRepository.findByEmployeeIdAndTypeAndAnnee(
                                     tenantId, employee.id(), LeaveType.ANNUAL, currentYear)
-                            .switchIfEmpty(Mono.defer(() -> leaveBalanceRepository.save(
-                                    LeaveBalance.initialize(tenantId, organizationId,
-                                            employee.id(), LeaveType.ANNUAL, currentYear))))
-                            .flatMap(balance -> {
-                                LeaveBalance credited = balance.crediter(monthlyAccrual);
-                                return leaveBalanceRepository.save(credited);
-                            })
-                            .flatMap(saved -> businessEventPublisher.publish(
-                                    BusinessEvent.now(tenantId, organizationId,
-                                            "LEAVE_BALANCE_UPDATED", "LEAVE_BALANCE", saved.id(),
-                                            payload("employeeId", employee.id(),
-                                                    "type", "ANNUAL",
-                                                    "credited", monthlyAccrual))).thenReturn(saved));
+                            .flatMap(balance -> period.equals(balance.lastAccrualPeriod())
+                                    ? Mono.<LeaveBalance>empty()
+                                    : creditAccrual(tenantId, organizationId, employee.id(),
+                                            balance.accrue(monthlyAccrual, period), monthlyAccrual))
+                            .switchIfEmpty(Mono.defer(() -> creditAccrual(tenantId, organizationId, employee.id(),
+                                    LeaveBalance.initialize(tenantId, organizationId, employee.id(),
+                                            LeaveType.ANNUAL, currentYear).accrue(monthlyAccrual, period),
+                                    monthlyAccrual)));
                 });
+    }
+
+    private Mono<LeaveBalance> creditAccrual(UUID tenantId, UUID organizationId, UUID employeeId,
+                                             LeaveBalance credited, BigDecimal monthlyAccrual) {
+        return leaveBalanceRepository.save(credited)
+                .flatMap(saved -> businessEventPublisher.publish(
+                        BusinessEvent.now(tenantId, organizationId,
+                                "LEAVE_BALANCE_UPDATED", "LEAVE_BALANCE", saved.id(),
+                                payload("employeeId", employeeId,
+                                        "type", "ANNUAL",
+                                        "credited", monthlyAccrual))).thenReturn(saved));
     }
 
     static BigDecimal calculateMonthlyAccrual(long seniorityYears, long eligibleChildren) {

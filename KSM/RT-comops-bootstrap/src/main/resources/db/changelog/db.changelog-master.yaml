@@ -279,3 +279,6 @@ databaseChangeLog:
   - include:
       file: releases/093-hrm-training-request.yaml
       relativeToChangelogFile: true
+  - include:
+      file: releases/094-hrm-leave-accrual-period.yaml
+      relativeToChangelogFile: true

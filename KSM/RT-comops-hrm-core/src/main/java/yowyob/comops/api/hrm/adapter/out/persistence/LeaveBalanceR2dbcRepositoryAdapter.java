@@ -44,11 +44,13 @@ public class LeaveBalanceR2dbcRepositoryAdapter implements LeaveBalanceRepositor
 
     private LeaveBalanceEntity toEntity(LeaveBalance lb) {
         return new LeaveBalanceEntity(lb.id(), lb.tenantId(), lb.createdAt(), lb.updatedAt(),
-                lb.organizationId(), lb.employeeId(), lb.type().name(), lb.acquis(), lb.pris(), lb.annee());
+                lb.organizationId(), lb.employeeId(), lb.type().name(), lb.acquis(), lb.pris(), lb.annee(),
+                lb.lastAccrualPeriod());
     }
 
     private LeaveBalance toDomain(LeaveBalanceEntity e) {
         return LeaveBalance.rehydrate(e.id(), e.tenantId(), e.createdAt(), e.updatedAt(),
-                e.organizationId(), e.employeeId(), LeaveType.valueOf(e.type()), e.acquis(), e.pris(), e.annee());
+                e.organizationId(), e.employeeId(), LeaveType.valueOf(e.type()), e.acquis(), e.pris(), e.annee(),
+                e.lastAccrualPeriod());
     }
 }

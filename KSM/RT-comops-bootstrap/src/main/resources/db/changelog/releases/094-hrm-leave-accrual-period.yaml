@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 094-hrm-leave-accrual-period
+      author: cursor
+      changes:
+        - sqlFile:
+            path: db/r2dbc/V94__hrm_leave_balance_accrual_period.sql
+            relativeToChangelogFile: false

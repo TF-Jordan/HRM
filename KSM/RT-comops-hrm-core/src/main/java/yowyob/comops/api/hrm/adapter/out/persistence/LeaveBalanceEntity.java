@@ -20,5 +20,6 @@ public record LeaveBalanceEntity(
         String type,
         BigDecimal acquis,
         BigDecimal pris,
-        int annee) implements PersistableEntity {
+        int annee,
+        String lastAccrualPeriod) implements PersistableEntity {
 }

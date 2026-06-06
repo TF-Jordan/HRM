@@ -15,10 +15,12 @@ public final class LeaveBalance extends BaseEntity {
     private final BigDecimal acquis;
     private final BigDecimal pris;
     private final int annee;
+    /** YYYY-MM of the last monthly accrual that credited this balance, or null. Drives idempotency. */
+    private final String lastAccrualPeriod;
 
     private LeaveBalance(UUID id, UUID tenantId, Instant createdAt, Instant updatedAt,
                          UUID organizationId, UUID employeeId, LeaveType type,
-                         BigDecimal acquis, BigDecimal pris, int annee) {
+                         BigDecimal acquis, BigDecimal pris, int annee, String lastAccrualPeriod) {
         super(id, tenantId, createdAt, updatedAt);
         this.organizationId = Objects.requireNonNull(organizationId, "organizationId is required");
         this.employeeId = Objects.requireNonNull(employeeId, "employeeId is required");
@@ -26,25 +28,36 @@ public final class LeaveBalance extends BaseEntity {
         this.acquis = Objects.requireNonNull(acquis, "acquis is required");
         this.pris = Objects.requireNonNull(pris, "pris is required");
         this.annee = annee;
+        this.lastAccrualPeriod = lastAccrualPeriod;
     }
 
     public static LeaveBalance initialize(UUID tenantId, UUID organizationId, UUID employeeId,
                                           LeaveType type, int annee) {
         Instant now = Instant.now();
         return new LeaveBalance(UUID.randomUUID(), tenantId, now, now, organizationId, employeeId,
-                type, BigDecimal.ZERO, BigDecimal.ZERO, annee);
+                type, BigDecimal.ZERO, BigDecimal.ZERO, annee, null);
     }
 
     public static LeaveBalance rehydrate(UUID id, UUID tenantId, Instant createdAt, Instant updatedAt,
                                          UUID organizationId, UUID employeeId, LeaveType type,
-                                         BigDecimal acquis, BigDecimal pris, int annee) {
+                                         BigDecimal acquis, BigDecimal pris, int annee, String lastAccrualPeriod) {
         return new LeaveBalance(id, tenantId, createdAt, updatedAt, organizationId, employeeId,
-                type, acquis, pris, annee);
+                type, acquis, pris, annee, lastAccrualPeriod);
     }
 
     public LeaveBalance crediter(BigDecimal jours) {
         return new LeaveBalance(id(), tenantId(), createdAt(), Instant.now(), organizationId,
-                employeeId, type, acquis.add(jours), pris, annee);
+                employeeId, type, acquis.add(jours), pris, annee, lastAccrualPeriod);
+    }
+
+    /**
+     * Credits the monthly accrual and stamps the period that produced it. Use this (rather than
+     * {@link #crediter(BigDecimal)}) for the scheduled accrual so the balance can later be skipped
+     * when the same month is processed again.
+     */
+    public LeaveBalance accrue(BigDecimal jours, String period) {
+        return new LeaveBalance(id(), tenantId(), createdAt(), Instant.now(), organizationId,
+                employeeId, type, acquis.add(jours), pris, annee, period);
     }
 
     public LeaveBalance debiter(BigDecimal jours) {
@@ -52,7 +65,7 @@ public final class LeaveBalance extends BaseEntity {
             throw new IllegalStateException("Insufficient leave balance");
         }
         return new LeaveBalance(id(), tenantId(), createdAt(), Instant.now(), organizationId,
-                employeeId, type, acquis, pris.add(jours), annee);
+                employeeId, type, acquis, pris.add(jours), annee, lastAccrualPeriod);
     }
 
     public BigDecimal soldeRestant() {
@@ -65,4 +78,5 @@ public final class LeaveBalance extends BaseEntity {
     public BigDecimal acquis() { return acquis; }
     public BigDecimal pris() { return pris; }
     public int annee() { return annee; }
+    public String lastAccrualPeriod() { return lastAccrualPeriod; }
 }

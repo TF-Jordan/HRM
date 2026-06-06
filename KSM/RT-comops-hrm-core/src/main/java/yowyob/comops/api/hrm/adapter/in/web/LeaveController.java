@@ -3,6 +3,7 @@ package yowyob.comops.api.hrm.adapter.in.web;
 import org.springframework.context.annotation.Profile;
 import yowyob.comops.api.common.domain.model.ApiResponse;
 import yowyob.comops.api.hrm.application.port.in.ManageLeaveUseCase;
+import yowyob.comops.api.hrm.application.port.in.RunLeaveAccrualUseCase;
 import yowyob.comops.api.hrm.application.port.in.SubmitLeaveCommand;
 import yowyob.comops.api.hrm.domain.model.LeaveRequest;
 
@@ -33,9 +34,12 @@ import reactor.core.publisher.Mono;
 public class LeaveController {
 
     private final ManageLeaveUseCase manageLeaveUseCase;
+    private final RunLeaveAccrualUseCase runLeaveAccrualUseCase;
 
-    public LeaveController(ManageLeaveUseCase manageLeaveUseCase) {
+    public LeaveController(ManageLeaveUseCase manageLeaveUseCase,
+                          RunLeaveAccrualUseCase runLeaveAccrualUseCase) {
         this.manageLeaveUseCase = manageLeaveUseCase;
+        this.runLeaveAccrualUseCase = runLeaveAccrualUseCase;
     }
 
     @PostMapping
@@ -102,6 +106,18 @@ public class LeaveController {
                 .map(LeaveResponse::from)
                 .collectList()
                 .map(list -> ResponseEntity.ok(ApiResponse.success(list, "Pending leave requests fetched.")));
+    }
+
+    /**
+     * Manually triggers the monthly leave accrual for the caller's organization. Idempotent per
+     * calendar month (the scheduler runs this automatically; this endpoint is for ops/demo).
+     */
+    @PostMapping("/accrual/run")
+    @PreAuthorize("@businessAccessPolicy.hasPermission(authentication, 'hrm:leave:approve')")
+    public Mono<ResponseEntity<ApiResponse<Integer>>> runAccrual() {
+        return runLeaveAccrualUseCase.runForCurrentContext()
+                .map(credited -> ResponseEntity.ok(ApiResponse.success(credited,
+                        "Leave accrual executed for " + credited + " employee(s).")));
     }
 
     // --- Request/Response DTOs ---
