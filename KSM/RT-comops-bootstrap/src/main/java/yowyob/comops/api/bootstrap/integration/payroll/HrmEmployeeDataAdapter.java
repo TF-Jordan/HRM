@@ -10,12 +10,14 @@ import yowyob.comops.api.hrm.application.port.out.DependentRepository;
 import yowyob.comops.api.hrm.application.port.out.EmployeePersonalInfoRepository;
 import yowyob.comops.api.hrm.application.port.out.EmployeeRepository;
 import yowyob.comops.api.hrm.application.port.out.LeaveBalanceRepository;
+import yowyob.comops.api.hrm.application.port.out.LeaveRequestRepository;
 import yowyob.comops.api.hrm.application.port.out.LoanAdvanceRepository;
 import yowyob.comops.api.hrm.application.port.out.LoanRepaymentRepository;
 import yowyob.comops.api.hrm.domain.model.Contract;
 import yowyob.comops.api.hrm.domain.model.Dependent;
 import yowyob.comops.api.hrm.domain.model.Employee;
 import yowyob.comops.api.hrm.domain.model.EmployeePersonalInfo;
+import yowyob.comops.api.hrm.domain.model.LeaveStatus;
 import yowyob.comops.api.hrm.domain.model.LeaveType;
 import yowyob.comops.api.hrm.domain.model.LoanAdvance;
 import yowyob.comops.api.hrm.domain.model.LoanRepayment;
@@ -27,6 +29,7 @@ import yowyob.comops.api.payroll.domain.model.MaritalStatus;
 import yowyob.comops.api.payroll.domain.model.PaymentChannel;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.UUID;
 
 /**
@@ -61,6 +64,7 @@ public class HrmEmployeeDataAdapter implements HrmEmployeeDataPort {
     private final EmployeePersonalInfoRepository personalInfoRepository;
     private final DependentRepository dependentRepository;
     private final LeaveBalanceRepository leaveBalanceRepository;
+    private final LeaveRequestRepository leaveRequestRepository;
 
     public HrmEmployeeDataAdapter(EmployeeRepository employeeRepository,
                                   ContractRepository contractRepository,
@@ -68,7 +72,8 @@ public class HrmEmployeeDataAdapter implements HrmEmployeeDataPort {
                                   LoanRepaymentRepository loanRepaymentRepository,
                                   EmployeePersonalInfoRepository personalInfoRepository,
                                   DependentRepository dependentRepository,
-                                  LeaveBalanceRepository leaveBalanceRepository) {
+                                  LeaveBalanceRepository leaveBalanceRepository,
+                                  LeaveRequestRepository leaveRequestRepository) {
         this.employeeRepository = employeeRepository;
         this.contractRepository = contractRepository;
         this.loanAdvanceRepository = loanAdvanceRepository;
@@ -76,6 +81,7 @@ public class HrmEmployeeDataAdapter implements HrmEmployeeDataPort {
         this.personalInfoRepository = personalInfoRepository;
         this.dependentRepository = dependentRepository;
         this.leaveBalanceRepository = leaveBalanceRepository;
+        this.leaveRequestRepository = leaveRequestRepository;
     }
 
     @Override
@@ -129,6 +135,27 @@ public class HrmEmployeeDataAdapter implements HrmEmployeeDataPort {
                 .findByEmployeeIdAndTypeAndAnnee(tenantId, employeeId, LeaveType.ANNUAL, year)
                 .map(b -> new LeaveBalanceView(b.acquis(), b.pris(), b.soldeRestant()))
                 .defaultIfEmpty(LeaveBalanceView.empty());
+    }
+
+    @Override
+    public Mono<BigDecimal> getUnpaidLeaveDays(UUID tenantId, UUID employeeId,
+                                               LocalDate periodStart, LocalDate periodEnd) {
+        return leaveRequestRepository.findByEmployeeId(tenantId, employeeId)
+                .filter(l -> l.status() == LeaveStatus.APPROVED && l.type() == LeaveType.UNPAID)
+                .map(l -> {
+                    LocalDate start = l.dateDebut().isAfter(periodStart) ? l.dateDebut() : periodStart;
+                    LocalDate end = l.dateFin().isBefore(periodEnd) ? l.dateFin() : periodEnd;
+                    return BigDecimal.valueOf(overlapCalendarDays(start, end));
+                })
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    /** Inclusive calendar-day count of [start, end], or zero when the range is empty. */
+    private static long overlapCalendarDays(LocalDate start, LocalDate end) {
+        if (end.isBefore(start)) {
+            return 0L;
+        }
+        return end.toEpochDay() - start.toEpochDay() + 1;
     }
 
     // ---------------------------------------------------------------------- assembly

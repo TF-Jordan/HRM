@@ -39,6 +39,7 @@ import yowyob.comops.api.payroll.domain.model.PayslipLineType;
 import yowyob.comops.api.payroll.domain.model.TaxBracketTable;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -176,13 +177,16 @@ public class PayrollRunService implements RunPayrollUseCase {
                 .findActiveByEmployee(ctx.tenantId(), view.employeeId())
                 .sort(Comparator.comparingInt(o -> o.type().ordinal()))
                 .collectList();
+        Mono<BigDecimal> unpaidLeaveMono = hrmEmployeeDataPort
+                .getUnpaidLeaveDays(ctx.tenantId(), view.employeeId(), period.firstDay(), period.lastDay());
 
-        return Mono.zip(variableMono, loansMono, garnishMono).flatMap(tuple -> {
+        return Mono.zip(variableMono, loansMono, garnishMono, unpaidLeaveMono).flatMap(tuple -> {
             Optional<PayVariable> variable = tuple.getT1();
             List<LoanInstallmentView> loans = tuple.getT2();
             List<GarnishmentOrder> garnishments = tuple.getT3();
+            BigDecimal unpaidLeaveDays = tuple.getT4();
 
-            GrossComponents gross = assembleGross(period, view, variable);
+            GrossComponents gross = assembleGross(period, view, variable, unpaidLeaveDays);
             BigDecimal loansAdvances = voluntaryDeductions(loans, variable);
             CalculationRequest request = new CalculationRequest(gross, config.abatementRate(),
                     config.abatementCap(), config.elements(), config.bracketTables(),
@@ -233,11 +237,24 @@ public class PayrollRunService implements RunPayrollUseCase {
     }
 
     private GrossComponents assembleGross(PayPeriod period, EmployeePayrollView view,
-                                          Optional<PayVariable> variable) {
+                                          Optional<PayVariable> variable, BigDecimal unpaidLeaveDays) {
         BigDecimal base = view.baseSalary() == null ? BigDecimal.ZERO : view.baseSalary();
         int daysInMonth = period.lengthInDays();
-        int workedDays = variable.map(PayVariable::workedDaysOverride).filter(d -> d != null)
-                .orElseGet(() -> ProrationCalculator.workedDays(period, view.hireDate(), view.departureDate()));
+
+        Integer override = variable.map(PayVariable::workedDaysOverride).filter(d -> d != null).orElse(null);
+        int workedDays;
+        if (override != null) {
+            // An explicit worked-days override is manager-controlled and fully drives proration:
+            // the manager is presumed to have already accounted for any absence.
+            workedDays = override;
+        } else {
+            int present = ProrationCalculator.workedDays(period, view.hireDate(), view.departureDate());
+            // Unpaid days reducing pay = approved UNPAID leave overlapping the period (auto-derived
+            // from hrm-core) plus any ad-hoc unpaid absences keyed on the pay variable.
+            BigDecimal manualUnpaid = variable.map(PayVariable::unpaidAbsenceDays).orElse(BigDecimal.ZERO);
+            int unpaid = unpaidLeaveDays.add(manualUnpaid).setScale(0, RoundingMode.HALF_UP).intValue();
+            workedDays = Math.max(present - unpaid, 0);
+        }
         BigDecimal proratedBase = ProrationCalculator.prorate(base, workedDays, daysInMonth);
 
         BigDecimal overtime = variable.map(v -> OvertimeCalculator.compute(base, LEGAL_MONTHLY_HOURS,

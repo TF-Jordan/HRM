@@ -81,6 +81,7 @@ class PayrollRunServiceTest {
         accumulatorRepo = mock(AnnualAccumulatorRepository.class);
         garnishmentRepo = mock(yowyob.comops.api.payroll.application.port.out.GarnishmentOrderRepository.class);
         hrmPort = mock(HrmEmployeeDataPort.class);
+        when(hrmPort.getUnpaidLeaveDays(any(), any(), any(), any())).thenReturn(Mono.just(BigDecimal.ZERO));
         events = mock(BusinessEventPublisher.class);
         service = new PayrollRunService(runRepo, entryRepo, lineRepo, elementRepo, bracketRepo,
                 lookupRepo, variableRepo, accumulatorRepo, garnishmentRepo, hrmPort, events);

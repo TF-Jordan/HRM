@@ -4,6 +4,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.UUID;
 
 /**
@@ -46,4 +47,15 @@ public interface HrmEmployeeDataPort {
      * Returns an empty balance ({@code LeaveBalanceView.empty()}) when no row exists yet.
      */
     Mono<LeaveBalanceView> findAnnualLeaveBalance(UUID tenantId, UUID employeeId, int year);
+
+    /**
+     * Calendar days of {@code APPROVED}, {@code UNPAID} leave that overlap the given payroll period,
+     * used to reduce the prorated base salary so unpaid leave is reflected in the month's pay.
+     *
+     * <p>Counts every overlapping calendar day (weekends included) to stay consistent with the
+     * calendar-day proration method used by {@link yowyob.comops.api.payroll.application.service.ProrationCalculator}.
+     * Returns {@code ZERO} when the employee has no qualifying leave.
+     */
+    Mono<BigDecimal> getUnpaidLeaveDays(UUID tenantId, UUID employeeId,
+                                        LocalDate periodStart, LocalDate periodEnd);
 }
