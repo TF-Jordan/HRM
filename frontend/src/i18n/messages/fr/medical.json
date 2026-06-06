@@ -87,7 +87,8 @@
       "statutValues": {
         "VALIDE": "Valide",
         "EXPIRE": "Expiré",
-        "REVOQUE": "Révoqué"
+        "REVOQUE": "Révoqué",
+        "SOUMIS": "Soumis"
       }
     }
   },
@@ -105,10 +106,38 @@
   },
   "mine": {
     "title": "Mon dossier médical",
-    "subtitle": "Vos visites et certificats à jour.",
+    "subtitle": "Votre aptitude, vos échéances et vos certificats — au même endroit.",
+    "noEmployee": "Aucune fiche employé associée à votre compte. Contactez votre administrateur RH.",
+    "disclaimer": "Vos données médicales sont confidentielles et accessibles uniquement à la médecine du travail / RH. Les certificats que vous chargez sont soumis pour validation.",
     "visitsTitle": "Visites médicales",
     "visitsEmpty": "Aucune visite médicale enregistrée.",
     "certificatesTitle": "Certificats médicaux",
-    "certificatesEmpty": "Aucun certificat enregistré."
+    "certificatesEmpty": "Aucun certificat enregistré.",
+    "kpi": {
+      "aptitude": "Aptitude actuelle",
+      "nextVisit": "Prochaine visite",
+      "validCerts": "Certificats valides",
+      "alerts": "Alertes"
+    },
+    "hero": {
+      "currentAptitude": "Aptitude actuelle",
+      "nextDue": "Prochaine échéance",
+      "noVisit": "Aucune visite médicale enregistrée",
+      "noVisitHint": "Votre première visite d'aptitude apparaîtra ici une fois saisie par la médecine du travail."
+    },
+    "upload": {
+      "cta": "Charger un certificat",
+      "title": "Charger un certificat médical",
+      "subtitle": "Téléversez votre justificatif (arrêt maladie, aptitude, vaccination…). Il sera soumis à la médecine du travail / RH.",
+      "submit": "Soumettre",
+      "cancel": "Annuler",
+      "success": "Certificat soumis. Il sera examiné par la médecine du travail / RH.",
+      "types": {
+        "ARRET_MALADIE": "Arrêt maladie",
+        "APTITUDE": "Certificat d'aptitude",
+        "VACCINATION": "Vaccination",
+        "AUTRE": "Autre"
+      }
+    }
   }
 }

@@ -60,6 +60,22 @@
       "toRegularize": "Advances to settle",
       "completed": "Completed"
     },
+    "hero": {
+      "ongoing": "Mission in progress",
+      "upcoming": "Next mission",
+      "latest": "Latest mission",
+      "none": "No active mission",
+      "noneHint": "Your approved mission orders will appear here.",
+      "startsIn": "Starts in {count, plural, =1 {# day} other {# days}}",
+      "daysThisYear": "Mission days this year"
+    },
+    "portfolio": {
+      "advances": "Advances received",
+      "justified": "Justified (approved)",
+      "toRecover": "Surplus to return",
+      "toReimburse": "Owed to you",
+      "payrollNote": "Unjustified advance surplus at closing is automatically recovered from your pay (staggered advance). Reimbursements in your favour go through your expense reports."
+    },
     "activeTitle": "Active missions & advances to settle",
     "activeEmpty": "No active mission or advance to settle.",
     "recon": {

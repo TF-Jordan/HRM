@@ -2,11 +2,15 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+  ArrowDownCircle,
+  ArrowUpCircle,
+  CalendarClock,
   CalendarRange,
   CheckCircle2,
   FileText,
   Loader2,
   MapPin,
+  Plane,
   Receipt,
   Wallet,
   XCircle,
@@ -31,7 +35,7 @@ import { formatDate, formatMoney, formatNumber } from "@/lib/format";
 import { missionStatusTone } from "@/lib/mission-status";
 import type { BadgeTone } from "@/lib/mission-status";
 import type { EmployeeResponse } from "@/server/ksm/modules/employees";
-import type { MissionOrderResponse } from "@/server/ksm/modules/missions";
+import type { MissionOrderResponse, MissionOrderStatus } from "@/server/ksm/modules/missions";
 
 type Reconciliation = {
   advance: number;
@@ -90,6 +94,9 @@ export function MissionsInbox() {
   const queryClient = useQueryClient();
   const canExpense = useCan("hrm:expense:create");
   const [declineFor, setDeclineFor] = React.useState<MissionOrderResponse | null>(null);
+  const [historyFilter, setHistoryFilter] = React.useState<MissionOrderStatus | "ALL">("ALL");
+  // Captured once at mount so date math stays pure across renders.
+  const [today] = React.useState(() => new Date());
 
   const query = useQuery({
     queryKey: ["hrm", "mission-orders", "mine"],
@@ -164,6 +171,45 @@ export function MissionsInbox() {
     (o) => o.status === "APPROVED" || o.status === "IN_PROGRESS",
   ).length;
 
+  // Financial portfolio — advances vs justified, and the payroll-relevant balances. Recover/
+  // reimburse are computed on COMPLETED missions to mirror what the backend actually settles.
+  const completedOrders = orders.filter((o) => o.status === "COMPLETED");
+  const portfolio = {
+    advances: orders.reduce((s, o) => s + o.reconciliation.advance, 0),
+    justified: orders.reduce((s, o) => s + o.reconciliation.approvedExpenses, 0),
+    toRecover: completedOrders.reduce(
+      (s, o) => s + Math.max(0, o.reconciliation.advance - o.reconciliation.approvedExpenses),
+      0,
+    ),
+    toReimburse: completedOrders.reduce(
+      (s, o) => s + Math.max(0, o.reconciliation.approvedExpenses - o.reconciliation.advance),
+      0,
+    ),
+  };
+  const hasFinancials =
+    portfolio.advances > 0 || portfolio.justified > 0 || portfolio.toReimburse > 0;
+
+  const todayMs = today.getTime();
+  const heroMission =
+    orders.find((o) => o.status === "IN_PROGRESS") ??
+    orders
+      .filter((o) => o.status === "APPROVED" && new Date(o.dateDebut).getTime() >= todayMs)
+      .sort((a, b) => a.dateDebut.localeCompare(b.dateDebut))[0] ??
+    [...orders]
+      .filter((o) => o.status === "APPROVED" || o.status === "COMPLETED")
+      .sort((a, b) => b.dateDebut.localeCompare(a.dateDebut))[0] ??
+    null;
+  const daysThisYear = orders
+    .filter(
+      (o) =>
+        (o.status === "APPROVED" || o.status === "IN_PROGRESS" || o.status === "COMPLETED") &&
+        new Date(o.dateDebut).getFullYear() === today.getFullYear(),
+    )
+    .reduce((s, o) => s + daysBetween(o.dateDebut, o.dateFin), 0);
+
+  const filteredHistory =
+    historyFilter === "ALL" ? history : history.filter((o) => o.status === historyFilter);
+
   return (
     <>
       <PageHeader
@@ -172,6 +218,15 @@ export function MissionsInbox() {
         title={t("inbox.title")}
         subtitle={t("inbox.subtitle")}
       />
+
+      <MissionHero
+        mission={heroMission}
+        daysThisYear={daysThisYear}
+        todayMs={todayMs}
+        locale={locale}
+      />
+
+      {hasFinancials && <FinancialPortfolio portfolio={portfolio} locale={locale} />}
 
       <StatCardGrid>
         <StatCard
@@ -253,10 +308,37 @@ export function MissionsInbox() {
 
       {/* Historique */}
       <section>
-        <h2 className="mb-3 text-[13px] font-bold uppercase tracking-wider text-ink-2">
-          {t("inbox.historyTitle")}
-        </h2>
-        {history.length === 0 ? (
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+          <h2 className="text-[13px] font-bold uppercase tracking-wider text-ink-2">
+            {t("inbox.historyTitle")}
+          </h2>
+          <div className="flex flex-wrap gap-1.5">
+            {(["ALL", "APPROVED", "IN_PROGRESS", "COMPLETED", "DECLINED"] as const).map((f) => (
+              <button
+                key={f}
+                type="button"
+                onClick={() => setHistoryFilter(f)}
+                className={
+                  "rounded-full px-3 py-1 text-[12px] font-medium transition-colors " +
+                  (historyFilter === f
+                    ? "bg-ink text-white"
+                    : "bg-bg-soft text-ink-3 hover:text-ink")
+                }
+              >
+                {f === "ALL"
+                  ? t("filters.all")
+                  : f === "APPROVED"
+                    ? t("filters.approved")
+                    : f === "IN_PROGRESS"
+                      ? t("filters.inProgress")
+                      : f === "COMPLETED"
+                        ? t("filters.completed")
+                        : t("filters.declined")}
+              </button>
+            ))}
+          </div>
+        </div>
+        {filteredHistory.length === 0 ? (
           <Card>
             <CardContent padding="md">
               <p className="text-center text-[13px] text-ink-3">{t("inbox.historyEmpty")}</p>
@@ -266,7 +348,7 @@ export function MissionsInbox() {
           <div className="overflow-hidden rounded-[20px] border border-line bg-white shadow-sm-brand">
             <table className="w-full border-collapse">
               <tbody>
-                {history.map((o) => (
+                {filteredHistory.map((o) => (
                   <tr
                     key={o.id}
                     className="border-b border-line-soft last:border-b-0 hover:bg-bg-soft"
@@ -312,6 +394,143 @@ export function MissionsInbox() {
         loading={declineMutation.isPending}
       />
     </>
+  );
+}
+
+function MissionHero({
+  mission,
+  daysThisYear,
+  todayMs,
+  locale,
+}: {
+  mission: EnrichedOrder | null;
+  daysThisYear: number;
+  todayMs: number;
+  locale: "fr" | "en";
+}) {
+  const t = useTranslations("missions");
+  const startMs = mission ? new Date(mission.dateDebut).getTime() : 0;
+  const startsInDays = mission ? Math.ceil((startMs - todayMs) / 86_400_000) : 0;
+  const isUpcoming = mission?.status === "APPROVED" && startsInDays > 0;
+
+  return (
+    <div className="mb-6 overflow-hidden rounded-[22px] border border-line bg-gradient-to-br from-ink to-[#23314d] text-white shadow-sm">
+      <div className="grid gap-6 p-6 md:grid-cols-[1.4fr_1fr] md:p-7">
+        <div className="space-y-3">
+          <div className="flex items-center gap-2 text-[12px] font-medium uppercase tracking-wide text-white/60">
+            <Plane className="h-4 w-4" />
+            {mission == null
+              ? t("inbox.hero.none")
+              : mission.status === "IN_PROGRESS"
+                ? t("inbox.hero.ongoing")
+                : isUpcoming
+                  ? t("inbox.hero.upcoming")
+                  : t("inbox.hero.latest")}
+          </div>
+
+          {mission == null ? (
+            <p className="text-[14px] text-white/70">{t("inbox.hero.noneHint")}</p>
+          ) : (
+            <>
+              <div className="flex items-start gap-2.5">
+                <MapPin className="mt-1 h-5 w-5 shrink-0 text-orange-400" />
+                <div>
+                  <p className="text-[22px] font-bold leading-tight">{mission.destination}</p>
+                  <p className="text-[13px] text-white/70">{mission.objet}</p>
+                </div>
+              </div>
+              <div className="flex flex-wrap items-center gap-x-5 gap-y-2 pt-1 text-[13px] text-white/80">
+                <span className="inline-flex items-center gap-1.5">
+                  <CalendarRange className="h-4 w-4 text-white/50" />
+                  <span className="font-mono-tabular">
+                    {formatDate(mission.dateDebut, { locale })} →{" "}
+                    {formatDate(mission.dateFin, { locale })}
+                  </span>
+                </span>
+                <span className="font-mono-tabular text-white/60">
+                  {t("detail.days", { count: daysBetween(mission.dateDebut, mission.dateFin) })}
+                </span>
+                <Badge tone={missionStatusTone(mission.status)}>
+                  {t(`status.${mission.status}`)}
+                </Badge>
+              </div>
+              {isUpcoming && (
+                <div className="inline-flex items-center gap-1.5 rounded-full bg-orange-500/20 px-3 py-1 text-[12.5px] font-medium text-orange-200">
+                  <CalendarClock className="h-3.5 w-3.5" />
+                  {t("inbox.hero.startsIn", { count: startsInDays })}
+                </div>
+              )}
+            </>
+          )}
+        </div>
+
+        <div className="flex items-center justify-center rounded-[16px] bg-white/5 p-5">
+          <div className="text-center">
+            <p className="font-mono-tabular text-[40px] font-bold leading-none">{daysThisYear}</p>
+            <p className="mt-1.5 text-[12.5px] text-white/60">{t("inbox.hero.daysThisYear")}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function FinancialPortfolio({
+  portfolio,
+  locale,
+}: {
+  portfolio: { advances: number; justified: number; toRecover: number; toReimburse: number };
+  locale: "fr" | "en";
+}) {
+  const t = useTranslations("missions");
+  const cards = [
+    {
+      icon: Wallet,
+      tone: "text-ink",
+      label: t("inbox.portfolio.advances"),
+      value: portfolio.advances,
+    },
+    {
+      icon: CheckCircle2,
+      tone: "text-success-600",
+      label: t("inbox.portfolio.justified"),
+      value: portfolio.justified,
+    },
+    {
+      icon: ArrowDownCircle,
+      tone: portfolio.toRecover > 0 ? "text-warning-600" : "text-ink-3",
+      label: t("inbox.portfolio.toRecover"),
+      value: portfolio.toRecover,
+    },
+    {
+      icon: ArrowUpCircle,
+      tone: portfolio.toReimburse > 0 ? "text-orange-600" : "text-ink-3",
+      label: t("inbox.portfolio.toReimburse"),
+      value: portfolio.toReimburse,
+    },
+  ];
+  return (
+    <div className="mb-6">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {cards.map((c) => (
+          <Card key={c.label}>
+            <CardContent padding="md">
+              <div className="flex items-center justify-between">
+                <span className="text-[12.5px] font-medium text-ink-3">{c.label}</span>
+                <c.icon className={"h-4 w-4 " + c.tone} />
+              </div>
+              <p className={"mt-2 font-mono-tabular text-[20px] font-bold " + c.tone}>
+                {formatMoney(c.value, { locale })}
+              </p>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+      <p className="mt-2.5 flex items-start gap-1.5 text-[12px] text-ink-3">
+        <Wallet className="mt-0.5 h-3.5 w-3.5 shrink-0 text-orange-500" />
+        {t("inbox.portfolio.payrollNote")}
+      </p>
+    </div>
   );
 }
 

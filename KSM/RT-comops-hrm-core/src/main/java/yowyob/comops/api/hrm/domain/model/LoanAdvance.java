@@ -51,6 +51,19 @@ public final class LoanAdvance extends BaseEntity {
                 LocalDate.now(), nbEcheances, motif, null);
     }
 
+    /**
+     * System-created advance that recovers an unjustified mission-order advance surplus directly
+     * through payroll. Created already {@code IN_REPAYMENT} (no manager approval step) and recovered
+     * in a single installment — the payroll engine caps each deduction at the remaining balance.
+     */
+    public static LoanAdvance autoRecovery(UUID tenantId, UUID organizationId, UUID agencyId,
+                                           UUID employeeId, BigDecimal montant, String motif) {
+        Instant now = Instant.now();
+        return new LoanAdvance(UUID.randomUUID(), tenantId, now, now, organizationId, agencyId,
+                employeeId, montant, montant, montant, LoanAdvanceStatus.IN_REPAYMENT,
+                LocalDate.now(), 1, motif, null);
+    }
+
     public static LoanAdvance rehydrate(UUID id, UUID tenantId, Instant createdAt, Instant updatedAt,
                                          UUID organizationId, UUID agencyId, UUID employeeId,
                                          BigDecimal montant, BigDecimal soldeRestant, BigDecimal mensualite,

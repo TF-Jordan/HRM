@@ -31,11 +31,60 @@
   },
   "my": {
     "title": "My time",
-    "subtitle": "Enter and submit your worked hours per month.",
+    "subtitle": "Declare your hours, track their approval and their impact on your pay.",
     "new": "New entry",
     "empty": "No entry for this period.",
     "noEmployee": "No employee record linked to your account. Contact your HR admin.",
-    "period": "Period"
+    "period": "Period",
+    "units": { "hours": "h", "days": "d" },
+    "hero": {
+      "label": "Declared total",
+      "noEntry": "No entry for {period}",
+      "noEntryHint": "Create your time entry for this month.",
+      "submit": "Submit for approval",
+      "submitSuccess": "Timesheet submitted for approval",
+      "draftHint": "Draft — remember to submit it for approval.",
+      "submittedHint": "Awaiting your manager's approval.",
+      "validatedHint": "Approved — included in your pay."
+    },
+    "kpis": {
+      "total": "Total hours",
+      "totalHint": "All categories combined",
+      "overtime": "Overtime hours",
+      "overtimeHint": "Uplifted per labour law",
+      "premium": "Premium hours",
+      "premiumHint": "Night + weekend / holiday",
+      "absences": "Unjustified absences",
+      "absencesHint": "Deducted from salary"
+    },
+    "composition": {
+      "title": "Hours breakdown",
+      "empty": "No hours declared for this period."
+    },
+    "trend": {
+      "title": "Trend — last 6 months",
+      "empty": "No history yet."
+    },
+    "payImpact": {
+      "title": "Impact on your pay",
+      "subtitle": "Once your timesheet is approved, these items automatically feed the payroll calculation.",
+      "overtimeDay": "Overtime (day)",
+      "overtimeNight": "Night hours",
+      "overtimeWeekend": "Weekend / holiday hours",
+      "absences": "Unjustified absences",
+      "pending": "Awaiting approval — the pay impact is not final yet.",
+      "validated": "Approved — included in this month's pay.",
+      "none": "No variable items to carry to payroll this month."
+    },
+    "history": {
+      "title": "History",
+      "period": "Period",
+      "total": "Total",
+      "overtime": "Overtime",
+      "absences": "Absences",
+      "status": "Status",
+      "empty": "No timesheet over the recent period."
+    }
   },
   "new": {
     "title": "New time entry",

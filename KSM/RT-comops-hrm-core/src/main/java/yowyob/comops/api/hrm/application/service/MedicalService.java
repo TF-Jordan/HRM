@@ -4,8 +4,11 @@ import org.springframework.context.annotation.Profile;
 import yowyob.comops.api.hrm.application.port.in.CreateMedicalCertificateCommand;
 import yowyob.comops.api.hrm.application.port.in.CreateMedicalVisitCommand;
 import yowyob.comops.api.hrm.application.port.in.ManageMedicalUseCase;
+import yowyob.comops.api.hrm.application.port.in.SubmitMyMedicalCertificateCommand;
+import yowyob.comops.api.hrm.application.port.out.EmployeeRepository;
 import yowyob.comops.api.hrm.application.port.out.MedicalCertificateRepository;
 import yowyob.comops.api.hrm.application.port.out.MedicalVisitRepository;
+import yowyob.comops.api.hrm.domain.EmployeeNotFoundException;
 import yowyob.comops.api.hrm.domain.model.MedicalCertificate;
 import yowyob.comops.api.hrm.domain.model.MedicalVisit;
 import yowyob.comops.api.kernel.application.service.ReactiveRequestContextHolder;
@@ -20,13 +23,19 @@ import reactor.core.publisher.Mono;
 @Service
 public class MedicalService implements ManageMedicalUseCase {
 
+    /** Status of a worker-submitted certificate, pending review by occupational health / HR. */
+    private static final String STATUT_SOUMIS = "SOUMIS";
+
     private final MedicalVisitRepository medicalVisitRepository;
     private final MedicalCertificateRepository medicalCertificateRepository;
+    private final EmployeeRepository employeeRepository;
 
     public MedicalService(MedicalVisitRepository medicalVisitRepository,
-                          MedicalCertificateRepository medicalCertificateRepository) {
+                          MedicalCertificateRepository medicalCertificateRepository,
+                          EmployeeRepository employeeRepository) {
         this.medicalVisitRepository = medicalVisitRepository;
         this.medicalCertificateRepository = medicalCertificateRepository;
+        this.employeeRepository = employeeRepository;
     }
 
     @Override
@@ -68,6 +77,21 @@ public class MedicalService implements ManageMedicalUseCase {
                             command.statut(), command.fichierId());
                     return medicalCertificateRepository.save(cert);
                 });
+    }
+
+    @Override
+    public Mono<MedicalCertificate> submitMyCertificate(SubmitMyMedicalCertificateCommand command) {
+        return ReactiveRequestContextHolder.getRequiredContext()
+                .flatMap(ctx -> employeeRepository.findByActorId(ctx.tenantId(), ctx.actorId())
+                        .switchIfEmpty(Mono.error(new EmployeeNotFoundException(ctx.actorId())))
+                        .flatMap(employee -> {
+                            // Employee + status are server-controlled: a worker can only file a
+                            // certificate for themselves, and it lands as SOUMIS for HR review.
+                            MedicalCertificate cert = MedicalCertificate.create(ctx.tenantId(),
+                                    employee.id(), command.typeCertificat(), command.dateEmission(),
+                                    command.dateExpiration(), STATUT_SOUMIS, command.fichierId());
+                            return medicalCertificateRepository.save(cert);
+                        }));
     }
 
     @Override

@@ -62,6 +62,19 @@
       "completed": "Completed",
       "pendingRequests": "Pending requests"
     },
+    "hero": {
+      "ongoing": "Training in progress",
+      "upcoming": "Next training",
+      "none": "No scheduled training",
+      "noneHint": "Browse the catalog to request a training and grow your skills.",
+      "startsIn": "Starts in {count, plural, =1 {# day} other {# days}}"
+    },
+    "devStats": {
+      "avgScore": "Average score",
+      "attestations": "Certificates",
+      "completed": "Completed trainings",
+      "daysThisYear": "Training days this year"
+    },
     "requestsTitle": "My requests",
     "requestsEmpty": "No request in progress.",
     "upcomingTitle": "Upcoming & in progress",

@@ -69,6 +69,21 @@ public class ReviewService implements ManageReviewUseCase {
     }
 
     @Override
+    public Mono<PerformanceReview> acknowledgeMyReview(UUID reviewId) {
+        return ReactiveRequestContextHolder.getRequiredContext()
+                .flatMap(context -> employeeRepository.findByActorId(context.tenantId(), context.actorId())
+                        .switchIfEmpty(Mono.error(new EmployeeNotFoundException(context.actorId())))
+                        .flatMap(employee -> reviewRepository.findById(context.tenantId(), reviewId)
+                                .switchIfEmpty(Mono.error(new IllegalArgumentException("Review not found")))
+                                // Ownership guard: a worker can only acknowledge their OWN review.
+                                .flatMap(review -> review.employeeId().equals(employee.id())
+                                        ? Mono.just(review)
+                                        : Mono.error(new IllegalArgumentException("Review not found")))
+                                .map(PerformanceReview::acknowledge)
+                                .flatMap(reviewRepository::save)));
+    }
+
+    @Override
     public Mono<PerformanceReview> finalizeReview(UUID reviewId) {
         return ReactiveRequestContextHolder.getRequiredContext()
                 .flatMap(context -> reviewRepository.findById(context.tenantId(), reviewId)

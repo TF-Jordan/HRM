@@ -17,6 +17,13 @@ public interface ManageReviewUseCase {
 
     Mono<PerformanceReview> acknowledgeReview(UUID reviewId);
 
+    /**
+     * Self-service acknowledgement: the calling worker acknowledges their OWN review
+     * ({@code SUBMITTED → ACKNOWLEDGED}). Resolves the employee from the caller's actor and rejects
+     * the operation when the review does not belong to them.
+     */
+    Mono<PerformanceReview> acknowledgeMyReview(UUID reviewId);
+
     Mono<PerformanceReview> finalizeReview(UUID reviewId);
 
     Mono<PerformanceReview> getReview(UUID reviewId);

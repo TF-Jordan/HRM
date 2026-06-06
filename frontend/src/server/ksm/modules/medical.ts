@@ -45,6 +45,14 @@ export type CreateMedicalCertificateRequest = {
   fichierId?: string | null;
 };
 
+/** Self-service certificate submission — employeeId + status are resolved/forced server-side. */
+export type SubmitMyCertificateRequest = {
+  typeCertificat: string;
+  dateEmission: string;
+  dateExpiration: string;
+  fichierId?: string | null;
+};
+
 /* -------- Visits -------- */
 
 export function listVisits(session: AppSession, organizationId?: string) {
@@ -113,6 +121,18 @@ export function createCertificate(
 ) {
   return callKsm<MedicalCertificateResponse>(
     "/api/v1/hrm/medical/certificates",
+    { method: "POST", body },
+    { session },
+  );
+}
+
+/** Self-service: the current employee files their own certificate (lands as SOUMIS). */
+export function submitMyCertificate(
+  body: SubmitMyCertificateRequest,
+  session: AppSession,
+) {
+  return callKsm<MedicalCertificateResponse>(
+    "/api/v1/hrm/medical/me/certificates",
     { method: "POST", body },
     { session },
   );

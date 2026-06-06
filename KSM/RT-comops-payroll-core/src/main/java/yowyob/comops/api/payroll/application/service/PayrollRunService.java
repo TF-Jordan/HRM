@@ -24,6 +24,7 @@ import yowyob.comops.api.payroll.application.port.out.PayrollEntryRepository;
 import yowyob.comops.api.payroll.application.port.out.PayrollRunRepository;
 import yowyob.comops.api.payroll.application.port.out.PayslipLineRepository;
 import yowyob.comops.api.payroll.application.port.out.TaxBracketTableRepository;
+import yowyob.comops.api.payroll.application.port.out.TimesheetInputsView;
 import yowyob.comops.api.payroll.domain.model.AnnualAccumulator;
 import yowyob.comops.api.payroll.domain.model.GarnishmentOrder;
 import yowyob.comops.api.payroll.domain.model.LookupTable;
@@ -179,14 +180,17 @@ public class PayrollRunService implements RunPayrollUseCase {
                 .collectList();
         Mono<BigDecimal> unpaidLeaveMono = hrmEmployeeDataPort
                 .getUnpaidLeaveDays(ctx.tenantId(), view.employeeId(), period.firstDay(), period.lastDay());
+        Mono<TimesheetInputsView> timesheetMono = hrmEmployeeDataPort
+                .getValidatedTimesheetInputs(ctx.tenantId(), view.employeeId(), period.format());
 
-        return Mono.zip(variableMono, loansMono, garnishMono, unpaidLeaveMono).flatMap(tuple -> {
+        return Mono.zip(variableMono, loansMono, garnishMono, unpaidLeaveMono, timesheetMono).flatMap(tuple -> {
             Optional<PayVariable> variable = tuple.getT1();
             List<LoanInstallmentView> loans = tuple.getT2();
             List<GarnishmentOrder> garnishments = tuple.getT3();
             BigDecimal unpaidLeaveDays = tuple.getT4();
+            TimesheetInputsView timesheet = tuple.getT5();
 
-            GrossComponents gross = assembleGross(period, view, variable, unpaidLeaveDays);
+            GrossComponents gross = assembleGross(period, view, variable, unpaidLeaveDays, timesheet);
             BigDecimal loansAdvances = voluntaryDeductions(loans, variable);
             CalculationRequest request = new CalculationRequest(gross, config.abatementRate(),
                     config.abatementCap(), config.elements(), config.bracketTables(),
@@ -237,7 +241,8 @@ public class PayrollRunService implements RunPayrollUseCase {
     }
 
     private GrossComponents assembleGross(PayPeriod period, EmployeePayrollView view,
-                                          Optional<PayVariable> variable, BigDecimal unpaidLeaveDays) {
+                                          Optional<PayVariable> variable, BigDecimal unpaidLeaveDays,
+                                          TimesheetInputsView timesheet) {
         BigDecimal base = view.baseSalary() == null ? BigDecimal.ZERO : view.baseSalary();
         int daysInMonth = period.lengthInDays();
 
@@ -250,16 +255,31 @@ public class PayrollRunService implements RunPayrollUseCase {
         } else {
             int present = ProrationCalculator.workedDays(period, view.hireDate(), view.departureDate());
             // Unpaid days reducing pay = approved UNPAID leave overlapping the period (auto-derived
-            // from hrm-core) plus any ad-hoc unpaid absences keyed on the pay variable.
+            // from hrm-core) plus ad-hoc unpaid absences. The ad-hoc count is the manager's manual
+            // entry when present, otherwise the unjustified absences from VALIDATED timesheets.
             BigDecimal manualUnpaid = variable.map(PayVariable::unpaidAbsenceDays).orElse(BigDecimal.ZERO);
-            int unpaid = unpaidLeaveDays.add(manualUnpaid).setScale(0, RoundingMode.HALF_UP).intValue();
+            BigDecimal adHocUnpaid = manualUnpaid.signum() > 0 ? manualUnpaid : timesheet.unjustifiedAbsenceDays();
+            int unpaid = unpaidLeaveDays.add(adHocUnpaid).setScale(0, RoundingMode.HALF_UP).intValue();
             workedDays = Math.max(present - unpaid, 0);
         }
         BigDecimal proratedBase = ProrationCalculator.prorate(base, workedDays, daysInMonth);
 
-        BigDecimal overtime = variable.map(v -> OvertimeCalculator.compute(base, LEGAL_MONTHLY_HOURS,
-                v.overtimeHoursDay(), OT_DAY, v.overtimeHoursNight(), OT_NIGHT,
-                v.overtimeHoursSundayHoliday(), OT_SUNDAY)).orElse(BigDecimal.ZERO);
+        // Overtime source: a manager-captured PayVariable wins when it carries any overtime;
+        // otherwise the VALIDATED timesheet hours flow straight into pay (zero double entry).
+        boolean payVarHasOvertime = variable.map(v -> v.overtimeHoursDay()
+                .add(v.overtimeHoursNight()).add(v.overtimeHoursSundayHoliday()).signum() > 0)
+                .orElse(false);
+        BigDecimal overtime;
+        if (payVarHasOvertime) {
+            PayVariable v = variable.orElseThrow();
+            overtime = OvertimeCalculator.compute(base, LEGAL_MONTHLY_HOURS,
+                    v.overtimeHoursDay(), OT_DAY, v.overtimeHoursNight(), OT_NIGHT,
+                    v.overtimeHoursSundayHoliday(), OT_SUNDAY);
+        } else {
+            overtime = OvertimeCalculator.compute(base, LEGAL_MONTHLY_HOURS,
+                    timesheet.overtimeDayHours(), OT_DAY, timesheet.overtimeNightHours(), OT_NIGHT,
+                    timesheet.overtimeSundayHolidayHours(), OT_SUNDAY);
+        }
         BigDecimal bonuses = variable.map(PayVariable::bonuses).orElse(BigDecimal.ZERO);
 
         return new GrossComponents(base, proratedBase, view.benefitsInKind(), overtime, bonuses);

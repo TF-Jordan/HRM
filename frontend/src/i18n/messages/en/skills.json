@@ -48,6 +48,31 @@
     "list": "Referential",
     "gap": "Gap"
   },
+  "mine": {
+    "title": "My skills",
+    "subtitle": "Your competency profile, levels and growth areas.",
+    "empty": "No skill assessed yet. Your manager will fill in your profile.",
+    "noEmployee": "No employee record linked to your account. Contact your HR admin.",
+    "met": "Met",
+    "matrixTitle": "Competency matrix",
+    "skillCount": "{count} skill(s)",
+    "gapTitle": "Growth areas",
+    "gapSubtitle": "Skills below the expected level — to strengthen (training, coaching).",
+    "assessedHint": "Your levels are assessed by your manager / HR during reviews. The bar shows your current level; the ringed marker is the expected target.",
+    "kpi": {
+      "count": "Skills",
+      "avg": "Average level",
+      "mastered": "Mastered",
+      "gaps": "To strengthen"
+    },
+    "hero": {
+      "proficiency": "Overall proficiency",
+      "readiness": "Skills at expected level",
+      "readinessHint": "{mastered} of {total} skills meet the target",
+      "lastEval": "Last assessment",
+      "skillsAssessed": "Skills assessed"
+    }
+  },
   "list": {
     "title": "Referential",
     "empty": "No skill defined yet.",

@@ -13,6 +13,7 @@ import yowyob.comops.api.hrm.application.port.out.LeaveBalanceRepository;
 import yowyob.comops.api.hrm.application.port.out.LeaveRequestRepository;
 import yowyob.comops.api.hrm.application.port.out.LoanAdvanceRepository;
 import yowyob.comops.api.hrm.application.port.out.LoanRepaymentRepository;
+import yowyob.comops.api.hrm.application.port.out.TimesheetRepository;
 import yowyob.comops.api.hrm.domain.model.Contract;
 import yowyob.comops.api.hrm.domain.model.Dependent;
 import yowyob.comops.api.hrm.domain.model.Employee;
@@ -21,10 +22,12 @@ import yowyob.comops.api.hrm.domain.model.LeaveStatus;
 import yowyob.comops.api.hrm.domain.model.LeaveType;
 import yowyob.comops.api.hrm.domain.model.LoanAdvance;
 import yowyob.comops.api.hrm.domain.model.LoanRepayment;
+import yowyob.comops.api.hrm.domain.model.TimesheetStatus;
 import yowyob.comops.api.payroll.application.port.out.EmployeePayrollView;
 import yowyob.comops.api.payroll.application.port.out.HrmEmployeeDataPort;
 import yowyob.comops.api.payroll.application.port.out.LeaveBalanceView;
 import yowyob.comops.api.payroll.application.port.out.LoanInstallmentView;
+import yowyob.comops.api.payroll.application.port.out.TimesheetInputsView;
 import yowyob.comops.api.payroll.domain.model.MaritalStatus;
 import yowyob.comops.api.payroll.domain.model.PaymentChannel;
 
@@ -65,6 +68,7 @@ public class HrmEmployeeDataAdapter implements HrmEmployeeDataPort {
     private final DependentRepository dependentRepository;
     private final LeaveBalanceRepository leaveBalanceRepository;
     private final LeaveRequestRepository leaveRequestRepository;
+    private final TimesheetRepository timesheetRepository;
 
     public HrmEmployeeDataAdapter(EmployeeRepository employeeRepository,
                                   ContractRepository contractRepository,
@@ -73,7 +77,8 @@ public class HrmEmployeeDataAdapter implements HrmEmployeeDataPort {
                                   EmployeePersonalInfoRepository personalInfoRepository,
                                   DependentRepository dependentRepository,
                                   LeaveBalanceRepository leaveBalanceRepository,
-                                  LeaveRequestRepository leaveRequestRepository) {
+                                  LeaveRequestRepository leaveRequestRepository,
+                                  TimesheetRepository timesheetRepository) {
         this.employeeRepository = employeeRepository;
         this.contractRepository = contractRepository;
         this.loanAdvanceRepository = loanAdvanceRepository;
@@ -82,6 +87,7 @@ public class HrmEmployeeDataAdapter implements HrmEmployeeDataPort {
         this.dependentRepository = dependentRepository;
         this.leaveBalanceRepository = leaveBalanceRepository;
         this.leaveRequestRepository = leaveRequestRepository;
+        this.timesheetRepository = timesheetRepository;
     }
 
     @Override
@@ -148,6 +154,25 @@ public class HrmEmployeeDataAdapter implements HrmEmployeeDataPort {
                     return BigDecimal.valueOf(overlapCalendarDays(start, end));
                 })
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    @Override
+    public Mono<TimesheetInputsView> getValidatedTimesheetInputs(UUID tenantId, UUID employeeId,
+                                                                 String periode) {
+        // Map the HR timesheet buckets onto payroll's legal overtime tiers and unpaid days:
+        // heuresSupplementaires -> day OT, heuresNuit -> night OT, heuresWeekend -> Sunday/holiday OT,
+        // absencesNonJustifiees -> unpaid absence days. Only VALIDATED timesheets feed the run.
+        return timesheetRepository.findByEmployeeIdAndPeriode(tenantId, employeeId, periode)
+                .filter(ts -> ts.status() == TimesheetStatus.VALIDATED)
+                .reduce(TimesheetInputsView.empty(), (acc, ts) -> new TimesheetInputsView(
+                        acc.overtimeDayHours().add(nz(ts.heuresSupplementaires())),
+                        acc.overtimeNightHours().add(nz(ts.heuresNuit())),
+                        acc.overtimeSundayHolidayHours().add(nz(ts.heuresWeekend())),
+                        acc.unjustifiedAbsenceDays().add(nz(ts.absencesNonJustifiees()))));
+    }
+
+    private static BigDecimal nz(BigDecimal value) {
+        return value != null ? value : BigDecimal.ZERO;
     }
 
     /** Inclusive calendar-day count of [start, end], or zero when the range is empty. */

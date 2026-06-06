@@ -62,6 +62,19 @@
       "completed": "Terminées",
       "pendingRequests": "Demandes en attente"
     },
+    "hero": {
+      "ongoing": "Formation en cours",
+      "upcoming": "Prochaine formation",
+      "none": "Aucune formation programmée",
+      "noneHint": "Parcourez le catalogue pour demander une formation et développer vos compétences.",
+      "startsIn": "Débute dans {count, plural, =1 {# jour} other {# jours}}"
+    },
+    "devStats": {
+      "avgScore": "Note moyenne",
+      "attestations": "Attestations",
+      "completed": "Formations validées",
+      "daysThisYear": "Jours de formation cette année"
+    },
     "requestsTitle": "Mes demandes",
     "requestsEmpty": "Aucune demande en cours.",
     "upcomingTitle": "À venir & en cours",

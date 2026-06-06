@@ -1,15 +1,20 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import type { LucideIcon } from "lucide-react";
 import {
   BookOpen,
   Briefcase,
   CalendarRange,
+  CheckCircle2,
   ChevronRight,
+  ClipboardCheck,
   Clock,
   Download,
   FileText,
+  ListChecks,
   Loader2,
+  Stethoscope,
   TrendingUp,
   Wallet,
 } from "lucide-react";
@@ -47,11 +52,23 @@ type EventItem = {
   sub: string;
   href: string;
 };
+type ActionUrgency = "high" | "medium" | "low";
+type ActionKind = "mission" | "review" | "timesheet" | "expense" | "medical";
+type ActionItem = {
+  key: string;
+  kind: ActionKind;
+  title: string;
+  description: string;
+  urgency: ActionUrgency;
+  href: string;
+};
 type EmpDashPayload = {
   employee: { id: string; matricule: string; actorDisplayName?: string | null } | null;
   leaveBalances: LeaveBalance[];
   recentRequests: RequestItem[];
   upcomingEvents: EventItem[];
+  actions: ActionItem[];
+  actionCount: number;
   monthlyHours: number;
   currentPeriode: string;
   payslipSeries: { periode: string; net: number }[];
@@ -87,13 +104,7 @@ export function EmployeeDashboard() {
         ucBadge="UC-28"
         breadcrumb={[{ label: "HR Core" }, { label: t("title") }]}
         title={greeting}
-        subtitle={
-          data
-            ? t("headline", {
-                actions: (data.pendingReviewCount + data.recentRequests.filter((r) => r.step === 1).length),
-              })
-            : undefined
-        }
+        subtitle={data ? t("headline", { actions: data.actionCount }) : undefined}
         actions={
           <Link href="/leaves/new">
             <Button><CalendarRange className="h-4 w-4" />{t("quickActions.leave")}</Button>
@@ -112,6 +123,7 @@ export function EmployeeDashboard() {
       ) : !data ? null : (
         <div className="flex flex-col gap-4">
           <KpiRow data={data} t={t} now={now} />
+          <ActionCenter actions={data.actions} t={t} />
           <QuickActionsSection t={t} data={data} />
           <RequestsAndEvents data={data} t={t} />
           <LeaveAndPaySection data={data} t={t} />
@@ -224,6 +236,94 @@ function EmpKpiCard({
       </div>
     </div>
   );
+}
+
+// ─── Action center ─────────────────────────────────────────────────────────────
+
+const ACTION_META: Record<
+  ActionKind,
+  { icon: LucideIcon; tone: "orange" | "warning" | "info" | "violet" | "danger" }
+> = {
+  mission: { icon: Briefcase, tone: "info" },
+  review: { icon: ClipboardCheck, tone: "violet" },
+  timesheet: { icon: Clock, tone: "warning" },
+  expense: { icon: FileText, tone: "orange" },
+  medical: { icon: Stethoscope, tone: "danger" },
+};
+
+function ActionCenter({
+  actions,
+  t,
+}: {
+  actions: ActionItem[];
+  t: ReturnType<typeof useTranslations<"dashboard.employee">>;
+}) {
+  return (
+    <Card>
+      <div className="flex items-center justify-between border-b border-line-soft px-6 py-4">
+        <div className="flex items-center gap-2.5">
+          <span className="grid h-8 w-8 place-items-center rounded-[10px] bg-grad-orange text-white shadow-orange-brand">
+            <ListChecks className="h-4 w-4" />
+          </span>
+          <div>
+            <h3 className="text-[15px] font-bold tracking-tight text-ink">{t("actions.title")}</h3>
+            <p className="text-[12px] text-ink-3">{t("actions.subtitle")}</p>
+          </div>
+        </div>
+        {actions.length > 0 && (
+          <span className="inline-flex items-center rounded-full bg-orange-100 px-2.5 py-0.5 text-[12px] font-bold text-orange-700">
+            {actions.length}
+          </span>
+        )}
+      </div>
+
+      {actions.length === 0 ? (
+        <div className="flex flex-col items-center gap-2 px-6 py-10 text-center">
+          <span className="grid h-11 w-11 place-items-center rounded-full bg-success-50 text-success-600">
+            <CheckCircle2 className="h-6 w-6" />
+          </span>
+          <div className="text-[13.5px] font-semibold text-ink">{t("actions.emptyTitle")}</div>
+          <div className="text-[12px] text-ink-3">{t("actions.emptyHint")}</div>
+        </div>
+      ) : (
+        <div className="grid gap-3 p-4 sm:grid-cols-2">
+          {actions.map((a) => {
+            const meta = ACTION_META[a.kind];
+            return (
+              <Link
+                key={a.key}
+                href={a.href}
+                className="group flex items-center gap-3 rounded-[14px] border border-line bg-white p-3.5 transition-all hover:-translate-y-px hover:border-line-strong hover:shadow-sm-brand"
+              >
+                <IconTile icon={meta.icon} tone={meta.tone} />
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2">
+                    <span className="truncate text-[13.5px] font-semibold text-ink">{a.title}</span>
+                    <ActionUrgencyDot urgency={a.urgency} />
+                  </div>
+                  <div className="truncate text-[12px] text-ink-3">{a.description}</div>
+                </div>
+                <Button size="sm" variant={a.urgency === "high" ? "dark" : "secondary"}>
+                  {t("actions.cta")}
+                  <ChevronRight className="h-3 w-3" />
+                </Button>
+              </Link>
+            );
+          })}
+        </div>
+      )}
+    </Card>
+  );
+}
+
+function ActionUrgencyDot({ urgency }: { urgency: ActionUrgency }) {
+  const cls =
+    urgency === "high"
+      ? "bg-danger-500"
+      : urgency === "medium"
+        ? "bg-orange-500"
+        : "bg-ink-4";
+  return <span className={cn("h-1.5 w-1.5 shrink-0 rounded-full", cls)} aria-hidden />;
 }
 
 // ─── Quick Actions ────────────────────────────────────────────────────────────
@@ -505,7 +605,6 @@ function LeaveDonut({
   balances: LeaveBalance[];
   t: ReturnType<typeof useTranslations<"dashboard.employee">>;
 }) {
-  const annualBal = balances.find((b) => b.type === "ANNUAL");
   const totalRestant = balances.reduce((a, b) => a + Math.max(0, b.restant), 0);
   const donutData = balances
     .filter((b) => b.acquis > 0)
@@ -517,19 +616,21 @@ function LeaveDonut({
   const r = (size - thick) / 2;
   const cx = size / 2, cy = size / 2;
   const sum = Math.max(1, donutData.reduce((a, b) => a + b.value, 0));
-  let offset = 0;
   const len = 2 * Math.PI * r;
+  // Precompute the cumulative offset of each segment so we never reassign during render.
+  const segments = donutData.map((seg, i) => {
+    const prior = donutData.slice(0, i).reduce((a, s) => a + s.value, 0);
+    return { ...seg, dashOffset: -(prior / sum) * len };
+  });
 
   return (
     <div className="flex flex-col gap-4">
       <div className="relative mx-auto" style={{ width: size, height: size }}>
         <svg viewBox={`0 0 ${size} ${size}`} className="h-full w-full -rotate-90">
           <circle cx={cx} cy={cy} r={r} fill="none" stroke="#F3F4F6" strokeWidth={thick} />
-          {donutData.map((seg, i) => {
+          {segments.map((seg, i) => {
             const frac = seg.value / sum;
             const dash = `${frac * len} ${len - frac * len}`;
-            const dashOffset = -offset;
-            offset += frac * len;
             return (
               <circle
                 key={i}
@@ -538,7 +639,7 @@ function LeaveDonut({
                 stroke={seg.color}
                 strokeWidth={thick}
                 strokeDasharray={dash}
-                strokeDashoffset={dashOffset}
+                strokeDashoffset={seg.dashOffset}
                 strokeLinecap="butt"
               />
             );

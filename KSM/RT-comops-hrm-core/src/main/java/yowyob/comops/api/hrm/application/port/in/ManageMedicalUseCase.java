@@ -21,6 +21,13 @@ public interface ManageMedicalUseCase {
 
     Mono<MedicalCertificate> createCertificate(CreateMedicalCertificateCommand command);
 
+    /**
+     * Self-service: the calling worker submits their OWN medical certificate. The employee is
+     * resolved from the caller's actor and the status is forced to {@code SOUMIS} (pending review by
+     * occupational health / HR). Rejects when no employee record is linked to the caller.
+     */
+    Mono<MedicalCertificate> submitMyCertificate(SubmitMyMedicalCertificateCommand command);
+
     Mono<MedicalCertificate> getCertificate(UUID certificateId);
 
     Flux<MedicalCertificate> listCertificatesByEmployee(UUID employeeId);

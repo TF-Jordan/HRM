@@ -71,6 +71,13 @@
     "greetingAfternoon": "Bon après-midi, {name} 👋",
     "greetingEvening": "Bonsoir, {name} 👋",
     "headline": "{actions} élément(s) en attente de votre part",
+    "actions": {
+      "title": "À traiter",
+      "subtitle": "Ce qui requiert votre action",
+      "cta": "Traiter",
+      "emptyTitle": "Tout est à jour",
+      "emptyHint": "Vous n'avez aucune action en attente. Bonne journée !"
+    },
     "kpi": {
       "leaveBalance": "Solde congés",
       "leaveUnit": "jours",

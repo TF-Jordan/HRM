@@ -35,8 +35,26 @@
   },
   "mine": {
     "title": "Mes évaluations",
-    "subtitle": "Vos évaluations de performance et plans d'action.",
-    "empty": "Aucune évaluation pour le moment."
+    "subtitle": "Vos évaluations de performance, objectifs et plans d'action.",
+    "empty": "Aucune évaluation pour le moment.",
+    "viewDetail": "Voir le détail",
+    "acknowledge": "Reconnaître mon évaluation",
+    "acknowledgeHint": "Confirmez avoir pris connaissance de votre évaluation.",
+    "ackSuccess": "Évaluation reconnue.",
+    "toAcknowledgeTitle": "À reconnaître",
+    "historyTitle": "Historique",
+    "trendTitle": "Évolution de mes scores",
+    "objectivesAvg": "Atteinte moyenne",
+    "objectivesEvaluated": "{evaluated} / {total} objectif(s) évalué(s)",
+    "hero": {
+      "latest": "Dernière évaluation"
+    },
+    "kpi": {
+      "count": "Évaluations",
+      "latest": "Dernier score",
+      "average": "Score moyen",
+      "pendingAck": "À reconnaître"
+    }
   },
   "new": {
     "title": "Nouvelle évaluation",

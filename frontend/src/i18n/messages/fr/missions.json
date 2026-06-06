@@ -60,6 +60,22 @@
       "toRegularize": "Avances à régulariser",
       "completed": "Terminées"
     },
+    "hero": {
+      "ongoing": "Mission en cours",
+      "upcoming": "Prochaine mission",
+      "latest": "Dernière mission",
+      "none": "Aucune mission active",
+      "noneHint": "Vos ordres de mission validés apparaîtront ici.",
+      "startsIn": "Débute dans {count, plural, =1 {# jour} other {# jours}}",
+      "daysThisYear": "Jours en mission cette année"
+    },
+    "portfolio": {
+      "advances": "Avances reçues",
+      "justified": "Justifié (validé)",
+      "toRecover": "Reliquat à reverser",
+      "toReimburse": "À vous rembourser",
+      "payrollNote": "Les reliquats d'avance non justifiés à la clôture sont récupérés automatiquement sur votre paie (avance échelonnée). Les remboursements en votre faveur passent par vos notes de frais."
+    },
     "activeTitle": "Missions actives & avances à régulariser",
     "activeEmpty": "Aucune mission active ni avance à régulariser.",
     "recon": {

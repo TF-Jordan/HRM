@@ -122,17 +122,6 @@ const EMPLOYEE_SECTIONS: NavSection[] = [
       },
     ],
   },
-  {
-    labelKey: "sections.company",
-    items: [
-      {
-        href: "/employees",
-        labelKey: "nav.directory",
-        icon: Users,
-        permission: "hrm:employee:read",
-      },
-    ],
-  },
 ];
 
 // ──────────────────────────────────────────────────────────────────────────────

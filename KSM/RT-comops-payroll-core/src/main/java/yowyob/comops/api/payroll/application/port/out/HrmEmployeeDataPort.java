@@ -58,4 +58,15 @@ public interface HrmEmployeeDataPort {
      */
     Mono<BigDecimal> getUnpaidLeaveDays(UUID tenantId, UUID employeeId,
                                         LocalDate periodStart, LocalDate periodEnd);
+
+    /**
+     * Aggregated overtime and unjustified-absence inputs from the employee's {@code VALIDATED}
+     * timesheets for {@code periode} ({@code YYYY-MM}). Lets the run pay declared-and-approved time
+     * (overtime tiers) and dock unjustified absences without any manual re-entry.
+     *
+     * <p>Only {@code VALIDATED} timesheets are considered (draft/submitted are ignored); when an
+     * employee has several validated timesheets for the same month, their hours are summed. Returns
+     * {@link TimesheetInputsView#empty()} when there is nothing to apply.
+     */
+    Mono<TimesheetInputsView> getValidatedTimesheetInputs(UUID tenantId, UUID employeeId, String periode);
 }

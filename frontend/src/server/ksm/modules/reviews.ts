@@ -90,6 +90,15 @@ export function acknowledgeReview(id: string, session: AppSession) {
   );
 }
 
+/** Self-service: the owning employee acknowledges their own review (SUBMITTED → ACKNOWLEDGED). */
+export function acknowledgeMyReview(id: string, session: AppSession) {
+  return callKsm<ReviewResponse>(
+    `/api/v1/hrm/reviews/me/${id}/acknowledge`,
+    { method: "PUT" },
+    { session },
+  );
+}
+
 export function finalizeReview(id: string, session: AppSession) {
   return callKsm<ReviewResponse>(
     `/api/v1/hrm/reviews/${id}/finalize`,

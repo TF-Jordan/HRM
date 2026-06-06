@@ -87,7 +87,8 @@
       "statutValues": {
         "VALIDE": "Valid",
         "EXPIRE": "Expired",
-        "REVOQUE": "Revoked"
+        "REVOQUE": "Revoked",
+        "SOUMIS": "Submitted"
       }
     }
   },
@@ -105,10 +106,38 @@
   },
   "mine": {
     "title": "My medical file",
-    "subtitle": "Your visits and current certificates.",
+    "subtitle": "Your fitness, your due dates and your certificates — in one place.",
+    "noEmployee": "No employee record linked to your account. Contact your HR admin.",
+    "disclaimer": "Your medical data is confidential and accessible only to occupational health / HR. Certificates you upload are submitted for validation.",
     "visitsTitle": "Medical visits",
     "visitsEmpty": "No medical visit recorded.",
     "certificatesTitle": "Medical certificates",
-    "certificatesEmpty": "No certificate recorded."
+    "certificatesEmpty": "No certificate recorded.",
+    "kpi": {
+      "aptitude": "Current fitness",
+      "nextVisit": "Next visit",
+      "validCerts": "Valid certificates",
+      "alerts": "Alerts"
+    },
+    "hero": {
+      "currentAptitude": "Current fitness",
+      "nextDue": "Next due",
+      "noVisit": "No medical visit recorded",
+      "noVisitHint": "Your first fitness visit will appear here once recorded by occupational health."
+    },
+    "upload": {
+      "cta": "Upload a certificate",
+      "title": "Upload a medical certificate",
+      "subtitle": "Upload your document (sick leave, fitness, vaccination…). It will be submitted to occupational health / HR.",
+      "submit": "Submit",
+      "cancel": "Cancel",
+      "success": "Certificate submitted. It will be reviewed by occupational health / HR.",
+      "types": {
+        "ARRET_MALADIE": "Sick leave",
+        "APTITUDE": "Fitness certificate",
+        "VACCINATION": "Vaccination",
+        "AUTRE": "Other"
+      }
+    }
   }
 }

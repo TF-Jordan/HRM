@@ -71,6 +71,13 @@
     "greetingAfternoon": "Good afternoon, {name} 👋",
     "greetingEvening": "Good evening, {name} 👋",
     "headline": "{actions} item(s) awaiting your attention",
+    "actions": {
+      "title": "To do",
+      "subtitle": "What needs your action",
+      "cta": "Handle",
+      "emptyTitle": "You're all caught up",
+      "emptyHint": "No pending actions. Have a great day!"
+    },
     "kpi": {
       "leaveBalance": "Leave balance",
       "leaveUnit": "days",

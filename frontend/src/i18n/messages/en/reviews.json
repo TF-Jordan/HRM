@@ -35,8 +35,26 @@
   },
   "mine": {
     "title": "My reviews",
-    "subtitle": "Your performance reviews and action plans.",
-    "empty": "No review yet."
+    "subtitle": "Your performance reviews, objectives and action plans.",
+    "empty": "No review yet.",
+    "viewDetail": "View details",
+    "acknowledge": "Acknowledge my review",
+    "acknowledgeHint": "Confirm you have read your review.",
+    "ackSuccess": "Review acknowledged.",
+    "toAcknowledgeTitle": "To acknowledge",
+    "historyTitle": "History",
+    "trendTitle": "My score trend",
+    "objectivesAvg": "Average attainment",
+    "objectivesEvaluated": "{evaluated} / {total} objective(s) evaluated",
+    "hero": {
+      "latest": "Latest review"
+    },
+    "kpi": {
+      "count": "Reviews",
+      "latest": "Latest score",
+      "average": "Average score",
+      "pendingAck": "To acknowledge"
+    }
   },
   "new": {
     "title": "New review",

@@ -48,6 +48,31 @@
     "list": "Référentiel",
     "gap": "Écarts"
   },
+  "mine": {
+    "title": "Mes compétences",
+    "subtitle": "Votre profil de compétences, vos niveaux et vos axes de progression.",
+    "empty": "Aucune compétence évaluée pour le moment. Votre manager renseignera votre profil.",
+    "noEmployee": "Aucune fiche employé associée à votre compte. Contactez votre administrateur RH.",
+    "met": "Atteint",
+    "matrixTitle": "Matrice de compétences",
+    "skillCount": "{count} compétence(s)",
+    "gapTitle": "Axes de progression",
+    "gapSubtitle": "Compétences sous le niveau attendu — à renforcer (formation, accompagnement).",
+    "assessedHint": "Vos niveaux sont évalués par votre manager / la RH lors des entretiens. La barre indique le niveau actuel ; le repère cerclé marque le niveau attendu.",
+    "kpi": {
+      "count": "Compétences",
+      "avg": "Niveau moyen",
+      "mastered": "Maîtrisées",
+      "gaps": "À renforcer"
+    },
+    "hero": {
+      "proficiency": "Niveau de maîtrise global",
+      "readiness": "Compétences au niveau attendu",
+      "readinessHint": "{mastered} sur {total} compétences atteignent la cible",
+      "lastEval": "Dernière évaluation",
+      "skillsAssessed": "Compétences évaluées"
+    }
+  },
   "list": {
     "title": "Référentiel",
     "empty": "Aucune compétence définie.",

@@ -3,6 +3,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Award,
+  BookOpen,
+  CalendarClock,
   CalendarRange,
   Download,
   GraduationCap,
@@ -10,6 +12,7 @@ import {
   MapPin,
   Plus,
   Sparkles,
+  Star,
   XCircle,
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
@@ -53,6 +56,8 @@ export function MyTrainings() {
   const queryClient = useQueryClient();
   const canRequest = useCan("hrm:training:request");
   const [requestOpen, setRequestOpen] = React.useState(false);
+  // Captured once at mount so date math stays pure across renders.
+  const [today] = React.useState(() => new Date());
 
   const query = useQuery({
     queryKey: ["hrm", "trainings", "mine"],
@@ -117,6 +122,36 @@ export function MyTrainings() {
     (tr) => tr.status === "PLANNED" && !enrolledIds.has(tr.id) && !pendingIds.has(tr.id),
   );
 
+  // Development metrics derived from the employee's own enrollments (no mock).
+  const completedNotes = completed
+    .map((e) => (typeof e.noteEvaluation === "string" ? Number(e.noteEvaluation) : e.noteEvaluation))
+    .filter((n): n is number => n != null && Number.isFinite(n));
+  const avgScore = completedNotes.length
+    ? completedNotes.reduce((s, n) => s + n, 0) / completedNotes.length
+    : null;
+  const attestations = completed.filter((e) => e.attestationFileId).length;
+  const trainingDaysThisYear = enrollments
+    .filter((e) => e.status !== "CANCELLED")
+    .map((e) => trainingById.get(e.trainingId))
+    .filter(
+      (tr): tr is TrainingResponse =>
+        !!tr?.dateDebut && new Date(tr.dateDebut).getFullYear() === today.getFullYear(),
+    )
+    .reduce((s, tr) => s + trainingDays(tr.dateDebut, tr.dateFin), 0);
+
+  // Hero = the session currently in progress, else the next planned one.
+  const heroEnrollment =
+    upcoming.find((e) => trainingById.get(e.trainingId)?.status === "IN_PROGRESS") ??
+    [...upcoming]
+      .filter((e) => trainingById.get(e.trainingId)?.status === "PLANNED")
+      .sort((a, b) =>
+        (trainingById.get(a.trainingId)?.dateDebut ?? "").localeCompare(
+          trainingById.get(b.trainingId)?.dateDebut ?? "",
+        ),
+      )[0] ??
+    null;
+  const heroTraining = heroEnrollment ? trainingById.get(heroEnrollment.trainingId) : undefined;
+
   return (
     <>
       <PageHeader
@@ -152,6 +187,16 @@ export function MyTrainings() {
         </div>
       ) : (
         <>
+          <DevelopmentHero
+            training={heroTraining}
+            todayMs={today.getTime()}
+            avgScore={avgScore}
+            attestations={attestations}
+            completedCount={completed.length}
+            daysThisYear={trainingDaysThisYear}
+            locale={locale}
+          />
+
           <StatCardGrid>
             <StatCard label={t("mine.kpi.upcoming")} value={upcoming.length} sub={t("status.PLANNED")} tone="blue" />
             <StatCard label={t("mine.kpi.inProgress")} value={inProgressCount} sub={t("status.IN_PROGRESS")} tone="orange" />
@@ -288,6 +333,114 @@ export function MyTrainings() {
         }}
       />
     </>
+  );
+}
+
+function trainingDays(dateDebut: string | null, dateFin: string | null): number {
+  if (!dateDebut) return 0;
+  if (!dateFin) return 1;
+  const a = new Date(dateDebut).getTime();
+  const b = new Date(dateFin).getTime();
+  if (Number.isNaN(a) || Number.isNaN(b)) return 1;
+  return Math.max(1, Math.round((b - a) / 86_400_000) + 1);
+}
+
+function DevelopmentHero({
+  training,
+  todayMs,
+  avgScore,
+  attestations,
+  completedCount,
+  daysThisYear,
+  locale,
+}: {
+  training: TrainingResponse | undefined;
+  todayMs: number;
+  avgScore: number | null;
+  attestations: number;
+  completedCount: number;
+  daysThisYear: number;
+  locale: "fr" | "en";
+}) {
+  const t = useTranslations("trainings");
+  const startMs = training?.dateDebut ? new Date(training.dateDebut).getTime() : 0;
+  const startsInDays = training?.dateDebut ? Math.ceil((startMs - todayMs) / 86_400_000) : 0;
+  const isUpcoming = training?.status === "PLANNED" && startsInDays > 0;
+  const isOngoing = training?.status === "IN_PROGRESS";
+
+  const stats: { icon: typeof Star; label: string; value: string }[] = [
+    {
+      icon: Star,
+      label: t("mine.devStats.avgScore"),
+      value: avgScore != null ? `${avgScore.toFixed(1)}/20` : "—",
+    },
+    { icon: Award, label: t("mine.devStats.attestations"), value: String(attestations) },
+    { icon: GraduationCap, label: t("mine.devStats.completed"), value: String(completedCount) },
+    { icon: CalendarClock, label: t("mine.devStats.daysThisYear"), value: String(daysThisYear) },
+  ];
+
+  return (
+    <div className="mb-6 overflow-hidden rounded-[22px] border border-line bg-gradient-to-br from-ink to-[#23314d] text-white shadow-sm">
+      <div className="grid gap-6 p-6 md:grid-cols-[1.3fr_1fr] md:p-7">
+        <div className="space-y-3">
+          <div className="flex items-center gap-2 text-[12px] font-medium uppercase tracking-wide text-white/60">
+            <BookOpen className="h-4 w-4" />
+            {training == null
+              ? t("mine.hero.none")
+              : isOngoing
+                ? t("mine.hero.ongoing")
+                : t("mine.hero.upcoming")}
+          </div>
+
+          {training == null ? (
+            <p className="text-[14px] text-white/70">{t("mine.hero.noneHint")}</p>
+          ) : (
+            <>
+              <div className="flex items-start gap-2.5">
+                <GraduationCap className="mt-1 h-5 w-5 shrink-0 text-orange-400" />
+                <div>
+                  <p className="text-[21px] font-bold leading-tight">{training.intitule}</p>
+                  {training.organisme && (
+                    <p className="text-[13px] text-white/70">{training.organisme}</p>
+                  )}
+                </div>
+              </div>
+              <div className="flex flex-wrap items-center gap-x-5 gap-y-2 pt-1 text-[13px] text-white/80">
+                <span className="inline-flex items-center gap-1.5">
+                  <CalendarRange className="h-4 w-4 text-white/50" />
+                  <span className="font-mono-tabular">
+                    {training.dateDebut ? formatDate(training.dateDebut, { locale }) : "—"}
+                    {training.dateFin ? ` → ${formatDate(training.dateFin, { locale })}` : ""}
+                  </span>
+                </span>
+                {training.lieu && (
+                  <span className="inline-flex items-center gap-1.5">
+                    <MapPin className="h-4 w-4 text-white/50" />
+                    {training.lieu}
+                  </span>
+                )}
+              </div>
+              {isUpcoming && (
+                <div className="inline-flex items-center gap-1.5 rounded-full bg-orange-500/20 px-3 py-1 text-[12.5px] font-medium text-orange-200">
+                  <CalendarClock className="h-3.5 w-3.5" />
+                  {t("mine.hero.startsIn", { count: startsInDays })}
+                </div>
+              )}
+            </>
+          )}
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          {stats.map((s) => (
+            <div key={s.label} className="rounded-[14px] bg-white/5 p-3.5">
+              <s.icon className="h-4 w-4 text-orange-300" />
+              <p className="mt-1.5 font-mono-tabular text-[22px] font-bold leading-none">{s.value}</p>
+              <p className="mt-1 text-[11.5px] text-white/60">{s.label}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
   );
 }
 

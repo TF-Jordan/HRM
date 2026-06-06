@@ -30,12 +30,61 @@
     }
   },
   "my": {
-    "title": "Mes temps",
-    "subtitle": "Saisissez et soumettez vos heures travaillées par mois.",
+    "title": "Mon temps",
+    "subtitle": "Déclarez vos heures, suivez leur validation et leur impact sur votre paie.",
     "new": "Nouvelle saisie",
     "empty": "Aucune saisie pour cette période.",
     "noEmployee": "Aucune fiche employé associée à votre compte. Contactez votre administrateur RH.",
-    "period": "Période"
+    "period": "Période",
+    "units": { "hours": "h", "days": "j" },
+    "hero": {
+      "label": "Total déclaré",
+      "noEntry": "Aucune saisie pour {period}",
+      "noEntryHint": "Créez votre saisie de temps pour ce mois.",
+      "submit": "Soumettre à validation",
+      "submitSuccess": "Pointage soumis pour validation",
+      "draftHint": "Brouillon — pensez à le soumettre pour validation.",
+      "submittedHint": "En attente de validation par votre manager.",
+      "validatedHint": "Validé — pris en compte dans votre paie."
+    },
+    "kpis": {
+      "total": "Total heures",
+      "totalHint": "Toutes catégories confondues",
+      "overtime": "Heures supplémentaires",
+      "overtimeHint": "Majorées selon le Code du travail",
+      "premium": "Heures majorées",
+      "premiumHint": "Nuit + week-end / férié",
+      "absences": "Absences non justifiées",
+      "absencesHint": "Déduites du salaire"
+    },
+    "composition": {
+      "title": "Répartition des heures",
+      "empty": "Aucune heure déclarée pour cette période."
+    },
+    "trend": {
+      "title": "Tendance — 6 derniers mois",
+      "empty": "Pas encore d'historique."
+    },
+    "payImpact": {
+      "title": "Impact sur votre paie",
+      "subtitle": "Une fois votre pointage validé, ces éléments alimentent automatiquement le calcul de la paie.",
+      "overtimeDay": "Heures sup. (jour)",
+      "overtimeNight": "Heures de nuit",
+      "overtimeWeekend": "Heures week-end / férié",
+      "absences": "Absences non justifiées",
+      "pending": "En attente de validation — l'impact sur la paie n'est pas encore figé.",
+      "validated": "Validé — pris en compte dans la paie du mois.",
+      "none": "Aucun élément variable à reporter sur la paie ce mois."
+    },
+    "history": {
+      "title": "Historique",
+      "period": "Période",
+      "total": "Total",
+      "overtime": "Heures sup.",
+      "absences": "Absences",
+      "status": "Statut",
+      "empty": "Aucun pointage sur la période récente."
+    }
   },
   "new": {
     "title": "Nouvelle saisie de temps",

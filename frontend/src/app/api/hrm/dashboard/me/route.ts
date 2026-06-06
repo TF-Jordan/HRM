@@ -4,12 +4,24 @@ import { authenticatedRoute } from "@/server/handlers";
 import * as employeesApi from "@/server/ksm/modules/employees";
 import * as expensesApi from "@/server/ksm/modules/expenses";
 import * as leavesApi from "@/server/ksm/modules/leaves";
+import * as medicalApi from "@/server/ksm/modules/medical";
 import * as missionsApi from "@/server/ksm/modules/missions";
 import * as payrollApi from "@/server/ksm/modules/payroll";
 import * as reviewsApi from "@/server/ksm/modules/reviews";
 import * as timesheetsApi from "@/server/ksm/modules/timesheets";
 import * as trainingsApi from "@/server/ksm/modules/trainings";
 import { findMyEmployee } from "@/server/orchestration/find-my-employee";
+
+type ActionUrgency = "high" | "medium" | "low";
+type ActionKind = "mission" | "review" | "timesheet" | "expense" | "medical";
+type ActionItem = {
+  key: string;
+  kind: ActionKind;
+  title: string;
+  description: string;
+  urgency: ActionUrgency;
+  href: string;
+};
 
 export async function GET() {
   return authenticatedRoute(async (session) => {
@@ -27,6 +39,8 @@ export async function GET() {
           leaveBalances: [],
           recentRequests: [],
           upcomingEvents: [],
+          actions: [],
+          actionCount: 0,
           monthlyHours: 0,
           payslipSeries: [],
           latestNet: null,
@@ -37,17 +51,29 @@ export async function GET() {
       });
     }
 
-    const [leaveBalances, myLeaves, myExpenses, myTimesheets, myMissions, myEnrollments, myReviews, payrollRuns] =
-      await Promise.all([
-        safe(employeesApi.listLeaveBalances(employee.id, now.getFullYear(), session), []),
-        safe(leavesApi.listLeavesByEmployee(employee.id, session), []),
-        safe(expensesApi.listExpenseReportsByEmployee(employee.id, session), []),
-        safe(timesheetsApi.listByEmployee(employee.id, currentPeriode, session), []),
-        safe(missionsApi.listMissionOrdersByEmployee(employee.id, session), []),
-        safe(trainingsApi.listEnrollmentsByEmployee(employee.id, session), []),
-        safe(reviewsApi.listReviewsByEmployee(employee.id, session), []),
-        safe(payrollApi.listPayrollRuns(session), []),
-      ]);
+    const [
+      leaveBalances,
+      myLeaves,
+      myExpenses,
+      myTimesheets,
+      myMissions,
+      myEnrollments,
+      myReviews,
+      payrollRuns,
+      myVisits,
+      myCerts,
+    ] = await Promise.all([
+      safe(employeesApi.listLeaveBalances(employee.id, now.getFullYear(), session), []),
+      safe(leavesApi.listLeavesByEmployee(employee.id, session), []),
+      safe(expensesApi.listExpenseReportsByEmployee(employee.id, session), []),
+      safe(timesheetsApi.listByEmployee(employee.id, currentPeriode, session), []),
+      safe(missionsApi.listMissionOrdersByEmployee(employee.id, session), []),
+      safe(trainingsApi.listEnrollmentsByEmployee(employee.id, session), []),
+      safe(reviewsApi.listReviewsByEmployee(employee.id, session), []),
+      safe(payrollApi.listPayrollRuns(session), []),
+      safe(medicalApi.listVisitsByEmployee(employee.id, session), []),
+      safe(medicalApi.listCertificatesByEmployee(employee.id, session), []),
+    ]);
 
     // ── Payslip history (last 12 validated/paid runs) ───────────────────────
     const recentRuns = payrollRuns
@@ -204,6 +230,105 @@ export async function GET() {
 
     upcomingEvents.sort((a, b) => a.date.localeCompare(b.date));
 
+    // ── Action center: items requiring the EMPLOYEE's own action ──────────────
+    const actions: ActionItem[] = [];
+    const daysUntil = (iso: string) =>
+      Math.floor((new Date(iso).getTime() - now.getTime()) / 86_400_000);
+
+    // Missions awaiting the employee's acceptance — most time-sensitive.
+    myMissions
+      .filter((m) => m.status === "PENDING_ACCEPTANCE")
+      .forEach((m) =>
+        actions.push({
+          key: `mission-${m.id}`,
+          kind: "mission",
+          title: `Mission · ${m.destination}`,
+          description: `${m.dateDebut} → ${m.dateFin}`,
+          urgency: "high",
+          href: `/mission-orders/${m.id}`,
+        }),
+      );
+
+    // Reviews submitted by the manager, awaiting the employee's acknowledgement.
+    myReviews
+      .filter((r) => r.status === "SUBMITTED")
+      .forEach((r) =>
+        actions.push({
+          key: `review-${r.id}`,
+          kind: "review",
+          title: `Évaluation ${r.periode}`,
+          description: "À accuser réception",
+          urgency: "medium",
+          href: `/reviews/${r.id}`,
+        }),
+      );
+
+    // Current-period timesheet still in draft → submit it.
+    myTimesheets
+      .filter((ts) => ts.status === "DRAFT")
+      .forEach((ts) =>
+        actions.push({
+          key: `timesheet-${ts.id}`,
+          kind: "timesheet",
+          title: `Pointage ${ts.periode}`,
+          description: "Brouillon à soumettre",
+          urgency: "medium",
+          href: `/timesheets/${ts.id}`,
+        }),
+      );
+
+    // Expense reports left in draft → finish & submit.
+    myExpenses
+      .filter((r) => r.status === "DRAFT")
+      .forEach((r) =>
+        actions.push({
+          key: `expense-${r.id}`,
+          kind: "expense",
+          title: `Note de frais · ${r.motif ?? r.periode}`,
+          description: "Brouillon à soumettre",
+          urgency: "low",
+          href: `/expenses/${r.id}`,
+        }),
+      );
+
+    // Medical: an overdue next-visit date is the worker's signal to schedule.
+    myVisits
+      .filter((v) => v.prochaineEcheance && daysUntil(v.prochaineEcheance) < 0)
+      .sort((a, b) => a.prochaineEcheance.localeCompare(b.prochaineEcheance))
+      .slice(0, 1)
+      .forEach((v) =>
+        actions.push({
+          key: `medical-visit-${v.id}`,
+          kind: "medical",
+          title: "Visite médicale à planifier",
+          description: `Échéance dépassée le ${v.prochaineEcheance}`,
+          urgency: "high",
+          href: "/medical",
+        }),
+      );
+
+    // Medical: a certificate expiring within 30 days.
+    myCerts
+      .filter((c) => {
+        if (!c.dateExpiration) return false;
+        const d = daysUntil(c.dateExpiration);
+        return d >= 0 && d <= 30;
+      })
+      .slice(0, 1)
+      .forEach((c) =>
+        actions.push({
+          key: `medical-cert-${c.id}`,
+          kind: "medical",
+          title: `Certificat « ${c.typeCertificat} » bientôt expiré`,
+          description: `Expire le ${c.dateExpiration}`,
+          urgency: "low",
+          href: "/medical",
+        }),
+      );
+
+    const urgencyRank: Record<ActionUrgency, number> = { high: 0, medium: 1, low: 2 };
+    actions.sort((a, b) => urgencyRank[a.urgency] - urgencyRank[b.urgency]);
+
     // ── Balances ─────────────────────────────────────────────────────────────
     const annualBal = leaveBalances.find((b) => b.type === "ANNUAL");
     const annualLeaveBalance = annualBal
@@ -228,6 +353,8 @@ export async function GET() {
         leaveBalances: allBalances,
         recentRequests,
         upcomingEvents: upcomingEvents.slice(0, 5),
+        actions: actions.slice(0, 6),
+        actionCount: actions.length,
         monthlyHours,
         currentPeriode,
         payslipSeries,
