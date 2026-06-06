@@ -33,5 +33,8 @@ public interface ManageExpenseUseCase {
      */
     Flux<ExpenseReport> listExpenseReports(UUID organizationId, String status);
 
+    /** Expense reports attached to a mission order — used to regularize its cash advance. */
+    Flux<ExpenseReport> listExpenseReportsByMission(UUID missionOrderId);
+
     Flux<ExpenseLine> listExpenseLinesByReport(UUID expenseReportId);
 }

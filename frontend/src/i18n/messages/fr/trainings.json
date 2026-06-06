@@ -13,6 +13,12 @@
     "COMPLETED": "Validé",
     "CANCELLED": "Annulée"
   },
+  "requestStatus": {
+    "PENDING": "En attente d'approbation",
+    "APPROVED": "Approuvée",
+    "REJECTED": "Refusée",
+    "CANCELLED": "Annulée"
+  },
   "filters": {
     "all": "Toutes",
     "planned": "Planifiées",
@@ -46,10 +52,43 @@
   },
   "mine": {
     "title": "Mes formations",
-    "subtitle": "Vos inscriptions et leur progression.",
-    "empty": "Aucune inscription. Parcourez le catalogue pour vous inscrire.",
+    "subtitle": "Vos inscriptions, demandes et parcours de formation.",
+    "empty": "Aucune inscription. Parcourez le catalogue pour demander une formation.",
     "browse": "Parcourir le catalogue",
-    "columns": { "training": "Formation", "dates": "Dates", "status": "Statut" }
+    "columns": { "training": "Formation", "dates": "Dates", "status": "Statut" },
+    "kpi": {
+      "upcoming": "À venir",
+      "inProgress": "En cours",
+      "completed": "Terminées",
+      "pendingRequests": "Demandes en attente"
+    },
+    "requestsTitle": "Mes demandes",
+    "requestsEmpty": "Aucune demande en cours.",
+    "upcomingTitle": "À venir & en cours",
+    "upcomingEmpty": "Aucune formation programmée.",
+    "completedTitle": "Parcours réalisé",
+    "completedEmpty": "Aucune formation terminée pour le moment.",
+    "motivationLabel": "Motivation",
+    "rejectionLabel": "Motif du refus",
+    "cancelRequest": "Annuler la demande",
+    "cancelRequestSuccess": "Demande annulée.",
+    "score": "Note",
+    "attestation": "Attestation",
+    "downloadAttestation": "Télécharger l'attestation",
+    "noAttestation": "Attestation indisponible",
+    "request": {
+      "cta": "Demander une formation",
+      "title": "Demander une formation",
+      "subtitle": "Choisissez une session ouverte et expliquez votre besoin. Votre manager / la DRH validera.",
+      "sessionLabel": "Session",
+      "sessionPlaceholder": "Sélectionnez une session",
+      "noSession": "Aucune session ouverte aux demandes.",
+      "motivationLabel": "Motivation",
+      "motivationPlaceholder": "Ex. Monter en compétence sur la gestion de projet pour piloter le chantier Q3.",
+      "submit": "Envoyer la demande",
+      "success": "Demande envoyée. En attente d'approbation.",
+      "alreadyRequested": "Demande déjà en cours pour cette session."
+    }
   },
   "enroll": "M'inscrire",
   "enrolled": "Déjà inscrit",

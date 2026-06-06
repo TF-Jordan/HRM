@@ -90,6 +90,7 @@ public class PermissionCatalogService {
                 entry("hrm:training:create", "HRM Training Create", "Create training programs and sessions.", "HRM", "AGENCY", false, true),
                 entry("hrm:training:manage", "HRM Training Manage", "Manage training program lifecycle.", "HRM", "AGENCY", false, true),
                 entry("hrm:training:read", "HRM Training Read", "Read training programs and sessions.", "HRM", "AGENCY", false, true),
+                entry("hrm:training:request", "HRM Training Request", "Submit a self-service training request for approval.", "HRM", "AGENCY", false, true),
                 entry("hrm:budget:create", "HRM Training Budget Create", "Create training budgets.", "HRM", "ORGANIZATION", false, true),
                 entry("hrm:budget:manage", "HRM Training Budget Manage", "Manage training budget lifecycle.", "HRM", "ORGANIZATION", false, true),
                 entry("hrm:budget:read", "HRM Training Budget Read", "Read training budgets.", "HRM", "ORGANIZATION", false, true),

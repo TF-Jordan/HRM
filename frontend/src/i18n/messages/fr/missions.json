@@ -50,8 +50,32 @@
     "destinationLabel": "Destination",
     "objetLabel": "Objet",
     "periodLabel": "Période",
-    "allowanceLabel": "Indemnité",
-    "issuedAt": "Émis le"
+    "allowanceLabel": "Avance",
+    "daysLabel": "Durée",
+    "issuedAt": "Émis le",
+    "viewDetail": "Détail",
+    "kpi": {
+      "pending": "À valider",
+      "active": "En cours",
+      "toRegularize": "Avances à régulariser",
+      "completed": "Terminées"
+    },
+    "activeTitle": "Missions actives & avances à régulariser",
+    "activeEmpty": "Aucune mission active ni avance à régulariser.",
+    "recon": {
+      "title": "Régularisation de l'avance",
+      "advance": "Avance reçue",
+      "approved": "Dépenses validées",
+      "pending": "En cours de validation",
+      "none": "Pas d'avance à régulariser",
+      "balanced": "Avance soldée",
+      "toReimburse": "À vous rembourser",
+      "toRecover": "Reliquat à reverser",
+      "pendingState": "Justificatifs en cours de validation",
+      "reports": "{count, plural, =0 {Aucune note de frais} =1 {# note de frais} other {# notes de frais}}",
+      "justify": "Justifier l'avance",
+      "viewReports": "Voir les notes de frais"
+    }
   },
   "declined": {
     "title": "Refus à traiter",

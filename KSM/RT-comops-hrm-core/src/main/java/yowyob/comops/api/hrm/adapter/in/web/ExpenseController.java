@@ -89,8 +89,11 @@ public class ExpenseController {
     public Mono<ResponseEntity<ApiResponse<List<ExpenseReportResponse>>>> listExpenseReports(
             @RequestParam(required = false) UUID employeeId,
             @RequestParam(required = false) UUID organizationId,
+            @RequestParam(required = false) UUID missionOrderId,
             @RequestParam(required = false) String status) {
-        var flux = employeeId != null
+        var flux = missionOrderId != null
+                ? expenseUseCase.listExpenseReportsByMission(missionOrderId)
+                : employeeId != null
                 ? expenseUseCase.listExpenseReportsByEmployee(employeeId)
                 : expenseUseCase.listExpenseReports(organizationId, status);
         return flux.map(ExpenseReportResponse::from).collectList()

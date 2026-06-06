@@ -128,9 +128,14 @@ mvn -q -pl RT-comops-bootstrap -am \
 | `RT-comops-administration-core` | Permission catalogue, role management, admin audit |
 | `RT-comops-actor-core` | Canonical `BusinessActor` identity |
 | `RT-comops-organization-core` | Organisations, agencies, service subscriptions |
-| `RT-comops-hrm-core` | **Employees, leaves, payroll, expenses, recruitment, timesheets, training, reviews, medical, missions, declarations, skills, KPI dashboard** |
+| `RT-comops-hrm-core` | **Employees, leaves, expenses, recruitment, timesheets, training, reviews, medical, missions, declarations, skills, KPI dashboard** |
+| `RT-comops-payroll-core` | **Payroll engine: payslip/STC calculation, validation, payment orders, signed PDF documents (see `RT-comops-payroll-core/DOCUMENT_SIGNING.md`)** — split out of hrm-core |
 | `RT-comops-file-core` | File upload/download with MIME validation |
 | `RT-comops-bootstrap` | Assembly, Liquibase migrations, integration tests |
+
+Other modules exist (`accounting`, `actor`, `billing`, `blockchain`, `cashier`, `common`, `inventory`, `product`, `resource`, `sales`, `settings`, `tp`, `treasury`-core) but are out of scope for HRM work.
+
+> **Modifiable-module constraint:** for HRM frontend work, only `RT-comops-hrm-core` and `RT-comops-payroll-core` are editable. **All other cores (auth, kernel, actor, roles, file, settings, organization, administration, accounting, …) are read-only** — any change to them must be justified and validated. No mocks/fake data: every screen consumes real KSM; seed test data via Liquibase seeders.
 
 ### HRM module permissions pattern
 

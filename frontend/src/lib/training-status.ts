@@ -1,4 +1,8 @@
-import type { EnrollmentStatus, TrainingStatus } from "@/server/ksm/modules/trainings";
+import type {
+  EnrollmentStatus,
+  TrainingRequestStatus,
+  TrainingStatus,
+} from "@/server/ksm/modules/trainings";
 import type { ReviewStatus } from "@/server/ksm/modules/reviews";
 
 export type BadgeTone =
@@ -30,6 +34,19 @@ export function enrollmentStatusTone(status: EnrollmentStatus): BadgeTone {
       return "info";
     case "COMPLETED":
       return "success";
+    case "CANCELLED":
+      return "gray";
+  }
+}
+
+export function trainingRequestStatusTone(status: TrainingRequestStatus): BadgeTone {
+  switch (status) {
+    case "PENDING":
+      return "warning";
+    case "APPROVED":
+      return "success";
+    case "REJECTED":
+      return "danger";
     case "CANCELLED":
       return "gray";
   }

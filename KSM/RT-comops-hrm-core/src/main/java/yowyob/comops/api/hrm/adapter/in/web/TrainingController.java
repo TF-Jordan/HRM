@@ -5,11 +5,16 @@ import yowyob.comops.api.common.domain.model.ApiResponse;
 import yowyob.comops.api.hrm.application.port.in.EnrollTrainingCommand;
 import yowyob.comops.api.hrm.application.port.in.ManageTrainingUseCase;
 import yowyob.comops.api.hrm.application.port.in.PlanTrainingCommand;
+import yowyob.comops.api.hrm.application.port.in.RequestTrainingCommand;
 import yowyob.comops.api.hrm.domain.model.Training;
 import yowyob.comops.api.hrm.domain.model.TrainingEnrollment;
+import yowyob.comops.api.hrm.domain.model.TrainingRequest;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
@@ -126,6 +131,74 @@ public class TrainingController {
         return manageTrainingUseCase.listEnrollmentsByEmployee(employeeId)
                 .map(EnrollmentResponse::from).collectList()
                 .map(l -> ResponseEntity.ok(ApiResponse.success(l, "Enrollments fetched.")));
+    }
+
+    // --- Self-service training requests (employee → manager/DRH approval) ---
+
+    @PostMapping("/requests")
+    @PreAuthorize("@businessAccessPolicy.hasPermission(authentication, 'hrm:training:request')")
+    public Mono<ResponseEntity<ApiResponse<TrainingRequestResponse>>> requestTraining(
+            @Valid @RequestBody Mono<TrainingRequestRequest> requestMono) {
+        return requestMono.map(TrainingRequestRequest::toCommand)
+                .flatMap(manageTrainingUseCase::requestTraining)
+                .map(TrainingRequestResponse::from)
+                .map(r -> ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(r, "Training request submitted.")));
+    }
+
+    @PutMapping("/requests/{requestId}/approve")
+    @PreAuthorize("@businessAccessPolicy.hasPermission(authentication, 'hrm:training:manage')")
+    public Mono<ResponseEntity<ApiResponse<TrainingRequestResponse>>> approveTrainingRequest(
+            @PathVariable UUID requestId) {
+        return manageTrainingUseCase.approveTrainingRequest(requestId)
+                .map(TrainingRequestResponse::from)
+                .map(r -> ResponseEntity.ok(ApiResponse.success(r, "Training request approved.")));
+    }
+
+    @PutMapping("/requests/{requestId}/reject")
+    @PreAuthorize("@businessAccessPolicy.hasPermission(authentication, 'hrm:training:manage')")
+    public Mono<ResponseEntity<ApiResponse<TrainingRequestResponse>>> rejectTrainingRequest(
+            @PathVariable UUID requestId, @Valid @RequestBody Mono<RejectTrainingRequestRequest> requestMono) {
+        return requestMono.flatMap(req -> manageTrainingUseCase.rejectTrainingRequest(requestId, req.reason()))
+                .map(TrainingRequestResponse::from)
+                .map(r -> ResponseEntity.ok(ApiResponse.success(r, "Training request rejected.")));
+    }
+
+    @PutMapping("/requests/{requestId}/cancel")
+    @PreAuthorize("@businessAccessPolicy.hasPermission(authentication, 'hrm:training:request')")
+    public Mono<ResponseEntity<ApiResponse<TrainingRequestResponse>>> cancelTrainingRequest(
+            @PathVariable UUID requestId) {
+        return manageTrainingUseCase.cancelTrainingRequest(requestId)
+                .map(TrainingRequestResponse::from)
+                .map(r -> ResponseEntity.ok(ApiResponse.success(r, "Training request cancelled.")));
+    }
+
+    @GetMapping("/requests")
+    @PreAuthorize("@businessAccessPolicy.hasPermission(authentication, 'hrm:training:read')")
+    public Mono<ResponseEntity<ApiResponse<List<TrainingRequestResponse>>>> listTrainingRequests(
+            @RequestParam(required = false) UUID employeeId,
+            @RequestParam(required = false) UUID organizationId,
+            @RequestParam(required = false) String status) {
+        var flux = employeeId != null
+                ? manageTrainingUseCase.listTrainingRequestsByEmployee(employeeId)
+                : manageTrainingUseCase.listTrainingRequestsByOrganization(organizationId, status);
+        return flux.map(TrainingRequestResponse::from).collectList()
+                .map(l -> ResponseEntity.ok(ApiResponse.success(l, "Training requests fetched.")));
+    }
+
+    public record TrainingRequestRequest(@NotNull UUID trainingId, @NotNull UUID employeeId, String motivation) {
+        RequestTrainingCommand toCommand() {
+            return new RequestTrainingCommand(trainingId, employeeId, motivation);
+        }
+    }
+
+    public record RejectTrainingRequestRequest(@NotBlank String reason) {}
+
+    public record TrainingRequestResponse(UUID id, UUID organizationId, UUID employeeId, UUID trainingId,
+            String motivation, String status, String decisionReason, UUID enrollmentId, Instant decidedAt) {
+        static TrainingRequestResponse from(TrainingRequest r) {
+            return new TrainingRequestResponse(r.id(), r.organizationId(), r.employeeId(), r.trainingId(),
+                    r.motivation(), r.status().name(), r.decisionReason(), r.enrollmentId(), r.decidedAt());
+        }
     }
 
     public record PlanTrainingRequest(UUID agencyId, String intitule, String organisme,

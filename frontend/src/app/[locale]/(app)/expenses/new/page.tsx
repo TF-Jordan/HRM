@@ -4,7 +4,10 @@ import { redirect } from "next/navigation";
 import { NewExpenseForm } from "@/components/expenses/new-expense-form";
 import { readSession } from "@/server/session";
 
-export default async function NewExpensePage({ params }: PageProps<"/[locale]/expenses/new">) {
+export default async function NewExpensePage({
+  params,
+  searchParams,
+}: PageProps<"/[locale]/expenses/new">) {
   const { locale } = await params;
   setRequestLocale(locale);
 
@@ -13,5 +16,8 @@ export default async function NewExpensePage({ params }: PageProps<"/[locale]/ex
   if (!session.user.permissions.includes("hrm:expense:create")) {
     redirect("/expenses");
   }
-  return <NewExpenseForm />;
+
+  const { missionOrderId } = await searchParams;
+  const initialMissionOrderId = typeof missionOrderId === "string" ? missionOrderId : undefined;
+  return <NewExpenseForm initialMissionOrderId={initialMissionOrderId} />;
 }

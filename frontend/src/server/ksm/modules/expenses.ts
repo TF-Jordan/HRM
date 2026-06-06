@@ -60,6 +60,11 @@ export function listExpenseReportsByEmployee(employeeId: string, session: AppSes
   return callKsm<ExpenseReportResponse[]>(`/api/v1/hrm/expenses?${params}`, {}, { session });
 }
 
+export function listExpenseReportsByMission(missionOrderId: string, session: AppSession) {
+  const params = new URLSearchParams({ missionOrderId });
+  return callKsm<ExpenseReportResponse[]>(`/api/v1/hrm/expenses?${params}`, {}, { session });
+}
+
 export function listAllExpenseReports(
   session: AppSession,
   opts: { organizationId?: string; status?: ExpenseReportStatus } = {},

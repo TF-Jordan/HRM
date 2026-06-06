@@ -97,6 +97,12 @@ public class ExpenseService implements ManageExpenseUseCase {
     }
 
     @Override
+    public Flux<ExpenseReport> listExpenseReportsByMission(UUID missionOrderId) {
+        return ReactiveRequestContextHolder.getRequiredContext()
+                .flatMapMany(ctx -> expenseReportRepository.findByMissionOrderId(ctx.tenantId(), missionOrderId));
+    }
+
+    @Override
     public Flux<ExpenseLine> listExpenseLinesByReport(UUID expenseReportId) {
         return ReactiveRequestContextHolder.getRequiredContext()
                 .flatMapMany(ctx -> expenseLineRepository.findByExpenseReportId(ctx.tenantId(), expenseReportId));

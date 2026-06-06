@@ -1,7 +1,16 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { CheckCircle2, Loader2, MapPin, XCircle } from "lucide-react";
+import {
+  CalendarRange,
+  CheckCircle2,
+  FileText,
+  Loader2,
+  MapPin,
+  Receipt,
+  Wallet,
+  XCircle,
+} from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import * as React from "react";
 import { useForm } from "react-hook-form";
@@ -13,17 +22,65 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog } from "@/components/ui/dialog";
 import { Field, Textarea } from "@/components/ui/input";
+import { ProgressBar } from "@/components/ui/progress-bar";
+import { StatCard, StatCardGrid } from "@/components/ui/stat-card";
 import { AppLink as Link } from "@/components/ui/app-link";
+import { useCan } from "@/hooks/use-can";
 import { apiFetch, BffApiError } from "@/lib/api-client";
-import { formatDate, formatNumber } from "@/lib/format";
+import { formatDate, formatMoney, formatNumber } from "@/lib/format";
 import { missionStatusTone } from "@/lib/mission-status";
+import type { BadgeTone } from "@/lib/mission-status";
 import type { EmployeeResponse } from "@/server/ksm/modules/employees";
 import type { MissionOrderResponse } from "@/server/ksm/modules/missions";
 
+type Reconciliation = {
+  advance: number;
+  approvedExpenses: number;
+  pendingExpenses: number;
+  reportCount: number;
+  balance: number; // approvedExpenses - advance
+};
+
+type EnrichedOrder = MissionOrderResponse & { reconciliation: Reconciliation };
+
 type MinePayload = {
   employee: EmployeeResponse | null;
-  orders: MissionOrderResponse[];
+  orders: EnrichedOrder[];
 };
+
+type ReconState = "NONE" | "PENDING" | "BALANCED" | "TO_REIMBURSE" | "TO_RECOVER";
+
+function reconState(r: Reconciliation): ReconState {
+  if (r.advance === 0 && r.reportCount === 0) return "NONE";
+  if (r.pendingExpenses > 0 && r.approvedExpenses < r.advance) return "PENDING";
+  if (r.balance > 0) return "TO_REIMBURSE";
+  if (r.balance < 0) return "TO_RECOVER";
+  return "BALANCED";
+}
+
+function reconTone(state: ReconState): BadgeTone {
+  switch (state) {
+    case "TO_REIMBURSE":
+      return "success";
+    case "TO_RECOVER":
+      return "warning";
+    case "PENDING":
+      return "info";
+    case "BALANCED":
+      return "teal";
+    default:
+      return "gray";
+  }
+}
+
+function daysBetween(start: string, end: string): number {
+  const a = new Date(start).getTime();
+  const b = new Date(end).getTime();
+  if (Number.isNaN(a) || Number.isNaN(b)) return 0;
+  return Math.max(1, Math.round((b - a) / 86_400_000) + 1);
+}
+
+const NEEDS_REGUL: ReconState[] = ["PENDING", "TO_REIMBURSE", "TO_RECOVER"];
 
 export function MissionsInbox() {
   const t = useTranslations("missions");
@@ -31,6 +88,7 @@ export function MissionsInbox() {
   const tErrors = useTranslations("errors");
   const locale = useLocale() as "fr" | "en";
   const queryClient = useQueryClient();
+  const canExpense = useCan("hrm:expense:create");
   const [declineFor, setDeclineFor] = React.useState<MissionOrderResponse | null>(null);
 
   const query = useQuery({
@@ -89,7 +147,22 @@ export function MissionsInbox() {
 
   const orders = query.data.orders;
   const pending = orders.filter((o) => o.status === "PENDING_ACCEPTANCE");
-  const history = orders.filter((o) => o.status !== "PENDING_ACCEPTANCE");
+  const active = orders.filter(
+    (o) =>
+      o.status === "APPROVED" ||
+      o.status === "IN_PROGRESS" ||
+      (o.status === "COMPLETED" && NEEDS_REGUL.includes(reconState(o.reconciliation))),
+  );
+  const activeIds = new Set([...pending, ...active].map((o) => o.id));
+  const history = orders.filter((o) => !activeIds.has(o.id));
+
+  const completedCount = orders.filter((o) => o.status === "COMPLETED").length;
+  const toRegularize = orders.filter((o) =>
+    NEEDS_REGUL.includes(reconState(o.reconciliation)),
+  ).length;
+  const inProgressCount = orders.filter(
+    (o) => o.status === "APPROVED" || o.status === "IN_PROGRESS",
+  ).length;
 
   return (
     <>
@@ -100,13 +173,39 @@ export function MissionsInbox() {
         subtitle={t("inbox.subtitle")}
       />
 
+      <StatCardGrid>
+        <StatCard
+          label={t("inbox.kpi.pending")}
+          value={pending.length}
+          sub={t("status.PENDING_ACCEPTANCE")}
+          tone="amber"
+        />
+        <StatCard
+          label={t("inbox.kpi.active")}
+          value={inProgressCount}
+          sub={t("status.IN_PROGRESS")}
+          tone="orange"
+        />
+        <StatCard
+          label={t("inbox.kpi.toRegularize")}
+          value={toRegularize}
+          sub={t("inbox.recon.title")}
+          tone={toRegularize > 0 ? "red" : "green"}
+        />
+        <StatCard
+          label={t("inbox.kpi.completed")}
+          value={completedCount}
+          sub={t("status.COMPLETED")}
+          tone="green"
+        />
+      </StatCardGrid>
+
+      {/* Action requise — ordres en attente de validation de l'employé */}
       <section className="mb-6">
         <h2 className="mb-3 flex items-center gap-2 text-[13px] font-bold uppercase tracking-wider text-ink-2">
           <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-warning-500 shadow-[0_0_8px_rgba(245,158,11,0.6)]" />
           {t("inbox.pendingTitle")}
-          {pending.length > 0 && (
-            <Badge tone="warning">{pending.length}</Badge>
-          )}
+          {pending.length > 0 && <Badge tone="warning">{pending.length}</Badge>}
         </h2>
         {pending.length === 0 ? (
           <Card>
@@ -130,6 +229,29 @@ export function MissionsInbox() {
         )}
       </section>
 
+      {/* Missions actives & avances à régulariser */}
+      <section className="mb-6">
+        <h2 className="mb-3 flex items-center gap-2 text-[13px] font-bold uppercase tracking-wider text-ink-2">
+          <span className="inline-block h-2 w-2 rounded-full bg-orange-500 shadow-[0_0_8px_rgba(242,107,15,0.6)]" />
+          {t("inbox.activeTitle")}
+          {active.length > 0 && <Badge tone="orange">{active.length}</Badge>}
+        </h2>
+        {active.length === 0 ? (
+          <Card>
+            <CardContent padding="md">
+              <p className="text-center text-[13px] text-ink-3">{t("inbox.activeEmpty")}</p>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid gap-3 lg:grid-cols-2">
+            {active.map((o) => (
+              <ActiveMissionCard key={o.id} order={o} locale={locale} canExpense={canExpense} />
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* Historique */}
       <section>
         <h2 className="mb-3 text-[13px] font-bold uppercase tracking-wider text-ink-2">
           {t("inbox.historyTitle")}
@@ -153,9 +275,7 @@ export function MissionsInbox() {
                       <div className="flex items-start gap-2">
                         <MapPin className="mt-[2px] h-3.5 w-3.5 shrink-0 text-orange-500" />
                         <div>
-                          <div className="text-[13.5px] font-semibold text-ink">
-                            {o.destination}
-                          </div>
+                          <div className="text-[13.5px] font-semibold text-ink">{o.destination}</div>
                           <div className="text-[11.5px] text-ink-3">{o.objet}</div>
                         </div>
                       </div>
@@ -164,9 +284,7 @@ export function MissionsInbox() {
                       {formatDate(o.dateDebut, { locale })} → {formatDate(o.dateFin, { locale })}
                     </td>
                     <td className="px-3 py-3 text-right font-mono-tabular text-[12.5px] font-bold text-ink">
-                      {o.montantAvance != null
-                        ? formatNumber(Number(o.montantAvance), locale)
-                        : "—"}
+                      {o.montantAvance != null ? formatNumber(Number(o.montantAvance), locale) : "—"}
                     </td>
                     <td className="px-3 py-3">
                       <Badge tone={missionStatusTone(o.status)}>{t(`status.${o.status}`)}</Badge>
@@ -190,9 +308,7 @@ export function MissionsInbox() {
       <DeclineDialog
         order={declineFor}
         onClose={() => setDeclineFor(null)}
-        onConfirm={(reason) =>
-          declineFor && declineMutation.mutate({ id: declineFor.id, reason })
-        }
+        onConfirm={(reason) => declineFor && declineMutation.mutate({ id: declineFor.id, reason })}
         loading={declineMutation.isPending}
       />
     </>
@@ -206,7 +322,7 @@ function PendingCard({
   onDecline,
   accepting,
 }: {
-  order: MissionOrderResponse;
+  order: EnrichedOrder;
   locale: "fr" | "en";
   onAccept: () => void;
   onDecline: () => void;
@@ -222,7 +338,7 @@ function PendingCard({
             href={`/mission-orders/${order.id}`}
             className="text-[10.5px] font-semibold uppercase tracking-wider text-ink-4 hover:text-orange-600"
           >
-            {t("inbox.issuedAt")} →
+            {t("inbox.viewDetail")} →
           </Link>
         </div>
         <div className="mb-3 flex items-start gap-2">
@@ -232,7 +348,7 @@ function PendingCard({
             <div className="text-[12px] text-ink-3">{order.objet}</div>
           </div>
         </div>
-        <dl className="mb-4 grid grid-cols-2 gap-x-4 gap-y-2 text-[12px]">
+        <dl className="mb-4 grid grid-cols-3 gap-x-4 gap-y-2 text-[12px]">
           <div>
             <dt className="text-[10.5px] uppercase tracking-wider text-ink-4">
               {t("inbox.periodLabel")}
@@ -243,12 +359,18 @@ function PendingCard({
           </div>
           <div>
             <dt className="text-[10.5px] uppercase tracking-wider text-ink-4">
+              {t("inbox.daysLabel")}
+            </dt>
+            <dd className="font-mono-tabular text-ink-2">
+              {t("detail.days", { count: daysBetween(order.dateDebut, order.dateFin) })}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-[10.5px] uppercase tracking-wider text-ink-4">
               {t("inbox.allowanceLabel")}
             </dt>
             <dd className="font-mono-tabular font-bold text-ink">
-              {order.montantAvance != null
-                ? formatNumber(Number(order.montantAvance), locale)
-                : "—"}
+              {order.montantAvance != null ? formatNumber(Number(order.montantAvance), locale) : "—"}
             </dd>
           </div>
         </dl>
@@ -268,6 +390,141 @@ function PendingCard({
         </div>
       </CardContent>
     </Card>
+  );
+}
+
+function ActiveMissionCard({
+  order,
+  locale,
+  canExpense,
+}: {
+  order: EnrichedOrder;
+  locale: "fr" | "en";
+  canExpense: boolean;
+}) {
+  const t = useTranslations("missions");
+  const r = order.reconciliation;
+  const state = reconState(r);
+  const hasAdvance = r.advance > 0;
+  const covered = hasAdvance ? Math.min(r.approvedExpenses, r.advance) : r.approvedExpenses;
+
+  return (
+    <Card>
+      <CardContent padding="md">
+        <div className="mb-3 flex items-start justify-between gap-3">
+          <div className="flex items-start gap-2">
+            <MapPin className="mt-1 h-4 w-4 shrink-0 text-orange-500" />
+            <div>
+              <div className="text-[15px] font-bold text-ink">{order.destination}</div>
+              <div className="text-[12px] text-ink-3">{order.objet}</div>
+            </div>
+          </div>
+          <Badge tone={missionStatusTone(order.status)}>{t(`status.${order.status}`)}</Badge>
+        </div>
+
+        <div className="mb-4 flex items-center gap-4 text-[12px] text-ink-2">
+          <span className="inline-flex items-center gap-1.5">
+            <CalendarRange className="h-3.5 w-3.5 text-ink-4" />
+            <span className="font-mono-tabular">
+              {formatDate(order.dateDebut, { locale })} → {formatDate(order.dateFin, { locale })}
+            </span>
+          </span>
+          <span className="font-mono-tabular text-ink-3">
+            {t("detail.days", { count: daysBetween(order.dateDebut, order.dateFin) })}
+          </span>
+        </div>
+
+        {/* Bloc régularisation de l'avance par notes de frais */}
+        <div className="rounded-[14px] border border-line-soft bg-bg-soft/60 p-3.5">
+          <div className="mb-2.5 flex items-center justify-between">
+            <span className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-ink-3">
+              <Wallet className="h-3.5 w-3.5 text-orange-500" />
+              {t("inbox.recon.title")}
+            </span>
+            <Badge tone={reconTone(state)}>
+              {state === "NONE"
+                ? t("inbox.recon.none")
+                : state === "PENDING"
+                  ? t("inbox.recon.pendingState")
+                  : state === "BALANCED"
+                    ? t("inbox.recon.balanced")
+                    : state === "TO_REIMBURSE"
+                      ? `${t("inbox.recon.toReimburse")} · ${formatMoney(Math.abs(r.balance), { locale })}`
+                      : `${t("inbox.recon.toRecover")} · ${formatMoney(Math.abs(r.balance), { locale })}`}
+            </Badge>
+          </div>
+
+          {state !== "NONE" && (
+            <>
+              {hasAdvance && (
+                <ProgressBar value={covered} max={r.advance} size="sm" className="mb-2.5" />
+              )}
+              <dl className="grid grid-cols-3 gap-2 text-[11.5px]">
+                <ReconCell label={t("inbox.recon.advance")} value={formatMoney(r.advance, { locale })} />
+                <ReconCell
+                  label={t("inbox.recon.approved")}
+                  value={formatMoney(r.approvedExpenses, { locale })}
+                  tone="success"
+                />
+                <ReconCell
+                  label={t("inbox.recon.pending")}
+                  value={formatMoney(r.pendingExpenses, { locale })}
+                  tone="muted"
+                />
+              </dl>
+            </>
+          )}
+
+          <div className="mt-3 flex items-center justify-between gap-2">
+            <span className="inline-flex items-center gap-1.5 text-[11.5px] text-ink-3">
+              <Receipt className="h-3.5 w-3.5 text-ink-4" />
+              {t("inbox.recon.reports", { count: r.reportCount })}
+            </span>
+            <div className="flex items-center gap-2">
+              <Link
+                href={`/mission-orders/${order.id}`}
+                className="inline-flex items-center gap-1 text-[11.5px] font-semibold text-ink-3 hover:text-orange-600"
+              >
+                <FileText className="h-3.5 w-3.5" />
+                {t("inbox.viewDetail")}
+              </Link>
+              {canExpense && hasAdvance && (
+                <Link href={`/expenses/new?missionOrderId=${order.id}`}>
+                  <Button type="button" variant="secondary" className="!h-8 !px-3 !text-[12px]">
+                    <Receipt className="h-3.5 w-3.5" />
+                    {t("inbox.recon.justify")}
+                  </Button>
+                </Link>
+              )}
+            </div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function ReconCell({
+  label,
+  value,
+  tone,
+}: {
+  label: string;
+  value: string;
+  tone?: "success" | "muted";
+}) {
+  return (
+    <div>
+      <dt className="text-[10px] uppercase tracking-wider text-ink-4">{label}</dt>
+      <dd
+        className={
+          "font-mono-tabular font-bold " +
+          (tone === "success" ? "text-success-600" : tone === "muted" ? "text-ink-3" : "text-ink")
+        }
+      >
+        {value}
+      </dd>
+    </div>
   );
 }
 

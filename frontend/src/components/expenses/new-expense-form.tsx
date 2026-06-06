@@ -38,7 +38,7 @@ function emptyLine(): StagedLine {
   return { key: crypto.randomUUID(), categorie: "TRANSPORT", description: "", montant: "" };
 }
 
-export function NewExpenseForm() {
+export function NewExpenseForm({ initialMissionOrderId }: { initialMissionOrderId?: string }) {
   const t = useTranslations("expenses");
   const tCat = useTranslations("expenses.category");
   const tCommon = useTranslations("common");
@@ -47,7 +47,8 @@ export function NewExpenseForm() {
   const router = useRouter();
 
   const [objet, setObjet] = React.useState("");
-  const [missionOrderId, setMissionOrderId] = React.useState("");
+  // Pre-selected when arriving from a mission's "regularize advance" CTA.
+  const [missionOrderId, setMissionOrderId] = React.useState(initialMissionOrderId ?? "");
   const [lines, setLines] = React.useState<StagedLine[]>([emptyLine()]);
 
   const mine = useQuery({

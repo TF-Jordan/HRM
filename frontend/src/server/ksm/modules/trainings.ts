@@ -5,6 +5,7 @@ import type { AppSession } from "@/lib/types/auth";
 
 export type TrainingStatus = "PLANNED" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED";
 export type EnrollmentStatus = "ENROLLED" | "COMPLETED" | "CANCELLED";
+export type TrainingRequestStatus = "PENDING" | "APPROVED" | "REJECTED" | "CANCELLED";
 
 export type TrainingResponse = {
   id: string;
@@ -27,6 +28,18 @@ export type EnrollmentResponse = {
   status: EnrollmentStatus;
   noteEvaluation: number | string | null;
   attestationFileId: string | null;
+};
+
+export type TrainingRequestResponse = {
+  id: string;
+  organizationId: string;
+  employeeId: string;
+  trainingId: string;
+  motivation: string | null;
+  status: TrainingRequestStatus;
+  decisionReason: string | null;
+  enrollmentId: string | null;
+  decidedAt: string | null;
 };
 
 export type PlanTrainingRequest = {
@@ -123,6 +136,67 @@ export function cancelEnrollment(enrollmentId: string, session: AppSession) {
   return callKsm<EnrollmentResponse>(
     `/api/v1/hrm/trainings/enrollments/${enrollmentId}/cancel`,
     { method: "PUT" },
+    { session },
+  );
+}
+
+// --- Self-service training requests (employee → manager/DRH approval) ---
+
+export function requestTraining(
+  body: { trainingId: string; employeeId: string; motivation?: string | null },
+  session: AppSession,
+) {
+  return callKsm<TrainingRequestResponse>(
+    "/api/v1/hrm/trainings/requests",
+    { method: "POST", body },
+    { session },
+  );
+}
+
+export function cancelTrainingRequest(requestId: string, session: AppSession) {
+  return callKsm<TrainingRequestResponse>(
+    `/api/v1/hrm/trainings/requests/${requestId}/cancel`,
+    { method: "PUT" },
+    { session },
+  );
+}
+
+export function approveTrainingRequest(requestId: string, session: AppSession) {
+  return callKsm<TrainingRequestResponse>(
+    `/api/v1/hrm/trainings/requests/${requestId}/approve`,
+    { method: "PUT" },
+    { session },
+  );
+}
+
+export function rejectTrainingRequest(requestId: string, reason: string, session: AppSession) {
+  return callKsm<TrainingRequestResponse>(
+    `/api/v1/hrm/trainings/requests/${requestId}/reject`,
+    { method: "PUT", body: { reason } },
+    { session },
+  );
+}
+
+export function listTrainingRequestsByEmployee(employeeId: string, session: AppSession) {
+  const params = new URLSearchParams({ employeeId });
+  return callKsm<TrainingRequestResponse[]>(
+    `/api/v1/hrm/trainings/requests?${params}`,
+    {},
+    { session },
+  );
+}
+
+export function listTrainingRequestsByOrganization(
+  session: AppSession,
+  opts: { organizationId?: string; status?: TrainingRequestStatus } = {},
+) {
+  const orgId = opts.organizationId ?? session.workspace?.organizationId;
+  if (!orgId) throw new Error("organizationId is required");
+  const params = new URLSearchParams({ organizationId: orgId });
+  if (opts.status) params.set("status", opts.status);
+  return callKsm<TrainingRequestResponse[]>(
+    `/api/v1/hrm/trainings/requests?${params}`,
+    {},
     { session },
   );
 }

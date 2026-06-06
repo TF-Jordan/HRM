@@ -13,6 +13,12 @@
     "COMPLETED": "Completed",
     "CANCELLED": "Cancelled"
   },
+  "requestStatus": {
+    "PENDING": "Pending approval",
+    "APPROVED": "Approved",
+    "REJECTED": "Rejected",
+    "CANCELLED": "Cancelled"
+  },
   "filters": {
     "all": "All",
     "planned": "Planned",
@@ -46,10 +52,43 @@
   },
   "mine": {
     "title": "My trainings",
-    "subtitle": "Your enrolments and their progress.",
-    "empty": "No enrolment yet. Browse the catalog to enrol.",
+    "subtitle": "Your enrolments, requests and learning path.",
+    "empty": "No enrolment yet. Browse the catalog to request a training.",
     "browse": "Browse catalog",
-    "columns": { "training": "Training", "dates": "Dates", "status": "Status" }
+    "columns": { "training": "Training", "dates": "Dates", "status": "Status" },
+    "kpi": {
+      "upcoming": "Upcoming",
+      "inProgress": "In progress",
+      "completed": "Completed",
+      "pendingRequests": "Pending requests"
+    },
+    "requestsTitle": "My requests",
+    "requestsEmpty": "No request in progress.",
+    "upcomingTitle": "Upcoming & in progress",
+    "upcomingEmpty": "No scheduled training.",
+    "completedTitle": "Completed path",
+    "completedEmpty": "No completed training yet.",
+    "motivationLabel": "Motivation",
+    "rejectionLabel": "Rejection reason",
+    "cancelRequest": "Cancel request",
+    "cancelRequestSuccess": "Request cancelled.",
+    "score": "Score",
+    "attestation": "Certificate",
+    "downloadAttestation": "Download certificate",
+    "noAttestation": "Certificate unavailable",
+    "request": {
+      "cta": "Request a training",
+      "title": "Request a training",
+      "subtitle": "Pick an open session and explain your need. Your manager / HR will approve it.",
+      "sessionLabel": "Session",
+      "sessionPlaceholder": "Select a session",
+      "noSession": "No session open to requests.",
+      "motivationLabel": "Motivation",
+      "motivationPlaceholder": "e.g. Build project-management skills to lead the Q3 site.",
+      "submit": "Send request",
+      "success": "Request sent. Awaiting approval.",
+      "alreadyRequested": "A request is already in progress for this session."
+    }
   },
   "enroll": "Enrol me",
   "enrolled": "Already enrolled",

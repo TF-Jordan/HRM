@@ -20,4 +20,7 @@ public interface ExpenseReportRepository {
 
     /** Every expense report of the tenant whose status matches the given value. */
     Flux<ExpenseReport> findByStatus(UUID tenantId, String status);
+
+    /** Every expense report attached to the given mission order (advance regularization). */
+    Flux<ExpenseReport> findByMissionOrderId(UUID tenantId, UUID missionOrderId);
 }

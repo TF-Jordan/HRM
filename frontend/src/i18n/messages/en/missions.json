@@ -50,8 +50,32 @@
     "destinationLabel": "Destination",
     "objetLabel": "Purpose",
     "periodLabel": "Period",
-    "allowanceLabel": "Per-diem",
-    "issuedAt": "Issued on"
+    "allowanceLabel": "Advance",
+    "daysLabel": "Duration",
+    "issuedAt": "Issued on",
+    "viewDetail": "Details",
+    "kpi": {
+      "pending": "To approve",
+      "active": "In progress",
+      "toRegularize": "Advances to settle",
+      "completed": "Completed"
+    },
+    "activeTitle": "Active missions & advances to settle",
+    "activeEmpty": "No active mission or advance to settle.",
+    "recon": {
+      "title": "Advance settlement",
+      "advance": "Advance received",
+      "approved": "Approved expenses",
+      "pending": "Awaiting approval",
+      "none": "No advance to settle",
+      "balanced": "Advance settled",
+      "toReimburse": "Owed to you",
+      "toRecover": "Surplus to return",
+      "pendingState": "Receipts pending approval",
+      "reports": "{count, plural, =0 {No expense report} =1 {# expense report} other {# expense reports}}",
+      "justify": "Settle advance",
+      "viewReports": "View expense reports"
+    }
   },
   "declined": {
     "title": "Declined to amend",

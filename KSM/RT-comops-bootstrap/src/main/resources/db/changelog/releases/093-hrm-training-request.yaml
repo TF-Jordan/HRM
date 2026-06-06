@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 093-hrm-training-request
+      author: cursor
+      changes:
+        - sqlFile:
+            path: db/r2dbc/V93__hrm_training_request.sql
+            relativeToChangelogFile: false
