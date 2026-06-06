@@ -68,6 +68,13 @@ public class PayElementAdminController {
                 .map(r -> ResponseEntity.ok(ApiResponse.success(r, "Pay element deactivated.")));
     }
 
+    @PutMapping("/{id}/activate")
+    @PreAuthorize("@businessAccessPolicy.hasPermission(authentication, 'hrm:payroll:run')")
+    public Mono<ResponseEntity<ApiResponse<PayElementResponse>>> activate(@PathVariable UUID id) {
+        return useCase.activatePayElement(id).map(PayElementResponse::from)
+                .map(r -> ResponseEntity.ok(ApiResponse.success(r, "Pay element activated.")));
+    }
+
     // --- DTOs ---
 
     public record CreatePayElementRequest(String code, String label, String category, String method,

@@ -95,6 +95,12 @@ public final class TaxBracketTable extends BaseEntity {
                 countryCode, effectiveFrom, effectiveTo, false, brackets);
     }
 
+    /** Returns a reactivated copy (reopens the scale to future runs); bumps updatedAt. */
+    public TaxBracketTable activate() {
+        return new TaxBracketTable(id(), tenantId(), createdAt(), Instant.now(), code, label,
+                countryCode, effectiveFrom, effectiveTo, true, brackets);
+    }
+
     public String code() { return code; }
     public String label() { return label; }
     public String countryCode() { return countryCode; }

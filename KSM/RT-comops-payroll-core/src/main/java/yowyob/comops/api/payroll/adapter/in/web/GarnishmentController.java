@@ -50,6 +50,20 @@ public class GarnishmentController {
                 .map(r -> ResponseEntity.ok(ApiResponse.success(r, "Garnishment cancelled.")));
     }
 
+    @PutMapping("/{id}/suspend")
+    @PreAuthorize("@businessAccessPolicy.hasPermission(authentication, 'hrm:payroll:run')")
+    public Mono<ResponseEntity<ApiResponse<GarnishmentResponse>>> suspend(@PathVariable UUID id) {
+        return useCase.suspend(id).map(GarnishmentResponse::from)
+                .map(r -> ResponseEntity.ok(ApiResponse.success(r, "Garnishment suspended.")));
+    }
+
+    @PutMapping("/{id}/resume")
+    @PreAuthorize("@businessAccessPolicy.hasPermission(authentication, 'hrm:payroll:run')")
+    public Mono<ResponseEntity<ApiResponse<GarnishmentResponse>>> resume(@PathVariable UUID id) {
+        return useCase.resume(id).map(GarnishmentResponse::from)
+                .map(r -> ResponseEntity.ok(ApiResponse.success(r, "Garnishment resumed.")));
+    }
+
     @GetMapping("/{id}")
     @PreAuthorize("@businessAccessPolicy.hasPermission(authentication, 'hrm:payroll:read')")
     public Mono<ResponseEntity<ApiResponse<GarnishmentResponse>>> get(@PathVariable UUID id) {
@@ -86,6 +100,22 @@ public class GarnishmentController {
             return new GarnishmentResponse(o.id(), o.employeeId(), o.type().name(), o.beneficiary(),
                     o.reference(), o.totalAmount(), o.remainingBalance(), o.monthlyAmount(),
                     o.status().name());
+        }
+    }
+
+    @RestControllerAdvice(assignableTypes = GarnishmentController.class)
+    static class GarnishmentExceptionHandler {
+
+        @ExceptionHandler(IllegalStateException.class)
+        Mono<ResponseEntity<ApiResponse<Void>>> handleInvalidTransition(IllegalStateException ex) {
+            return Mono.just(ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(ApiResponse.failure(ex.getMessage(), "GARNISHMENT_INVALID_TRANSITION")));
+        }
+
+        @ExceptionHandler(IllegalArgumentException.class)
+        Mono<ResponseEntity<ApiResponse<Void>>> handleNotFound(IllegalArgumentException ex) {
+            return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(ApiResponse.failure(ex.getMessage(), "GARNISHMENT_NOT_FOUND")));
         }
     }
 }

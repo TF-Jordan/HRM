@@ -45,6 +45,15 @@ public class LookupTableService implements ManageLookupTableUseCase {
     }
 
     @Override
+    public Mono<LookupTable> activateTable(UUID tableId) {
+        return ReactiveRequestContextHolder.getRequiredContext()
+                .flatMap(ctx -> repository.findById(ctx.tenantId(), tableId)
+                        .switchIfEmpty(Mono.error(new IllegalArgumentException("Lookup table not found")))
+                        .map(LookupTable::activate)
+                        .flatMap(repository::save));
+    }
+
+    @Override
     public Mono<LookupTable> getTable(UUID tableId) {
         return ReactiveRequestContextHolder.getRequiredContext()
                 .flatMap(ctx -> repository.findById(ctx.tenantId(), tableId)

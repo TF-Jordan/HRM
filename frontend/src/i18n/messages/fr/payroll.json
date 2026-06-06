@@ -46,6 +46,103 @@
     "validation": "4 · Validation DG",
     "payment": "5 · Paiement"
   },
+  "dash": {
+    "uc": "Pilotage de la paie",
+    "title": "Pilotage de la paie",
+    "subtitle": "Vue d'ensemble du cycle en cours, du coût employeur et des actions à traiter",
+    "viewRuns": "Cycles de paie",
+    "newRun": "Nouveau cycle",
+    "noRun": "Aucun cycle de paie",
+    "noRunSub": "Lancez le premier cycle pour démarrer le calcul de la paie de l'organisation.",
+    "currentCycle": "Cycle en cours",
+    "action": {
+      "validate": "Valider la paie",
+      "approve": "Approuver la paie",
+      "pay": "Initier le paiement",
+      "close": "Clôturer le cycle",
+      "open": "Ouvrir le cycle"
+    },
+    "step": {
+      "variables": "Variables",
+      "calculation": "Calcul",
+      "review": "Vérif. DRH",
+      "validation": "Validation DG",
+      "payment": "Paiement"
+    },
+    "kpi": {
+      "headcount": "Effectif payé",
+      "headcountSub": "payés / actifs",
+      "net": "Net à payer",
+      "netSub": "versé aux salariés",
+      "employerCost": "Coût total employeur",
+      "employerCostSub": "brut + charges patronales",
+      "grossMass": "Masse salariale brute",
+      "grossMassSub": "cycle en cours",
+      "employerCharges": "Charges patronales",
+      "employerChargesSub": "cotisations employeur",
+      "deductions": "Cotisations salariales",
+      "deductionsSub": "retenues salariés",
+      "incomeTax": "Impôt retenu",
+      "incomeTaxSub": "impôt sur le revenu",
+      "ytd": "Cumul annuel brut",
+      "ytdSub": "{count} cycles cette année"
+    },
+    "evolution": {
+      "title": "Évolution du coût de la paie",
+      "subtitle": "Net, retenues salariales et charges patronales par période",
+      "empty": "Aucun cycle calculé pour le moment",
+      "net": "Net à payer",
+      "withheld": "Retenues salariales",
+      "employer": "Charges patronales"
+    },
+    "structure": {
+      "title": "Structure du coût",
+      "subtitle": "Cycle en cours",
+      "empty": "Aucune donnée",
+      "total": "Coût total",
+      "net": "Net à payer",
+      "deductions": "Cotisations salariales",
+      "incomeTax": "Impôt retenu",
+      "employerCharges": "Charges patronales"
+    },
+    "actions": {
+      "title": "Actions à traiter",
+      "subtitle": "{count} élément(s) en attente sur l'ensemble du périmètre paie",
+      "toValidate": "à valider",
+      "toValidateHint": "cycles calculés en attente de validation",
+      "toApprove": "à approuver",
+      "toApproveHint": "cycles validés en attente d'approbation",
+      "toPay": "à payer",
+      "toPayHint": "cycles approuvés prêts au paiement",
+      "retro": "régularisations",
+      "retroHint": "rappels en attente d'application",
+      "settlements": "soldes de tout compte",
+      "settlementsHint": "soldes calculés à régler",
+      "garnish": "saisies actives",
+      "garnishHint": "saisies sur salaire en cours"
+    },
+    "recent": {
+      "title": "Cycles récents",
+      "all": "Tout voir",
+      "empty": "Aucun cycle de paie",
+      "period": "Période",
+      "status": "Statut",
+      "headcount": "Effectif",
+      "gross": "Brut",
+      "net": "Net",
+      "cost": "Coût employeur"
+    },
+    "config": {
+      "title": "Configuration & cumul",
+      "subtitle": "Santé du paramétrage et cumul annuel",
+      "payElements": "Rubriques actives",
+      "taxScales": "Barèmes progressifs",
+      "lookup": "Tables forfaitaires",
+      "ytdTitle": "Cumul annuel",
+      "ytdGross": "Brut cumulé",
+      "ytdEmployer": "Charges cumulées"
+    }
+  },
   "hero": {
     "employeesPaid": "Employés payés",
     "employeesPaidSub": "sur {total}",
@@ -252,6 +349,9 @@
     "deactivated": "Rubrique désactivée",
     "deactivateError": "Impossible de désactiver la rubrique",
     "deactivate": "Désactiver",
+    "activated": "Rubrique réactivée",
+    "activateError": "Impossible de réactiver la rubrique",
+    "activate": "Activer",
     "deactivating": "Désactivation…",
     "deactivateTitle": "Désactiver la rubrique",
     "deactivateConfirm": "La rubrique ne sera plus appliquée aux prochains cycles de paie. Les bulletins déjà calculés ne sont pas affectés. Pour modifier une rubrique, désactivez-la puis créez une nouvelle version.",
@@ -331,6 +431,9 @@
     "deactivated": "Table désactivée",
     "deactivateError": "Impossible de désactiver la table",
     "deactivate": "Désactiver",
+    "activated": "Table réactivée",
+    "activateError": "Impossible de réactiver la table",
+    "activate": "Activer",
     "deactivating": "Désactivation…",
     "deactivateTitle": "Désactiver la table",
     "deactivateConfirm": "La table ne sera plus utilisée par les prochains cycles de paie. Les bulletins déjà calculés ne sont pas affectés. Pour modifier une table, désactivez-la puis créez une nouvelle version.",
@@ -366,6 +469,358 @@
       "stepsTitle": "Paliers",
       "save": "Créer",
       "saving": "Création…",
+      "cancel": "Annuler"
+    }
+  },
+  "retro": {
+    "uc": "Régularisations",
+    "title": "Régularisations",
+    "subtitle": "Rappels de salaire : recalcul d'une période passée et paiement de l'écart sur un mois ultérieur",
+    "new": "Nouvelle régularisation",
+    "calculated": "Régularisation calculée",
+    "calcError": "Impossible de calculer la régularisation",
+    "applied": "Régularisation appliquée",
+    "cancelled": "Régularisation annulée",
+    "transitionError": "Action impossible",
+    "apply": "Appliquer",
+    "cancel": "Annuler",
+    "applyTitle": "Appliquer la régularisation",
+    "cancelTitle": "Annuler la régularisation",
+    "applyConfirm": "L'écart sera intégré à la paie de {period}. Cette action est définitive.",
+    "cancelConfirm": "La régularisation sera annulée et ne sera pas payée.",
+    "stats": {
+      "pending": "En attente",
+      "pendingSub": "régularisations à traiter",
+      "applied": "Appliquées",
+      "appliedSub": "intégrées à un cycle",
+      "pendingNet": "Net à régulariser",
+      "pendingNetSub": "XAF · somme des écarts en attente"
+    },
+    "table": {
+      "title": "Régularisations",
+      "subtitle": "Rappels de salaire calculés à partir des cycles de paie existants",
+      "empty": "Aucune régularisation pour cette organisation."
+    },
+    "cols": {
+      "employee": "Employé",
+      "periods": "Origine → Cible",
+      "reason": "Motif",
+      "deltaGross": "Δ Brut",
+      "deltaNet": "Δ Net",
+      "status": "Statut"
+    },
+    "status": {
+      "PENDING": "En attente",
+      "APPLIED": "Appliquée",
+      "CANCELLED": "Annulée"
+    },
+    "fields": {
+      "employee": "Employé",
+      "employeePlaceholder": "Sélectionner un employé",
+      "originPeriod": "Période d'origine",
+      "targetPeriod": "Période de paiement",
+      "newBaseSalary": "Nouveau salaire de base",
+      "reason": "Motif",
+      "reasonPlaceholder": "Promotion, correction, accord collectif…"
+    },
+    "hints": {
+      "originPeriod": "Mois corrigé (doit avoir un cycle de paie)",
+      "targetPeriod": "Mois où l'écart sera payé",
+      "newBaseSalary": "Salaire de base corrigé pour la période d'origine (XAF)"
+    },
+    "validation": {
+      "required": "Employé, périodes et nouveau salaire sont obligatoires."
+    },
+    "dialog": {
+      "title": "Nouvelle régularisation",
+      "subtitle": "Recalcule la période d'origine avec le nouveau salaire et calcule l'écart.",
+      "calculate": "Calculer",
+      "calculating": "Calcul…",
+      "processing": "Traitement…",
+      "cancel": "Annuler"
+    }
+  },
+  "documents": {
+    "uc": "Documents",
+    "title": "Documents de paie",
+    "subtitle": "Bulletins, certificats et soldes de tout compte scellés électroniquement (signature vérifiable)",
+    "selectEmployee": "Employé",
+    "searchEmployee": "Rechercher…",
+    "employeePlaceholder": "Sélectionner un employé",
+    "noEmployeeTitle": "Sélectionnez un employé",
+    "noEmployeeHint": "Choisissez un employé pour consulter ses documents scellés et en générer de nouveaux.",
+    "generatePayslip": "Générer un bulletin",
+    "generateCertificate": "Certificat de travail",
+    "generateSettlement": "Solde de tout compte",
+    "genError": "Impossible de générer le document",
+    "stats": {
+      "total": "Total documents"
+    },
+    "type": {
+      "PAYSLIP": "Bulletins de paie",
+      "FINAL_SETTLEMENT": "Soldes de tout compte",
+      "WORK_CERTIFICATE": "Certificats de travail"
+    },
+    "table": {
+      "title": "Documents scellés",
+      "subtitle": "Chaque document est signé électroniquement ; sa signature peut être vérifiée à tout moment",
+      "empty": "Aucun document pour cet employé."
+    },
+    "cols": {
+      "type": "Type",
+      "period": "Période",
+      "signedAt": "Signé le",
+      "code": "Code de vérification",
+      "seal": "Sceau",
+      "actions": "Actions"
+    },
+    "download": "Télécharger",
+    "verify": "Vérifier",
+    "verifying": "Vérification…",
+    "verifyValid": "Signature valide",
+    "verifyInvalid": "Signature INVALIDE",
+    "verifyError": "Vérification impossible",
+    "sealValid": "Valide",
+    "sealInvalid": "Invalide",
+    "sealUnchecked": "Non vérifié",
+    "payslipGenerated": "Bulletin généré",
+    "certificateGenerated": "Certificat généré",
+    "settlementGenerated": "Solde de tout compte généré",
+    "payslipDialogTitle": "Générer un bulletin de paie",
+    "payslipDialogSubtitle": "Sélectionnez le cycle de paie de la période concernée.",
+    "period": "Période de paie",
+    "periodPlaceholder": "Sélectionner une période",
+    "selectRun": "Sélectionnez une période.",
+    "noRuns": "Aucun cycle de paie calculé disponible.",
+    "noEntry": "Cet employé n'a pas de ligne de paie pour ce cycle.",
+    "certificateDialogTitle": "Certificat de travail",
+    "certificateDialogSubtitle": "Atteste l'emploi de l'employé dans l'organisation.",
+    "position": "Poste",
+    "positionHint": "Optionnel — laissé vide, le poste enregistré est utilisé.",
+    "positionPlaceholder": "Ex. Comptable",
+    "settlementDialogTitle": "Solde de tout compte",
+    "settlementDialogSubtitle": "Sélectionnez un solde de tout compte calculé pour cet employé.",
+    "settlement": "Solde de tout compte",
+    "settlementPlaceholder": "Sélectionner un solde",
+    "selectSettlement": "Sélectionnez un solde.",
+    "noSettlements": "Aucun solde de tout compte calculé pour cet employé.",
+    "generate": "Générer",
+    "generating": "Génération…",
+    "dialog": {
+      "cancel": "Annuler"
+    }
+  },
+  "declarations": {
+    "uc": "Déclarations",
+    "title": "Déclarations sociales & fiscales",
+    "subtitle": "Génère les déclarations légales (CNPS, DIPE, IRPP/CAC) à partir d'un cycle de paie calculé",
+    "period": "Période (cycle de paie)",
+    "noRuns": "Aucun cycle",
+    "noRunsHint": "Aucun cycle de paie calculé. Calculez d'abord la paie d'une période pour générer ses déclarations.",
+    "downloadCsv": "Télécharger CSV",
+    "types": {
+      "CNPS": {
+        "short": "CNPS",
+        "name": "Déclaration CNPS",
+        "desc": "Cotisations de sécurité sociale (part salariale + part patronale) dues à la CNPS pour la période."
+      },
+      "DIPE": {
+        "short": "DIPE",
+        "name": "DIPE — Déclaration Individuelle et Périodique des Employés",
+        "desc": "Déclaration individuelle des salariés à la CNPS (une ligne par employé)."
+      },
+      "IRPP_CAC": {
+        "short": "IRPP / CAC",
+        "name": "Déclaration IRPP + CAC",
+        "desc": "Impôt sur le revenu et centimes additionnels communaux retenus à la source, déclarés à l'administration fiscale."
+      }
+    },
+    "stats": {
+      "employees": "Employés déclarés",
+      "base": "Base totale",
+      "employee": "Part salariale",
+      "employer": "Part patronale"
+    },
+    "table": {
+      "title": "Détail par employé",
+      "grandTotal": "Total à reverser",
+      "totals": "Totaux",
+      "empty": "Aucun employé dans ce cycle."
+    },
+    "cols": {
+      "employee": "Employé",
+      "ssn": "N° sécurité sociale",
+      "base": "Base",
+      "employeeShare": "Part salariale",
+      "employer": "Part patronale"
+    }
+  },
+  "stc": {
+    "uc": "Solde de tout compte",
+    "title": "Soldes de tout compte",
+    "subtitle": "Calcul des indemnités de départ : préavis, licenciement, congés non pris, gratification, déduction des prêts",
+    "new": "Nouveau solde",
+    "calculated": "Solde de tout compte calculé",
+    "calcError": "Impossible de calculer le solde de tout compte",
+    "paid": "Solde de tout compte marqué payé",
+    "payError": "Impossible de marquer comme payé",
+    "pay": "Marquer payé",
+    "payTitle": "Marquer le solde comme payé",
+    "payConfirm": "Le solde de tout compte sera marqué comme payé. Cette action est définitive.",
+    "stats": {
+      "calculated": "Calculés",
+      "calculatedSub": "en attente de paiement",
+      "paid": "Payés",
+      "paidSub": "soldes réglés",
+      "dueNet": "Net à payer",
+      "dueNetSub": "XAF · somme des soldes calculés"
+    },
+    "table": {
+      "title": "Soldes de tout compte",
+      "subtitle": "Cliquez sur un employé pour voir le détail du calcul",
+      "empty": "Aucun solde de tout compte pour cette organisation."
+    },
+    "cols": {
+      "employee": "Employé",
+      "departure": "Date de départ",
+      "reason": "Motif",
+      "gross": "Brut",
+      "net": "Net",
+      "status": "Statut"
+    },
+    "status": {
+      "CALCULATED": "Calculé",
+      "PAID": "Payé"
+    },
+    "reasons": {
+      "RESIGNATION": "Démission",
+      "DISMISSAL": "Licenciement",
+      "DISMISSAL_GROSS_MISCONDUCT": "Licenciement (faute lourde)",
+      "END_OF_CONTRACT": "Fin de CDD",
+      "RETIREMENT": "Départ à la retraite",
+      "MUTUAL_AGREEMENT": "Rupture conventionnelle",
+      "DEATH": "Décès"
+    },
+    "breakdown": {
+      "components": "Composantes",
+      "context": "Contexte",
+      "proratedSalary": "Salaire au prorata",
+      "leaveCompensation": "Indemnité de congés payés",
+      "noticeIndemnity": "Indemnité de préavis",
+      "severanceIndemnity": "Indemnité de licenciement",
+      "gratification": "Gratification (13e mois)",
+      "gross": "Total brut",
+      "loanDeducted": "Prêts déduits",
+      "net": "Net à payer",
+      "seniority": "Ancienneté",
+      "years": "{count} an(s)",
+      "period": "Période",
+      "docHint": "Le document scellé du solde de tout compte se génère depuis la page Documents."
+    },
+    "fields": {
+      "employee": "Employé",
+      "employeePlaceholder": "Sélectionner un employé",
+      "departureDate": "Date de départ",
+      "reason": "Motif du départ",
+      "unusedLeaveDays": "Jours de congés non pris",
+      "noticeMonths": "Mois de préavis non effectués",
+      "accruedGratification": "Gratification acquise (prorata)"
+    },
+    "hints": {
+      "unusedLeaveDays": "Jours à monétiser",
+      "noticeMonths": "Payés par l'employeur (licenciement), sinon 0",
+      "accruedGratification": "13e mois déjà acquis sur l'année, ou 0"
+    },
+    "validation": {
+      "required": "Employé, date de départ et motif sont obligatoires."
+    },
+    "dialog": {
+      "title": "Nouveau solde de tout compte",
+      "subtitle": "Le salaire, la date d'embauche et les prêts en cours sont récupérés automatiquement.",
+      "calculate": "Calculer",
+      "calculating": "Calcul…",
+      "processing": "Traitement…",
+      "cancel": "Annuler"
+    }
+  },
+  "garnish": {
+    "uc": "Saisies sur salaire",
+    "title": "Saisies sur salaire",
+    "subtitle": "Ordres de saisie-arrêt : pension alimentaire, avis à tiers détenteur, créanciers — retenus chaque mois jusqu'à extinction",
+    "new": "Nouvelle saisie",
+    "created": "Saisie enregistrée",
+    "createError": "Impossible d'enregistrer la saisie",
+    "cancelled": "Saisie annulée",
+    "cancelError": "Impossible d'annuler la saisie",
+    "suspended": "Saisie suspendue",
+    "suspendError": "Impossible de suspendre la saisie",
+    "suspend": "Suspendre",
+    "resumed": "Saisie reprise",
+    "resumeError": "Impossible de reprendre la saisie",
+    "resume": "Reprendre",
+    "cancel": "Annuler",
+    "cancelTitle": "Annuler la saisie",
+    "cancelConfirm": "L'ordre de saisie sera annulé et ne sera plus retenu sur les prochaines payes. Cette action est définitive.",
+    "remainingLabel": "Reste {amount}",
+    "stats": {
+      "active": "Saisies actives",
+      "activeSub": "en cours de recouvrement",
+      "remaining": "Reste à recouvrer",
+      "remainingSub": "XAF · saisies actives",
+      "monthly": "Retenue mensuelle",
+      "monthlySub": "XAF · total prélevé / mois"
+    },
+    "table": {
+      "title": "Ordres de saisie",
+      "subtitle": "Triés par priorité légale (alimentaire > fiscal > créancier)",
+      "empty": "Aucune saisie pour cette organisation."
+    },
+    "cols": {
+      "employee": "Employé",
+      "type": "Type",
+      "beneficiary": "Bénéficiaire",
+      "monthly": "Retenue / mois",
+      "progress": "Recouvrement",
+      "status": "Statut"
+    },
+    "types": {
+      "ALIMONY": "Pension alimentaire",
+      "TAX_LEVY": "Avis à tiers détenteur",
+      "CREDITOR": "Créancier"
+    },
+    "status": {
+      "ACTIVE": "Active",
+      "SUSPENDED": "Suspendue",
+      "COMPLETED": "Soldée",
+      "CANCELLED": "Annulée"
+    },
+    "fields": {
+      "employee": "Employé",
+      "employeePlaceholder": "Sélectionner un employé",
+      "type": "Type de saisie",
+      "reference": "Référence",
+      "referencePlaceholder": "N° de jugement / acte",
+      "beneficiary": "Bénéficiaire",
+      "beneficiaryPlaceholder": "Nom du créancier / organisme",
+      "totalAmount": "Montant total dû",
+      "monthlyAmount": "Retenue mensuelle"
+    },
+    "hints": {
+      "type": "Détermine la priorité légale de prélèvement",
+      "reference": "Optionnel — référence externe",
+      "totalAmount": "Dette totale à recouvrer (XAF)",
+      "monthlyAmount": "Montant prélevé chaque mois (XAF)"
+    },
+    "validation": {
+      "required": "Employé, bénéficiaire, montant total et retenue mensuelle sont obligatoires.",
+      "positive": "Les montants doivent être supérieurs à zéro."
+    },
+    "dialog": {
+      "title": "Nouvelle saisie sur salaire",
+      "subtitle": "Le montant est retenu automatiquement à chaque cycle de paie jusqu'à extinction de la dette.",
+      "save": "Enregistrer",
+      "saving": "Enregistrement…",
+      "processing": "Traitement…",
       "cancel": "Annuler"
     }
   }

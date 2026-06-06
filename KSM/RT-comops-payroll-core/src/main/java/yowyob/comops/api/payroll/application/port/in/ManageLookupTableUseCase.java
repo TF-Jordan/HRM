@@ -13,6 +13,8 @@ public interface ManageLookupTableUseCase {
 
     Mono<LookupTable> deactivateTable(UUID tableId);
 
+    Mono<LookupTable> activateTable(UUID tableId);
+
     Mono<LookupTable> getTable(UUID tableId);
 
     Flux<LookupTable> listTables(String countryCode);

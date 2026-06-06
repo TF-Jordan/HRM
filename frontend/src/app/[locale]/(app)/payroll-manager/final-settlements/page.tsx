@@ -1,10 +1,9 @@
-import { FileText } from "lucide-react";
 import { setRequestLocale } from "next-intl/server";
 
-import { ComingSoon } from "@/components/shared/coming-soon";
+import { FinalSettlements } from "@/components/payroll/final-settlements";
 
-export default async function Page({ params }: PageProps<"/[locale]/payroll-manager/final-settlements">) {
+export default async function Page({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  return <ComingSoon featureKey="nav.finalSettlements" icon={FileText} />;
+  return <FinalSettlements />;
 }

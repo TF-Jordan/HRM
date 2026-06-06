@@ -9,6 +9,7 @@ import {
   Loader2,
   type LucideIcon,
   Plus,
+  Power,
   PowerOff,
   Search,
 } from "lucide-react";
@@ -71,7 +72,7 @@ export function PayElements() {
   const [country, setCountry] = React.useState<string>("CM");
   const [category, setCategory] = React.useState<PayElementCategory | "ALL">("ALL");
   const [search, setSearch] = React.useState("");
-  const [showInactive, setShowInactive] = React.useState(false);
+  const [showInactive, setShowInactive] = React.useState(true);
   const [creating, setCreating] = React.useState(false);
   const [toDeactivate, setToDeactivate] = React.useState<PayElementResponse | null>(null);
 
@@ -136,6 +137,17 @@ export function PayElements() {
     },
     onError: (err) =>
       toast.error(err instanceof BffApiError ? err.message : t("elements.deactivateError")),
+  });
+
+  const activate = useMutation({
+    mutationFn: (id: string) =>
+      apiFetch<PayElementResponse>(`/api/hrm/payroll/pay-elements/${id}/activate`, { method: "PUT" }),
+    onSuccess: () => {
+      toast.success(t("elements.activated"));
+      queryClient.invalidateQueries({ queryKey: ["hrm", "payroll", "pay-elements", country] });
+    },
+    onError: (err) =>
+      toast.error(err instanceof BffApiError ? err.message : t("elements.activateError")),
   });
 
   return (
@@ -293,17 +305,29 @@ export function PayElements() {
                           )}
                         </td>
                         <td className="px-6 py-3 text-right">
-                          {canManage && e.active && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="text-danger-600 hover:bg-danger-50"
-                              onClick={() => setToDeactivate(e)}
-                              title={t("elements.deactivate")}
-                            >
-                              <PowerOff className="h-3.5 w-3.5" />
-                            </Button>
-                          )}
+                          {canManage &&
+                            (e.active ? (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="text-danger-600 hover:bg-danger-50"
+                                onClick={() => setToDeactivate(e)}
+                                title={t("elements.deactivate")}
+                              >
+                                <PowerOff className="h-3.5 w-3.5" />
+                              </Button>
+                            ) : (
+                              <Button
+                                variant="secondary"
+                                size="sm"
+                                onClick={() => activate.mutate(e.id)}
+                                disabled={activate.isPending}
+                                title={t("elements.activate")}
+                              >
+                                <Power className="h-3.5 w-3.5" />
+                                {t("elements.activate")}
+                              </Button>
+                            ))}
                         </td>
                       </tr>
                     ))}

@@ -296,6 +296,14 @@ export function createPayElement(body: CreatePayElementRequest, session: AppSess
   );
 }
 
+export function activatePayElement(id: string, session: AppSession) {
+  return callKsm<PayElementResponse>(
+    `/api/v1/payroll/pay-elements/${id}/activate`,
+    { method: "PUT" },
+    { session },
+  );
+}
+
 export function deactivatePayElement(id: string, session: AppSession) {
   return callKsm<PayElementResponse>(
     `/api/v1/payroll/pay-elements/${id}`,
@@ -346,6 +354,14 @@ export function createTaxBracketTable(body: CreateTaxBracketTableRequest, sessio
   return callKsm<TaxBracketTableResponse>(
     `/api/v1/payroll/tax-brackets`,
     { method: "POST", body },
+    { session },
+  );
+}
+
+export function activateTaxBracketTable(id: string, session: AppSession) {
+  return callKsm<TaxBracketTableResponse>(
+    `/api/v1/payroll/tax-brackets/${id}/activate`,
+    { method: "PUT" },
     { session },
   );
 }
@@ -404,10 +420,353 @@ export function createLookupTable(body: CreateLookupTableRequest, session: AppSe
   );
 }
 
+export function activateLookupTable(id: string, session: AppSession) {
+  return callKsm<LookupTableResponse>(
+    `/api/v1/payroll/lookup-tables/${id}/activate`,
+    { method: "PUT" },
+    { session },
+  );
+}
+
 export function deactivateLookupTable(id: string, session: AppSession) {
   return callKsm<LookupTableResponse>(
     `/api/v1/payroll/lookup-tables/${id}`,
     { method: "DELETE" },
+    { session },
+  );
+}
+
+/* ===================== Retroactive adjustments (rappels de salaire) ===================== */
+
+export type RetroactiveStatus = "PENDING" | "APPLIED" | "CANCELLED";
+
+export type RetroactiveResponse = {
+  id: string;
+  employeeId: string;
+  originPeriod: string;
+  targetPeriod: string;
+  reason: string | null;
+  currency: string;
+  oldGross: number | string | null;
+  newGross: number | string | null;
+  deltaGross: number | string | null;
+  oldNet: number | string | null;
+  newNet: number | string | null;
+  deltaNet: number | string | null;
+  status: RetroactiveStatus;
+};
+
+export type CalculateRetroactiveRequest = {
+  employeeId: string;
+  originPeriod: string;
+  newBaseSalary: number;
+  targetPeriod: string;
+  reason?: string | null;
+};
+
+export function listRetroactiveAdjustments(
+  session: AppSession,
+  opts?: { employeeId?: string; organizationId?: string },
+) {
+  const params = new URLSearchParams();
+  if (opts?.employeeId) {
+    params.set("employeeId", opts.employeeId);
+  } else {
+    const orgId = opts?.organizationId ?? session.workspace?.organizationId;
+    if (!orgId) throw new Error("organizationId is required");
+    params.set("organizationId", orgId);
+  }
+  return callKsm<RetroactiveResponse[]>(
+    `/api/v1/payroll/retroactive?${params}`,
+    {},
+    { session },
+  );
+}
+
+export function calculateRetroactive(body: CalculateRetroactiveRequest, session: AppSession) {
+  return callKsm<RetroactiveResponse>(
+    `/api/v1/payroll/retroactive`,
+    { method: "POST", body },
+    { session },
+  );
+}
+
+export function applyRetroactive(id: string, session: AppSession) {
+  return callKsm<RetroactiveResponse>(
+    `/api/v1/payroll/retroactive/${id}/apply`,
+    { method: "PUT" },
+    { session },
+  );
+}
+
+export function cancelRetroactive(id: string, session: AppSession) {
+  return callKsm<RetroactiveResponse>(
+    `/api/v1/payroll/retroactive/${id}`,
+    { method: "DELETE" },
+    { session },
+  );
+}
+
+/* ===================== Final settlements (soldes de tout compte) ===================== */
+
+export type TerminationReason =
+  | "RESIGNATION"
+  | "DISMISSAL"
+  | "DISMISSAL_GROSS_MISCONDUCT"
+  | "END_OF_CONTRACT"
+  | "RETIREMENT"
+  | "MUTUAL_AGREEMENT"
+  | "DEATH";
+
+export type FinalSettlementStatus = "CALCULATED" | "PAID";
+
+export type FinalSettlementResponse = {
+  id: string;
+  employeeId: string;
+  periode: string;
+  departureDate: string;
+  reason: TerminationReason | string;
+  currency: string;
+  seniorityYears: number;
+  proratedSalary: number | string;
+  leaveCompensation: number | string;
+  noticeIndemnity: number | string;
+  severanceIndemnity: number | string;
+  gratification: number | string;
+  grossSettlement: number | string;
+  loanDeducted: number | string;
+  netSettlement: number | string;
+  status: FinalSettlementStatus | string;
+};
+
+export type CalculateFinalSettlementRequest = {
+  employeeId: string;
+  departureDate: string;
+  reason: TerminationReason;
+  unusedLeaveDays: number;
+  noticeMonths: number;
+  accruedGratification: number;
+};
+
+export function calculateFinalSettlement(
+  body: CalculateFinalSettlementRequest,
+  session: AppSession,
+) {
+  return callKsm<FinalSettlementResponse>(
+    `/api/v1/payroll/final-settlements`,
+    { method: "POST", body },
+    { session },
+  );
+}
+
+export function markFinalSettlementPaid(id: string, session: AppSession) {
+  return callKsm<FinalSettlementResponse>(
+    `/api/v1/payroll/final-settlements/${id}/pay`,
+    { method: "PUT" },
+    { session },
+  );
+}
+
+export function listFinalSettlements(
+  session: AppSession,
+  opts?: { employeeId?: string; organizationId?: string },
+) {
+  const params = new URLSearchParams();
+  if (opts?.employeeId) {
+    params.set("employeeId", opts.employeeId);
+  } else {
+    const orgId = opts?.organizationId ?? session.workspace?.organizationId;
+    if (!orgId) throw new Error("organizationId is required");
+    params.set("organizationId", orgId);
+  }
+  return callKsm<FinalSettlementResponse[]>(
+    `/api/v1/payroll/final-settlements?${params}`,
+    {},
+    { session },
+  );
+}
+
+/* ===================== Sealed payroll documents ===================== */
+
+export type PayrollDocumentType = "PAYSLIP" | "FINAL_SETTLEMENT" | "WORK_CERTIFICATE";
+
+export type PayrollDocumentResponse = {
+  id: string;
+  employeeId: string;
+  type: PayrollDocumentType | string;
+  subjectId: string;
+  periode: string | null;
+  fileId: string;
+  fileName: string;
+  algorithm: string;
+  contentHashHex: string;
+  verificationCode: string | null;
+  keyId: string | null;
+  signedAt: string | null;
+};
+
+export type DocumentVerification = {
+  valid: boolean;
+  verificationCode: string | null;
+  contentHashHex: string;
+  algorithm: string;
+  signedAt: string | null;
+};
+
+export function listEmployeeDocuments(session: AppSession, employeeId: string) {
+  const params = new URLSearchParams({ employeeId });
+  return callKsm<PayrollDocumentResponse[]>(
+    `/api/v1/payroll/documents?${params}`,
+    {},
+    { session },
+  );
+}
+
+export function generatePayslipDocument(entryId: string, session: AppSession) {
+  const params = new URLSearchParams({ entryId });
+  return callKsm<PayrollDocumentResponse>(
+    `/api/v1/payroll/documents/payslip?${params}`,
+    { method: "POST" },
+    { session },
+  );
+}
+
+export function generateFinalSettlementDocument(settlementId: string, session: AppSession) {
+  const params = new URLSearchParams({ settlementId });
+  return callKsm<PayrollDocumentResponse>(
+    `/api/v1/payroll/documents/final-settlement?${params}`,
+    { method: "POST" },
+    { session },
+  );
+}
+
+export function generateWorkCertificate(
+  employeeId: string,
+  position: string | null,
+  session: AppSession,
+) {
+  const params = new URLSearchParams({ employeeId });
+  if (position) params.set("position", position);
+  return callKsm<PayrollDocumentResponse>(
+    `/api/v1/payroll/documents/work-certificate?${params}`,
+    { method: "POST" },
+    { session },
+  );
+}
+
+export function verifyDocument(id: string, session: AppSession) {
+  return callKsm<DocumentVerification>(
+    `/api/v1/payroll/documents/${id}/verify`,
+    {},
+    { session },
+  );
+}
+
+/* ===================== Statutory declarations (CNPS / DIPE / IRPP_CAC) ===================== */
+
+export type DeclarationType = "CNPS" | "DIPE" | "IRPP_CAC";
+
+export type DeclarationLineResponse = {
+  employeeId: string;
+  matricule: string;
+  employeeName: string;
+  socialSecurityNo: string | null;
+  grossBase: number | string;
+  employeeContribution: number | string;
+  employerContribution: number | string;
+};
+
+export type DeclarationResponse = {
+  type: DeclarationType | string;
+  periode: string;
+  employeeCount: number;
+  totalGrossBase: number | string;
+  totalEmployee: number | string;
+  totalEmployer: number | string;
+  grandTotal: number | string;
+  items: DeclarationLineResponse[];
+};
+
+export function generateDeclaration(session: AppSession, type: DeclarationType, runId: string) {
+  const params = new URLSearchParams({ type, runId });
+  return callKsm<DeclarationResponse>(
+    `/api/v1/payroll/declarations?${params}`,
+    {},
+    { session },
+  );
+}
+
+/* ===================== Wage garnishments (saisies sur salaire) ===================== */
+
+export type GarnishmentType = "ALIMONY" | "TAX_LEVY" | "CREDITOR";
+export type GarnishmentStatus = "ACTIVE" | "SUSPENDED" | "COMPLETED" | "CANCELLED";
+
+export type GarnishmentResponse = {
+  id: string;
+  employeeId: string;
+  type: GarnishmentType | string;
+  beneficiary: string;
+  reference: string | null;
+  totalAmount: number | string;
+  remainingBalance: number | string;
+  monthlyAmount: number | string;
+  status: GarnishmentStatus | string;
+};
+
+export type CreateGarnishmentRequest = {
+  organizationId: string;
+  employeeId: string;
+  type: GarnishmentType;
+  beneficiary: string;
+  reference?: string | null;
+  totalAmount: number;
+  monthlyAmount: number;
+};
+
+export function listGarnishments(session: AppSession, opts?: { employeeId?: string; organizationId?: string }) {
+  const params = new URLSearchParams();
+  if (opts?.employeeId) {
+    params.set("employeeId", opts.employeeId);
+  } else {
+    const orgId = opts?.organizationId ?? session.workspace?.organizationId;
+    if (!orgId) throw new Error("organizationId is required");
+    params.set("organizationId", orgId);
+  }
+  return callKsm<GarnishmentResponse[]>(
+    `/api/v1/payroll/garnishments?${params}`,
+    {},
+    { session },
+  );
+}
+
+export function createGarnishment(body: CreateGarnishmentRequest, session: AppSession) {
+  return callKsm<GarnishmentResponse>(
+    `/api/v1/payroll/garnishments`,
+    { method: "POST", body },
+    { session },
+  );
+}
+
+export function cancelGarnishment(id: string, session: AppSession) {
+  return callKsm<GarnishmentResponse>(
+    `/api/v1/payroll/garnishments/${id}`,
+    { method: "DELETE" },
+    { session },
+  );
+}
+
+export function suspendGarnishment(id: string, session: AppSession) {
+  return callKsm<GarnishmentResponse>(
+    `/api/v1/payroll/garnishments/${id}/suspend`,
+    { method: "PUT" },
+    { session },
+  );
+}
+
+export function resumeGarnishment(id: string, session: AppSession) {
+  return callKsm<GarnishmentResponse>(
+    `/api/v1/payroll/garnishments/${id}/resume`,
+    { method: "PUT" },
     { session },
   );
 }

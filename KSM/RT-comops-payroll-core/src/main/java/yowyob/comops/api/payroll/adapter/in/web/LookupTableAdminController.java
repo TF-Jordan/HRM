@@ -67,6 +67,13 @@ public class LookupTableAdminController {
                 .map(r -> ResponseEntity.ok(ApiResponse.success(r, "Lookup table deactivated.")));
     }
 
+    @PutMapping("/{id}/activate")
+    @PreAuthorize("@businessAccessPolicy.hasPermission(authentication, 'hrm:payroll:run')")
+    public Mono<ResponseEntity<ApiResponse<LookupTableResponse>>> activate(@PathVariable UUID id) {
+        return useCase.activateTable(id).map(LookupTableResponse::from)
+                .map(r -> ResponseEntity.ok(ApiResponse.success(r, "Lookup table activated.")));
+    }
+
     // --- DTOs ---
 
     public record EntryLine(int ordre, BigDecimal lowerBound, BigDecimal upperBound, BigDecimal amount) {

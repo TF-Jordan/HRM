@@ -48,6 +48,15 @@ public class PayElementService implements ManagePayElementUseCase {
     }
 
     @Override
+    public Mono<PayElement> activatePayElement(UUID payElementId) {
+        return ReactiveRequestContextHolder.getRequiredContext()
+                .flatMap(ctx -> repository.findById(ctx.tenantId(), payElementId)
+                        .switchIfEmpty(Mono.error(new IllegalArgumentException("Pay element not found")))
+                        .map(PayElement::activate)
+                        .flatMap(repository::save));
+    }
+
+    @Override
     public Mono<PayElement> getPayElement(UUID payElementId) {
         return ReactiveRequestContextHolder.getRequiredContext()
                 .flatMap(ctx -> repository.findById(ctx.tenantId(), payElementId)

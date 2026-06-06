@@ -45,6 +45,15 @@ public class TaxBracketTableService implements ManageTaxBracketUseCase {
     }
 
     @Override
+    public Mono<TaxBracketTable> activateTable(UUID tableId) {
+        return ReactiveRequestContextHolder.getRequiredContext()
+                .flatMap(ctx -> repository.findById(ctx.tenantId(), tableId)
+                        .switchIfEmpty(Mono.error(new IllegalArgumentException("Tax bracket table not found")))
+                        .map(TaxBracketTable::activate)
+                        .flatMap(repository::save));
+    }
+
+    @Override
     public Mono<TaxBracketTable> getTable(UUID tableId) {
         return ReactiveRequestContextHolder.getRequiredContext()
                 .flatMap(ctx -> repository.findById(ctx.tenantId(), tableId)

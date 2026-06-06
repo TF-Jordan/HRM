@@ -13,6 +13,10 @@ public interface ManageGarnishmentUseCase {
 
     Mono<GarnishmentOrder> cancel(UUID orderId);
 
+    Mono<GarnishmentOrder> suspend(UUID orderId);
+
+    Mono<GarnishmentOrder> resume(UUID orderId);
+
     Mono<GarnishmentOrder> get(UUID orderId);
 
     Flux<GarnishmentOrder> listForEmployee(UUID employeeId);

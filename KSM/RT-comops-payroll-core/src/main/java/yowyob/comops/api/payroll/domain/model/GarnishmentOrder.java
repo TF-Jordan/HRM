@@ -78,6 +78,26 @@ public final class GarnishmentOrder extends BaseEntity {
                 GarnishmentStatus.CANCELLED);
     }
 
+    /** Temporarily stops withholding. Only an active order can be suspended. */
+    public GarnishmentOrder suspend() {
+        if (status != GarnishmentStatus.ACTIVE) {
+            throw new IllegalStateException("Only an active garnishment can be suspended (was " + status + ").");
+        }
+        return new GarnishmentOrder(id(), tenantId(), createdAt(), Instant.now(), organizationId, employeeId,
+                type, beneficiary, reference, totalAmount, remainingBalance, monthlyAmount,
+                GarnishmentStatus.SUSPENDED);
+    }
+
+    /** Resumes withholding on a suspended order. */
+    public GarnishmentOrder resume() {
+        if (status != GarnishmentStatus.SUSPENDED) {
+            throw new IllegalStateException("Only a suspended garnishment can be resumed (was " + status + ").");
+        }
+        return new GarnishmentOrder(id(), tenantId(), createdAt(), Instant.now(), organizationId, employeeId,
+                type, beneficiary, reference, totalAmount, remainingBalance, monthlyAmount,
+                GarnishmentStatus.ACTIVE);
+    }
+
     public UUID organizationId() { return organizationId; }
     public UUID employeeId() { return employeeId; }
     public GarnishmentType type() { return type; }

@@ -41,6 +41,24 @@ public class GarnishmentService implements ManageGarnishmentUseCase {
     }
 
     @Override
+    public Mono<GarnishmentOrder> suspend(UUID orderId) {
+        return ReactiveRequestContextHolder.getRequiredContext()
+                .flatMap(ctx -> repository.findById(ctx.tenantId(), orderId)
+                        .switchIfEmpty(Mono.error(new IllegalArgumentException("Garnishment not found")))
+                        .map(GarnishmentOrder::suspend)
+                        .flatMap(repository::save));
+    }
+
+    @Override
+    public Mono<GarnishmentOrder> resume(UUID orderId) {
+        return ReactiveRequestContextHolder.getRequiredContext()
+                .flatMap(ctx -> repository.findById(ctx.tenantId(), orderId)
+                        .switchIfEmpty(Mono.error(new IllegalArgumentException("Garnishment not found")))
+                        .map(GarnishmentOrder::resume)
+                        .flatMap(repository::save));
+    }
+
+    @Override
     public Mono<GarnishmentOrder> get(UUID orderId) {
         return ReactiveRequestContextHolder.getRequiredContext()
                 .flatMap(ctx -> repository.findById(ctx.tenantId(), orderId)

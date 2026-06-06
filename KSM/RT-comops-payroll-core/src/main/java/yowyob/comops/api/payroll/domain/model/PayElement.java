@@ -114,6 +114,14 @@ public final class PayElement extends BaseEntity {
                 effectiveFrom, effectiveTo);
     }
 
+    /** Returns a reactivated copy (reopens the element to future runs); bumps updatedAt. */
+    public PayElement activate() {
+        return new PayElement(id(), tenantId(), createdAt(), Instant.now(), code, label, category, method,
+                baseReference, rate, ceiling, floor, exemptionThreshold, flatAmount, bracketTableCode,
+                lookupTableCode, taxable, socialContributable, countryCode, displayOrder, true,
+                effectiveFrom, effectiveTo);
+    }
+
     public boolean isEffectiveOn(LocalDate date) {
         boolean started = !date.isBefore(effectiveFrom);
         boolean notEnded = effectiveTo == null || !date.isAfter(effectiveTo);

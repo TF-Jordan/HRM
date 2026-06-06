@@ -68,6 +68,13 @@ public class TaxBracketAdminController {
                 .map(r -> ResponseEntity.ok(ApiResponse.success(r, "Tax bracket table deactivated.")));
     }
 
+    @PutMapping("/{id}/activate")
+    @PreAuthorize("@businessAccessPolicy.hasPermission(authentication, 'hrm:payroll:run')")
+    public Mono<ResponseEntity<ApiResponse<TaxBracketTableResponse>>> activate(@PathVariable UUID id) {
+        return useCase.activateTable(id).map(TaxBracketTableResponse::from)
+                .map(r -> ResponseEntity.ok(ApiResponse.success(r, "Tax bracket table activated.")));
+    }
+
     // --- DTOs ---
 
     public record BracketLine(int ordre, BigDecimal lowerBound, BigDecimal upperBound, BigDecimal rate) {

@@ -13,6 +13,8 @@ public interface ManageTaxBracketUseCase {
 
     Mono<TaxBracketTable> deactivateTable(UUID tableId);
 
+    Mono<TaxBracketTable> activateTable(UUID tableId);
+
     Mono<TaxBracketTable> getTable(UUID tableId);
 
     Flux<TaxBracketTable> listTables(String countryCode);

@@ -46,6 +46,103 @@
     "validation": "4 · CEO approval",
     "payment": "5 · Payment"
   },
+  "dash": {
+    "uc": "Payroll control",
+    "title": "Payroll control center",
+    "subtitle": "Overview of the current cycle, employer cost and pending actions",
+    "viewRuns": "Payroll runs",
+    "newRun": "New run",
+    "noRun": "No payroll run",
+    "noRunSub": "Start the first run to begin computing the organization's payroll.",
+    "currentCycle": "Current cycle",
+    "action": {
+      "validate": "Validate payroll",
+      "approve": "Approve payroll",
+      "pay": "Initiate payment",
+      "close": "Close cycle",
+      "open": "Open cycle"
+    },
+    "step": {
+      "variables": "Variables",
+      "calculation": "Calculation",
+      "review": "HR review",
+      "validation": "CEO approval",
+      "payment": "Payment"
+    },
+    "kpi": {
+      "headcount": "Employees paid",
+      "headcountSub": "paid / active",
+      "net": "Net to pay",
+      "netSub": "paid to employees",
+      "employerCost": "Total employer cost",
+      "employerCostSub": "gross + employer charges",
+      "grossMass": "Gross payroll",
+      "grossMassSub": "current cycle",
+      "employerCharges": "Employer charges",
+      "employerChargesSub": "employer contributions",
+      "deductions": "Employee deductions",
+      "deductionsSub": "employee withholdings",
+      "incomeTax": "Income tax",
+      "incomeTaxSub": "withheld income tax",
+      "ytd": "YTD gross",
+      "ytdSub": "{count} runs this year"
+    },
+    "evolution": {
+      "title": "Payroll cost trend",
+      "subtitle": "Net, employee withholdings and employer charges by period",
+      "empty": "No calculated run yet",
+      "net": "Net to pay",
+      "withheld": "Employee withholdings",
+      "employer": "Employer charges"
+    },
+    "structure": {
+      "title": "Cost structure",
+      "subtitle": "Current cycle",
+      "empty": "No data",
+      "total": "Total cost",
+      "net": "Net to pay",
+      "deductions": "Employee deductions",
+      "incomeTax": "Income tax",
+      "employerCharges": "Employer charges"
+    },
+    "actions": {
+      "title": "Actions to handle",
+      "subtitle": "{count} pending item(s) across payroll",
+      "toValidate": "to validate",
+      "toValidateHint": "calculated runs awaiting validation",
+      "toApprove": "to approve",
+      "toApproveHint": "validated runs awaiting approval",
+      "toPay": "to pay",
+      "toPayHint": "approved runs ready for payment",
+      "retro": "adjustments",
+      "retroHint": "back-pay awaiting application",
+      "settlements": "final settlements",
+      "settlementsHint": "calculated settlements to pay",
+      "garnish": "active garnishments",
+      "garnishHint": "wage garnishments in progress"
+    },
+    "recent": {
+      "title": "Recent runs",
+      "all": "View all",
+      "empty": "No payroll run",
+      "period": "Period",
+      "status": "Status",
+      "headcount": "Headcount",
+      "gross": "Gross",
+      "net": "Net",
+      "cost": "Employer cost"
+    },
+    "config": {
+      "title": "Configuration & totals",
+      "subtitle": "Setup health and year-to-date totals",
+      "payElements": "Active pay elements",
+      "taxScales": "Progressive scales",
+      "lookup": "Lookup tables",
+      "ytdTitle": "Year to date",
+      "ytdGross": "Cumulative gross",
+      "ytdEmployer": "Cumulative charges"
+    }
+  },
   "hero": {
     "employeesPaid": "Employees paid",
     "employeesPaidSub": "of {total}",
@@ -252,6 +349,9 @@
     "deactivated": "Pay element deactivated",
     "deactivateError": "Could not deactivate the pay element",
     "deactivate": "Deactivate",
+    "activated": "Pay element reactivated",
+    "activateError": "Could not reactivate the pay element",
+    "activate": "Activate",
     "deactivating": "Deactivating…",
     "deactivateTitle": "Deactivate pay element",
     "deactivateConfirm": "This element will no longer apply to future payroll runs. Already calculated payslips are unaffected. To change an element, deactivate it and create a new version.",
@@ -331,6 +431,9 @@
     "deactivated": "Table deactivated",
     "deactivateError": "Could not deactivate the table",
     "deactivate": "Deactivate",
+    "activated": "Table reactivated",
+    "activateError": "Could not reactivate the table",
+    "activate": "Activate",
     "deactivating": "Deactivating…",
     "deactivateTitle": "Deactivate table",
     "deactivateConfirm": "This table will no longer be used by future payroll runs. Already calculated payslips are unaffected. To change a table, deactivate it and create a new version.",
@@ -366,6 +469,358 @@
       "stepsTitle": "Steps",
       "save": "Create",
       "saving": "Creating…",
+      "cancel": "Cancel"
+    }
+  },
+  "retro": {
+    "uc": "Adjustments",
+    "title": "Retroactive adjustments",
+    "subtitle": "Back pay: recompute a past period and pay the delta in a later month",
+    "new": "New adjustment",
+    "calculated": "Adjustment calculated",
+    "calcError": "Could not calculate the adjustment",
+    "applied": "Adjustment applied",
+    "cancelled": "Adjustment cancelled",
+    "transitionError": "Action failed",
+    "apply": "Apply",
+    "cancel": "Cancel",
+    "applyTitle": "Apply adjustment",
+    "cancelTitle": "Cancel adjustment",
+    "applyConfirm": "The delta will be included in the {period} payroll. This action is final.",
+    "cancelConfirm": "The adjustment will be cancelled and will not be paid.",
+    "stats": {
+      "pending": "Pending",
+      "pendingSub": "adjustments to process",
+      "applied": "Applied",
+      "appliedSub": "included in a run",
+      "pendingNet": "Net to adjust",
+      "pendingNetSub": "XAF · sum of pending deltas"
+    },
+    "table": {
+      "title": "Adjustments",
+      "subtitle": "Back pay computed from existing payroll runs",
+      "empty": "No adjustment for this organization."
+    },
+    "cols": {
+      "employee": "Employee",
+      "periods": "Origin → Target",
+      "reason": "Reason",
+      "deltaGross": "Δ Gross",
+      "deltaNet": "Δ Net",
+      "status": "Status"
+    },
+    "status": {
+      "PENDING": "Pending",
+      "APPLIED": "Applied",
+      "CANCELLED": "Cancelled"
+    },
+    "fields": {
+      "employee": "Employee",
+      "employeePlaceholder": "Select an employee",
+      "originPeriod": "Origin period",
+      "targetPeriod": "Payment period",
+      "newBaseSalary": "New base salary",
+      "reason": "Reason",
+      "reasonPlaceholder": "Promotion, correction, collective agreement…"
+    },
+    "hints": {
+      "originPeriod": "Corrected month (must have a payroll run)",
+      "targetPeriod": "Month in which the delta is paid",
+      "newBaseSalary": "Corrected base salary for the origin period (XAF)"
+    },
+    "validation": {
+      "required": "Employee, periods and new salary are required."
+    },
+    "dialog": {
+      "title": "New retroactive adjustment",
+      "subtitle": "Recomputes the origin period with the new salary and computes the delta.",
+      "calculate": "Calculate",
+      "calculating": "Calculating…",
+      "processing": "Processing…",
+      "cancel": "Cancel"
+    }
+  },
+  "documents": {
+    "uc": "Documents",
+    "title": "Payroll documents",
+    "subtitle": "Electronically sealed payslips, certificates and final settlements (verifiable signature)",
+    "selectEmployee": "Employee",
+    "searchEmployee": "Search…",
+    "employeePlaceholder": "Select an employee",
+    "noEmployeeTitle": "Select an employee",
+    "noEmployeeHint": "Pick an employee to view their sealed documents and generate new ones.",
+    "generatePayslip": "Generate payslip",
+    "generateCertificate": "Work certificate",
+    "generateSettlement": "Final settlement",
+    "genError": "Could not generate the document",
+    "stats": {
+      "total": "Total documents"
+    },
+    "type": {
+      "PAYSLIP": "Payslips",
+      "FINAL_SETTLEMENT": "Final settlements",
+      "WORK_CERTIFICATE": "Work certificates"
+    },
+    "table": {
+      "title": "Sealed documents",
+      "subtitle": "Each document is electronically signed; its signature can be verified at any time",
+      "empty": "No document for this employee."
+    },
+    "cols": {
+      "type": "Type",
+      "period": "Period",
+      "signedAt": "Signed at",
+      "code": "Verification code",
+      "seal": "Seal",
+      "actions": "Actions"
+    },
+    "download": "Download",
+    "verify": "Verify",
+    "verifying": "Verifying…",
+    "verifyValid": "Valid signature",
+    "verifyInvalid": "INVALID signature",
+    "verifyError": "Verification failed",
+    "sealValid": "Valid",
+    "sealInvalid": "Invalid",
+    "sealUnchecked": "Unchecked",
+    "payslipGenerated": "Payslip generated",
+    "certificateGenerated": "Certificate generated",
+    "settlementGenerated": "Final settlement generated",
+    "payslipDialogTitle": "Generate a payslip",
+    "payslipDialogSubtitle": "Select the payroll run for the relevant period.",
+    "period": "Payroll period",
+    "periodPlaceholder": "Select a period",
+    "selectRun": "Select a period.",
+    "noRuns": "No calculated payroll run available.",
+    "noEntry": "This employee has no payroll line for that run.",
+    "certificateDialogTitle": "Work certificate",
+    "certificateDialogSubtitle": "Certifies the employee's employment within the organization.",
+    "position": "Position",
+    "positionHint": "Optional — if blank, the stored position is used.",
+    "positionPlaceholder": "e.g. Accountant",
+    "settlementDialogTitle": "Final settlement",
+    "settlementDialogSubtitle": "Select a calculated final settlement for this employee.",
+    "settlement": "Final settlement",
+    "settlementPlaceholder": "Select a settlement",
+    "selectSettlement": "Select a settlement.",
+    "noSettlements": "No calculated final settlement for this employee.",
+    "generate": "Generate",
+    "generating": "Generating…",
+    "dialog": {
+      "cancel": "Cancel"
+    }
+  },
+  "declarations": {
+    "uc": "Declarations",
+    "title": "Social & tax declarations",
+    "subtitle": "Generate statutory declarations (CNPS, DIPE, IRPP/CAC) from a calculated payroll run",
+    "period": "Period (payroll run)",
+    "noRuns": "No run",
+    "noRunsHint": "No calculated payroll run. Calculate a period's payroll first to generate its declarations.",
+    "downloadCsv": "Download CSV",
+    "types": {
+      "CNPS": {
+        "short": "CNPS",
+        "name": "CNPS declaration",
+        "desc": "Social-security contributions (employee + employer) due to the CNPS for the period."
+      },
+      "DIPE": {
+        "short": "DIPE",
+        "name": "DIPE — Individual and Periodic Employee Declaration",
+        "desc": "Individual employee declaration to the CNPS (one line per employee)."
+      },
+      "IRPP_CAC": {
+        "short": "IRPP / CAC",
+        "name": "IRPP + CAC declaration",
+        "desc": "Income tax and additional council surcharge withheld at source, declared to the tax authority."
+      }
+    },
+    "stats": {
+      "employees": "Employees declared",
+      "base": "Total base",
+      "employee": "Employee share",
+      "employer": "Employer share"
+    },
+    "table": {
+      "title": "Per-employee detail",
+      "grandTotal": "Total to remit",
+      "totals": "Totals",
+      "empty": "No employee in this run."
+    },
+    "cols": {
+      "employee": "Employee",
+      "ssn": "Social security no.",
+      "base": "Base",
+      "employeeShare": "Employee share",
+      "employer": "Employer share"
+    }
+  },
+  "stc": {
+    "uc": "Final settlement",
+    "title": "Final settlements",
+    "subtitle": "Departure indemnities: notice, severance, unused leave, gratification, loan deduction",
+    "new": "New settlement",
+    "calculated": "Final settlement calculated",
+    "calcError": "Could not calculate the final settlement",
+    "paid": "Final settlement marked paid",
+    "payError": "Could not mark as paid",
+    "pay": "Mark paid",
+    "payTitle": "Mark settlement as paid",
+    "payConfirm": "The final settlement will be marked as paid. This action is final.",
+    "stats": {
+      "calculated": "Calculated",
+      "calculatedSub": "awaiting payment",
+      "paid": "Paid",
+      "paidSub": "settled",
+      "dueNet": "Net to pay",
+      "dueNetSub": "XAF · sum of calculated settlements"
+    },
+    "table": {
+      "title": "Final settlements",
+      "subtitle": "Click an employee to see the calculation detail",
+      "empty": "No final settlement for this organization."
+    },
+    "cols": {
+      "employee": "Employee",
+      "departure": "Departure date",
+      "reason": "Reason",
+      "gross": "Gross",
+      "net": "Net",
+      "status": "Status"
+    },
+    "status": {
+      "CALCULATED": "Calculated",
+      "PAID": "Paid"
+    },
+    "reasons": {
+      "RESIGNATION": "Resignation",
+      "DISMISSAL": "Dismissal",
+      "DISMISSAL_GROSS_MISCONDUCT": "Dismissal (gross misconduct)",
+      "END_OF_CONTRACT": "End of fixed-term contract",
+      "RETIREMENT": "Retirement",
+      "MUTUAL_AGREEMENT": "Mutual agreement",
+      "DEATH": "Death"
+    },
+    "breakdown": {
+      "components": "Components",
+      "context": "Context",
+      "proratedSalary": "Prorated salary",
+      "leaveCompensation": "Leave compensation",
+      "noticeIndemnity": "Notice indemnity",
+      "severanceIndemnity": "Severance indemnity",
+      "gratification": "Gratification (13th month)",
+      "gross": "Total gross",
+      "loanDeducted": "Loans deducted",
+      "net": "Net to pay",
+      "seniority": "Seniority",
+      "years": "{count} year(s)",
+      "period": "Period",
+      "docHint": "The sealed final-settlement document is generated from the Documents page."
+    },
+    "fields": {
+      "employee": "Employee",
+      "employeePlaceholder": "Select an employee",
+      "departureDate": "Departure date",
+      "reason": "Termination reason",
+      "unusedLeaveDays": "Unused leave days",
+      "noticeMonths": "Unserved notice months",
+      "accruedGratification": "Accrued gratification (prorated)"
+    },
+    "hints": {
+      "unusedLeaveDays": "Days to cash out",
+      "noticeMonths": "Paid by the employer (dismissal), else 0",
+      "accruedGratification": "13th month already earned this year, or 0"
+    },
+    "validation": {
+      "required": "Employee, departure date and reason are required."
+    },
+    "dialog": {
+      "title": "New final settlement",
+      "subtitle": "Salary, hire date and outstanding loans are resolved automatically.",
+      "calculate": "Calculate",
+      "calculating": "Calculating…",
+      "processing": "Processing…",
+      "cancel": "Cancel"
+    }
+  },
+  "garnish": {
+    "uc": "Wage garnishments",
+    "title": "Wage garnishments",
+    "subtitle": "Garnishment orders: alimony, tax levy, creditor attachments — withheld every month until cleared",
+    "new": "New garnishment",
+    "created": "Garnishment registered",
+    "createError": "Could not register the garnishment",
+    "cancelled": "Garnishment cancelled",
+    "cancelError": "Could not cancel the garnishment",
+    "suspended": "Garnishment suspended",
+    "suspendError": "Could not suspend the garnishment",
+    "suspend": "Suspend",
+    "resumed": "Garnishment resumed",
+    "resumeError": "Could not resume the garnishment",
+    "resume": "Resume",
+    "cancel": "Cancel",
+    "cancelTitle": "Cancel garnishment",
+    "cancelConfirm": "The garnishment order will be cancelled and no longer withheld on future payrolls. This action is final.",
+    "remainingLabel": "{amount} left",
+    "stats": {
+      "active": "Active garnishments",
+      "activeSub": "being recovered",
+      "remaining": "Remaining to recover",
+      "remainingSub": "XAF · active garnishments",
+      "monthly": "Monthly withholding",
+      "monthlySub": "XAF · total withheld / month"
+    },
+    "table": {
+      "title": "Garnishment orders",
+      "subtitle": "Sorted by legal priority (alimony > tax > creditor)",
+      "empty": "No garnishment for this organization."
+    },
+    "cols": {
+      "employee": "Employee",
+      "type": "Type",
+      "beneficiary": "Beneficiary",
+      "monthly": "Per month",
+      "progress": "Recovery",
+      "status": "Status"
+    },
+    "types": {
+      "ALIMONY": "Alimony / support",
+      "TAX_LEVY": "Tax levy",
+      "CREDITOR": "Creditor"
+    },
+    "status": {
+      "ACTIVE": "Active",
+      "SUSPENDED": "Suspended",
+      "COMPLETED": "Cleared",
+      "CANCELLED": "Cancelled"
+    },
+    "fields": {
+      "employee": "Employee",
+      "employeePlaceholder": "Select an employee",
+      "type": "Garnishment type",
+      "reference": "Reference",
+      "referencePlaceholder": "Court order / deed no.",
+      "beneficiary": "Beneficiary",
+      "beneficiaryPlaceholder": "Creditor / agency name",
+      "totalAmount": "Total amount due",
+      "monthlyAmount": "Monthly withholding"
+    },
+    "hints": {
+      "type": "Sets the legal withholding priority",
+      "reference": "Optional — external reference",
+      "totalAmount": "Total debt to recover (XAF)",
+      "monthlyAmount": "Amount withheld each month (XAF)"
+    },
+    "validation": {
+      "required": "Employee, beneficiary, total amount and monthly withholding are required.",
+      "positive": "Amounts must be greater than zero."
+    },
+    "dialog": {
+      "title": "New wage garnishment",
+      "subtitle": "The amount is withheld automatically on each payroll run until the debt is cleared.",
+      "save": "Save",
+      "saving": "Saving…",
+      "processing": "Processing…",
       "cancel": "Cancel"
     }
   }

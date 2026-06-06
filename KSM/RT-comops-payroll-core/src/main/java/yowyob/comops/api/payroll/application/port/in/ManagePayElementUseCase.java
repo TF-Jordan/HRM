@@ -13,6 +13,8 @@ public interface ManagePayElementUseCase {
 
     Mono<PayElement> deactivatePayElement(UUID payElementId);
 
+    Mono<PayElement> activatePayElement(UUID payElementId);
+
     Mono<PayElement> getPayElement(UUID payElementId);
 
     Flux<PayElement> listPayElements(String countryCode);

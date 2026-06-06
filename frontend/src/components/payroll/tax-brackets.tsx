@@ -8,6 +8,7 @@ import {
   Loader2,
   Percent,
   Plus,
+  Power,
   PowerOff,
   Table2,
   Trash2,
@@ -107,6 +108,19 @@ export function TaxBrackets() {
     onError: (e) => toast.error(e instanceof BffApiError ? e.message : t("brackets.deactivateError")),
   });
 
+  const activate = useMutation({
+    mutationFn: (target: { kind: "bracket" | "lookup"; id: string }) => {
+      const base = target.kind === "bracket" ? "tax-brackets" : "lookup-tables";
+      return apiFetch(`/api/hrm/payroll/${base}/${target.id}/activate`, { method: "PUT" });
+    },
+    onSuccess: (_data, target) => {
+      toast.success(t("brackets.activated"));
+      const key = target.kind === "bracket" ? "tax-brackets" : "lookup-tables";
+      qc.invalidateQueries({ queryKey: ["hrm", "payroll", key, country] });
+    },
+    onError: (e) => toast.error(e instanceof BffApiError ? e.message : t("brackets.activateError")),
+  });
+
   const isLoading = bracketsQuery.isLoading || lookupsQuery.isLoading;
   const error = bracketsQuery.error ?? lookupsQuery.error;
 
@@ -154,6 +168,7 @@ export function TaxBrackets() {
             onDeactivate={(tbl) =>
               setToDeactivate({ kind: "bracket", id: tbl.id, code: tbl.code, label: tbl.label })
             }
+            onActivate={(tbl) => activate.mutate({ kind: "bracket", id: tbl.id })}
             t={t}
           />
           <LookupTablesCard
@@ -164,6 +179,7 @@ export function TaxBrackets() {
             onDeactivate={(tbl) =>
               setToDeactivate({ kind: "lookup", id: tbl.id, code: tbl.code, label: tbl.label })
             }
+            onActivate={(tbl) => activate.mutate({ kind: "lookup", id: tbl.id })}
             t={t}
           />
         </div>
@@ -231,6 +247,7 @@ function BracketTablesCard({
   locale,
   onCreate,
   onDeactivate,
+  onActivate,
   t,
 }: {
   tables: TaxBracketTableResponse[];
@@ -238,6 +255,7 @@ function BracketTablesCard({
   locale: "fr" | "en";
   onCreate: () => void;
   onDeactivate: (t: TaxBracketTableResponse) => void;
+  onActivate: (t: TaxBracketTableResponse) => void;
   t: ReturnType<typeof useTranslations<"payroll">>;
 }) {
   const [expanded, setExpanded] = React.useState<string | null>(tables[0]?.id ?? null);
@@ -292,26 +310,47 @@ function BracketTablesCard({
                       {t("brackets.inactive")}
                     </Badge>
                   )}
-                  {canManage && tbl.active && (
-                    <span
-                      role="button"
-                      tabIndex={0}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onDeactivate(tbl);
-                      }}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
+                  {canManage &&
+                    (tbl.active ? (
+                      <span
+                        role="button"
+                        tabIndex={0}
+                        onClick={(e) => {
                           e.stopPropagation();
                           onDeactivate(tbl);
-                        }
-                      }}
-                      className="grid h-7 w-7 place-items-center rounded-[8px] text-danger-600 hover:bg-danger-50"
-                      title={t("brackets.deactivate")}
-                    >
-                      <PowerOff className="h-3.5 w-3.5" />
-                    </span>
-                  )}
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.stopPropagation();
+                            onDeactivate(tbl);
+                          }
+                        }}
+                        className="grid h-7 w-7 place-items-center rounded-[8px] text-danger-600 hover:bg-danger-50"
+                        title={t("brackets.deactivate")}
+                      >
+                        <PowerOff className="h-3.5 w-3.5" />
+                      </span>
+                    ) : (
+                      <span
+                        role="button"
+                        tabIndex={0}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onActivate(tbl);
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.stopPropagation();
+                            onActivate(tbl);
+                          }
+                        }}
+                        className="flex items-center gap-1 rounded-[8px] px-2 py-1 text-[12px] font-semibold text-success-600 hover:bg-success-50"
+                        title={t("brackets.activate")}
+                      >
+                        <Power className="h-3.5 w-3.5" />
+                        {t("brackets.activate")}
+                      </span>
+                    ))}
                 </button>
                 {isOpen && (
                   <div className="bg-bg-soft/40 px-6 pb-4 pt-1">
@@ -359,6 +398,7 @@ function LookupTablesCard({
   locale,
   onCreate,
   onDeactivate,
+  onActivate,
   t,
 }: {
   tables: LookupTableResponse[];
@@ -366,6 +406,7 @@ function LookupTablesCard({
   locale: "fr" | "en";
   onCreate: () => void;
   onDeactivate: (t: LookupTableResponse) => void;
+  onActivate: (t: LookupTableResponse) => void;
   t: ReturnType<typeof useTranslations<"payroll">>;
 }) {
   const [expanded, setExpanded] = React.useState<string | null>(tables[0]?.id ?? null);
@@ -420,26 +461,47 @@ function LookupTablesCard({
                       {t("brackets.inactive")}
                     </Badge>
                   )}
-                  {canManage && tbl.active && (
-                    <span
-                      role="button"
-                      tabIndex={0}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onDeactivate(tbl);
-                      }}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
+                  {canManage &&
+                    (tbl.active ? (
+                      <span
+                        role="button"
+                        tabIndex={0}
+                        onClick={(e) => {
                           e.stopPropagation();
                           onDeactivate(tbl);
-                        }
-                      }}
-                      className="grid h-7 w-7 place-items-center rounded-[8px] text-danger-600 hover:bg-danger-50"
-                      title={t("brackets.deactivate")}
-                    >
-                      <PowerOff className="h-3.5 w-3.5" />
-                    </span>
-                  )}
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.stopPropagation();
+                            onDeactivate(tbl);
+                          }
+                        }}
+                        className="grid h-7 w-7 place-items-center rounded-[8px] text-danger-600 hover:bg-danger-50"
+                        title={t("brackets.deactivate")}
+                      >
+                        <PowerOff className="h-3.5 w-3.5" />
+                      </span>
+                    ) : (
+                      <span
+                        role="button"
+                        tabIndex={0}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onActivate(tbl);
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.stopPropagation();
+                            onActivate(tbl);
+                          }
+                        }}
+                        className="flex items-center gap-1 rounded-[8px] px-2 py-1 text-[12px] font-semibold text-success-600 hover:bg-success-50"
+                        title={t("brackets.activate")}
+                      >
+                        <Power className="h-3.5 w-3.5" />
+                        {t("brackets.activate")}
+                      </span>
+                    ))}
                 </button>
                 {isOpen && (
                   <div className="bg-bg-soft/40 px-6 pb-4 pt-1">

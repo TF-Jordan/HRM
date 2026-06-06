@@ -84,6 +84,12 @@ public final class LookupTable extends BaseEntity {
                 countryCode, effectiveFrom, effectiveTo, false, entries);
     }
 
+    /** Returns a reactivated copy (reopens the scale to future runs); bumps updatedAt. */
+    public LookupTable activate() {
+        return new LookupTable(id(), tenantId(), createdAt(), Instant.now(), code, label,
+                countryCode, effectiveFrom, effectiveTo, true, entries);
+    }
+
     public String code() { return code; }
     public String label() { return label; }
     public String countryCode() { return countryCode; }
