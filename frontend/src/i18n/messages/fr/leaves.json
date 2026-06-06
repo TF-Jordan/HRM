@@ -21,16 +21,68 @@
   },
   "my": {
     "title": "Mes congés",
-    "subtitle": "Consultez votre historique et soumettez vos demandes.",
+    "subtitle": "Soldes, demandes et historique de vos absences.",
     "new": "Nouvelle demande",
     "empty": "Aucune demande pour l'instant. Cliquez sur \"Nouvelle demande\" pour commencer.",
     "noEmployee": "Aucune fiche employé associée à votre compte. Contactez votre administrateur RH.",
+    "viewDetail": "Voir le détail",
+    "cancel": "Annuler",
     "columns": {
       "type": "Type",
       "period": "Période",
       "days": "Jours",
       "status": "Statut",
-      "submittedAt": "Soumis le"
+      "actions": ""
+    },
+    "filters": {
+      "all": "Toutes",
+      "PENDING": "En attente",
+      "APPROVED": "Approuvées",
+      "REJECTED": "Rejetées",
+      "CANCELLED": "Annulées"
+    },
+    "hero": {
+      "badge": "Solde de congés annuels",
+      "remaining": "Jours disponibles",
+      "acquired": "Acquis",
+      "taken": "Pris",
+      "accrual": "≈ {rate} j acquis chaque mois",
+      "nextLeave": "Prochaine absence",
+      "nextLeaveNone": "Aucune absence à venir",
+      "startsIn": "dans {n} j",
+      "startsToday": "aujourd'hui"
+    },
+    "kpi": {
+      "available": "Solde annuel disponible",
+      "availableSub": "jours · {year}",
+      "taken": "Jours pris",
+      "takenSub": "approuvés · {year}",
+      "pending": "Demandes en attente",
+      "pendingSub": "en cours d'examen",
+      "upcoming": "Absences à venir",
+      "upcomingSub": "approuvées"
+    },
+    "balances": {
+      "title": "Mes soldes {year}",
+      "acquired": "Acquis",
+      "taken": "Pris",
+      "remaining": "Restant",
+      "days": "j",
+      "empty": "Aucun solde de congé pour {year}."
+    },
+    "upcoming": {
+      "title": "À venir",
+      "empty": "Aucune absence approuvée à venir.",
+      "daysCount": "{n} j"
+    },
+    "history": {
+      "title": "Historique de mes demandes"
+    },
+    "form": {
+      "balanceRemaining": "{n} j disponibles",
+      "insufficient": "Solde insuffisant : {requested} j demandés pour {available} j disponibles.",
+      "unpaidNote": "Le congé sans solde n'est pas rémunéré : les jours sont déduits de la paie du mois concerné.",
+      "noBalanceNote": "Ce type de congé n'est pas décompté de votre solde de congés annuels."
     }
   },
   "new": {

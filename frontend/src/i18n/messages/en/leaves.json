@@ -21,16 +21,68 @@
   },
   "my": {
     "title": "My leaves",
-    "subtitle": "Review your history and submit new requests.",
+    "subtitle": "Balances, requests and history of your time off.",
     "new": "New request",
     "empty": "No request yet. Click \"New request\" to start.",
     "noEmployee": "No employee record linked to your account. Contact your HR admin.",
+    "viewDetail": "View details",
+    "cancel": "Cancel",
     "columns": {
       "type": "Type",
       "period": "Period",
       "days": "Days",
       "status": "Status",
-      "submittedAt": "Submitted"
+      "actions": ""
+    },
+    "filters": {
+      "all": "All",
+      "PENDING": "Pending",
+      "APPROVED": "Approved",
+      "REJECTED": "Rejected",
+      "CANCELLED": "Cancelled"
+    },
+    "hero": {
+      "badge": "Annual leave balance",
+      "remaining": "Days available",
+      "acquired": "Accrued",
+      "taken": "Taken",
+      "accrual": "≈ {rate} days accrued each month",
+      "nextLeave": "Next time off",
+      "nextLeaveNone": "No upcoming time off",
+      "startsIn": "in {n} d",
+      "startsToday": "today"
+    },
+    "kpi": {
+      "available": "Annual balance available",
+      "availableSub": "days · {year}",
+      "taken": "Days taken",
+      "takenSub": "approved · {year}",
+      "pending": "Pending requests",
+      "pendingSub": "under review",
+      "upcoming": "Upcoming time off",
+      "upcomingSub": "approved"
+    },
+    "balances": {
+      "title": "My balances {year}",
+      "acquired": "Accrued",
+      "taken": "Taken",
+      "remaining": "Remaining",
+      "days": "d",
+      "empty": "No leave balance for {year}."
+    },
+    "upcoming": {
+      "title": "Upcoming",
+      "empty": "No approved upcoming time off.",
+      "daysCount": "{n} d"
+    },
+    "history": {
+      "title": "My request history"
+    },
+    "form": {
+      "balanceRemaining": "{n} days available",
+      "insufficient": "Insufficient balance: {requested} days requested for {available} days available.",
+      "unpaidNote": "Unpaid leave is not paid: the days are deducted from that month's payroll.",
+      "noBalanceNote": "This leave type is not deducted from your annual leave balance."
     }
   },
   "new": {
