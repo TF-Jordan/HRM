@@ -13,6 +13,7 @@
   },
   "filters": {
     "all": "All",
+    "draft": "Drafts",
     "pending": "Pending employee",
     "approved": "Approved",
     "inProgress": "In progress",
@@ -23,18 +24,35 @@
     "inProgress": "In progress",
     "pending": "Pending",
     "approved": "Approved",
-    "declined": "Declined"
+    "declined": "Declined",
+    "advances": "Active advances",
+    "advancesSub": "XAF disbursed (active)"
   },
   "queue": {
     "title": "Mission orders",
     "empty": "No mission order.",
+    "emptyFiltered": "No order in this category.",
+    "searchPlaceholder": "Search an employee, a destination…",
+    "viewDetail": "View",
+    "actions": {
+      "issue": "Issue",
+      "start": "Start",
+      "complete": "Close",
+      "cancel": "Cancel"
+    },
+    "cancelConfirm": {
+      "title": "Cancel this mission order",
+      "subtitle": "This action is final. The order will be set to \"Cancelled\".",
+      "confirm": "Cancel order"
+    },
     "columns": {
       "reference": "Reference",
       "employee": "Employee",
       "destination": "Destination & purpose",
       "period": "Period",
       "allowance": "Per-diem (XAF)",
-      "status": "Status"
+      "status": "Status",
+      "actions": "Actions"
     }
   },
   "inbox": {

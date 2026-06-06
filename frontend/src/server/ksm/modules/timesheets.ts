@@ -17,6 +17,13 @@ export type TimesheetResponse = {
   status: TimesheetStatus;
 };
 
+/** Timesheet joined (BFF-side) with the employee's identity for the admin console. */
+export type EnrichedTimesheetResponse = TimesheetResponse & {
+  employeeName?: string | null;
+  employeeMatricule?: string | null;
+  employeeDepartment?: string | null;
+};
+
 export type CreateTimesheetRequest = {
   employeeId: string;
   periode: string;

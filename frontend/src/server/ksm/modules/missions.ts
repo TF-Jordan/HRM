@@ -27,6 +27,13 @@ export type MissionOrderResponse = {
   decidedAt: string | null;
 };
 
+/** Mission order joined (BFF-side) with the employee's identity for the management console. */
+export type EnrichedMissionOrderResponse = MissionOrderResponse & {
+  employeeName?: string | null;
+  employeeMatricule?: string | null;
+  employeeDepartment?: string | null;
+};
+
 export type CreateMissionOrderRequest = {
   employeeId: string;
   destination: string;

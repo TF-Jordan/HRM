@@ -15,9 +15,27 @@
   },
   "admin": {
     "title": "Temps & Présences",
+    "consoleTitle": "Gestion du temps & présences",
     "subtitle": "Consolidez les heures de l'organisation pour la paie.",
     "period": "Période",
-    "empty": "Aucun timesheet pour cette période.",
+    "empty": "Aucun pointage pour cette période.",
+    "emptyFiltered": "Aucun pointage dans cette catégorie.",
+    "searchPlaceholder": "Rechercher un employé, un matricule…",
+    "viewDetail": "Voir le détail",
+    "filters": {
+      "toValidate": "À valider",
+      "all": "Tous"
+    },
+    "kpi": {
+      "toValidate": "À valider",
+      "toValidateSub": "pointages soumis",
+      "validated": "Validés",
+      "validatedSub": "pris en compte paie",
+      "totalHours": "Heures totales",
+      "totalHoursSub": "cumul de la période",
+      "absences": "Absences",
+      "absencesSub": "non justifiées (déduites)"
+    },
     "columns": {
       "employee": "Employé",
       "normales": "Normales",
@@ -26,7 +44,8 @@
       "weekend": "WE",
       "absences": "Abs.",
       "total": "Total",
-      "status": "Statut"
+      "status": "Statut",
+      "actions": "Actions"
     }
   },
   "my": {

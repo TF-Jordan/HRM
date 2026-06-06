@@ -15,9 +15,27 @@
   },
   "admin": {
     "title": "Time & Attendance",
+    "consoleTitle": "Time & attendance management",
     "subtitle": "Consolidate the organization's hours for payroll.",
     "period": "Period",
     "empty": "No timesheet for this period.",
+    "emptyFiltered": "No timesheet in this category.",
+    "searchPlaceholder": "Search an employee, a matricule…",
+    "viewDetail": "View detail",
+    "filters": {
+      "toValidate": "To validate",
+      "all": "All"
+    },
+    "kpi": {
+      "toValidate": "To validate",
+      "toValidateSub": "submitted timesheets",
+      "validated": "Validated",
+      "validatedSub": "counted in payroll",
+      "totalHours": "Total hours",
+      "totalHoursSub": "period total",
+      "absences": "Absences",
+      "absencesSub": "unjustified (deducted)"
+    },
     "columns": {
       "employee": "Employee",
       "normales": "Regular",
@@ -26,7 +44,8 @@
       "weekend": "WE",
       "absences": "Abs.",
       "total": "Total",
-      "status": "Status"
+      "status": "Status",
+      "actions": "Actions"
     }
   },
   "my": {

@@ -3,14 +3,14 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Loader2, Send } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 
 import { PageHeader } from "@/components/shell/page-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Field, Input, Textarea } from "@/components/ui/input";
-import { Link, useRouter } from "@/i18n/navigation";
+import { AppLink as Link, useAppRouter as useRouter } from "@/components/ui/app-link";
 import { apiFetch, BffApiError } from "@/lib/api-client";
 import type { EmployeeResponse } from "@/server/ksm/modules/employees";
 import type { MissionOrderResponse } from "@/server/ksm/modules/missions";
@@ -41,7 +41,7 @@ export function NewMissionForm() {
   const {
     register,
     handleSubmit,
-    watch,
+    control,
     formState: { errors, isValid },
   } = useForm<FormValues>({
     mode: "onChange",
@@ -56,8 +56,8 @@ export function NewMissionForm() {
     },
   });
 
-  const start = watch("dateDebut");
-  const end = watch("dateFin");
+  const start = useWatch({ control, name: "dateDebut" });
+  const end = useWatch({ control, name: "dateFin" });
   const datesInvalid = !!start && !!end && new Date(end) < new Date(start);
 
   function handleError(cause: unknown) {

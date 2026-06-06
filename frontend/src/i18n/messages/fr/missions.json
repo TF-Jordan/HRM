@@ -13,6 +13,7 @@
   },
   "filters": {
     "all": "Toutes",
+    "draft": "Brouillons",
     "pending": "À valider",
     "approved": "Approuvées",
     "inProgress": "En cours",
@@ -23,18 +24,35 @@
     "inProgress": "En cours",
     "pending": "À valider",
     "approved": "Approuvées",
-    "declined": "Refusées"
+    "declined": "Refusées",
+    "advances": "Avances en cours",
+    "advancesSub": "XAF décaissés (en cours)"
   },
   "queue": {
     "title": "Ordres de mission",
     "empty": "Aucun ordre de mission.",
+    "emptyFiltered": "Aucun ordre dans cette catégorie.",
+    "searchPlaceholder": "Rechercher un employé, une destination…",
+    "viewDetail": "Voir",
+    "actions": {
+      "issue": "Émettre",
+      "start": "Démarrer",
+      "complete": "Clôturer",
+      "cancel": "Annuler"
+    },
+    "cancelConfirm": {
+      "title": "Annuler cet ordre de mission",
+      "subtitle": "Cette action est définitive. L'ordre passera au statut « Annulée ».",
+      "confirm": "Annuler l'ordre"
+    },
     "columns": {
       "reference": "Référence",
       "employee": "Employé",
       "destination": "Destination & objet",
       "period": "Période",
       "allowance": "Indemnité (XAF)",
-      "status": "Statut"
+      "status": "Statut",
+      "actions": "Actions"
     }
   },
   "inbox": {

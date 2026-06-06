@@ -410,6 +410,12 @@ const DRH_SECTIONS: NavSection[] = [
         icon: Clock,
         permission: "hrm:timesheet:read",
       },
+      {
+        href: "/mission-orders",
+        labelKey: "nav.missions",
+        icon: Map,
+        permission: "hrm:mission:read",
+      },
     ],
   },
 ];
