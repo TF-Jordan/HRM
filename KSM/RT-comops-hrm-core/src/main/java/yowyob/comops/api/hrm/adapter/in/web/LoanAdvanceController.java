@@ -5,9 +5,11 @@ import yowyob.comops.api.common.domain.model.ApiResponse;
 import yowyob.comops.api.hrm.application.port.in.ManageLoanAdvanceUseCase;
 import yowyob.comops.api.hrm.application.port.in.RequestLoanAdvanceCommand;
 import yowyob.comops.api.hrm.domain.model.LoanAdvance;
+import yowyob.comops.api.hrm.domain.model.LoanRepayment;
 
 import jakarta.validation.Valid;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
@@ -112,6 +114,25 @@ public class LoanAdvanceController {
                         .body(ApiResponse.success(response, "Loan advance requested.")));
     }
 
+    @GetMapping("/{loanAdvanceId}/repayments")
+    @PreAuthorize("@businessAccessPolicy.hasPermission(authentication, 'hrm:loan:read')")
+    public Mono<ResponseEntity<ApiResponse<List<LoanRepaymentResponse>>>> getRepayments(
+            @PathVariable UUID loanAdvanceId) {
+        return manageLoanAdvanceUseCase.getRepayments(loanAdvanceId)
+                .map(LoanRepaymentResponse::from)
+                .collectList()
+                .map(list -> ResponseEntity.ok(ApiResponse.success(list, "Loan repayments fetched.")));
+    }
+
+    @GetMapping("/mine/{loanAdvanceId}/repayments")
+    public Mono<ResponseEntity<ApiResponse<List<LoanRepaymentResponse>>>> getMyRepayments(
+            @PathVariable UUID loanAdvanceId) {
+        return manageLoanAdvanceUseCase.getMyRepayments(loanAdvanceId)
+                .map(LoanRepaymentResponse::from)
+                .collectList()
+                .map(list -> ResponseEntity.ok(ApiResponse.success(list, "Loan repayments fetched.")));
+    }
+
     public record MyLoanRequest(BigDecimal montant, int nbEcheances, String motif) {}
 
     // --- Request/Response DTOs ---
@@ -131,6 +152,14 @@ public class LoanAdvanceController {
             return new LoanAdvanceResponse(la.id(), la.employeeId(), la.montant(), la.soldeRestant(),
                     la.mensualite(), la.status().name(), la.dateDebut(), la.nbEcheances(), la.motif(),
                     la.approvedBy());
+        }
+    }
+
+    public record LoanRepaymentResponse(UUID id, UUID loanId, UUID runId, String period,
+            BigDecimal montant, BigDecimal soldeApres, Instant recordedAt) {
+        static LoanRepaymentResponse from(LoanRepayment r) {
+            return new LoanRepaymentResponse(r.id(), r.loanId(), r.runId(), r.period(),
+                    r.montant(), r.soldeApres(), r.createdAt());
         }
     }
 }

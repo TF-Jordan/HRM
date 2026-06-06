@@ -1,6 +1,7 @@
 package yowyob.comops.api.hrm.application.port.in;
 
 import yowyob.comops.api.hrm.domain.model.LoanAdvance;
+import yowyob.comops.api.hrm.domain.model.LoanRepayment;
 
 import java.util.UUID;
 
@@ -29,4 +30,10 @@ public interface ManageLoanAdvanceUseCase {
 
     /** Self-service: employee requests a loan for themselves. */
     Mono<LoanAdvance> requestMyLoan(java.math.BigDecimal montant, int nbEcheances, String motif);
+
+    /** Admin: real repayment history (actual payroll deductions) of a loan. */
+    Flux<LoanRepayment> getRepayments(UUID loanAdvanceId);
+
+    /** Self-service: repayment history of one of the caller's own loans (ownership-checked). */
+    Flux<LoanRepayment> getMyRepayments(UUID loanAdvanceId);
 }

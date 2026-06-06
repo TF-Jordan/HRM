@@ -23,10 +23,29 @@ export type LoanAdvanceResponse = {
   approvedBy: string | null;
 };
 
+export type LoanRepaymentResponse = {
+  id: string;
+  loanId: string;
+  runId: string | null;
+  period: string | null;
+  montant: number | string;
+  soldeApres: number | string;
+  recordedAt: string | null;
+};
+
 /** Self-service: list the calling user's own loans. */
 export async function listMyLoans(session: AppSession) {
   return callKsm<LoanAdvanceResponse[]>(
     "/api/v1/hrm/loan-advances/mine",
+    { method: "GET" },
+    { session },
+  );
+}
+
+/** Self-service: real repayment history (actual payroll deductions) of one of the caller's loans. */
+export async function listMyLoanRepayments(loanId: string, session: AppSession) {
+  return callKsm<LoanRepaymentResponse[]>(
+    `/api/v1/hrm/loan-advances/mine/${loanId}/repayments`,
     { method: "GET" },
     { session },
   );

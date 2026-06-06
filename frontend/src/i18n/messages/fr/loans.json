@@ -20,8 +20,8 @@
   "kpi": {
     "pending": "Demandes en attente",
     "pendingSub": "en cours d'examen",
-    "capacity": "Capacité disponible",
-    "capacitySub": "XAF · max 1 mois salaire",
+    "capacity": "Capacité mensuelle",
+    "capacitySub": "XAF · plafond 33% salaire",
     "totalBorrowed": "Cumul emprunté",
     "totalBorrowedSub": "XAF depuis le début",
     "incidents": "Taux d'incidents",
@@ -37,6 +37,50 @@
     "status": "Statut",
     "months": "{n} mois",
     "noData": "Aucun prêt ou avance trouvé"
+  },
+  "filters": {
+    "all": "Tous",
+    "PENDING": "En attente",
+    "IN_REPAYMENT": "En cours",
+    "FULLY_REPAID": "Remboursés",
+    "REJECTED": "Refusés"
+  },
+  "detail": {
+    "back": "Retour",
+    "title": "Détail du prêt",
+    "reference": "Référence",
+    "amount": "Montant emprunté",
+    "monthly": "Mensualité",
+    "remaining": "Restant dû",
+    "duration": "Durée",
+    "startDate": "Date de début",
+    "endDate": "Fin prévue",
+    "reason": "Motif",
+    "progress": "Progression du remboursement",
+    "repaidOf": "{paid} / {total} XAF remboursés",
+    "workflow": {
+      "requested": "Demandée",
+      "approved": "Approuvée",
+      "inRepayment": "En remboursement",
+      "repaid": "Soldée",
+      "rejected": "Refusée"
+    },
+    "schedule": {
+      "title": "Échéancier de remboursement",
+      "projectedNote": "Échéancier prévisionnel, calculé sur la base d'un prélèvement mensuel constant sur la paie.",
+      "realNote": "Les échéances déjà prélevées proviennent de vos bulletins de paie ; les suivantes sont prévisionnelles.",
+      "n": "N°",
+      "dueDate": "Échéance",
+      "installment": "Mensualité (XAF)",
+      "capitalRemaining": "Capital restant (XAF)",
+      "status": "Statut",
+      "exportCsv": "Exporter (CSV)"
+    },
+    "scheduleStatus": {
+      "paid": "Payée",
+      "current": "En cours",
+      "upcoming": "À venir"
+    }
   },
   "status": {
     "PENDING": "En attente",
@@ -78,7 +122,10 @@
     "simInstallments": "Échéances",
     "simRate": "Taux interne",
     "simRateValue": "4,0%",
-    "salaryCapWarning": "Plafond légal : la mensualité ne doit pas dépasser 33% du salaire net."
+    "simFirstInstallment": "1ʳᵉ échéance",
+    "simEndDate": "Fin prévue",
+    "salaryCapWarning": "Plafond légal : la mensualité ne doit pas dépasser 33% du salaire net.",
+    "capExceeded": "La mensualité ({monthly} XAF) dépasse le plafond de 33% du salaire ({cap} XAF). Augmentez le nombre d'échéances."
   },
   "currency": "XAF",
   "admin": {

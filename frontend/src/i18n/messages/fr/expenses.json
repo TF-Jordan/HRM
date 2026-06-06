@@ -45,12 +45,44 @@
     "title": "Mes notes de frais",
     "subtitle": "Saisie, suivi de remboursement et historique.",
     "empty": "Aucune note de frais. Cliquez sur « Nouvelle note » pour commencer.",
+    "newReport": "Nouvelle note",
+    "refundPending": "En cours de remboursement",
+    "refundPendingSub": "Montant que l'entreprise vous doit",
+    "pendingValidation": "{count} en attente de validation",
+    "toPay": "{count} approuvé · à payer",
+    "reimbursedYear": "Remboursé en {year}",
+    "draftsBanner": "{count, plural, =1 {Vous avez 1 brouillon non soumis} other {Vous avez # brouillons non soumis}}",
+    "chart": {
+      "title": "Mes dépenses par mois",
+      "subtitle": "Montant des notes · {year}",
+      "empty": "Aucune dépense cette année"
+    },
+    "distribution": {
+      "title": "Répartition par catégorie",
+      "subtitle": "Sur l'année {year}",
+      "empty": "Aucune ligne de dépense"
+    },
+    "filters": {
+      "all": "Toutes",
+      "drafts": "Brouillons",
+      "submitted": "En attente",
+      "approved": "Approuvées",
+      "reimbursed": "Remboursées",
+      "rejected": "Refusées"
+    },
+    "lineCount": "{count, plural, =0 {Aucune ligne} =1 {1 ligne} other {# lignes}}",
+    "mission": "Mission",
+    "quickSubmit": "Soumettre",
+    "submitSuccess": "Note soumise pour validation.",
+    "viewDetail": "Voir le détail",
     "columns": {
       "reference": "Réf.",
       "objet": "Objet",
+      "period": "Période",
       "lines": "Lignes",
       "amount": "Montant (XAF)",
-      "status": "Statut"
+      "status": "Statut",
+      "actions": ""
     }
   },
   "new": {

@@ -204,7 +204,7 @@ public class PayrollRunService implements RunPayrollUseCase {
                     persistPayslip(ctx.tenantId(), saved, result, loansAdvances)
                             .then(persistGarnishmentLine(ctx.tenantId(), saved, totalGarnished))
                             .then(updateAccumulator(ctx, view, period.year(), result, finalNet))
-                            .then(deductLoans(ctx.tenantId(), loans))
+                            .then(deductLoans(ctx.tenantId(), run.id(), period.format(), saved.id(), loans))
                             .then(decrementGarnishments(garnishments, garnishResult))
                             .thenReturn(saved));
         });
@@ -289,10 +289,12 @@ public class PayrollRunService implements RunPayrollUseCase {
                 .then();
     }
 
-    private Mono<Void> deductLoans(UUID tenantId, List<LoanInstallmentView> loans) {
+    private Mono<Void> deductLoans(UUID tenantId, UUID runId, String period, UUID payrollEntryId,
+                                   List<LoanInstallmentView> loans) {
         return Flux.fromIterable(loans)
                 .concatMap(loan -> hrmEmployeeDataPort.registerLoanDeduction(tenantId, loan.loanId(),
-                        loan.monthlyInstallment().min(loan.remainingBalance())))
+                        loan.monthlyInstallment().min(loan.remainingBalance()),
+                        runId, period, payrollEntryId))
                 .then();
     }
 

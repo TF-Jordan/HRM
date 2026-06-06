@@ -282,12 +282,11 @@ function DistributionDonut({
     { label: t("distribution.irpp"), value: irpp, color: COLOR_IRPP },
   ].filter((s) => s.value > 0);
 
-  let acc = 0;
   const stops = segs
-    .map((s) => {
-      const from = (acc / Math.max(total, 1)) * 360;
-      acc += s.value;
-      const to = (acc / Math.max(total, 1)) * 360;
+    .map((s, i) => {
+      const before = segs.slice(0, i).reduce((sum, x) => sum + x.value, 0);
+      const from = (before / Math.max(total, 1)) * 360;
+      const to = ((before + s.value) / Math.max(total, 1)) * 360;
       return `${s.color} ${from}deg ${to}deg`;
     })
     .join(", ");

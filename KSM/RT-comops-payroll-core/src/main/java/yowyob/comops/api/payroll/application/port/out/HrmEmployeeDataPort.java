@@ -32,8 +32,13 @@ public interface HrmEmployeeDataPort {
     /** Active loan/advance installments due for this employee. */
     Flux<LoanInstallmentView> findActiveLoanInstallments(UUID tenantId, UUID employeeId);
 
-    /** Notifies hrm-core that {@code amount} was withheld against a loan this period. */
-    Mono<Void> registerLoanDeduction(UUID tenantId, UUID loanId, BigDecimal amount);
+    /**
+     * Notifies hrm-core that {@code amount} was withheld against a loan during a payroll run,
+     * so the deduction is recorded as a real repayment line (run, period and originating payslip
+     * entry are carried for traceability and to build a real repayment schedule).
+     */
+    Mono<Void> registerLoanDeduction(UUID tenantId, UUID loanId, BigDecimal amount,
+                                     UUID runId, String period, UUID payrollEntryId);
 
     /**
      * Annual-leave balance for the given year ({@code ANNUAL} type only), used to pre-fill the

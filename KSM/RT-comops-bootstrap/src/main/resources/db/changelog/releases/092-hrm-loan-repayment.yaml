@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 092-hrm-loan-repayment
+      author: cursor
+      changes:
+        - sqlFile:
+            path: db/r2dbc/V92__hrm_loan_repayment.sql
+            relativeToChangelogFile: false

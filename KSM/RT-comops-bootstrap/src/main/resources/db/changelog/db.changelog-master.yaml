@@ -273,3 +273,6 @@ databaseChangeLog:
   - include:
       file: releases/091-hrm-contract-single-active.yaml
       relativeToChangelogFile: true
+  - include:
+      file: releases/092-hrm-loan-repayment.yaml
+      relativeToChangelogFile: true

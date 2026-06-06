@@ -45,12 +45,44 @@
     "title": "My expense reports",
     "subtitle": "Capture, reimbursement tracking and history.",
     "empty": "No expense report yet. Click \"New report\" to start.",
+    "newReport": "New report",
+    "refundPending": "Pending reimbursement",
+    "refundPendingSub": "Amount the company owes you",
+    "pendingValidation": "{count} awaiting validation",
+    "toPay": "{count} approved · to pay",
+    "reimbursedYear": "Reimbursed in {year}",
+    "draftsBanner": "{count, plural, =1 {You have 1 unsubmitted draft} other {You have # unsubmitted drafts}}",
+    "chart": {
+      "title": "My expenses by month",
+      "subtitle": "Report amounts · {year}",
+      "empty": "No expenses this year"
+    },
+    "distribution": {
+      "title": "Breakdown by category",
+      "subtitle": "Over {year}",
+      "empty": "No expense line"
+    },
+    "filters": {
+      "all": "All",
+      "drafts": "Drafts",
+      "submitted": "Pending",
+      "approved": "Approved",
+      "reimbursed": "Reimbursed",
+      "rejected": "Rejected"
+    },
+    "lineCount": "{count, plural, =0 {No line} =1 {1 line} other {# lines}}",
+    "mission": "Mission",
+    "quickSubmit": "Submit",
+    "submitSuccess": "Report submitted for validation.",
+    "viewDetail": "View details",
     "columns": {
       "reference": "Ref.",
       "objet": "Purpose",
+      "period": "Period",
       "lines": "Lines",
       "amount": "Amount (XAF)",
-      "status": "Status"
+      "status": "Status",
+      "actions": ""
     }
   },
   "new": {

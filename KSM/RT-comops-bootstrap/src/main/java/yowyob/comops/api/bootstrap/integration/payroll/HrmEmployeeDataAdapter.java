@@ -11,11 +11,14 @@ import yowyob.comops.api.hrm.application.port.out.EmployeePersonalInfoRepository
 import yowyob.comops.api.hrm.application.port.out.EmployeeRepository;
 import yowyob.comops.api.hrm.application.port.out.LeaveBalanceRepository;
 import yowyob.comops.api.hrm.application.port.out.LoanAdvanceRepository;
+import yowyob.comops.api.hrm.application.port.out.LoanRepaymentRepository;
 import yowyob.comops.api.hrm.domain.model.Contract;
 import yowyob.comops.api.hrm.domain.model.Dependent;
 import yowyob.comops.api.hrm.domain.model.Employee;
 import yowyob.comops.api.hrm.domain.model.EmployeePersonalInfo;
 import yowyob.comops.api.hrm.domain.model.LeaveType;
+import yowyob.comops.api.hrm.domain.model.LoanAdvance;
+import yowyob.comops.api.hrm.domain.model.LoanRepayment;
 import yowyob.comops.api.payroll.application.port.out.EmployeePayrollView;
 import yowyob.comops.api.payroll.application.port.out.HrmEmployeeDataPort;
 import yowyob.comops.api.payroll.application.port.out.LeaveBalanceView;
@@ -54,6 +57,7 @@ public class HrmEmployeeDataAdapter implements HrmEmployeeDataPort {
     private final EmployeeRepository employeeRepository;
     private final ContractRepository contractRepository;
     private final LoanAdvanceRepository loanAdvanceRepository;
+    private final LoanRepaymentRepository loanRepaymentRepository;
     private final EmployeePersonalInfoRepository personalInfoRepository;
     private final DependentRepository dependentRepository;
     private final LeaveBalanceRepository leaveBalanceRepository;
@@ -61,12 +65,14 @@ public class HrmEmployeeDataAdapter implements HrmEmployeeDataPort {
     public HrmEmployeeDataAdapter(EmployeeRepository employeeRepository,
                                   ContractRepository contractRepository,
                                   LoanAdvanceRepository loanAdvanceRepository,
+                                  LoanRepaymentRepository loanRepaymentRepository,
                                   EmployeePersonalInfoRepository personalInfoRepository,
                                   DependentRepository dependentRepository,
                                   LeaveBalanceRepository leaveBalanceRepository) {
         this.employeeRepository = employeeRepository;
         this.contractRepository = contractRepository;
         this.loanAdvanceRepository = loanAdvanceRepository;
+        this.loanRepaymentRepository = loanRepaymentRepository;
         this.personalInfoRepository = personalInfoRepository;
         this.dependentRepository = dependentRepository;
         this.leaveBalanceRepository = leaveBalanceRepository;
@@ -100,10 +106,20 @@ public class HrmEmployeeDataAdapter implements HrmEmployeeDataPort {
     }
 
     @Override
-    public Mono<Void> registerLoanDeduction(UUID tenantId, UUID loanId, BigDecimal amount) {
+    public Mono<Void> registerLoanDeduction(UUID tenantId, UUID loanId, BigDecimal amount,
+                                            UUID runId, String period, UUID payrollEntryId) {
         return loanAdvanceRepository.findById(tenantId, loanId)
-                .map(loan -> loan.deduire(amount))
-                .flatMap(loanAdvanceRepository::save)
+                .flatMap(loan -> {
+                    // deduire() clamps the deduction to the remaining balance; mirror it so the
+                    // recorded amount matches what was actually withheld.
+                    BigDecimal actual = amount.min(loan.soldeRestant());
+                    LoanAdvance updated = loan.deduire(amount);
+                    LoanRepayment repayment = LoanRepayment.record(tenantId, loan.organizationId(),
+                            loan.id(), loan.employeeId(), runId, period, payrollEntryId,
+                            actual, updated.soldeRestant());
+                    return loanAdvanceRepository.save(updated)
+                            .then(loanRepaymentRepository.save(repayment));
+                })
                 .then();
     }
 

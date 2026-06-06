@@ -20,8 +20,8 @@
   "kpi": {
     "pending": "Pending requests",
     "pendingSub": "under review",
-    "capacity": "Available capacity",
-    "capacitySub": "XAF · max 1 month salary",
+    "capacity": "Monthly capacity",
+    "capacitySub": "XAF · 33% salary cap",
     "totalBorrowed": "Total borrowed",
     "totalBorrowedSub": "XAF since start",
     "incidents": "Incident rate",
@@ -37,6 +37,50 @@
     "status": "Status",
     "months": "{n} months",
     "noData": "No loans or advances found"
+  },
+  "filters": {
+    "all": "All",
+    "PENDING": "Pending",
+    "IN_REPAYMENT": "Active",
+    "FULLY_REPAID": "Repaid",
+    "REJECTED": "Rejected"
+  },
+  "detail": {
+    "back": "Back",
+    "title": "Loan details",
+    "reference": "Reference",
+    "amount": "Borrowed amount",
+    "monthly": "Monthly payment",
+    "remaining": "Outstanding",
+    "duration": "Duration",
+    "startDate": "Start date",
+    "endDate": "Expected end",
+    "reason": "Reason",
+    "progress": "Repayment progress",
+    "repaidOf": "{paid} / {total} XAF repaid",
+    "workflow": {
+      "requested": "Requested",
+      "approved": "Approved",
+      "inRepayment": "In repayment",
+      "repaid": "Settled",
+      "rejected": "Rejected"
+    },
+    "schedule": {
+      "title": "Repayment schedule",
+      "projectedNote": "Projected schedule, computed from a constant monthly payroll deduction.",
+      "realNote": "Installments already withheld come from your payslips; the following ones are projected.",
+      "n": "No.",
+      "dueDate": "Due date",
+      "installment": "Installment (XAF)",
+      "capitalRemaining": "Remaining capital (XAF)",
+      "status": "Status",
+      "exportCsv": "Export (CSV)"
+    },
+    "scheduleStatus": {
+      "paid": "Paid",
+      "current": "Current",
+      "upcoming": "Upcoming"
+    }
   },
   "status": {
     "PENDING": "Pending",
@@ -78,7 +122,10 @@
     "simInstallments": "Installments",
     "simRate": "Internal rate",
     "simRateValue": "4.0%",
-    "salaryCapWarning": "Legal cap: monthly payment must not exceed 33% of net salary."
+    "simFirstInstallment": "1st installment",
+    "simEndDate": "Expected end",
+    "salaryCapWarning": "Legal cap: monthly payment must not exceed 33% of net salary.",
+    "capExceeded": "The monthly payment ({monthly} XAF) exceeds the 33% salary cap ({cap} XAF). Increase the number of installments."
   },
   "currency": "XAF",
   "admin": {

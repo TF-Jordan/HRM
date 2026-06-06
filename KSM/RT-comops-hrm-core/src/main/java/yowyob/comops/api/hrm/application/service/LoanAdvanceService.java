@@ -5,8 +5,10 @@ import yowyob.comops.api.hrm.application.port.in.ManageLoanAdvanceUseCase;
 import yowyob.comops.api.hrm.application.port.in.RequestLoanAdvanceCommand;
 import yowyob.comops.api.hrm.application.port.out.EmployeeRepository;
 import yowyob.comops.api.hrm.application.port.out.LoanAdvanceRepository;
+import yowyob.comops.api.hrm.application.port.out.LoanRepaymentRepository;
 import yowyob.comops.api.hrm.domain.EmployeeNotFoundException;
 import yowyob.comops.api.hrm.domain.model.LoanAdvance;
+import yowyob.comops.api.hrm.domain.model.LoanRepayment;
 import yowyob.comops.api.kernel.application.port.out.BusinessEventPublisher;
 import yowyob.comops.api.kernel.application.service.ReactiveRequestContextHolder;
 import yowyob.comops.api.kernel.domain.model.BusinessEvent;
@@ -25,13 +27,16 @@ import reactor.core.publisher.Mono;
 public class LoanAdvanceService implements ManageLoanAdvanceUseCase {
 
     private final LoanAdvanceRepository loanAdvanceRepository;
+    private final LoanRepaymentRepository loanRepaymentRepository;
     private final EmployeeRepository employeeRepository;
     private final BusinessEventPublisher businessEventPublisher;
 
     public LoanAdvanceService(LoanAdvanceRepository loanAdvanceRepository,
+                              LoanRepaymentRepository loanRepaymentRepository,
                               EmployeeRepository employeeRepository,
                               BusinessEventPublisher businessEventPublisher) {
         this.loanAdvanceRepository = loanAdvanceRepository;
+        this.loanRepaymentRepository = loanRepaymentRepository;
         this.employeeRepository = employeeRepository;
         this.businessEventPublisher = businessEventPublisher;
     }
@@ -128,6 +133,26 @@ public class LoanAdvanceService implements ManageLoanAdvanceUseCase {
                                             emp.id(), montant, nbEcheances, motif);
                                     return loanAdvanceRepository.save(loan);
                                 }));
+    }
+
+    @Override
+    public Flux<LoanRepayment> getRepayments(UUID loanAdvanceId) {
+        return ReactiveRequestContextHolder.getRequiredContext()
+                .flatMapMany(context -> loanRepaymentRepository.findByLoanId(context.tenantId(), loanAdvanceId));
+    }
+
+    @Override
+    public Flux<LoanRepayment> getMyRepayments(UUID loanAdvanceId) {
+        return ReactiveRequestContextHolder.getRequiredContext()
+                .flatMapMany(context -> employeeRepository.findByActorId(context.tenantId(), context.actorId())
+                        .switchIfEmpty(Mono.error(new IllegalArgumentException(
+                                "No employee record found for current user")))
+                        .flatMapMany(emp -> loanAdvanceRepository.findById(context.tenantId(), loanAdvanceId)
+                                .switchIfEmpty(Mono.error(new IllegalArgumentException("Loan advance not found")))
+                                .filter(loan -> loan.employeeId().equals(emp.id()))
+                                .switchIfEmpty(Mono.error(new IllegalArgumentException("Loan advance not found")))
+                                .flatMapMany(loan -> loanRepaymentRepository.findByLoanId(
+                                        context.tenantId(), loanAdvanceId))));
     }
 
     private Map<String, Object> payload(Object... entries) {
