@@ -49,6 +49,17 @@ public class LeaveRequestR2dbcRepositoryAdapter implements LeaveRequestRepositor
                 .map(this::toDomain);
     }
 
+    @Override
+    public Flux<LeaveRequest> findByOrganizationId(UUID tenantId, UUID organizationId) {
+        return repository.findAllByTenantIdAndOrganizationId(tenantId, organizationId).map(this::toDomain);
+    }
+
+    @Override
+    public Flux<LeaveRequest> findByOrganizationIdAndAgencyId(UUID tenantId, UUID organizationId, UUID agencyId) {
+        return repository.findAllByTenantIdAndOrganizationIdAndAgencyId(tenantId, organizationId, agencyId)
+                .map(this::toDomain);
+    }
+
     private LeaveRequestEntity toEntity(LeaveRequest r) {
         return new LeaveRequestEntity(r.id(), r.tenantId(), r.createdAt(), r.updatedAt(),
                 r.organizationId(), r.agencyId(), r.employeeId(), r.type().name(),

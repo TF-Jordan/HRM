@@ -22,6 +22,13 @@ export type LeaveResponse = {
   justificatifFileId?: string | null;
 };
 
+/** Leave request joined (BFF-side) with the requesting employee's identity. */
+export type EnrichedLeaveResponse = LeaveResponse & {
+  employeeName?: string | null;
+  employeeMatricule?: string | null;
+  employeeDepartment?: string | null;
+};
+
 export type SubmitLeaveRequest = {
   employeeId: string;
   type: LeaveType;
@@ -59,6 +66,21 @@ export function listPendingLeaves(session: AppSession, organizationId?: string, 
     params.set("agencyId", (agencyId ?? session.workspace!.agencyId!) as string);
   }
   return callKsm<LeaveResponse[]>(`/api/v1/hrm/leaves/pending?${params}`, {}, { session });
+}
+
+/** Every leave request (any status) for the organization — management console & history. */
+export function listOrganizationLeaves(
+  session: AppSession,
+  organizationId?: string,
+  agencyId?: string,
+) {
+  const orgId = organizationId ?? session.workspace?.organizationId;
+  if (!orgId) throw new Error("organizationId is required");
+  const params = new URLSearchParams({ organizationId: orgId });
+  if (agencyId ?? session.workspace?.agencyId) {
+    params.set("agencyId", (agencyId ?? session.workspace!.agencyId!) as string);
+  }
+  return callKsm<LeaveResponse[]>(`/api/v1/hrm/leaves?${params}`, {}, { session });
 }
 
 export function approveLeave(leaveRequestId: string, session: AppSession) {

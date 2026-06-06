@@ -86,15 +86,20 @@
   },
   "detail": {
     "back": "Retour aux contrats",
+    "subtitlePage": "Fiche détaillée du contrat",
     "notFound": "Contrat introuvable.",
     "hero": {
-      "ref": "Contrat",
-      "employee": "Employé",
-      "actions": {
-        "pdf": "Exporter PDF",
-        "amendment": "Avenant",
-        "print": "Imprimer"
-      }
+      "salaryLabel": "Salaire de base",
+      "monthly": "mensuel",
+      "startLabel": "Date de début",
+      "endLabel": "Échéance",
+      "noEnd": "Indéterminée (CDI)",
+      "durationLabel": "Ancienneté contrat",
+      "trialTitle": "Période d'essai",
+      "contractTitle": "Durée du contrat",
+      "daysRemaining": "{days} j restants",
+      "trialEnded": "Période d'essai terminée",
+      "contractEnded": "Échu"
     },
     "characteristics": {
       "title": "Caractéristiques",
@@ -106,16 +111,17 @@
       "periodeEssaiDays": "{days} jour(s)",
       "noPeriod": "Aucune",
       "status": "Statut",
+      "motifFin": "Motif de résiliation",
       "createdAt": "Créé le",
       "updatedAt": "Modifié le"
     },
     "salary": {
-      "title": "Composition salariale",
+      "title": "Rémunération contractuelle",
       "base": "Salaire de base",
-      "seniority": "Prime d'ancienneté (8%)",
-      "transport": "Indemnité de transport",
       "benefits": "Avantages en nature",
-      "gross": "Brut estimé",
+      "monthlyGross": "Brut mensuel contractuel",
+      "annualGross": "Brut annuel (× 12)",
+      "payrollNote": "Cotisations, IRPP et net à payer sont calculés par le moteur de paie à chaque cycle.",
       "xaf": "XAF"
     },
     "history": {
@@ -133,7 +139,8 @@
     },
     "document": {
       "title": "Document contractuel",
-      "attached": "Document joint",
+      "attached": "Contrat signé",
+      "clickToDownload": "Cliquer pour télécharger / ouvrir",
       "noDoc": "Aucun document joint",
       "attach": "Joindre"
     },

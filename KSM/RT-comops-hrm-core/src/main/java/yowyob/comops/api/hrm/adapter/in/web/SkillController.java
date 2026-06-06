@@ -5,10 +5,13 @@ import yowyob.comops.api.common.domain.model.ApiResponse;
 import yowyob.comops.api.hrm.application.port.in.CreateEmployeeSkillCommand;
 import yowyob.comops.api.hrm.application.port.in.CreateSkillCommand;
 import yowyob.comops.api.hrm.application.port.in.ManageSkillUseCase;
+import yowyob.comops.api.hrm.domain.DuplicateSkillException;
 import yowyob.comops.api.hrm.domain.model.EmployeeSkill;
 import yowyob.comops.api.hrm.domain.model.Skill;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
@@ -93,7 +96,10 @@ public class SkillController {
                 .map(l -> ResponseEntity.ok(ApiResponse.success(l, "Employee skills fetched.")));
     }
 
-    public record CreateSkillRequest(String name, String categorie, String description) {
+    public record CreateSkillRequest(
+            @NotBlank @Size(min = 2, max = 120) String name,
+            String categorie,
+            String description) {
         CreateSkillCommand toCommand() {
             return new CreateSkillCommand(name, categorie, description);
         }
@@ -117,6 +123,16 @@ public class SkillController {
         static EmployeeSkillResponse from(EmployeeSkill es) {
             return new EmployeeSkillResponse(es.id(), es.employeeId(), es.skillId(),
                     es.niveauActuel(), es.niveauAttendu(), es.dateEvaluation());
+        }
+    }
+
+    @RestControllerAdvice(assignableTypes = SkillController.class)
+    static class HrmSkillExceptionHandler {
+
+        @ExceptionHandler(DuplicateSkillException.class)
+        ResponseEntity<ApiResponse<Void>> handleDuplicateSkill(DuplicateSkillException ex) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(ApiResponse.failure(ex.getMessage(), "DUPLICATE_SKILL"));
         }
     }
 }

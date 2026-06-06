@@ -170,6 +170,16 @@ public class LeaveService implements ManageLeaveUseCase {
                                 context.tenantId(), organizationId));
     }
 
+    @Override
+    public Flux<LeaveRequest> listOrganizationLeaves(UUID organizationId, UUID agencyId) {
+        return ReactiveRequestContextHolder.getRequiredContext()
+                .flatMapMany(context -> agencyId != null
+                        ? leaveRequestRepository.findByOrganizationIdAndAgencyId(
+                                context.tenantId(), organizationId, agencyId)
+                        : leaveRequestRepository.findByOrganizationId(
+                                context.tenantId(), organizationId));
+    }
+
     static BigDecimal calculateBusinessDays(LocalDate start, LocalDate end) {
         long count = 0;
         LocalDate date = start;

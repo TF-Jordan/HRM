@@ -22,4 +22,7 @@ public interface ManageLeaveUseCase {
     Flux<LeaveRequest> listLeavesByEmployee(UUID employeeId);
 
     Flux<LeaveRequest> listPendingLeaves(UUID organizationId, UUID agencyId);
+
+    /** All leave requests (any status) for the organization — management console & history. */
+    Flux<LeaveRequest> listOrganizationLeaves(UUID organizationId, UUID agencyId);
 }

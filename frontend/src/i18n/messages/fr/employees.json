@@ -5,6 +5,7 @@
     "subtitle": "Gérez votre personnel : identités, contrats, dépendants et cycle de vie.",
     "new": "Nouvel employé",
     "search": "Rechercher (nom, matricule, email)…",
+    "allDepartments": "Tous les départements",
     "filters": {
       "all": "Tous",
       "active": "Actifs",
@@ -36,6 +37,7 @@
   },
   "contractStatus": {
     "ACTIVE": "Actif",
+    "TRIAL": "Essai",
     "EXPIRED": "Expiré",
     "TERMINATED": "Résilié",
     "RENEWED": "Renouvelé"
@@ -84,7 +86,9 @@
       "warnings": "Avertissements",
       "copied": "Copié !",
       "continue": "Accéder au profil employé",
-      "noLogin": "Aucun compte créé (provisionnement désactivé)"
+      "noLogin": "Aucun compte créé (provisionnement désactivé)",
+      "noLoginTitle": "Compte de connexion non créé",
+      "noLoginHint": "L'employé est bien enregistré. Vous pourrez réessayer la création du compte depuis sa fiche."
     },
     "steps": {
       "identity": "Identité",

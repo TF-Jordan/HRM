@@ -18,4 +18,9 @@ public interface LeaveRequestRepository {
     Flux<LeaveRequest> findPendingByOrganizationId(UUID tenantId, UUID organizationId);
 
     Flux<LeaveRequest> findPendingByOrganizationIdAndAgencyId(UUID tenantId, UUID organizationId, UUID agencyId);
+
+    /** All leave requests (any status) for the organization — powers the management console & history. */
+    Flux<LeaveRequest> findByOrganizationId(UUID tenantId, UUID organizationId);
+
+    Flux<LeaveRequest> findByOrganizationIdAndAgencyId(UUID tenantId, UUID organizationId, UUID agencyId);
 }

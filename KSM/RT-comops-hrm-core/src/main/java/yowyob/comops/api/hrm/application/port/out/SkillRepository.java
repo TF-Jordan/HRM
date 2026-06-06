@@ -14,4 +14,7 @@ public interface SkillRepository {
     Mono<Skill> findById(UUID tenantId, UUID skillId);
 
     Flux<Skill> findAll(UUID tenantId);
+
+    /** Case-insensitive existence check used to keep skill names unique per tenant. */
+    Mono<Boolean> existsByNameIgnoreCase(UUID tenantId, String name);
 }

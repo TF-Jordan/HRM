@@ -9,14 +9,38 @@
   "queue": {
     "title": "Congés en attente",
     "subtitle": "File d'approbation pour les managers et l'administration RH.",
+    "consoleTitle": "Gestion des congés",
+    "consoleSubtitle": "Demandes des employés à examiner, approuver ou refuser.",
     "empty": "Aucune demande en attente. 🎉",
+    "emptyFiltered": "Aucune demande dans cette catégorie.",
+    "searchPlaceholder": "Rechercher un employé, un matricule…",
+    "viewDetail": "Voir le détail",
+    "startsIn": "Débute dans {n} j",
+    "startsToday": "Débute aujourd'hui",
+    "started": "Déjà débuté",
+    "filters": {
+      "toProcess": "À traiter",
+      "all": "Toutes"
+    },
+    "kpi": {
+      "pending": "À traiter",
+      "pendingSub": "demandes en attente",
+      "daysPending": "Jours en attente",
+      "daysPendingSub": "cumul à arbitrer",
+      "approved": "Approuvées",
+      "approvedSub": "total",
+      "rejected": "Refusées",
+      "rejectedSub": "total"
+    },
     "columns": {
       "employee": "Employé",
       "type": "Type",
       "period": "Période",
       "days": "Jours",
       "submitted": "Soumise le",
-      "reason": "Motif"
+      "reason": "Motif",
+      "status": "Statut",
+      "actions": "Actions"
     }
   },
   "my": {

@@ -109,6 +109,21 @@ public class LeaveController {
     }
 
     /**
+     * Lists every leave request (any status) for the organization — powers the management
+     * console queue, history and KPIs. Approver-scoped.
+     */
+    @GetMapping
+    @PreAuthorize("@businessAccessPolicy.hasPermission(authentication, 'hrm:leave:approve')")
+    public Mono<ResponseEntity<ApiResponse<List<LeaveResponse>>>> listOrganizationLeaves(
+            @RequestParam UUID organizationId,
+            @RequestParam(required = false) UUID agencyId) {
+        return manageLeaveUseCase.listOrganizationLeaves(organizationId, agencyId)
+                .map(LeaveResponse::from)
+                .collectList()
+                .map(list -> ResponseEntity.ok(ApiResponse.success(list, "Organization leave requests fetched.")));
+    }
+
+    /**
      * Manually triggers the monthly leave accrual for the caller's organization. Idempotent per
      * calendar month (the scheduler runs this automatically; this endpoint is for ops/demo).
      */

@@ -135,12 +135,16 @@ export async function createEmployeeOrchestrated(
     const temporaryPassword = generateTemporaryPassword();
 
     try {
+      // NOTE: the phone number is intentionally NOT forwarded to the login
+      // account. It already lives on the Actor (identity), and auth-core enforces
+      // phone uniqueness on accounts — forwarding it would make account
+      // provisioning fail with "Phone number is already used." whenever a number
+      // is reused (common in dev/testing). The login is keyed by email/username.
       const user = await registerUser(
         {
           actorId: actor.id,
           username,
           email: username,
-          phoneNumber: input.phoneNumber?.trim() || undefined,
           password: temporaryPassword,
           authProvider: "LOCAL",
           forcePasswordChange: true,

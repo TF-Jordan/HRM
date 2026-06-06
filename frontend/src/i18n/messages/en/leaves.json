@@ -9,14 +9,38 @@
   "queue": {
     "title": "Pending leaves",
     "subtitle": "Approval queue for managers and HR admins.",
+    "consoleTitle": "Leave management",
+    "consoleSubtitle": "Employee requests to review, approve or reject.",
     "empty": "No pending request. 🎉",
+    "emptyFiltered": "No request in this category.",
+    "searchPlaceholder": "Search an employee, a matricule…",
+    "viewDetail": "View detail",
+    "startsIn": "Starts in {n}d",
+    "startsToday": "Starts today",
+    "started": "Already started",
+    "filters": {
+      "toProcess": "To process",
+      "all": "All"
+    },
+    "kpi": {
+      "pending": "To process",
+      "pendingSub": "pending requests",
+      "daysPending": "Days pending",
+      "daysPendingSub": "total to arbitrate",
+      "approved": "Approved",
+      "approvedSub": "total",
+      "rejected": "Rejected",
+      "rejectedSub": "total"
+    },
     "columns": {
       "employee": "Employee",
       "type": "Type",
       "period": "Period",
       "days": "Days",
       "submitted": "Submitted",
-      "reason": "Reason"
+      "reason": "Reason",
+      "status": "Status",
+      "actions": "Actions"
     }
   },
   "my": {

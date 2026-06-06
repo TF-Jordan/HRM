@@ -11,4 +11,6 @@ public interface SkillSpringDataRepository extends ReactiveCrudRepository<SkillE
     Mono<SkillEntity> findByIdAndTenantId(UUID id, UUID tenantId);
 
     Flux<SkillEntity> findAllByTenantId(UUID tenantId);
+
+    Mono<Boolean> existsByTenantIdAndNameIgnoreCase(UUID tenantId, String name);
 }

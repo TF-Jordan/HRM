@@ -85,25 +85,59 @@
   },
   "new": {
     "title": "Ajouter une compétence",
-    "subtitle": "Étendez le référentiel.",
-    "submit": "Créer",
+    "subtitle": "Enrichissez le référentiel de compétences de l'organisation.",
+    "submit": "Créer la compétence",
     "success": "Compétence créée.",
+    "sectionTitle": "Informations sur la compétence",
+    "sectionSubtitle": "Le nom doit être unique (la casse n'est pas prise en compte).",
+    "duplicate": "Une compétence portant ce nom existe déjà.",
+    "minLength": "Au moins {min} caractères.",
     "fields": {
-      "name": "Nom",
-      "namePlaceholder": "Ex. React Native, AWS Cloud",
+      "name": "Nom de la compétence",
+      "namePlaceholder": "Ex. React Native, Négociation commerciale, Gestion de projet",
+      "nameHint": "Nom clair et concis, réutilisable pour plusieurs collaborateurs.",
       "categorie": "Catégorie",
-      "categoriePlaceholder": "Ex. Tech, Management, Soft skills",
-      "description": "Description"
+      "categoriePlaceholder": "Ex. Technique, Management, Soft skills",
+      "categoryHint": "Regroupe les compétences pour la cartographie et l'analyse des écarts.",
+      "description": "Description",
+      "descriptionPlaceholder": "Décrivez la compétence, son périmètre et ce qu'elle recouvre."
+    },
+    "preview": {
+      "title": "Aperçu",
+      "empty": "Saisissez un nom pour prévisualiser.",
+      "uncategorized": "Sans catégorie"
+    },
+    "scale": {
+      "title": "Échelle de maîtrise",
+      "subtitle": "Niveaux utilisés lors des évaluations.",
+      "l1": "Notions — découverte de la compétence",
+      "l2": "Débutant — pratique encadrée",
+      "l3": "Autonome — pratique courante en autonomie",
+      "l4": "Confirmé — maîtrise approfondie, peut accompagner",
+      "l5": "Expert — référent, transmet et fait évoluer la pratique"
+    },
+    "tips": {
+      "title": "Bonnes pratiques",
+      "t1": "Privilégiez un nom orienté savoir-faire plutôt qu'un outil isolé.",
+      "t2": "Réutilisez les catégories existantes pour une cartographie cohérente.",
+      "t3": "Évitez les doublons : vérifiez le référentiel avant de créer."
     }
   },
   "detail": {
     "back": "Retour",
+    "subtitlePage": "Fiche détaillée de la compétence",
     "categorie": "Catégorie",
     "description": "Description",
     "employees": "Évalués",
-    "averageActual": "Niveau actuel moyen",
+    "averageActual": "Niveau moyen",
     "averageTarget": "Cible moyenne",
     "experts": "Experts (niveau 5)",
+    "masteryTitle": "Maîtrise moyenne vs cible",
+    "gapLabel": "Écart",
+    "mastered": "{met} sur {total} au niveau attendu",
+    "targetMarker": "Cible",
+    "distributionTitle": "Distribution des niveaux",
+    "distributionSub": "Nombre de collaborateurs par niveau actuel",
     "evaluationsTitle": "Toutes les évaluations",
     "evaluationsEmpty": "Aucun employé évalué sur cette compétence.",
     "addAssessment": "Évaluer un employé",
@@ -112,6 +146,7 @@
       "employee": "Employé",
       "actual": "Niveau actuel",
       "target": "Cible",
+      "gap": "Écart",
       "date": "Évaluée le"
     }
   },

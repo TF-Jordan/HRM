@@ -6,6 +6,7 @@ import yowyob.comops.api.hrm.application.port.in.CreateSkillCommand;
 import yowyob.comops.api.hrm.application.port.in.ManageSkillUseCase;
 import yowyob.comops.api.hrm.application.port.out.EmployeeSkillRepository;
 import yowyob.comops.api.hrm.application.port.out.SkillRepository;
+import yowyob.comops.api.hrm.domain.DuplicateSkillException;
 import yowyob.comops.api.hrm.domain.model.EmployeeSkill;
 import yowyob.comops.api.hrm.domain.model.Skill;
 import yowyob.comops.api.kernel.application.service.ReactiveRequestContextHolder;
@@ -32,9 +33,18 @@ public class SkillService implements ManageSkillUseCase {
     public Mono<Skill> createSkill(CreateSkillCommand command) {
         return ReactiveRequestContextHolder.getRequiredContext()
                 .flatMap(ctx -> {
-                    Skill skill = Skill.create(ctx.tenantId(), command.name(),
-                            command.categorie(), command.description());
-                    return skillRepository.save(skill);
+                    String name = command.name() == null ? "" : command.name().trim();
+                    if (name.isEmpty()) {
+                        return Mono.error(new IllegalArgumentException("Skill name is required"));
+                    }
+                    String categorie = command.categorie() == null || command.categorie().isBlank()
+                            ? null : command.categorie().trim();
+                    String description = command.description() == null || command.description().isBlank()
+                            ? null : command.description().trim();
+                    return skillRepository.existsByNameIgnoreCase(ctx.tenantId(), name)
+                            .flatMap(exists -> Boolean.TRUE.equals(exists)
+                                    ? Mono.<Skill>error(new DuplicateSkillException(name))
+                                    : skillRepository.save(Skill.create(ctx.tenantId(), name, categorie, description)));
                 });
     }
 

@@ -16,4 +16,9 @@ public interface LeaveRequestSpringDataRepository extends ReactiveCrudRepository
 
     Flux<LeaveRequestEntity> findAllByTenantIdAndOrganizationIdAndAgencyIdAndStatus(
             UUID tenantId, UUID organizationId, UUID agencyId, String status);
+
+    Flux<LeaveRequestEntity> findAllByTenantIdAndOrganizationId(UUID tenantId, UUID organizationId);
+
+    Flux<LeaveRequestEntity> findAllByTenantIdAndOrganizationIdAndAgencyId(
+            UUID tenantId, UUID organizationId, UUID agencyId);
 }

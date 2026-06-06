@@ -86,15 +86,20 @@
   },
   "detail": {
     "back": "Back to contracts",
+    "subtitlePage": "Detailed contract record",
     "notFound": "Contract not found.",
     "hero": {
-      "ref": "Contract",
-      "employee": "Employee",
-      "actions": {
-        "pdf": "Export PDF",
-        "amendment": "Amendment",
-        "print": "Print"
-      }
+      "salaryLabel": "Base salary",
+      "monthly": "monthly",
+      "startLabel": "Start date",
+      "endLabel": "End date",
+      "noEnd": "Open-ended (CDI)",
+      "durationLabel": "Contract tenure",
+      "trialTitle": "Probation period",
+      "contractTitle": "Contract duration",
+      "daysRemaining": "{days} days left",
+      "trialEnded": "Probation completed",
+      "contractEnded": "Ended"
     },
     "characteristics": {
       "title": "Characteristics",
@@ -106,16 +111,17 @@
       "periodeEssaiDays": "{days} day(s)",
       "noPeriod": "None",
       "status": "Status",
+      "motifFin": "Termination reason",
       "createdAt": "Created at",
       "updatedAt": "Updated at"
     },
     "salary": {
-      "title": "Salary breakdown",
+      "title": "Contractual remuneration",
       "base": "Base salary",
-      "seniority": "Seniority bonus (8%)",
-      "transport": "Transport allowance",
       "benefits": "Benefits in kind",
-      "gross": "Estimated gross",
+      "monthlyGross": "Monthly contractual gross",
+      "annualGross": "Annual gross (× 12)",
+      "payrollNote": "Social contributions, income tax and net pay are computed by the payroll engine each cycle.",
       "xaf": "XAF"
     },
     "history": {
@@ -133,7 +139,8 @@
     },
     "document": {
       "title": "Contract document",
-      "attached": "Document attached",
+      "attached": "Signed contract",
+      "clickToDownload": "Click to download / open",
       "noDoc": "No document attached",
       "attach": "Attach"
     },

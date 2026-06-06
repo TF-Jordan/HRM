@@ -769,7 +769,27 @@ function CredentialsModal({
           )}
         </div>
       ) : (
-        <p className="text-[13px] text-ink-3">{tCreate("credentials.noLogin")}</p>
+        <div className="space-y-3">
+          {warnings.length > 0 ? (
+            <div className="rounded-[11px] border border-warning-200 bg-warning-50 px-4 py-3">
+              <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-warning-700">
+                {tCreate("credentials.noLoginTitle")}
+              </p>
+              <ul className="space-y-1">
+                {warnings.map((w, i) => (
+                  <li key={i} className="text-[12.5px] text-warning-700">
+                    · {w}
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-2 text-[11.5px] text-warning-600">
+                {tCreate("credentials.noLoginHint")}
+              </p>
+            </div>
+          ) : (
+            <p className="text-[13px] text-ink-3">{tCreate("credentials.noLogin")}</p>
+          )}
+        </div>
       )}
     </Dialog>
   );

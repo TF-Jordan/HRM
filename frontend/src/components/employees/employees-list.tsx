@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { Download, Loader2, Plus, Search, SlidersHorizontal, Upload } from "lucide-react";
+import { Download, Loader2, Plus, Search, Upload } from "lucide-react";
 import { useTranslations } from "next-intl";
 import * as React from "react";
 
@@ -30,6 +30,7 @@ export function EmployeesList() {
   const tCommon = useTranslations("common");
   const router = useRouter();
   const [statusFilter, setStatusFilter] = React.useState<StatusFilter>("all");
+  const [deptFilter, setDeptFilter] = React.useState<string>("all");
   const [search, setSearch] = React.useState("");
 
   const query = useQuery({
@@ -37,7 +38,15 @@ export function EmployeesList() {
     queryFn: () => apiFetch<EmployeeResponse[]>("/api/hrm/employees"),
   });
 
-  const all = query.data ?? [];
+  const all = React.useMemo(() => query.data ?? [], [query.data]);
+  const departments = React.useMemo(() => {
+    const set = new Set<string>();
+    for (const e of all) {
+      const d = (e.departmentCode ?? "").trim();
+      if (d) set.add(d);
+    }
+    return [...set].sort();
+  }, [all]);
   const counts = React.useMemo(() => {
     return {
       total: all.length,
@@ -51,6 +60,7 @@ export function EmployeesList() {
   const filtered = React.useMemo(() => {
     return all.filter((e) => {
       if (statusFilter !== "all" && e.status !== statusFilter) return false;
+      if (deptFilter !== "all" && (e.departmentCode ?? "").trim() !== deptFilter) return false;
       if (search) {
         const needle = search.toLowerCase();
         return (
@@ -61,7 +71,41 @@ export function EmployeesList() {
       }
       return true;
     });
-  }, [all, statusFilter, search]);
+  }, [all, statusFilter, deptFilter, search]);
+
+  function exportCsv() {
+    const headers = [
+      tList("columns.matricule"),
+      tList("columns.employee"),
+      tList("columns.department"),
+      tList("columns.categoryEchelon"),
+      tList("columns.hireDate"),
+      tList("columns.status"),
+    ];
+    const escape = (v: string) => `"${v.replace(/"/g, '""')}"`;
+    const rows = filtered.map((e) =>
+      [
+        e.matricule,
+        e.actorDisplayName ?? "",
+        e.departmentCode ?? "",
+        `${e.categorie}${e.echelon ? ` / ${e.echelon}` : ""}`,
+        formatDate(e.dateEmbauche, { locale: "fr" }),
+        tStatus(e.status),
+      ]
+        .map((c) => escape(String(c)))
+        .join(";"),
+    );
+    const csv = "\uFEFF" + [headers.map(escape).join(";"), ...rows].join("\r\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `employes-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
 
   const columns: Column<EmployeeResponse>[] = [
     {
@@ -129,7 +173,7 @@ export function EmployeesList() {
               <Upload className="h-4 w-4" />
               {tCommon("actions.import")}
             </Button>
-            <Button variant="secondary" disabled>
+            <Button variant="secondary" onClick={exportCsv} disabled={filtered.length === 0}>
               <Download className="h-4 w-4" />
               {tCommon("actions.export")}
             </Button>
@@ -204,11 +248,23 @@ export function EmployeesList() {
           <Chip active={statusFilter === "TERMINATED"} onClick={() => setStatusFilter("TERMINATED")}>
             {tList("filters.terminated")} ({counts.terminated})
           </Chip>
-          <div className="h-6 w-px bg-line" />
-          <Button variant="secondary" size="sm" disabled>
-            <SlidersHorizontal className="h-3.5 w-3.5" />
-            {tCommon("actions.filter")}
-          </Button>
+          {departments.length > 0 && (
+            <>
+              <div className="h-6 w-px bg-line" />
+              <select
+                value={deptFilter}
+                onChange={(e) => setDeptFilter(e.target.value)}
+                className="rounded-[10px] border border-line bg-white px-3 py-2 text-[13px] text-ink outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-500/12"
+              >
+                <option value="all">{tList("allDepartments")}</option>
+                {departments.map((d) => (
+                  <option key={d} value={d}>
+                    {d}
+                  </option>
+                ))}
+              </select>
+            </>
+          )}
         </div>
       </div>
 

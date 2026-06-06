@@ -85,25 +85,59 @@
   },
   "new": {
     "title": "Add a skill",
-    "subtitle": "Extend the referential.",
-    "submit": "Create",
+    "subtitle": "Enrich the organization's skill referential.",
+    "submit": "Create skill",
     "success": "Skill created.",
+    "sectionTitle": "Skill information",
+    "sectionSubtitle": "The name must be unique (case-insensitive).",
+    "duplicate": "A skill with this name already exists.",
+    "minLength": "At least {min} characters.",
     "fields": {
-      "name": "Name",
-      "namePlaceholder": "e.g. React Native, AWS Cloud",
+      "name": "Skill name",
+      "namePlaceholder": "e.g. React Native, Sales negotiation, Project management",
+      "nameHint": "A clear, concise name reusable across employees.",
       "categorie": "Category",
-      "categoriePlaceholder": "e.g. Tech, Management, Soft skills",
-      "description": "Description"
+      "categoriePlaceholder": "e.g. Technical, Management, Soft skills",
+      "categoryHint": "Groups skills for the cartography and gap analysis.",
+      "description": "Description",
+      "descriptionPlaceholder": "Describe the skill, its scope and what it covers."
+    },
+    "preview": {
+      "title": "Preview",
+      "empty": "Type a name to preview.",
+      "uncategorized": "Uncategorized"
+    },
+    "scale": {
+      "title": "Mastery scale",
+      "subtitle": "Levels used during assessments.",
+      "l1": "Awareness — first exposure to the skill",
+      "l2": "Beginner — supervised practice",
+      "l3": "Autonomous — regular practice on their own",
+      "l4": "Advanced — deep mastery, can mentor others",
+      "l5": "Expert — reference, transmits and improves the practice"
+    },
+    "tips": {
+      "title": "Best practices",
+      "t1": "Prefer a know-how oriented name over a single tool.",
+      "t2": "Reuse existing categories for a consistent cartography.",
+      "t3": "Avoid duplicates: check the referential before creating."
     }
   },
   "detail": {
     "back": "Back",
+    "subtitlePage": "Detailed skill record",
     "categorie": "Category",
     "description": "Description",
     "employees": "Evaluated",
-    "averageActual": "Avg. current",
+    "averageActual": "Avg. level",
     "averageTarget": "Avg. target",
     "experts": "Experts (level 5)",
+    "masteryTitle": "Average mastery vs target",
+    "gapLabel": "Gap",
+    "mastered": "{met} of {total} at target level",
+    "targetMarker": "Target",
+    "distributionTitle": "Level distribution",
+    "distributionSub": "Number of employees per current level",
     "evaluationsTitle": "All assessments",
     "evaluationsEmpty": "No employee evaluated for this skill.",
     "addAssessment": "Assess an employee",
@@ -112,6 +146,7 @@
       "employee": "Employee",
       "actual": "Current",
       "target": "Target",
+      "gap": "Gap",
       "date": "Evaluated on"
     }
   },

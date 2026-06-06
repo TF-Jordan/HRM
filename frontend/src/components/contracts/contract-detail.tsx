@@ -3,11 +3,16 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   AlertTriangle,
+  Banknote,
+  CalendarClock,
   CalendarDays,
   ChevronLeft,
+  Download,
   FileText,
+  Hourglass,
   Loader2,
   RefreshCw,
+  Wallet,
   XCircle,
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
@@ -25,6 +30,7 @@ import { useCan } from "@/hooks/use-can";
 import { AppLink as Link } from "@/components/ui/app-link";
 import { apiFetch, BffApiError } from "@/lib/api-client";
 import { formatDate, formatMoney } from "@/lib/format";
+import { cn } from "@/lib/utils";
 import type { ContractResponse, ContractStatusValue, ContractType } from "@/server/ksm/modules/employees";
 
 /* ------------------------------------------------------------------ */
@@ -53,36 +59,140 @@ type TimelineEvent = {
 /*  Helpers                                                             */
 /* ------------------------------------------------------------------ */
 
-const CONTRACT_TYPE_TONE: Record<ContractType, "info" | "teal" | "violet" | "orange"> = {
-  CDI: "info",
-  CDD: "teal",
-  STAGE: "violet",
-  INTERIM: "orange",
-};
-
 const STATUS_TONE: Record<ContractStatusValue, "success" | "warning" | "danger" | "gray" | "info"> = {
   ACTIVE: "success",
   TRIAL: "warning",
-  EXPIRED: "danger",
+  EXPIRED: "gray",
   TERMINATED: "danger",
   RENEWED: "info",
 };
+
+const DAY = 86_400_000;
 
 function shortRef(id: string) {
   return "CT-" + id.slice(0, 8).toUpperCase();
 }
 
-function seniorityYears(dateEmbauche: string): number {
-  const hire = new Date(dateEmbauche);
-  const now = new Date();
-  return Math.max(0, Math.floor((now.getTime() - hire.getTime()) / (1000 * 60 * 60 * 24 * 365)));
+function formatDuration(from: string, to: Date, locale: "fr" | "en"): string {
+  const start = new Date(from);
+  let months = (to.getFullYear() - start.getFullYear()) * 12 + (to.getMonth() - start.getMonth());
+  if (to.getDate() < start.getDate()) months -= 1;
+  months = Math.max(0, months);
+  const y = Math.floor(months / 12);
+  const m = months % 12;
+  if (locale === "fr") {
+    const yl = y > 0 ? `${y} an${y > 1 ? "s" : ""}` : "";
+    const ml = m > 0 ? `${m} mois` : "";
+    return [yl, ml].filter(Boolean).join(" ") || "< 1 mois";
+  }
+  const yl = y > 0 ? `${y} yr` : "";
+  const ml = m > 0 ? `${m} mo` : "";
+  return [yl, ml].filter(Boolean).join(" ") || "< 1 mo";
+}
+
+type Progress = { percent: number; daysRemaining: number; ended: boolean };
+
+function fixedTermProgress(c: ContractResponse): Progress | null {
+  if (!c.dateFin) return null;
+  const start = new Date(c.dateDebut).getTime();
+  const end = new Date(c.dateFin).getTime();
+  const now = Date.now();
+  if (!Number.isFinite(start) || !Number.isFinite(end) || end <= start) return null;
+  const percent = Math.min(100, Math.max(0, Math.round(((now - start) / (end - start)) * 100)));
+  const daysRemaining = Math.ceil((end - now) / DAY);
+  return { percent, daysRemaining, ended: now >= end };
+}
+
+function trialProgress(c: ContractResponse): Progress | null {
+  if (!c.periodeEssai || c.periodeEssai <= 0) return null;
+  if (c.status === "TERMINATED" || c.status === "EXPIRED") return null;
+  const start = new Date(c.dateDebut).getTime();
+  const end = start + c.periodeEssai * DAY;
+  const now = Date.now();
+  if (!Number.isFinite(start)) return null;
+  const percent = Math.min(100, Math.max(0, Math.round(((now - start) / (end - start)) * 100)));
+  const daysRemaining = Math.ceil((end - now) / DAY);
+  return { percent, daysRemaining, ended: now >= end };
 }
 
 function isExpiringSoon(dateFin: string | null | undefined): boolean {
   if (!dateFin) return false;
-  const end = new Date(dateFin);
-  const diff = (end.getTime() - Date.now()) / (1000 * 60 * 60 * 24);
+  const diff = (new Date(dateFin).getTime() - Date.now()) / DAY;
   return diff >= 0 && diff <= 90;
+}
+
+function contractDurationTo(c: ContractResponse): Date {
+  if (c.dateFin && new Date(c.dateFin).getTime() < Date.now()) return new Date(c.dateFin);
+  return new Date();
+}
+
+/* ------------------------------------------------------------------ */
+/*  Hero tile + progress bar                                           */
+/* ------------------------------------------------------------------ */
+
+function HeroTile({
+  icon: Icon,
+  label,
+  value,
+  sub,
+}: {
+  icon: typeof Wallet;
+  label: string;
+  value: React.ReactNode;
+  sub?: React.ReactNode;
+}) {
+  return (
+    <div className="rounded-[13px] border border-line bg-white/80 p-3.5 backdrop-blur-sm">
+      <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.04em] text-ink-3">
+        <Icon className="h-3.5 w-3.5" />
+        {label}
+      </div>
+      <div className="font-display text-[19px] font-extrabold leading-tight tracking-tight text-ink tabular-nums">
+        {value}
+      </div>
+      {sub && <div className="mt-0.5 text-[11px] text-ink-3">{sub}</div>}
+    </div>
+  );
+}
+
+function ProgressBar({
+  label,
+  progress,
+  tone,
+  remainingLabel,
+  endedLabel,
+}: {
+  label: string;
+  progress: Progress;
+  tone: "orange" | "amber";
+  remainingLabel: (days: number) => string;
+  endedLabel: string;
+}) {
+  const barColor = tone === "orange" ? "bg-grad-orange" : "bg-warning-500";
+  return (
+    <div className="rounded-[13px] border border-line bg-white/80 p-3.5 backdrop-blur-sm">
+      <div className="mb-2 flex items-center justify-between">
+        <span className="text-[12px] font-semibold text-ink-2">{label}</span>
+        <span
+          className={cn(
+            "font-mono-tabular text-[11.5px] font-bold",
+            progress.ended ? "text-ink-3" : tone === "amber" ? "text-warning-700" : "text-orange-600",
+          )}
+        >
+          {progress.ended ? endedLabel : remainingLabel(progress.daysRemaining)}
+        </span>
+      </div>
+      <div className="h-2 w-full overflow-hidden rounded-full bg-bg-dim">
+        <div
+          className={cn("h-full rounded-full transition-all", barColor)}
+          style={{ width: `${progress.percent}%` }}
+        />
+      </div>
+      <div className="mt-1 text-right font-mono-tabular text-[10.5px] text-ink-4">
+        {progress.percent}%
+      </div>
+    </div>
+  );
 }
 
 /* ------------------------------------------------------------------ */
@@ -101,6 +211,7 @@ function RenewDialog({
   isPending: boolean;
 }) {
   const t = useTranslations("contracts.detail.renew");
+  const tCommon = useTranslations("common");
   const [value, setValue] = React.useState("");
   return (
     <Dialog
@@ -111,13 +222,9 @@ function RenewDialog({
       footer={
         <>
           <Button variant="secondary" size="sm" onClick={onClose} disabled={isPending}>
-            Annuler
+            {tCommon("actions.cancel")}
           </Button>
-          <Button
-            size="sm"
-            onClick={() => onConfirm(value)}
-            disabled={!value || isPending}
-          >
+          <Button size="sm" onClick={() => onConfirm(value)} disabled={!value || isPending}>
             {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : t("submit")}
           </Button>
         </>
@@ -151,6 +258,7 @@ function TerminateDialog({
   isPending: boolean;
 }) {
   const t = useTranslations("contracts.detail.terminate");
+  const tCommon = useTranslations("common");
   const [value, setValue] = React.useState("");
   return (
     <Dialog
@@ -161,7 +269,7 @@ function TerminateDialog({
       footer={
         <>
           <Button variant="secondary" size="sm" onClick={onClose} disabled={isPending}>
-            Annuler
+            {tCommon("actions.cancel")}
           </Button>
           <Button
             variant="danger"
@@ -213,9 +321,7 @@ function CharacteristicsCard({
         <dl className="grid grid-cols-2 gap-x-6 gap-y-4 text-[13px]">
           <div>
             <Label className="text-ink-3">{td("type")}</Label>
-            <p className="mt-1 font-medium text-ink">
-              {t(`contractType.${contract.type as ContractType}`)}
-            </p>
+            <p className="mt-1 font-medium text-ink">{t(`contractType.${contract.type as ContractType}`)}</p>
           </div>
           <div>
             <Label className="text-ink-3">{td("status")}</Label>
@@ -243,6 +349,12 @@ function CharacteristicsCard({
                 : td("noPeriod")}
             </p>
           </div>
+          {contract.motifFin && (
+            <div>
+              <Label className="text-ink-3">{td("motifFin")}</Label>
+              <p className="mt-1 font-medium text-ink">{contract.motifFin}</p>
+            </div>
+          )}
         </dl>
       </CardContent>
     </Card>
@@ -250,36 +362,21 @@ function CharacteristicsCard({
 }
 
 /* ------------------------------------------------------------------ */
-/*  SalaryCard                                                          */
+/*  RemunerationCard — REAL contractual figures only                   */
 /* ------------------------------------------------------------------ */
 
-function SalaryCard({
+function RemunerationCard({
   contract,
-  dateEmbauche,
   locale,
 }: {
   contract: ContractResponse;
-  dateEmbauche?: string;
   locale: "fr" | "en";
 }) {
   const td = useTranslations("contracts.detail.salary");
-  const base = Number(contract.salaireBase);
-  const benefits = Number(contract.avantagesNature ?? 0);
-  const years = dateEmbauche ? seniorityYears(dateEmbauche) : 0;
-  const seniority = Math.round(base * 0.08 * Math.min(years, 25));
-  const transport = 40_000;
-  const gross = base + seniority + transport + benefits;
-
-  function row(label: string, amount: number, className?: string) {
-    return (
-      <tr className={className}>
-        <td className="py-2 text-[13px] text-ink-2">{label}</td>
-        <td className="py-2 text-right text-[13px] font-medium text-ink">
-          {formatMoney(amount, { locale })} {td("xaf")}
-        </td>
-      </tr>
-    );
-  }
+  const base = Number(contract.salaireBase) || 0;
+  const benefits = Number(contract.avantagesNature ?? 0) || 0;
+  const monthly = base + benefits;
+  const annual = monthly * 12;
 
   return (
     <Card>
@@ -289,18 +386,38 @@ function SalaryCard({
       <CardContent>
         <table className="w-full">
           <tbody>
-            {row(td("base"), base)}
-            {row(td("seniority"), seniority)}
-            {row(td("transport"), transport)}
-            {benefits > 0 && row(td("benefits"), benefits)}
+            <tr>
+              <td className="py-2 text-[13px] text-ink-2">{td("base")}</td>
+              <td className="py-2 text-right font-mono-tabular text-[13px] font-medium text-ink">
+                {formatMoney(base, { locale })} {td("xaf")}
+              </td>
+            </tr>
+            {benefits > 0 && (
+              <tr>
+                <td className="py-2 text-[13px] text-ink-2">{td("benefits")}</td>
+                <td className="py-2 text-right font-mono-tabular text-[13px] font-medium text-ink">
+                  {formatMoney(benefits, { locale })} {td("xaf")}
+                </td>
+              </tr>
+            )}
             <tr className="border-t border-line">
-              <td className="pt-3 text-[13px] font-semibold text-ink">{td("gross")}</td>
-              <td className="pt-3 text-right text-[14px] font-bold text-orange-500">
-                {formatMoney(gross, { locale })} {td("xaf")}
+              <td className="pt-3 text-[13px] font-semibold text-ink">{td("monthlyGross")}</td>
+              <td className="pt-3 text-right font-mono-tabular text-[15px] font-bold text-orange-500">
+                {formatMoney(monthly, { locale })} {td("xaf")}
+              </td>
+            </tr>
+            <tr>
+              <td className="pt-1 text-[12px] text-ink-3">{td("annualGross")}</td>
+              <td className="pt-1 text-right font-mono-tabular text-[12.5px] font-semibold text-ink-2">
+                {formatMoney(annual, { locale })} {td("xaf")}
               </td>
             </tr>
           </tbody>
         </table>
+        <p className="mt-4 flex items-start gap-2 rounded-[10px] bg-info-50 px-3 py-2.5 text-[11.5px] text-info-700">
+          <Wallet className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+          {td("payrollNote")}
+        </p>
       </CardContent>
     </Card>
   );
@@ -352,68 +469,7 @@ function HistoryCard({
 }
 
 /* ------------------------------------------------------------------ */
-/*  ActionsCard                                                         */
-/* ------------------------------------------------------------------ */
-
-function ActionsCard({
-  contract,
-  canUpdate,
-  onRenew,
-  onTerminate,
-}: {
-  contract: ContractResponse;
-  canUpdate: boolean;
-  onRenew: () => void;
-  onTerminate: () => void;
-}) {
-  const td = useTranslations("contracts.detail.actions");
-  const isActive = contract.status === "ACTIVE" || contract.status === "TRIAL";
-
-  if (!canUpdate) return null;
-
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{td("title")}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="flex flex-col gap-2">
-          {isActive && (
-            <button
-              onClick={onRenew}
-              className="flex w-full items-start gap-3 rounded-[12px] border border-line p-3 text-left transition hover:border-orange-300 hover:bg-orange-50"
-            >
-              <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-[9px] bg-info-50 text-info-600">
-                <RefreshCw className="h-4 w-4" />
-              </span>
-              <span>
-                <p className="text-[13px] font-semibold text-ink">{td("renew")}</p>
-                <p className="text-[11.5px] text-ink-3">{td("renewHint")}</p>
-              </span>
-            </button>
-          )}
-          {isActive && (
-            <button
-              onClick={onTerminate}
-              className="flex w-full items-start gap-3 rounded-[12px] border border-danger-200 p-3 text-left transition hover:bg-danger-50"
-            >
-              <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-[9px] bg-danger-50 text-danger-600">
-                <XCircle className="h-4 w-4" />
-              </span>
-              <span>
-                <p className="text-[13px] font-semibold text-danger-600">{td("terminate")}</p>
-                <p className="text-[11.5px] text-ink-3">{td("terminateHint")}</p>
-              </span>
-            </button>
-          )}
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-/*  DocumentCard                                                        */
+/*  DocumentCard — real download link                                  */
 /* ------------------------------------------------------------------ */
 
 function DocumentCard({ contract }: { contract: ContractResponse }) {
@@ -425,41 +481,28 @@ function DocumentCard({ contract }: { contract: ContractResponse }) {
       </CardHeader>
       <CardContent>
         {contract.documentFileId ? (
-          <div className="flex items-center gap-3">
-            <span className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-info-50 text-info-600">
-              <FileText className="h-4 w-4" />
+          <a
+            href={`/api/files/${contract.documentFileId}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group flex items-center gap-3 rounded-[12px] border border-line p-3 transition hover:border-orange-300 hover:bg-orange-50"
+          >
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] bg-info-50 text-info-600">
+              <FileText className="h-5 w-5" />
             </span>
-            <div className="flex-1 min-w-0">
-              <p className="truncate text-[13px] font-medium text-ink">{td("attached")}</p>
-              <p className="truncate text-[11.5px] text-ink-3">{contract.documentFileId}</p>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-[13px] font-semibold text-ink">{td("attached")}</p>
+              <p className="truncate text-[11.5px] text-ink-3">{td("clickToDownload")}</p>
             </div>
-          </div>
+            <span className="grid h-8 w-8 shrink-0 place-items-center rounded-[9px] border border-line bg-white text-ink-3 transition group-hover:border-orange-300 group-hover:text-orange-600">
+              <Download className="h-4 w-4" />
+            </span>
+          </a>
         ) : (
-          <p className="text-[13px] text-ink-3">{td("noDoc")}</p>
+          <p className="rounded-[10px] border border-dashed border-line bg-bg-soft px-3 py-4 text-center text-[13px] text-ink-3">
+            {td("noDoc")}
+          </p>
         )}
-      </CardContent>
-    </Card>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-/*  MetadataCard                                                        */
-/* ------------------------------------------------------------------ */
-
-function MetadataCard({ contract }: { contract: ContractResponse }) {
-  const td = useTranslations("contracts.detail.metadata");
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{td("title")}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <dl className="flex flex-col gap-2 text-[12.5px]">
-          <div className="flex justify-between gap-2">
-            <dt className="text-ink-3">{td("id")}</dt>
-            <dd className="truncate font-mono text-[11px] text-ink-2">{contract.id.slice(0, 8)}…</dd>
-          </div>
-        </dl>
       </CardContent>
     </Card>
   );
@@ -469,13 +512,7 @@ function MetadataCard({ contract }: { contract: ContractResponse }) {
 /*  ExpiryAlert                                                         */
 /* ------------------------------------------------------------------ */
 
-function ExpiryAlert({
-  contract,
-  onRenew,
-}: {
-  contract: ContractResponse;
-  onRenew: () => void;
-}) {
+function ExpiryAlert({ contract, onRenew }: { contract: ContractResponse; onRenew: () => void }) {
   const td = useTranslations("contracts.detail.expiry");
   if (!isExpiringSoon(contract.dateFin)) return null;
   return (
@@ -509,6 +546,7 @@ export function ContractDetail({
 }) {
   const t = useTranslations("contracts");
   const td = useTranslations("contracts.detail");
+  const th = useTranslations("contracts.detail.hero");
   const tErrors = useTranslations("errors");
   const locale = useLocale() as "fr" | "en";
   const queryClient = useQueryClient();
@@ -520,9 +558,7 @@ export function ContractDetail({
   const contractQ = useQuery({
     queryKey: ["hrm", "contracts", employeeId, contractId],
     queryFn: () =>
-      apiFetch<ContractResponse>(
-        `/api/hrm/employees/${employeeId}/contracts/${contractId}`,
-      ),
+      apiFetch<ContractResponse>(`/api/hrm/employees/${employeeId}/contracts/${contractId}`),
     enabled: !!employeeId && !!contractId,
   });
 
@@ -534,8 +570,7 @@ export function ContractDetail({
 
   const timelineQ = useQuery({
     queryKey: ["hrm", "employees", employeeId, "timeline"],
-    queryFn: () =>
-      apiFetch<TimelineEvent[]>(`/api/hrm/employees/${employeeId}/timeline`),
+    queryFn: () => apiFetch<TimelineEvent[]>(`/api/hrm/employees/${employeeId}/timeline`),
     enabled: !!employeeId,
   });
 
@@ -551,10 +586,10 @@ export function ContractDetail({
 
   const renewM = useMutation({
     mutationFn: (newDateFin: string) =>
-      apiFetch<ContractResponse>(
-        `/api/hrm/employees/${employeeId}/contracts/${contractId}/renew`,
-        { method: "POST", body: { newDateFin } },
-      ),
+      apiFetch<ContractResponse>(`/api/hrm/employees/${employeeId}/contracts/${contractId}/renew`, {
+        method: "POST",
+        body: { newDateFin },
+      }),
     onSuccess: () => {
       toast.success(td("renew.success"));
       setShowRenew(false);
@@ -565,10 +600,10 @@ export function ContractDetail({
 
   const terminateM = useMutation({
     mutationFn: (motif: string) =>
-      apiFetch<ContractResponse>(
-        `/api/hrm/employees/${employeeId}/contracts/${contractId}/terminate`,
-        { method: "PUT", body: { motif } },
-      ),
+      apiFetch<ContractResponse>(`/api/hrm/employees/${employeeId}/contracts/${contractId}/terminate`, {
+        method: "PUT",
+        body: { motif },
+      }),
     onSuccess: () => {
       toast.success(td("terminate.success"));
       setShowTerminate(false);
@@ -577,7 +612,6 @@ export function ContractDetail({
     onError: handleError,
   });
 
-  /* Loading */
   if (contractQ.isLoading || !contractQ.data) {
     return (
       <div className="grid place-items-center py-24">
@@ -599,80 +633,145 @@ export function ContractDetail({
   const timeline = timelineQ.data ?? [];
   const employeeName = employee?.actorDisplayName ?? employee?.matricule ?? "—";
   const ref = shortRef(contract.id);
+  const base = Number(contract.salaireBase) || 0;
+  const isActive = contract.status === "ACTIVE" || contract.status === "TRIAL";
+
+  const ft = fixedTermProgress(contract);
+  const trial = trialProgress(contract);
+  const durationTo = contractDurationTo(contract);
 
   return (
     <>
       <PageHeader
         ucBadge={t("ucBadge")}
-        breadcrumb={[
-          { label: "HR Core" },
-          { label: t("title"), href: "/contracts" },
-          { label: ref },
-        ]}
-        title={
-          <span className="flex flex-wrap items-center gap-2">
-            <span>{ref}</span>
-            <Badge tone={CONTRACT_TYPE_TONE[contract.type as ContractType] as "info"} showDot={false}>
-              {t(`contractType.${contract.type as ContractType}`)}
-            </Badge>
-            <Badge tone={STATUS_TONE[contract.status as ContractStatusValue]} showDot>
-              {t(`contractStatus.${contract.status as ContractStatusValue}`)}
-            </Badge>
-          </span>
-        }
-        subtitle={
-          employee && (
-            <span className="flex items-center gap-2">
-              <Avatar name={employeeName} size="sm" tone="orange" />
-              <span>{employeeName}</span>
-              {employee.departmentCode && (
-                <span className="text-ink-4">· {employee.departmentCode}</span>
-              )}
-            </span>
-          )
-        }
+        breadcrumb={[{ label: "HR Core" }, { label: t("title"), href: "/contracts" }, { label: ref }]}
+        title={t("title")}
+        subtitle={td("subtitlePage")}
         actions={
-          <div className="flex items-center gap-2">
-            <Link href={fromEmployee ? `/employees/${employeeId}` : "/contracts"}>
-              <Button variant="secondary" size="sm">
-                <ChevronLeft className="h-4 w-4" />
-                {fromEmployee && employee
-                  ? (employee.actorDisplayName ?? employee.matricule)
-                  : td("back")}
-              </Button>
-            </Link>
-          </div>
+          <Link href={fromEmployee ? `/employees/${employeeId}` : "/contracts"}>
+            <Button variant="secondary" size="sm">
+              <ChevronLeft className="h-4 w-4" />
+              {fromEmployee && employee ? (employee.actorDisplayName ?? employee.matricule) : td("back")}
+            </Button>
+          </Link>
         }
       />
 
+      {/* Hero card */}
+      <div
+        className="relative mb-6 overflow-hidden rounded-[20px] border border-orange-200 p-[26px] shadow-sm-brand"
+        style={{ background: "linear-gradient(135deg, #FFF8F0 0%, #FFFFFF 58%)" }}
+      >
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-grad-orange opacity-[0.07] blur-2xl"
+        />
+        <div className="relative flex flex-wrap items-start justify-between gap-4">
+          <div className="min-w-0 flex-1">
+            <div className="mb-2 flex flex-wrap items-center gap-2">
+              <span className="rounded-full bg-orange-50 px-2.5 py-0.5 font-mono-tabular text-[12px] font-semibold text-orange-700">
+                {ref}
+              </span>
+              <Badge tone={STATUS_TONE[contract.status]} showDot>
+                {t(`contractStatus.${contract.status as ContractStatusValue}`)}
+              </Badge>
+            </div>
+            <h1 className="font-display text-[26px] font-extrabold leading-tight tracking-tight text-ink">
+              {t(`contractType.${contract.type as ContractType}`)}
+            </h1>
+            {employee && (
+              <Link
+                href={`/employees/${employeeId}`}
+                className="mt-2 inline-flex items-center gap-2 rounded-full border border-line bg-white/70 py-1 pl-1 pr-3 transition hover:border-orange-300"
+              >
+                <Avatar name={employeeName} size="sm" tone="orange" />
+                <span className="text-[13px] font-semibold text-ink">{employeeName}</span>
+                <span className="font-mono-tabular text-[11px] text-ink-3">{employee.matricule}</span>
+                {employee.departmentCode && (
+                  <span className="text-[11px] text-ink-4">· {employee.departmentCode}</span>
+                )}
+              </Link>
+            )}
+          </div>
+
+          {canUpdate && isActive && (
+            <div className="flex shrink-0 flex-col gap-2 sm:flex-row">
+              <Button type="button" variant="secondary" onClick={() => setShowRenew(true)}>
+                <RefreshCw className="h-4 w-4" />
+                {td("actions.renew")}
+              </Button>
+              <Button type="button" variant="danger" onClick={() => setShowTerminate(true)}>
+                <XCircle className="h-4 w-4" />
+                {td("actions.terminate")}
+              </Button>
+            </div>
+          )}
+        </div>
+
+        {/* Hero tiles */}
+        <div className="relative mt-6 grid grid-cols-2 gap-3.5 md:grid-cols-4">
+          <HeroTile
+            icon={Banknote}
+            label={th("salaryLabel")}
+            value={formatMoney(base, { locale, withCurrency: false })}
+            sub={`XAF · ${th("monthly")}`}
+          />
+          <HeroTile
+            icon={CalendarDays}
+            label={th("startLabel")}
+            value={formatDate(contract.dateDebut, { locale })}
+          />
+          <HeroTile
+            icon={CalendarClock}
+            label={th("endLabel")}
+            value={contract.dateFin ? formatDate(contract.dateFin, { locale }) : "∞"}
+            sub={contract.dateFin ? undefined : th("noEnd")}
+          />
+          <HeroTile
+            icon={Hourglass}
+            label={th("durationLabel")}
+            value={formatDuration(contract.dateDebut, durationTo, locale)}
+          />
+        </div>
+
+        {/* Progress bars */}
+        {(ft || trial) && (
+          <div className="relative mt-3.5 grid grid-cols-1 gap-3.5 md:grid-cols-2">
+            {trial && (
+              <ProgressBar
+                label={th("trialTitle")}
+                progress={trial}
+                tone="amber"
+                remainingLabel={(d) => th("daysRemaining", { days: d })}
+                endedLabel={th("trialEnded")}
+              />
+            )}
+            {ft && (
+              <ProgressBar
+                label={th("contractTitle")}
+                progress={ft}
+                tone="orange"
+                remainingLabel={(d) => th("daysRemaining", { days: d })}
+                endedLabel={th("contractEnded")}
+              />
+            )}
+          </div>
+        )}
+      </div>
+
       {/* Body */}
-      <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Left column — 2/3 */}
         <div className="flex flex-col gap-6 lg:col-span-2">
           <CharacteristicsCard contract={contract} locale={locale} />
-          <SalaryCard
-            contract={contract}
-            dateEmbauche={employee?.dateEmbauche}
-            locale={locale}
-          />
-          <HistoryCard
-            timeline={timeline}
-            locale={locale}
-            isLoading={timelineQ.isLoading}
-          />
+          <RemunerationCard contract={contract} locale={locale} />
+          <HistoryCard timeline={timeline} locale={locale} isLoading={timelineQ.isLoading} />
         </div>
 
         {/* Right sidebar — 1/3 */}
         <div className="flex flex-col gap-4">
           <ExpiryAlert contract={contract} onRenew={() => setShowRenew(true)} />
-          <ActionsCard
-            contract={contract}
-            canUpdate={canUpdate}
-            onRenew={() => setShowRenew(true)}
-            onTerminate={() => setShowTerminate(true)}
-          />
           <DocumentCard contract={contract} />
-          <MetadataCard contract={contract} />
         </div>
       </div>
 

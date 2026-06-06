@@ -5,6 +5,7 @@
     "subtitle": "Manage your workforce: identities, contracts, dependents and lifecycle.",
     "new": "New employee",
     "search": "Search (name, code, email)…",
+    "allDepartments": "All departments",
     "filters": {
       "all": "All",
       "active": "Active",
@@ -36,6 +37,7 @@
   },
   "contractStatus": {
     "ACTIVE": "Active",
+    "TRIAL": "Trial",
     "EXPIRED": "Expired",
     "TERMINATED": "Terminated",
     "RENEWED": "Renewed"
@@ -84,7 +86,9 @@
       "warnings": "Warnings",
       "copied": "Copied!",
       "continue": "Go to employee profile",
-      "noLogin": "No account created (provisioning disabled)"
+      "noLogin": "No account created (provisioning disabled)",
+      "noLoginTitle": "Login account not created",
+      "noLoginHint": "The employee record was saved. You can retry account creation from their profile."
     },
     "steps": {
       "identity": "Identity",

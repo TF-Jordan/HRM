@@ -35,6 +35,11 @@ public class SkillR2dbcRepositoryAdapter implements SkillRepository {
         return repository.findAllByTenantId(tenantId).map(this::toDomain);
     }
 
+    @Override
+    public Mono<Boolean> existsByNameIgnoreCase(UUID tenantId, String name) {
+        return repository.existsByTenantIdAndNameIgnoreCase(tenantId, name);
+    }
+
     private SkillEntity toEntity(Skill s) {
         return new SkillEntity(s.id(), s.tenantId(), s.createdAt(), s.updatedAt(),
                 s.name(), s.categorie(), s.description());

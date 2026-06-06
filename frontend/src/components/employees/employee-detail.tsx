@@ -2,7 +2,6 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  Banknote,
   Calendar,
   CalendarRange,
   ChevronLeft,
@@ -89,10 +88,6 @@ export function EmployeeDetail({ employeeId }: { employeeId: string }) {
   const heroContracts = useQuery({
     queryKey: ["hrm", "contracts", employeeId],
     queryFn: () => apiFetch<ContractResponse[]>(`/api/hrm/employees/${employeeId}/contracts`),
-  });
-  const heroDependents = useQuery({
-    queryKey: ["hrm", "dependents", employeeId],
-    queryFn: () => apiFetch<DependentResponse[]>(`/api/hrm/employees/${employeeId}/dependents`),
   });
   const heroBalances = useQuery({
     queryKey: ["hrm", "leave-balances", employeeId, new Date().getFullYear()],
@@ -343,19 +338,9 @@ export function EmployeeDetail({ employeeId }: { employeeId: string }) {
           <button
             key={tabKey}
             type="button"
-            onClick={() => {
-              if (tabKey === "contracts") {
-                if (activeContract) {
-                  router.push(`/contracts/${activeContract.id}?employeeId=${employeeId}&from=employee`);
-                } else if (canAddContract && !isTerminated) {
-                  setModal("addContract");
-                }
-              } else {
-                setTab(tabKey);
-              }
-            }}
+            onClick={() => setTab(tabKey)}
             className={`relative px-3.5 py-2 text-[13.5px] font-medium tracking-tight transition-colors ${
-              tabKey !== "contracts" && tab === tabKey
+              tab === tabKey
                 ? "text-orange-600 after:absolute after:bottom-[-9px] after:left-2 after:right-2 after:h-[3px] after:rounded-full after:bg-grad-orange"
                 : "text-ink-3 hover:text-ink"
             }`}
@@ -366,6 +351,13 @@ export function EmployeeDetail({ employeeId }: { employeeId: string }) {
       </div>
 
       {tab === "overview" && <OverviewTab employeeId={employeeId} />}
+      {tab === "contracts" && (
+        <ContractsTab
+          employeeId={employeeId}
+          canAdd={canAddContract && !isTerminated}
+          onAdd={() => setModal("addContract")}
+        />
+      )}
       {tab === "dependents" && (
         <DependentsTab
           employeeId={employeeId}
@@ -419,51 +411,129 @@ export function EmployeeDetail({ employeeId }: { employeeId: string }) {
 
 /* ============================== Tabs ============================== */
 
-function IdentityTab({ employee }: { employee: EmployeeResponse }) {
+const CONTRACT_STATUS_TONE: Record<string, "success" | "info" | "warning" | "danger" | "gray"> = {
+  ACTIVE: "success",
+  TRIAL: "info",
+  RENEWED: "info",
+  EXPIRED: "warning",
+  TERMINATED: "danger",
+};
+
+function ContractsTab({
+  employeeId,
+  canAdd,
+  onAdd,
+}: {
+  employeeId: string;
+  canAdd: boolean;
+  onAdd: () => void;
+}) {
   const t = useTranslations("employees");
-  const tIdent = useTranslations("employees.detail.identity");
-  const tCommon = useTranslations("common");
-  type IconType = typeof UserRound;
-  const items: Array<{ label: string; value: string; icon?: IconType }> = [
-    { label: tIdent("matricule"), value: employee.matricule, icon: UserRound },
-    { label: tIdent("department"), value: employee.departmentCode ?? "—", icon: Users },
+  const tC = useTranslations("employees.detail.contracts");
+  const tStatus = useTranslations("employees.contractStatus");
+  const router = useRouter();
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["hrm", "contracts", employeeId],
+    queryFn: () => apiFetch<ContractResponse[]>(`/api/hrm/employees/${employeeId}/contracts`),
+  });
+
+  const contracts = React.useMemo(
+    () => [...(data ?? [])].sort((a, b) => +new Date(b.dateDebut) - +new Date(a.dateDebut)),
+    [data],
+  );
+  const hasActive = contracts.some((c) => c.status === "ACTIVE" || c.status === "TRIAL");
+
+  const statusLabel = (s: string) => {
+    try {
+      return tStatus(s as "ACTIVE" | "EXPIRED" | "TERMINATED" | "RENEWED" | "TRIAL");
+    } catch {
+      return s;
+    }
+  };
+
+  const columns: Column<ContractResponse>[] = [
     {
-      label: tIdent("categorie") + " · " + tIdent("echelon"),
-      value: `${employee.categorie} / ${employee.echelon ?? "—"}`,
+      key: "type",
+      header: tC("columns.type"),
+      cell: (c) => (
+        <span className="font-semibold text-ink">{t(`contractType.${c.type}`)}</span>
+      ),
     },
-    { label: tIdent("hireDate"), value: formatDate(employee.dateEmbauche, { locale: "fr" }), icon: Calendar },
-    { label: tIdent("numCnps"), value: employee.numCnps ?? "—" },
     {
-      label: tIdent("modePaiement"),
-      value: employee.modePaiement ? t(`paymentChannel.${employee.modePaiement}`) : "—",
-      icon: Banknote,
+      key: "period",
+      header: tC("columns.period"),
+      cell: (c) => (
+        <span className="text-ink-2">
+          {formatDate(c.dateDebut, { locale: "fr" })}
+          {" → "}
+          {c.dateFin ? formatDate(c.dateFin, { locale: "fr" }) : "∞"}
+        </span>
+      ),
     },
-    { label: tIdent("compteBancaire"), value: employee.compteBancaire ?? "—" },
     {
-      label: tIdent("mobileMoney"),
-      value: employee.numMobileMoney
-        ? `${employee.operateurMm ?? "—"} · ${employee.numMobileMoney}`
-        : "—",
+      key: "salary",
+      header: tC("columns.salary"),
+      cell: (c) => (
+        <span className="font-mono-tabular font-semibold text-ink">
+          {formatMoney(Number(c.salaireBase), { locale: "fr", withCurrency: false })}
+        </span>
+      ),
+      className: "text-right",
+      headClassName: "text-right",
     },
-    { label: tIdent("actor"), value: employee.actorId.slice(0, 13) + "…" },
+    {
+      key: "trial",
+      header: tC("columns.trial"),
+      cell: (c) => (
+        <span className="font-mono-tabular text-ink-3">
+          {c.periodeEssai ? `${c.periodeEssai} j` : "—"}
+        </span>
+      ),
+      className: "text-right",
+      headClassName: "text-right",
+    },
+    {
+      key: "status",
+      header: tC("columns.status"),
+      cell: (c) => (
+        <Badge tone={CONTRACT_STATUS_TONE[c.status] ?? "gray"}>{statusLabel(c.status)}</Badge>
+      ),
+    },
   ];
+
   return (
-    <Card>
-      <CardContent padding="lg">
-        <dl className="grid grid-cols-2 gap-x-8 gap-y-4 md:grid-cols-3">
-          {items.map((item) => (
-            <div key={item.label} className="flex items-start gap-3">
-              {item.icon && <IconTile icon={item.icon} tone="gray" size="sm" />}
-              <div className="flex flex-1 flex-col">
-                <Label className="text-[11.5px] uppercase tracking-wider text-ink-4">{item.label}</Label>
-                <span className="mt-0.5 break-words text-[14px] font-medium text-ink">{item.value}</span>
-              </div>
-            </div>
-          ))}
-        </dl>
-        <p className="mt-6 text-[12px] text-ink-4">{tCommon("actions.view")} · UC-02</p>
-      </CardContent>
-    </Card>
+    <>
+      {canAdd && (
+        <div className="mb-3 flex items-center justify-between">
+          <span className="text-[12.5px] uppercase tracking-wider text-ink-3">
+            {tC("history")}
+          </span>
+          <Button type="button" onClick={onAdd} disabled={hasActive} title={hasActive ? t("create.subtitle") : undefined}>
+            <Plus className="h-4 w-4" />
+            {tC("addNew")}
+          </Button>
+        </div>
+      )}
+      {isLoading ? (
+        <div className="grid place-items-center py-10">
+          <Loader2 className="h-7 w-7 animate-spin text-orange-500" />
+        </div>
+      ) : error ? (
+        <div className="rounded-[20px] border border-line bg-white p-10 text-center text-ink-3">
+          {error instanceof BffApiError ? error.message : "Failed"}
+        </div>
+      ) : (
+        <DataTable
+          columns={columns}
+          data={contracts}
+          rowKey={(c) => c.id}
+          empty={tC("noContracts")}
+          onRowClick={(c) =>
+            router.push(`/contracts/${c.id}?employeeId=${employeeId}&from=employee`)
+          }
+        />
+      )}
+    </>
   );
 }
 
@@ -850,7 +920,6 @@ function HeroTile({
 /* ============================== Overview tab (design-faithful) ============================== */
 
 function OverviewTab({ employeeId }: { employeeId: string }) {
-  const t = useTranslations("employees");
   const tOv = useTranslations("employees.detail.overview");
   const tEvt = useTranslations("employees.detail.eventType");
 
