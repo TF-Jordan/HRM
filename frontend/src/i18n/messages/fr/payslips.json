@@ -1,27 +1,54 @@
 {
   "title": "Ma paie",
-  "subtitle": "Bulletins de paie, cumuls et historique de versement",
+  "subtitle": "Bulletins de paie, cumuls annuels et historique de versement",
   "actions": {
     "downloadAll": "Tout télécharger (ZIP)",
     "salaryAttestation": "Attestation de salaire",
-    "downloadMyPayslip": "Télécharger ma fiche de paie"
+    "downloadMyPayslip": "Télécharger ma dernière fiche"
   },
   "hero": {
-    "badge": "Prochain bulletin",
+    "badge": "Dernier bulletin",
+    "badgePending": "Bulletin en cours",
     "title": "Bulletin · {period}",
     "subtitle": "Disponible le {date} · paiement prévu via {channel}",
-    "estimatedGross": "Brut estimé",
-    "estimatedNet": "Net estimé",
+    "estimatedGross": "Brut",
+    "estimatedNet": "Net perçu",
     "workedDays": "Jours travaillés",
-    "detailEstimate": "Détail estimation",
-    "noPending": "Aucun bulletin en cours de calcul"
+    "detailEstimate": "Voir le détail",
+    "noPending": "Aucun bulletin disponible",
+    "noPendingSub": "Vos bulletins apparaîtront ici dès le premier versement",
+    "paymentVia": "Versé via {channel}",
+    "paidOn": "Reçu le {date}",
+    "pending": "En cours de traitement",
+    "deltaUp": "+{pct} % vs mois précédent",
+    "deltaDown": "−{pct} % vs mois précédent",
+    "deltaFlat": "Stable vs mois précédent",
+    "viewDetail": "Voir le bulletin"
   },
   "ytd": {
     "cumulGross": "Cumul brut {year}",
     "cumulNet": "Cumul net {year}",
     "irpp": "IRPP retenu",
-    "cnps": "Cotisations CNPS",
+    "cnps": "CNPS & retenues",
+    "avgRate": "Taux de prélèvement moyen",
+    "employerCost": "Coût employeur cumulé",
+    "employerChargesSub": "dont {value} de charges",
     "suffix": "XAF · {note}"
+  },
+  "evolution": {
+    "title": "Évolution de ma rémunération",
+    "subtitle": "Net perçu et retenues mois par mois · {year}",
+    "legendNet": "Net perçu",
+    "legendDeductions": "Retenues",
+    "empty": "Aucune donnée pour cette année"
+  },
+  "distribution": {
+    "title": "Répartition {year}",
+    "subtitle": "Où va votre rémunération brute",
+    "net": "Net perçu",
+    "irpp": "IRPP",
+    "cnps": "CNPS & autres retenues",
+    "ofGross": "du brut"
   },
   "history": {
     "title": "Historique de mes bulletins",
@@ -55,7 +82,14 @@
     "grossLine": "Brut imposable",
     "sectionDeductions": "RETENUES SALARIALES",
     "totalDeductions": "Total retenues",
-    "netToPay": "NET À PAYER"
+    "netToPay": "NET À PAYER",
+    "sectionEmployer": "CHARGES PATRONALES",
+    "employerTotal": "Coût total employeur",
+    "employerHint": "À titre informatif · non déduit de votre net",
+    "distribution": "Répartition de votre brut",
+    "netShare": "Net perçu",
+    "deductionShare": "Retenues",
+    "verified": "Document généré depuis vos données de paie · {ref}"
   },
   "currency": "XAF"
 }

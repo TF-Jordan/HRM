@@ -2,20 +2,24 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+  Briefcase,
   Building2,
   Calendar,
+  CalendarClock,
   Check,
   CheckCircle2,
+  Layers,
   Loader2,
+  type LucideIcon,
   Mail,
   Pencil,
   Phone,
+  Plane,
   Plus,
-  Printer,
   Trash2,
   Users,
 } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import * as React from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -28,7 +32,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Field, Input, Label } from "@/components/ui/input";
 import { apiFetch, BffApiError } from "@/lib/api-client";
-import { formatDate } from "@/lib/format";
+import { formatDate, formatMoney } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 import type {
@@ -37,12 +41,18 @@ import type {
   PersonalInfoResponse,
   TimelineEventResponse,
 } from "@/server/ksm/modules/employee-profile";
-import type { DependentResponse, EmployeeResponse } from "@/server/ksm/modules/employees";
+import type {
+  ContractResponse,
+  DependentResponse,
+  EmployeeResponse,
+  LeaveBalanceResponse,
+} from "@/server/ksm/modules/employees";
+import type { EmployeeSkillView } from "@/server/ksm/modules/skills";
 import type { OrganizationResponse } from "@/server/ksm/modules/organization";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
-type Tab = "overview" | "contact" | "banking" | "family" | "emergency";
+type Tab = "overview" | "employment" | "skills" | "contact" | "banking" | "family" | "emergency";
 
 type ProfilePayload = {
   employee: EmployeeResponse | null;
@@ -51,6 +61,48 @@ type ProfilePayload = {
   dependents: DependentResponse[];
   emergencyContacts: EmergencyContactResponse[];
   timeline: TimelineEventResponse[];
+  contracts: ContractResponse[];
+  leaveBalances: LeaveBalanceResponse[];
+  skills: EmployeeSkillView[];
+};
+
+// ─── Employment helpers ────────────────────────────────────────────────────────
+
+function selectActiveContract(contracts: ContractResponse[]): ContractResponse | null {
+  if (!contracts.length) return null;
+  const active = contracts.find((c) => c.status === "ACTIVE" || c.status === "TRIAL");
+  if (active) return active;
+  return contracts.slice().sort((a, b) => (a.dateDebut < b.dateDebut ? 1 : -1))[0] ?? null;
+}
+
+function computeTenure(hireDate?: string | null): { years: number; months: number } | null {
+  if (!hireDate) return null;
+  const start = new Date(hireDate);
+  if (Number.isNaN(start.getTime())) return null;
+  const now = new Date();
+  let months = (now.getFullYear() - start.getFullYear()) * 12 + (now.getMonth() - start.getMonth());
+  if (now.getDate() < start.getDate()) months -= 1;
+  if (months < 0) months = 0;
+  return { years: Math.floor(months / 12), months: months % 12 };
+}
+
+function computeAge(birthDate?: string | null): number | null {
+  if (!birthDate) return null;
+  const b = new Date(birthDate);
+  if (Number.isNaN(b.getTime())) return null;
+  const now = new Date();
+  let age = now.getFullYear() - b.getFullYear();
+  const m = now.getMonth() - b.getMonth();
+  if (m < 0 || (m === 0 && now.getDate() < b.getDate())) age -= 1;
+  return age >= 0 ? age : null;
+}
+
+const CONTRACT_STATUS_TONE: Record<string, "success" | "warning" | "info" | "gray"> = {
+  ACTIVE: "success",
+  TRIAL: "warning",
+  RENEWED: "info",
+  EXPIRED: "gray",
+  TERMINATED: "gray",
 };
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -677,6 +729,207 @@ function EmergencyTab({
   );
 }
 
+// ─── Employment & contract tab ──────────────────────────────────────────────────
+
+function EmploymentTab({
+  profile,
+  employee,
+  contracts,
+}: {
+  profile: EmployeeProfileResponse | null;
+  employee: EmployeeResponse | null;
+  contracts: ContractResponse[];
+}) {
+  const t = useTranslations("profile");
+  const locale = useLocale() as "fr" | "en";
+  const active = selectActiveContract(contracts);
+  const tenure = computeTenure(employee?.dateEmbauche ?? profile?.dateEmbauche);
+  const categorie = employee?.categorie ?? profile?.categorie ?? null;
+  const echelon = employee?.echelon ?? profile?.echelon ?? null;
+  const history = contracts
+    .slice()
+    .sort((a, b) => (a.dateDebut < b.dateDebut ? 1 : -1));
+
+  return (
+    <>
+      <div className="flex items-center justify-between border-b border-line px-6 py-3">
+        <span className="text-[13px] font-semibold text-ink">{t("employment.title")}</span>
+      </div>
+      <SectionRow>
+        <Field2
+          label={t("employment.classification")}
+          value={categorie != null ? `${t("employment.category")} ${categorie}${echelon ? ` · ${t("employment.echelon")} ${echelon}` : ""}` : null}
+        />
+        <Field2 label={t("employment.department")} value={employee?.departmentCode ?? profile?.departmentCode} />
+        <Field2 label={t("employment.manager")} value={profile?.managerDisplayName} />
+        <Field2
+          label={t("employment.hireDate")}
+          value={employee?.dateEmbauche ? formatDate(employee.dateEmbauche) : null}
+        />
+        <Field2
+          label={t("employment.tenure")}
+          value={tenure ? t("employment.tenureValue", { years: tenure.years, months: tenure.months }) : null}
+        />
+        <Field2 label={t("employment.cnps")} value={employee?.numCnps ?? profile?.numCnps} />
+      </SectionRow>
+
+      <div className="border-t border-line px-6 py-3 text-[13px] font-semibold text-ink">
+        {t("employment.currentContract")}
+      </div>
+      {active ? (
+        <div className="px-6 pb-5">
+          <div className="rounded-[14px] border border-line bg-white p-5">
+            <div className="mb-4 flex flex-wrap items-center gap-2">
+              <Badge tone="orange" showDot={false}>
+                {active.type}
+              </Badge>
+              <Badge tone={CONTRACT_STATUS_TONE[active.status] ?? "gray"} showDot={false}>
+                {t(`employment.contractStatus.${active.status}`)}
+              </Badge>
+            </div>
+            <div className="grid grid-cols-2 gap-x-8 gap-y-5">
+              <Field2 label={t("employment.startDate")} value={formatDate(active.dateDebut)} />
+              <Field2
+                label={t("employment.endDate")}
+                value={active.dateFin ? formatDate(active.dateFin) : t("employment.indefinite")}
+              />
+              <Field2
+                label={t("employment.baseSalary")}
+                value={formatMoney(Number(active.salaireBase ?? 0), { locale })}
+              />
+              <Field2
+                label={t("employment.benefits")}
+                value={
+                  active.avantagesNature != null && Number(active.avantagesNature) > 0
+                    ? formatMoney(Number(active.avantagesNature), { locale })
+                    : null
+                }
+              />
+              {active.periodeEssai != null && active.periodeEssai > 0 && (
+                <Field2
+                  label={t("employment.trialPeriod")}
+                  value={t("employment.trialMonths", { count: active.periodeEssai })}
+                />
+              )}
+            </div>
+          </div>
+        </div>
+      ) : (
+        <p className="px-6 pb-5 text-[13px] text-ink-3">{t("employment.noContract")}</p>
+      )}
+
+      {history.length > 1 && (
+        <>
+          <div className="border-t border-line px-6 py-3 text-[13px] font-semibold text-ink">
+            {t("employment.history")}
+          </div>
+          <div className="px-6 pb-5">
+            <div className="space-y-2">
+              {history.map((c) => (
+                <div
+                  key={c.id}
+                  className="flex items-center gap-3 rounded-[10px] border border-line-soft bg-white px-4 py-2.5"
+                >
+                  <Briefcase size={14} className="shrink-0 text-ink-4" />
+                  <span className="text-[12.5px] font-semibold text-ink">{c.type}</span>
+                  <span className="text-[12px] text-ink-3">
+                    {formatDate(c.dateDebut)} → {c.dateFin ? formatDate(c.dateFin) : t("employment.indefinite")}
+                  </span>
+                  <Badge
+                    tone={CONTRACT_STATUS_TONE[c.status] ?? "gray"}
+                    showDot={false}
+                    className="ml-auto text-[10px]"
+                  >
+                    {t(`employment.contractStatus.${c.status}`)}
+                  </Badge>
+                </div>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
+    </>
+  );
+}
+
+// ─── Skills tab ──────────────────────────────────────────────────────────────
+
+function SkillsTab({ skills }: { skills: EmployeeSkillView[] }) {
+  const t = useTranslations("profile");
+  const grouped = React.useMemo(() => {
+    const map = new Map<string, EmployeeSkillView[]>();
+    for (const s of skills) {
+      const key = s.skillCategory?.trim() || t("skills.uncategorized");
+      const arr = map.get(key) ?? [];
+      arr.push(s);
+      map.set(key, arr);
+    }
+    return [...map.entries()];
+  }, [skills, t]);
+
+  return (
+    <>
+      <div className="flex items-center justify-between border-b border-line px-6 py-3">
+        <span className="text-[13px] font-semibold text-ink">{t("skills.title")}</span>
+        <span className="text-[12px] text-ink-3">{t("skills.count", { count: skills.length })}</span>
+      </div>
+      {skills.length === 0 ? (
+        <p className="px-6 py-5 text-[13px] text-ink-3">{t("skills.noData")}</p>
+      ) : (
+        <div className="space-y-5 px-6 py-5">
+          {grouped.map(([category, items]) => (
+            <div key={category}>
+              <div className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-ink-3">{category}</div>
+              <div className="space-y-3">
+                {items.map((s) => (
+                  <SkillRow key={s.id} skill={s} t={t} />
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </>
+  );
+}
+
+function SkillRow({ skill, t }: { skill: EmployeeSkillView; t: ReturnType<typeof useTranslations<"profile">> }) {
+  const max = Math.max(5, skill.niveauAttendu, skill.niveauActuel);
+  const meetsTarget = skill.niveauActuel >= skill.niveauAttendu;
+  return (
+    <div>
+      <div className="mb-1.5 flex items-center justify-between">
+        <span className="text-[13px] font-medium text-ink">{skill.skillName}</span>
+        <span className="font-mono-tabular text-[12px] text-ink-3">
+          {skill.niveauActuel} / {skill.niveauAttendu}
+        </span>
+      </div>
+      <div className="flex gap-1">
+        {Array.from({ length: max }, (_, i) => {
+          const level = i + 1;
+          const filled = level <= skill.niveauActuel;
+          const expected = level <= skill.niveauAttendu;
+          return (
+            <div
+              key={i}
+              className={cn(
+                "h-2 flex-1 rounded-full",
+                filled
+                  ? meetsTarget
+                    ? "bg-success-500"
+                    : "bg-orange-500"
+                  : expected
+                    ? "bg-orange-100"
+                    : "bg-bg-soft",
+              )}
+            />
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 // ─── Main component ────────────────────────────────────────────────────────────
 
 export function MyProfile() {
@@ -706,10 +959,19 @@ export function MyProfile() {
   const hireDate = data?.employee?.dateEmbauche ? formatDate(data.employee.dateEmbauche) : null;
   const manager = data?.profile?.managerDisplayName;
   const status = data?.employee?.status ?? "ACTIVE";
-  const contractType = "CDI"; // derived from contracts if needed
+  const photo = data?.profile?.actorPhotoUri ?? undefined;
+
+  const activeContract = selectActiveContract(data?.contracts ?? []);
+  const contractType = activeContract?.type ?? null;
+  const tenure = computeTenure(data?.employee?.dateEmbauche);
+  const age = computeAge(data?.profile?.actorBirthDate);
+  const annualLeave = (data?.leaveBalances ?? []).find((b) => b.type === "ANNUAL");
+  const categorie = data?.employee?.categorie ?? data?.profile?.categorie ?? null;
 
   const TABS: { id: Tab; label: string }[] = [
     { id: "overview", label: t("tabs.overview") },
+    { id: "employment", label: t("tabs.employment") },
+    { id: "skills", label: t("tabs.skills") },
     { id: "contact", label: t("tabs.contact") },
     { id: "banking", label: t("tabs.banking") },
     { id: "family", label: t("tabs.family") },
@@ -717,6 +979,30 @@ export function MyProfile() {
   ];
 
   const invalidate = () => qc.invalidateQueries({ queryKey: ["hrm", "profile", "me"] });
+
+  const statusLabel = t(`statusValue.${status}`);
+  const statItems: { icon: LucideIcon; label: string; value: string }[] = [
+    {
+      icon: CalendarClock,
+      label: t("stats.tenure"),
+      value: tenure ? t("employment.tenureValue", { years: tenure.years, months: tenure.months }) : "—",
+    },
+    {
+      icon: Plane,
+      label: t("stats.annualLeave"),
+      value: annualLeave ? t("stats.daysLeft", { count: Number(annualLeave.soldeRestant ?? 0) }) : "—",
+    },
+    {
+      icon: Users,
+      label: t("stats.dependents"),
+      value: String(data?.dependents?.length ?? 0),
+    },
+    {
+      icon: Layers,
+      label: t("stats.classification"),
+      value: categorie != null ? `${t("employment.category")} ${categorie}` : age != null ? t("stats.ageValue", { count: age }) : "—",
+    },
+  ];
 
   if (query.isLoading) {
     return (
@@ -742,7 +1028,7 @@ export function MyProfile() {
         <div className="relative flex flex-wrap items-start gap-5">
           {/* Avatar */}
           <div className="relative shrink-0">
-            <Avatar name={name} size="xl" tone="orange" />
+            <Avatar name={name} src={photo} size="xl" tone="orange" />
           </div>
 
           {/* Identity */}
@@ -751,9 +1037,17 @@ export function MyProfile() {
               <span className="font-mono rounded-full bg-orange-50 px-2.5 py-0.5 text-[11px] text-orange-700">
                 {matricule}
               </span>
-              <Badge tone="success" showDot>
-                {contractType} · {status === "ACTIVE" ? "Actif" : status}
+              <Badge
+                tone={status === "ACTIVE" ? "success" : status === "TERMINATED" ? "gray" : "warning"}
+                showDot
+              >
+                {contractType ? `${contractType} · ${statusLabel}` : statusLabel}
               </Badge>
+              {categorie != null && (
+                <span className="rounded-full bg-bg-soft px-2.5 py-0.5 text-[11px] font-medium text-ink-2">
+                  {t("employment.category")} {categorie}
+                </span>
+              )}
             </div>
             <div className="font-display text-[28px] font-extrabold leading-tight text-ink">{name}</div>
             <div className="mt-1 text-[13.5px] text-ink-2">
@@ -781,13 +1075,25 @@ export function MyProfile() {
 
           {/* Actions */}
           <div className="flex shrink-0 flex-col gap-2">
-            <Button size="sm">
+            <Button size="sm" onClick={() => setTab("overview")}>
               <Pencil size={13} /> {t("hero.editProfile")}
             </Button>
-            <Button variant="secondary" size="sm">
-              <Printer size={13} /> {t("hero.printSheet")}
-            </Button>
           </div>
+        </div>
+
+        {/* Key stats strip */}
+        <div className="relative mt-5 grid grid-cols-2 gap-3 border-t border-orange-200/60 pt-4 sm:grid-cols-4">
+          {statItems.map((s) => (
+            <div key={s.label} className="flex items-center gap-2.5">
+              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-[11px] bg-white text-orange-600 shadow-xs-brand">
+                <s.icon size={16} />
+              </span>
+              <div className="min-w-0">
+                <div className="text-[10.5px] font-semibold uppercase tracking-wide text-ink-3">{s.label}</div>
+                <div className="truncate text-[13.5px] font-bold text-ink">{s.value}</div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
@@ -828,6 +1134,14 @@ export function MyProfile() {
                 onSaved={invalidate}
               />
             )}
+            {tab === "employment" && (
+              <EmploymentTab
+                profile={data?.profile ?? null}
+                employee={data?.employee ?? null}
+                contracts={data?.contracts ?? []}
+              />
+            )}
+            {tab === "skills" && <SkillsTab skills={data?.skills ?? []} />}
             {tab === "banking" && <BankingTab employee={data?.employee ?? null} />}
             {tab === "family" && <FamilyTab dependents={data?.dependents ?? []} />}
             {tab === "emergency" && (

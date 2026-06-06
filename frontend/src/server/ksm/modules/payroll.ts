@@ -156,10 +156,12 @@ export type MyPayslipSummaryResponse = {
   runId: string;
   periode: string;
   runStatus: string;
+  salaireBase: number | string;
   brut: number | string;
   net: number | string;
   totalDeductions: number | string;
   incomeTax: number | string;
+  employerCharges: number | string;
   paymentStatus: string;
   paymentChannel: string | null;
   paymentDate: string | null;

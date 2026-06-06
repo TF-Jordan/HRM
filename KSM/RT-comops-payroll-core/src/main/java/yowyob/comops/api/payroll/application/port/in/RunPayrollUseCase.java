@@ -44,10 +44,12 @@ public interface RunPayrollUseCase {
             UUID runId,
             String periode,
             String runStatus,
+            BigDecimal salaireBase,
             BigDecimal brut,
             BigDecimal net,
             BigDecimal totalDeductions,
             BigDecimal incomeTax,
+            BigDecimal employerCharges,
             String paymentStatus,
             String paymentChannel,
             Instant paymentDate) {

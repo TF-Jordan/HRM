@@ -8,10 +8,61 @@
   },
   "tabs": {
     "overview": "Personal information",
+    "employment": "Job & contract",
+    "skills": "Skills",
     "contact": "Contact & address",
     "banking": "Bank & payment",
     "family": "Family & dependents",
     "emergency": "Emergency contact"
+  },
+  "statusValue": {
+    "ACTIVE": "Active",
+    "ON_LEAVE": "On leave",
+    "SUSPENDED": "Suspended",
+    "TERMINATED": "Left"
+  },
+  "stats": {
+    "tenure": "Tenure",
+    "annualLeave": "Leave balance",
+    "daysLeft": "{count} days left",
+    "dependents": "Dependents",
+    "classification": "Classification",
+    "ageValue": "{count} yrs"
+  },
+  "employment": {
+    "title": "Job & classification",
+    "classification": "Classification",
+    "category": "Cat.",
+    "echelon": "Step",
+    "department": "Department",
+    "manager": "Reporting manager",
+    "hireDate": "Hire date",
+    "tenure": "Tenure",
+    "tenureValue": "{years}y {months}m",
+    "cnps": "Social security no.",
+    "currentContract": "Current contract",
+    "startDate": "Start date",
+    "endDate": "End date",
+    "indefinite": "Open-ended",
+    "baseSalary": "Base salary",
+    "benefits": "Benefits in kind",
+    "trialPeriod": "Trial period",
+    "trialMonths": "{count} months",
+    "noContract": "No contract on record",
+    "history": "Contract history",
+    "contractStatus": {
+      "ACTIVE": "Active",
+      "TRIAL": "Trial",
+      "RENEWED": "Renewed",
+      "EXPIRED": "Expired",
+      "TERMINATED": "Terminated"
+    }
+  },
+  "skills": {
+    "title": "Skills & levels",
+    "count": "{count} skill(s)",
+    "uncategorized": "Other",
+    "noData": "No skills assessed yet"
   },
   "overview": {
     "title": "Personal information",

@@ -4,16 +4,18 @@ import { useQuery } from "@tanstack/react-query";
 import { pdf } from "@react-pdf/renderer";
 import {
   ArrowLeft,
+  Building2,
+  CheckCircle2,
   ChevronRight,
   Download,
   FileText,
   Loader2,
   Printer,
-  Send,
+  TrendingDown,
+  TrendingUp,
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import * as React from "react";
-import { toast } from "sonner";
 
 import { useSession } from "@/components/providers/session-provider";
 import { PageHeader } from "@/components/shell/page-header";
@@ -125,6 +127,10 @@ async function downloadPayslipPdf(
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
+const COLOR_NET = "#F97316";
+const COLOR_IRPP = "#EF4444";
+const COLOR_CNPS = "#3B82F6";
+
 function num(v: number | string | null | undefined): number {
   if (v == null) return 0;
   const n = typeof v === "string" ? parseFloat(v) : v;
@@ -139,21 +145,187 @@ function periodeYear(periode: string): string {
   return periode?.split("-")[0] ?? "";
 }
 
+function periodeMonth(periode: string): number {
+  return Number(periode?.split("-")[1] ?? 0);
+}
+
+function monthShort(monthIndex: number, locale: "fr" | "en"): string {
+  const d = new Date(2000, monthIndex - 1, 1);
+  return d
+    .toLocaleDateString(locale === "fr" ? "fr-FR" : "en-US", { month: "short" })
+    .replace(".", "");
+}
+
 function availableYears(items: MyPayslipSummaryResponse[]): string[] {
-  const years = [...new Set(items.map((p) => periodeYear(p.periode)))].sort((a, b) => b.localeCompare(a));
-  return years;
+  return [...new Set(items.map((p) => periodeYear(p.periode)))].sort((a, b) => b.localeCompare(a));
 }
 
 // ─── YTD stats ────────────────────────────────────────────────────────────────
 
 function computeYtd(items: MyPayslipSummaryResponse[], year: string) {
   const filtered = items.filter((p) => periodeYear(p.periode) === year);
+  const gross = filtered.reduce((s, p) => s + num(p.brut), 0);
+  const net = filtered.reduce((s, p) => s + num(p.net), 0);
+  const irpp = filtered.reduce((s, p) => s + num(p.incomeTax), 0);
+  const totalDeductions = filtered.reduce((s, p) => s + num(p.totalDeductions), 0);
+  const employerCharges = filtered.reduce((s, p) => s + num(p.employerCharges), 0);
   return {
-    gross: filtered.reduce((s, p) => s + num(p.brut), 0),
-    net: filtered.reduce((s, p) => s + num(p.net), 0),
-    irpp: filtered.reduce((s, p) => s + num(p.incomeTax), 0),
-    cnps: filtered.reduce((s, p) => s + Math.max(num(p.totalDeductions) - num(p.incomeTax), 0), 0),
+    gross,
+    net,
+    irpp,
+    cnps: Math.max(totalDeductions - irpp, 0),
+    totalDeductions,
+    employerCharges,
+    employerCost: gross + employerCharges,
+    rate: gross > 0 ? totalDeductions / gross : 0,
   };
+}
+
+// ─── Annual evolution chart ────────────────────────────────────────────────────
+
+function EvolutionChart({
+  items,
+  year,
+  locale,
+  onSelect,
+}: {
+  items: MyPayslipSummaryResponse[];
+  year: string;
+  locale: "fr" | "en";
+  onSelect: (p: MyPayslipSummaryResponse) => void;
+}) {
+  const t = useTranslations("payslips");
+  const byMonth = new Map<number, MyPayslipSummaryResponse>();
+  items
+    .filter((p) => periodeYear(p.periode) === year)
+    .forEach((p) => byMonth.set(periodeMonth(p.periode), p));
+
+  const maxGross = Math.max(1, ...items.filter((p) => periodeYear(p.periode) === year).map((p) => num(p.brut)));
+
+  return (
+    <Card>
+      <div className="flex items-center justify-between border-b border-line px-6 py-4">
+        <div>
+          <div className="font-display text-[15px] font-bold text-ink">{t("evolution.title")}</div>
+          <div className="text-[12px] text-ink-3">{t("evolution.subtitle", { year })}</div>
+        </div>
+        <div className="flex items-center gap-4 text-[11px] text-ink-3">
+          <span className="flex items-center gap-1.5">
+            <span className="h-2.5 w-2.5 rounded-sm" style={{ background: COLOR_NET }} /> {t("evolution.legendNet")}
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="h-2.5 w-2.5 rounded-sm" style={{ background: "#E2D9CE" }} /> {t("evolution.legendDeductions")}
+          </span>
+        </div>
+      </div>
+      <CardContent className="p-6">
+        {byMonth.size === 0 ? (
+          <div className="flex h-40 items-center justify-center text-[13px] text-ink-3">{t("evolution.empty")}</div>
+        ) : (
+          <div className="flex h-44 items-end gap-2">
+            {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => {
+              const p = byMonth.get(m);
+              const net = p ? num(p.net) : 0;
+              const ded = p ? Math.max(num(p.brut) - net, 0) : 0;
+              const netH = (net / maxGross) * 100;
+              const dedH = (ded / maxGross) * 100;
+              return (
+                <button
+                  key={m}
+                  type="button"
+                  disabled={!p}
+                  onClick={() => p && onSelect(p)}
+                  className="group flex flex-1 flex-col items-center gap-1.5"
+                  title={p ? `${monthShort(m, locale)} · ${fmtMoney(p.net)} net / ${fmtMoney(p.brut)} brut` : undefined}
+                >
+                  <div className="flex h-full w-full flex-col justify-end overflow-hidden rounded-md bg-bg-dim">
+                    <div
+                      className="w-full transition-all"
+                      style={{ height: `${dedH}%`, background: "#E2D9CE" }}
+                    />
+                    <div
+                      className={cn("w-full transition-all", p && "group-hover:brightness-110")}
+                      style={{ height: `${netH}%`, background: COLOR_NET }}
+                    />
+                  </div>
+                  <span className={cn("text-[10px] font-medium", p ? "text-ink-3" : "text-ink-4/50")}>
+                    {monthShort(m, locale)}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+// ─── Distribution donut ────────────────────────────────────────────────────────
+
+function DistributionDonut({
+  year,
+  net,
+  irpp,
+  cnps,
+}: {
+  year: string;
+  net: number;
+  irpp: number;
+  cnps: number;
+}) {
+  const t = useTranslations("payslips");
+  const total = net + irpp + cnps;
+  const segs = [
+    { label: t("distribution.net"), value: net, color: COLOR_NET },
+    { label: t("distribution.cnps"), value: cnps, color: COLOR_CNPS },
+    { label: t("distribution.irpp"), value: irpp, color: COLOR_IRPP },
+  ].filter((s) => s.value > 0);
+
+  let acc = 0;
+  const stops = segs
+    .map((s) => {
+      const from = (acc / Math.max(total, 1)) * 360;
+      acc += s.value;
+      const to = (acc / Math.max(total, 1)) * 360;
+      return `${s.color} ${from}deg ${to}deg`;
+    })
+    .join(", ");
+
+  return (
+    <Card>
+      <div className="border-b border-line px-6 py-4">
+        <div className="font-display text-[15px] font-bold text-ink">{t("distribution.title", { year })}</div>
+        <div className="text-[12px] text-ink-3">{t("distribution.subtitle")}</div>
+      </div>
+      <CardContent className="flex items-center gap-6 p-6">
+        <div className="relative h-32 w-32 shrink-0">
+          <div
+            className="h-full w-full rounded-full"
+            style={{ background: total > 0 ? `conic-gradient(${stops})` : "var(--bg-dim)" }}
+          />
+          <div className="absolute inset-[18%] flex flex-col items-center justify-center rounded-full bg-white text-center">
+            <span className="text-[10px] uppercase tracking-wide text-ink-3">{t("distribution.net")}</span>
+            <span className="tabular-nums text-[13px] font-extrabold text-ink">
+              {total > 0 ? `${Math.round((net / total) * 100)}%` : "—"}
+            </span>
+          </div>
+        </div>
+        <div className="flex-1 space-y-2.5">
+          {segs.map((s) => (
+            <div key={s.label} className="flex items-center gap-2.5">
+              <span className="h-2.5 w-2.5 shrink-0 rounded-sm" style={{ background: s.color }} />
+              <span className="flex-1 text-[12.5px] text-ink-2">{s.label}</span>
+              <span className="tabular-nums text-[12.5px] font-semibold text-ink">{fmtMoney(s.value)}</span>
+              <span className="w-10 text-right text-[11px] text-ink-3">
+                {total > 0 ? `${Math.round((s.value / total) * 100)}%` : ""}
+              </span>
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  );
 }
 
 // ─── Payslip detail view ──────────────────────────────────────────────────────
@@ -187,8 +359,13 @@ function PayslipDetail({
   const lines = linesQuery.data ?? [];
   const earnings = lines.filter((l) => l.type === "EARNING").sort((a, b) => a.ordreAffichage - b.ordreAffichage);
   const deductions = lines.filter((l) => l.type === "DEDUCTION").sort((a, b) => a.ordreAffichage - b.ordreAffichage);
-  const totalEarnings = earnings.reduce((s, l) => s + num(l.montant), 0);
+  const employerLines = lines
+    .filter((l) => l.type === "EMPLOYER_INFO")
+    .sort((a, b) => a.ordreAffichage - b.ordreAffichage);
   const totalDeductions = deductions.reduce((s, l) => s + num(l.montant), 0);
+  const employerCharges = employerLines.reduce((s, l) => s + num(l.montant), 0);
+  const employerTotal = num(summary.brut) + employerCharges;
+  const netShare = num(summary.brut) > 0 ? num(summary.net) / num(summary.brut) : 0;
 
   const period = formatPeriodFr(summary.periode);
   const isPaid = summary.runStatus === "VALIDATED" || summary.runStatus === "PAID";
@@ -229,11 +406,8 @@ function PayslipDetail({
           </div>
         </div>
         <div className="ml-auto flex shrink-0 gap-2">
-          <Button variant="secondary" size="sm">
+          <Button variant="secondary" size="sm" onClick={() => window.print()}>
             <Printer size={13} /> {t("detail.print")}
-          </Button>
-          <Button variant="secondary" size="sm">
-            <Send size={13} /> {t("detail.sendEmail")}
           </Button>
           <Button
             size="sm"
@@ -400,6 +574,59 @@ function PayslipDetail({
               </tbody>
             </table>
           )}
+
+          {/* Répartition du brut */}
+          {!linesQuery.isLoading && num(summary.brut) > 0 && (
+            <div className="mt-5">
+              <div className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-ink-3">
+                {t("detail.distribution")}
+              </div>
+              <div className="flex h-3 overflow-hidden rounded-full bg-bg-dim">
+                <div style={{ width: `${netShare * 100}%`, background: COLOR_NET }} />
+                <div style={{ width: `${(1 - netShare) * 100}%`, background: "#E2D9CE" }} />
+              </div>
+              <div className="mt-2 flex justify-between text-[11px]">
+                <span className="flex items-center gap-1.5 text-ink-2">
+                  <span className="h-2 w-2 rounded-sm" style={{ background: COLOR_NET }} />
+                  {t("detail.netShare")} · {Math.round(netShare * 100)}%
+                </span>
+                <span className="flex items-center gap-1.5 text-ink-3">
+                  <span className="h-2 w-2 rounded-sm" style={{ background: "#E2D9CE" }} />
+                  {t("detail.deductionShare")} · {Math.round((1 - netShare) * 100)}%
+                </span>
+              </div>
+            </div>
+          )}
+
+          {/* Charges patronales (informatif) */}
+          {!linesQuery.isLoading && employerLines.length > 0 && (
+            <div className="mt-5 rounded-xl border border-line bg-bg-dim/60 p-4">
+              <div className="mb-2 flex items-center gap-2">
+                <Building2 size={14} className="text-info-500" />
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-ink-3">
+                  {t("detail.sectionEmployer")}
+                </span>
+              </div>
+              <div className="space-y-1.5">
+                {employerLines.map((l) => (
+                  <div key={l.id} className="flex justify-between text-[12.5px]">
+                    <span className="text-ink-2">{l.libelle}</span>
+                    <span className="tabular-nums text-ink">{fmtMoney(l.montant)}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-2.5 flex items-center justify-between border-t border-line pt-2.5">
+                <span className="text-[12.5px] font-semibold text-ink">{t("detail.employerTotal")}</span>
+                <span className="tabular-nums text-[14px] font-extrabold text-ink">{fmtMoney(employerTotal)}</span>
+              </div>
+              <div className="mt-1 text-[10.5px] italic text-ink-4">{t("detail.employerHint")}</div>
+            </div>
+          )}
+
+          <div className="mt-4 flex items-center gap-1.5 text-[10.5px] text-ink-4">
+            <CheckCircle2 size={12} className="text-success-600" />
+            {t("detail.verified", { ref: summary.entryId.split("-")[0].toUpperCase() })}
+          </div>
         </CardContent>
       </Card>
     </div>
@@ -459,19 +686,26 @@ export function MyPayslips() {
 
   const allPayslips = payslipsQuery.data ?? [];
   const years = availableYears(allPayslips);
-  if (years.length > 0 && !years.includes(activeYear) && activeYear === currentYear) {
-    // default to most recent available year
-  }
+
+  // Default to the most recent year that actually has data
+  const effectiveYear = years.includes(activeYear) ? activeYear : (years[0] ?? currentYear);
+
   const filteredPayslips = allPayslips
-    .filter((p) => periodeYear(p.periode) === activeYear)
+    .filter((p) => periodeYear(p.periode) === effectiveYear)
     .sort((a, b) => b.periode.localeCompare(a.periode));
 
-  const ytd = computeYtd(allPayslips, activeYear);
+  const ytd = computeYtd(allPayslips, effectiveYear);
 
-  // Latest payslip for hero (most recent VALIDATED or PAID)
-  const latestPaid = [...allPayslips]
-    .sort((a, b) => b.periode.localeCompare(a.periode))
-    .find((p) => p.runStatus === "VALIDATED" || p.runStatus === "PAID");
+  // Most recent payslip overall for the hero + its predecessor for the MoM delta
+  const sortedDesc = [...allPayslips].sort((a, b) => b.periode.localeCompare(a.periode));
+  const latest = sortedDesc[0] ?? null;
+  const previous = sortedDesc[1] ?? null;
+  const latestPaid = sortedDesc.find((p) => p.runStatus === "VALIDATED" || p.runStatus === "PAID") ?? latest;
+
+  const netDelta =
+    latest && previous && num(previous.net) > 0
+      ? (num(latest.net) - num(previous.net)) / num(previous.net)
+      : null;
 
   if (payslipsQuery.isLoading) {
     return (
@@ -491,25 +725,24 @@ export function MyPayslips() {
     );
   }
 
+  const heroSlip = latest;
+  const heroPaid = heroSlip?.runStatus === "VALIDATED" || heroSlip?.runStatus === "PAID";
+  const heroPayDate = heroSlip?.paymentDate ? formatDate(heroSlip.paymentDate) : null;
+
   return (
     <div className="space-y-5">
       <PageHeader
         title={t("title")}
         subtitle={t("subtitle")}
         actions={
-          <div className="flex gap-2">
-            <Button variant="secondary" size="sm">
-              <Download size={13} /> {t("actions.downloadAll")}
-            </Button>
-            <Button
-              size="sm"
-              disabled={isDownloading || !latestPaid}
-              onClick={() => latestPaid && handleDownloadEntry(latestPaid)}
-            >
-              {isDownloading ? <Loader2 size={13} className="animate-spin" /> : <Download size={13} />}
-              {t("actions.downloadMyPayslip")}
-            </Button>
-          </div>
+          <Button
+            size="sm"
+            disabled={isDownloading || !latestPaid}
+            onClick={() => latestPaid && handleDownloadEntry(latestPaid)}
+          >
+            {isDownloading ? <Loader2 size={13} className="animate-spin" /> : <Download size={13} />}
+            {t("actions.downloadMyPayslip")}
+          </Button>
         }
       />
 
@@ -529,70 +762,109 @@ export function MyPayslips() {
                 className="rounded-full px-2.5 py-0.5 text-[11px] font-semibold"
                 style={{ background: "rgba(249,115,22,0.2)", color: "#FFB066" }}
               >
-                {t("hero.badge")}
+                {heroPaid ? t("hero.badge") : t("hero.badgePending")}
               </span>
-              {latestPaid && (
-                <span className="font-mono text-[11px] opacity-60">{latestPaid.entryId.split("-")[0]}</span>
+              {heroSlip && (
+                <span className="font-mono text-[11px] opacity-60">{heroSlip.entryId.split("-")[0]}</span>
               )}
             </div>
-            <div className="mt-2 font-display text-[28px] font-extrabold text-white">
-              {latestPaid
-                ? t("hero.title", { period: formatPeriodFr(latestPaid.periode) })
-                : t("hero.noPending")}
-            </div>
-            {latestPaid && (
-              <div className="mt-1 text-[13px] opacity-70">
-                {latestPaid.paymentChannel ?? "—"}
-              </div>
-            )}
 
-            {latestPaid && (
-              <div className="mt-6 flex flex-wrap gap-8">
-                <div>
-                  <div className="text-[11px] uppercase tracking-wider opacity-60">{t("hero.estimatedGross")}</div>
-                  <div className="tabular-nums font-display text-[24px] font-extrabold">
-                    {fmtMoney(latestPaid.brut)}{" "}
-                    <span className="text-[13px] opacity-60">{t("currency")}</span>
-                  </div>
+            {heroSlip ? (
+              <>
+                <div className="mt-2 font-display text-[28px] font-extrabold text-white">
+                  {t("hero.title", { period: formatPeriodFr(heroSlip.periode) })}
                 </div>
-                <div>
-                  <div className="text-[11px] uppercase tracking-wider opacity-60">{t("hero.estimatedNet")}</div>
-                  <div className="tabular-nums font-display text-[24px] font-extrabold" style={{ color: "#FFB066" }}>
-                    {fmtMoney(latestPaid.net)}{" "}
-                    <span className="text-[13px] opacity-60" style={{ color: "#fff" }}>{t("currency")}</span>
-                  </div>
+                <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px] opacity-70">
+                  <span>
+                    {heroPaid && heroPayDate
+                      ? t("hero.paidOn", { date: heroPayDate })
+                      : t("hero.pending")}
+                  </span>
+                  {heroSlip.paymentChannel && (
+                    <span>· {t("hero.paymentVia", { channel: heroSlip.paymentChannel })}</span>
+                  )}
                 </div>
-              </div>
+
+                <div className="mt-6 flex flex-wrap items-end gap-8">
+                  <div>
+                    <div className="text-[11px] uppercase tracking-wider opacity-60">{t("hero.estimatedNet")}</div>
+                    <div className="tabular-nums font-display text-[30px] font-extrabold" style={{ color: "#FFB066" }}>
+                      {fmtMoney(heroSlip.net)}{" "}
+                      <span className="text-[13px] opacity-60" style={{ color: "#fff" }}>{t("currency")}</span>
+                    </div>
+                    {netDelta != null && (
+                      <div
+                        className="mt-1 flex items-center gap-1 text-[12px] font-medium"
+                        style={{ color: netDelta >= 0 ? "#86EFAC" : "#FCA5A5" }}
+                      >
+                        {netDelta > 0.0005 ? (
+                          <><TrendingUp size={13} /> {t("hero.deltaUp", { pct: (netDelta * 100).toFixed(1) })}</>
+                        ) : netDelta < -0.0005 ? (
+                          <><TrendingDown size={13} /> {t("hero.deltaDown", { pct: (Math.abs(netDelta) * 100).toFixed(1) })}</>
+                        ) : (
+                          <span className="opacity-70">{t("hero.deltaFlat")}</span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  <div>
+                    <div className="text-[11px] uppercase tracking-wider opacity-60">{t("hero.estimatedGross")}</div>
+                    <div className="tabular-nums font-display text-[24px] font-extrabold">
+                      {fmtMoney(heroSlip.brut)}{" "}
+                      <span className="text-[13px] opacity-60">{t("currency")}</span>
+                    </div>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    className="mb-1"
+                    onClick={() => setSelectedEntry(heroSlip)}
+                  >
+                    <FileText size={13} /> {t("hero.viewDetail")}
+                  </Button>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="mt-2 font-display text-[24px] font-extrabold text-white">{t("hero.noPending")}</div>
+                <div className="mt-1 text-[13px] opacity-70">{t("hero.noPendingSub")}</div>
+              </>
             )}
           </div>
         </div>
       </div>
 
       {/* ── KPI annuels ──────────────────────────────────────────────── */}
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
         {[
-          { label: t("ytd.cumulGross", { year: activeYear }), value: fmtMoney(ytd.gross), sub: t("currency"), tone: "orange" },
-          { label: t("ytd.cumulNet", { year: activeYear }), value: fmtMoney(ytd.net), sub: t("currency"), tone: "green" },
-          { label: t("ytd.irpp"), value: fmtMoney(ytd.irpp), sub: "YTD", tone: "red" },
-          { label: t("ytd.cnps"), value: fmtMoney(ytd.cnps), sub: "YTD", tone: "blue" },
+          { label: t("ytd.cumulGross", { year: effectiveYear }), value: fmtMoney(ytd.gross), sub: t("currency"), dot: COLOR_NET },
+          { label: t("ytd.cumulNet", { year: effectiveYear }), value: fmtMoney(ytd.net), sub: t("currency"), dot: "var(--success-500, #16A34A)" },
+          { label: t("ytd.irpp"), value: fmtMoney(ytd.irpp), sub: `${effectiveYear} · YTD`, dot: COLOR_IRPP },
+          { label: t("ytd.avgRate"), value: `${(ytd.rate * 100).toFixed(1)} %`, sub: t("ytd.cnps"), dot: COLOR_CNPS },
+          { label: t("ytd.employerCost"), value: fmtMoney(ytd.employerCost), sub: t("ytd.employerChargesSub", { value: fmtMoney(ytd.employerCharges) }), dot: "#8B5CF6" },
         ].map((k, i) => (
           <div key={i} className="rounded-2xl border border-line bg-white p-4 shadow-sm">
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-semibold uppercase tracking-wide text-ink-3">{k.label}</span>
-              <span
-                className={cn(
-                  "h-2 w-2 rounded-full",
-                  k.tone === "orange" && "bg-orange-500",
-                  k.tone === "green" && "bg-success-500",
-                  k.tone === "red" && "bg-error-500",
-                  k.tone === "blue" && "bg-info-500",
-                )}
-              />
+              <span className="h-2 w-2 rounded-full" style={{ background: k.dot }} />
             </div>
             <div className="mt-2 tabular-nums font-display text-[20px] font-extrabold text-ink">{k.value}</div>
             <div className="mt-0.5 text-[11px] text-ink-3">{k.sub}</div>
           </div>
         ))}
+      </div>
+
+      {/* ── Évolution + répartition ──────────────────────────────────── */}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <div className="lg:col-span-2">
+          <EvolutionChart
+            items={allPayslips}
+            year={effectiveYear}
+            locale={locale}
+            onSelect={setSelectedEntry}
+          />
+        </div>
+        <DistributionDonut year={effectiveYear} net={ytd.net} irpp={ytd.irpp} cnps={ytd.cnps} />
       </div>
 
       {/* ── Historique ───────────────────────────────────────────────── */}
@@ -606,7 +878,7 @@ export function MyPayslips() {
                 onClick={() => setActiveYear(y)}
                 className={cn(
                   "rounded-full px-3 py-1 text-[12px] font-semibold transition-colors",
-                  activeYear === y
+                  effectiveYear === y
                     ? "bg-orange-500 text-white"
                     : "bg-bg-dim text-ink-2 hover:bg-orange-50 hover:text-orange-700",
                 )}

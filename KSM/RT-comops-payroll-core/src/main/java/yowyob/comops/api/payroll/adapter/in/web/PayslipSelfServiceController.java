@@ -47,12 +47,13 @@ public class PayslipSelfServiceController {
     }
 
     public record MyPayslipResponse(UUID entryId, UUID runId, String periode, String runStatus,
-            BigDecimal brut, BigDecimal net, BigDecimal totalDeductions, BigDecimal incomeTax,
-            String paymentStatus, String paymentChannel, Instant paymentDate) {
+            BigDecimal salaireBase, BigDecimal brut, BigDecimal net, BigDecimal totalDeductions,
+            BigDecimal incomeTax, BigDecimal employerCharges, String paymentStatus, String paymentChannel,
+            Instant paymentDate) {
         static MyPayslipResponse from(MyPayslipSummary s) {
-            return new MyPayslipResponse(s.entryId(), s.runId(), s.periode(), s.runStatus(), s.brut(),
-                    s.net(), s.totalDeductions(), s.incomeTax(), s.paymentStatus(), s.paymentChannel(),
-                    s.paymentDate());
+            return new MyPayslipResponse(s.entryId(), s.runId(), s.periode(), s.runStatus(), s.salaireBase(),
+                    s.brut(), s.net(), s.totalDeductions(), s.incomeTax(), s.employerCharges(),
+                    s.paymentStatus(), s.paymentChannel(), s.paymentDate());
         }
     }
 }

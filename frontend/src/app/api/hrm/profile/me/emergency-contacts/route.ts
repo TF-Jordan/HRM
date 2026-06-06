@@ -15,12 +15,8 @@ export async function GET() {
 
 export async function POST(request: Request) {
   return authenticatedRoute(async (session) => {
-    const me = await findMyEmployee(session);
-    if (!me) {
-      return Response.json({ ok: false, status: 404, errorCode: "NOT_FOUND", message: "Employee not found" }, { status: 404 });
-    }
     const body = await request.json();
-    const data = await profileApi.addEmergencyContact(me.id, body, session);
+    const data = await profileApi.addMyEmergencyContact(body, session);
     return Response.json({ ok: true, data }, { status: 201 });
   });
 }

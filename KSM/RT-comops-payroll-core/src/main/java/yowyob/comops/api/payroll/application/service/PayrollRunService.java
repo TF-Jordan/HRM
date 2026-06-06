@@ -461,8 +461,9 @@ public class PayrollRunService implements RunPayrollUseCase {
                                 .flatMap(entry -> payrollRunRepository
                                         .findById(ctx.tenantId(), entry.payrollRunId())
                                         .map(run -> new MyPayslipSummary(entry.id(), run.id(),
-                                                run.period().format(), run.status().name(), entry.brut(),
-                                                entry.net(), entry.totalDeductions(), entry.incomeTax(),
+                                                run.period().format(), run.status().name(), entry.salaireBase(),
+                                                entry.brut(), entry.net(), entry.totalDeductions(), entry.incomeTax(),
+                                                entry.employerCharges(),
                                                 entry.paymentStatus().name(), entry.paymentChannel().name(),
                                                 run.paidAt())))));
     }

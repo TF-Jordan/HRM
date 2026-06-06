@@ -68,4 +68,17 @@ public interface ManageEmployeeUseCase {
     Mono<EmergencyContact> updateEmergencyContact(UUID employeeId, UUID contactId, UpdateEmergencyContactCommand command);
 
     Mono<Void> deleteEmergencyContact(UUID employeeId, UUID contactId);
+
+    // ── Self-service (caller acts on their own employee record) ────────────────
+
+    /** Resolves the caller's own employee from the request context. */
+    Mono<Employee> getMyEmployee();
+
+    Mono<EmployeePersonalInfo> upsertMyPersonalInfo(UpsertPersonalInfoCommand command);
+
+    Mono<EmergencyContact> addMyEmergencyContact(AddEmergencyContactCommand command);
+
+    Mono<EmergencyContact> updateMyEmergencyContact(UUID contactId, UpdateEmergencyContactCommand command);
+
+    Mono<Void> deleteMyEmergencyContact(UUID contactId);
 }

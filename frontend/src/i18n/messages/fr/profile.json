@@ -8,10 +8,61 @@
   },
   "tabs": {
     "overview": "Informations personnelles",
+    "employment": "Emploi & contrat",
+    "skills": "Compétences",
     "contact": "Contact & adresse",
     "banking": "Banque & paiement",
     "family": "Famille & dépendants",
     "emergency": "Contact d'urgence"
+  },
+  "statusValue": {
+    "ACTIVE": "Actif",
+    "ON_LEAVE": "En congé",
+    "SUSPENDED": "Suspendu",
+    "TERMINATED": "Sorti"
+  },
+  "stats": {
+    "tenure": "Ancienneté",
+    "annualLeave": "Solde congés",
+    "daysLeft": "{count} j restants",
+    "dependents": "Personnes à charge",
+    "classification": "Classification",
+    "ageValue": "{count} ans"
+  },
+  "employment": {
+    "title": "Emploi & classification",
+    "classification": "Classification",
+    "category": "Cat.",
+    "echelon": "Éch.",
+    "department": "Département",
+    "manager": "Responsable hiérarchique",
+    "hireDate": "Date d'embauche",
+    "tenure": "Ancienneté",
+    "tenureValue": "{years} an(s) {months} mois",
+    "cnps": "N° CNPS",
+    "currentContract": "Contrat en cours",
+    "startDate": "Date de début",
+    "endDate": "Date de fin",
+    "indefinite": "Durée indéterminée",
+    "baseSalary": "Salaire de base",
+    "benefits": "Avantages en nature",
+    "trialPeriod": "Période d'essai",
+    "trialMonths": "{count} mois",
+    "noContract": "Aucun contrat enregistré",
+    "history": "Historique des contrats",
+    "contractStatus": {
+      "ACTIVE": "Actif",
+      "TRIAL": "Période d'essai",
+      "RENEWED": "Renouvelé",
+      "EXPIRED": "Expiré",
+      "TERMINATED": "Résilié"
+    }
+  },
+  "skills": {
+    "title": "Compétences & niveaux",
+    "count": "{count} compétence(s)",
+    "uncategorized": "Autres",
+    "noData": "Aucune compétence évaluée pour le moment"
   },
   "overview": {
     "title": "Informations personnelles",

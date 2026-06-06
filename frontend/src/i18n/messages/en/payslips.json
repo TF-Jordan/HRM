@@ -4,24 +4,51 @@
   "actions": {
     "downloadAll": "Download all (ZIP)",
     "salaryAttestation": "Salary certificate",
-    "downloadMyPayslip": "Download my payslip"
+    "downloadMyPayslip": "Download my latest payslip"
   },
   "hero": {
-    "badge": "Next payslip",
+    "badge": "Latest payslip",
+    "badgePending": "Payslip in progress",
     "title": "Payslip · {period}",
     "subtitle": "Available on {date} · payment via {channel}",
-    "estimatedGross": "Est. gross",
-    "estimatedNet": "Est. net",
+    "estimatedGross": "Gross",
+    "estimatedNet": "Net received",
     "workedDays": "Days worked",
-    "detailEstimate": "Estimate details",
-    "noPending": "No payslip being calculated"
+    "detailEstimate": "View details",
+    "noPending": "No payslip available",
+    "noPendingSub": "Your payslips will appear here after your first payment",
+    "paymentVia": "Paid via {channel}",
+    "paidOn": "Received on {date}",
+    "pending": "Being processed",
+    "deltaUp": "+{pct}% vs previous month",
+    "deltaDown": "−{pct}% vs previous month",
+    "deltaFlat": "Flat vs previous month",
+    "viewDetail": "View payslip"
   },
   "ytd": {
     "cumulGross": "YTD gross {year}",
     "cumulNet": "YTD net {year}",
     "irpp": "IRPP withheld",
-    "cnps": "CNPS contributions",
+    "cnps": "CNPS & deductions",
+    "avgRate": "Average withholding rate",
+    "employerCost": "YTD employer cost",
+    "employerChargesSub": "incl. {value} contributions",
     "suffix": "XAF · {note}"
+  },
+  "evolution": {
+    "title": "My pay evolution",
+    "subtitle": "Net received and deductions month by month · {year}",
+    "legendNet": "Net received",
+    "legendDeductions": "Deductions",
+    "empty": "No data for this year"
+  },
+  "distribution": {
+    "title": "Breakdown {year}",
+    "subtitle": "Where your gross pay goes",
+    "net": "Net received",
+    "irpp": "IRPP",
+    "cnps": "CNPS & other deductions",
+    "ofGross": "of gross"
   },
   "history": {
     "title": "My payslip history",
@@ -55,7 +82,14 @@
     "grossLine": "Taxable gross",
     "sectionDeductions": "SALARY DEDUCTIONS",
     "totalDeductions": "Total deductions",
-    "netToPay": "NET PAYABLE"
+    "netToPay": "NET PAYABLE",
+    "sectionEmployer": "EMPLOYER CONTRIBUTIONS",
+    "employerTotal": "Total employer cost",
+    "employerHint": "For information · not deducted from your net",
+    "distribution": "Breakdown of your gross",
+    "netShare": "Net received",
+    "deductionShare": "Deductions",
+    "verified": "Document generated from your payroll data · {ref}"
   },
   "currency": "XAF"
 }

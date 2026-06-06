@@ -106,6 +106,15 @@ export function upsertPersonalInfo(
   );
 }
 
+/* Self-service: the caller edits their OWN record (guarded by user context, no HR permission). */
+export function upsertMyPersonalInfo(body: UpsertPersonalInfoRequest, session: AppSession) {
+  return callKsm<PersonalInfoResponse>(
+    `/api/v1/hrm/employees/me/personal-info`,
+    { method: "PUT", body },
+    { session },
+  );
+}
+
 /* ── Emergency contacts ────────────────────────────────────────────────── */
 
 export type EmergencyContactResponse = {
@@ -170,6 +179,35 @@ export function deleteEmergencyContact(
 ) {
   return callKsm<void>(
     `/api/v1/hrm/employees/${employeeId}/emergency-contacts/${contactId}`,
+    { method: "DELETE" },
+    { session },
+  );
+}
+
+/* Self-service emergency contacts: scoped to the caller's own employee record. */
+export function addMyEmergencyContact(body: AddEmergencyContactRequest, session: AppSession) {
+  return callKsm<EmergencyContactResponse>(
+    `/api/v1/hrm/employees/me/emergency-contacts`,
+    { method: "POST", body },
+    { session },
+  );
+}
+
+export function updateMyEmergencyContact(
+  contactId: string,
+  body: UpdateEmergencyContactRequest,
+  session: AppSession,
+) {
+  return callKsm<EmergencyContactResponse>(
+    `/api/v1/hrm/employees/me/emergency-contacts/${contactId}`,
+    { method: "PATCH", body },
+    { session },
+  );
+}
+
+export function deleteMyEmergencyContact(contactId: string, session: AppSession) {
+  return callKsm<void>(
+    `/api/v1/hrm/employees/me/emergency-contacts/${contactId}`,
     { method: "DELETE" },
     { session },
   );

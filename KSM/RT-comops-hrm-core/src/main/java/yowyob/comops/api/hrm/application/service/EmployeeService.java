@@ -436,6 +436,64 @@ public class EmployeeService implements ManageEmployeeUseCase {
                 .flatMap(context -> emergencyContactRepository.deleteById(context.tenantId(), contactId));
     }
 
+    // ── Self-service (caller acts on their own employee record) ────────────────
+
+    /** Resolves the employee linked to the calling account's actor, erroring if none. */
+    private Mono<Employee> resolveMyEmployee(UUID tenantId, UUID actorId) {
+        if (actorId == null) {
+            return Mono.error(new EmployeeNotFoundException(null));
+        }
+        return employeeRepository.findByActorId(tenantId, actorId)
+                .switchIfEmpty(Mono.error(new EmployeeNotFoundException(actorId)));
+    }
+
+    @Override
+    public Mono<Employee> getMyEmployee() {
+        return ReactiveRequestContextHolder.getRequiredContext()
+                .flatMap(ctx -> resolveMyEmployee(ctx.tenantId(), ctx.actorId()));
+    }
+
+    @Override
+    public Mono<EmployeePersonalInfo> upsertMyPersonalInfo(UpsertPersonalInfoCommand command) {
+        return ReactiveRequestContextHolder.getRequiredContext()
+                .flatMap(ctx -> resolveMyEmployee(ctx.tenantId(), ctx.actorId())
+                        .flatMap(employee -> upsertPersonalInfo(employee.id(), command)));
+    }
+
+    @Override
+    public Mono<EmergencyContact> addMyEmergencyContact(AddEmergencyContactCommand command) {
+        return ReactiveRequestContextHolder.getRequiredContext()
+                .flatMap(ctx -> resolveMyEmployee(ctx.tenantId(), ctx.actorId())
+                        .flatMap(employee -> addEmergencyContact(employee.id(), command)));
+    }
+
+    @Override
+    public Mono<EmergencyContact> updateMyEmergencyContact(UUID contactId, UpdateEmergencyContactCommand command) {
+        return ReactiveRequestContextHolder.getRequiredContext()
+                .flatMap(ctx -> resolveMyEmployee(ctx.tenantId(), ctx.actorId())
+                        .flatMap(employee -> emergencyContactRepository.findById(ctx.tenantId(), contactId)
+                                .switchIfEmpty(Mono.error(
+                                        new yowyob.comops.api.hrm.domain.EmergencyContactNotFoundException(contactId)))
+                                .flatMap(existing -> existing.employeeId().equals(employee.id())
+                                        ? Mono.just(existing)
+                                        : Mono.error(new yowyob.comops.api.hrm.domain.EmergencyContactNotFoundException(contactId)))
+                                .map(c -> c.update(command.nom(), command.prenom(), command.relation(),
+                                        command.telephone(), command.email(), command.priorite()))
+                                .flatMap(emergencyContactRepository::save)));
+    }
+
+    @Override
+    public Mono<Void> deleteMyEmergencyContact(UUID contactId) {
+        return ReactiveRequestContextHolder.getRequiredContext()
+                .flatMap(ctx -> resolveMyEmployee(ctx.tenantId(), ctx.actorId())
+                        .flatMap(employee -> emergencyContactRepository.findById(ctx.tenantId(), contactId)
+                                .switchIfEmpty(Mono.error(
+                                        new yowyob.comops.api.hrm.domain.EmergencyContactNotFoundException(contactId)))
+                                .flatMap(existing -> existing.employeeId().equals(employee.id())
+                                        ? emergencyContactRepository.deleteById(ctx.tenantId(), contactId)
+                                        : Mono.error(new yowyob.comops.api.hrm.domain.EmergencyContactNotFoundException(contactId)))));
+    }
+
     private Map<String, Object> payload(Object... entries) {
         Map<String, Object> payload = new LinkedHashMap<>();
         for (int i = 0; i < entries.length; i += 2) {
