@@ -18,12 +18,21 @@
   "kpi": {
     "cycle": "Active cycle",
     "toClose": "To close",
+    "toComplete": "To complete",
+    "toCompleteSub": "Drafts + submitted",
     "averageScore": "Average score",
+    "outOf5": "out of 5",
+    "progress": "Progress",
+    "totalSuffix": "total",
     "finalized": "Finalized"
   },
   "queue": {
     "title": "Reviews · {periode}",
     "empty": "No review for this period.",
+    "emptyFiltered": "No review matches your search.",
+    "searchPlaceholder": "Search an employee…",
+    "periodLabel": "Period",
+    "viewDetail": "Open",
     "columns": {
       "reference": "Ref.",
       "employee": "Employee",
@@ -32,6 +41,37 @@
       "score": "Score",
       "status": "Status"
     }
+  },
+  "studio": {
+    "launch": "Launch evaluation",
+    "title": "Evaluation Studio",
+    "close": "Close",
+    "prev": "Previous",
+    "next": "Next",
+    "finish": "Submit evaluation",
+    "liveScore": "Live score",
+    "submitSuccess": "Review submitted.",
+    "steps": {
+      "step1": "Objectives",
+      "step2": "Synthesis",
+      "step3": "Appraisal"
+    },
+    "noObjectives": "No objective defined. You can enter the overall score directly on the next step. Add objectives from the detail view for a weighted evaluation.",
+    "noObjectivesShort": "No objective to plot.",
+    "objectiveComment": "Comment (optional)…",
+    "weightedScore": "Weighted score",
+    "weightTotal": "Total objective weight: {total}%",
+    "weightEqual": "Objectives weighted equally",
+    "globalScore": "Overall score",
+    "suggested": "Suggested: {value} / 5",
+    "reset": "Reset",
+    "overrideHint": "Computed from the weighted average of objectives — you can adjust it freely.",
+    "radarTitle": "Profile by objective",
+    "commentsLabel": "Overall appraisal",
+    "commentsPlaceholder": "Strengths, areas for improvement, highlights of the period…",
+    "planLabel": "Action & development plan",
+    "planPlaceholder": "Development goals, training, next steps…",
+    "summaryTitle": "Summary"
   },
   "mine": {
     "title": "My reviews",

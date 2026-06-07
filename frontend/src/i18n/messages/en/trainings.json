@@ -23,22 +23,31 @@
     "all": "All",
     "planned": "Planned",
     "inProgress": "In progress",
-    "completed": "Completed"
+    "completed": "Completed",
+    "cancelled": "Cancelled"
   },
   "kpi": {
     "active": "Active sessions",
+    "activeSub": "Planned + in progress",
     "inProgress": "In progress",
     "completed": "Completed",
-    "enrollments": "Enrolments"
+    "enrollments": "Enrolments",
+    "budget": "Budget (XAF)",
+    "budgetSub": "Active & completed sessions"
   },
   "catalog": {
     "title": "Catalog · Sessions",
-    "empty": "No training session."
+    "empty": "No training session.",
+    "emptyFiltered": "No session matches your search.",
+    "searchPlaceholder": "Search a training, a provider…"
   },
   "card": {
     "seats": "Enrolled",
     "session": "Session",
-    "cost": "Cost"
+    "cost": "Cost",
+    "free": "Free",
+    "durationDays": "{days, plural, one {# day} other {# days}}",
+    "seatsCount": "{count, plural, one {# seat} other {# seats}}"
   },
   "enrollments": {
     "title": "Recent enrolments",
@@ -112,6 +121,16 @@
     "subtitle": "Plan a session and open enrolments.",
     "submit": "Create session",
     "success": "Session created.",
+    "sections": {
+      "about": "The training",
+      "schedule": "Schedule",
+      "logistics": "Logistics & budget"
+    },
+    "preview": {
+      "title": "Session preview",
+      "untitled": "Training title",
+      "duration": "Duration"
+    },
     "fields": {
       "intitule": "Title",
       "intitulePlaceholder": "e.g. Team leadership & management",
@@ -121,7 +140,8 @@
       "dateFin": "End date",
       "cout": "Cost (XAF)",
       "nbPlaces": "Seats",
-      "lieu": "Location"
+      "lieu": "Location",
+      "lieuPlaceholder": "e.g. Douala — Akwa"
     }
   },
   "detail": {

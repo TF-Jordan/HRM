@@ -3,8 +3,8 @@
 import * as React from "react";
 
 import { useSession } from "@/components/providers/session-provider";
-import { Link, useRouter } from "@/i18n/navigation";
-import { isMigratedRole, roleSlug } from "@/lib/roles";
+import { Link, usePathname, useRouter } from "@/i18n/navigation";
+import { activeSlugFromPath, entitledSlugs, isMigratedRole } from "@/lib/roles";
 
 /**
  * Role-aware navigation for the partitioned frontend.
@@ -20,8 +20,10 @@ import { isMigratedRole, roleSlug } from "@/lib/roles";
  */
 function useRolePrefix(): string {
   const { session } = useSession();
-  const slug = roleSlug(session?.user.roles, session?.user.permissions);
-  return isMigratedRole(slug) ? `/${slug}` : "";
+  const pathname = usePathname();
+  const entitled = entitledSlugs(session?.user.roles, session?.user.permissions);
+  const active = activeSlugFromPath(pathname, entitled);
+  return isMigratedRole(active) ? `/${active}` : "";
 }
 
 export function withRolePrefix(prefix: string, href: string): string {

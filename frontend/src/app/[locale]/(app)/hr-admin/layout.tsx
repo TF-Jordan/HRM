@@ -1,12 +1,13 @@
 import { redirect } from "next/navigation";
 
-import { roleHomePath, roleSlug } from "@/lib/roles";
+import { entitledSlugs, roleHomePath } from "@/lib/roles";
 import { readSession } from "@/server/session";
 
-// Namespace guard: only the HR-ADMIN role may reach /hr-admin/*.
+// Namespace guard: reachable by anyone entitled to the HR-ADMIN space.
 export default async function Layout({ children }: LayoutProps<"/[locale]/hr-admin">) {
   const session = await readSession();
   if (!session) redirect("/login");
-  if (roleSlug(session.user.roles, session.user.permissions) !== "hr-admin") redirect(roleHomePath(session.user.roles, session.user.permissions));
+  if (!entitledSlugs(session.user.roles, session.user.permissions).includes("hr-admin"))
+    redirect(roleHomePath(session.user.roles, session.user.permissions));
   return <>{children}</>;
 }

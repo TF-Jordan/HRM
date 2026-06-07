@@ -1,12 +1,13 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Check, ChevronLeft, Loader2, Plus, Send, Star, Target } from "lucide-react";
+import { Check, ChevronLeft, Loader2, Plus, Sparkles, Star, Target } from "lucide-react";
 import { useTranslations } from "next-intl";
 import * as React from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
+import { EvaluationStudio } from "@/components/reviews/evaluation-studio";
 import { PageHeader } from "@/components/shell/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -18,15 +19,15 @@ import { useCan } from "@/hooks/use-can";
 import { AppLink as Link } from "@/components/ui/app-link";
 import { apiFetch, BffApiError } from "@/lib/api-client";
 import { reviewStatusTone } from "@/lib/training-status";
+import type { EmployeeResponse } from "@/server/ksm/modules/employees";
 import type { ObjectiveResponse, ReviewResponse, ReviewStatus } from "@/server/ksm/modules/reviews";
 
 export function ReviewDetail({ reviewId }: { reviewId: string }) {
   const t = useTranslations("reviews");
-  const tCommon = useTranslations("common");
   const tErrors = useTranslations("errors");
   const queryClient = useQueryClient();
   const canManage = useCan("hrm:review:manage");
-  const [showSubmit, setShowSubmit] = React.useState(false);
+  const [showStudio, setShowStudio] = React.useState(false);
   const [showAddObj, setShowAddObj] = React.useState(false);
   const [evalObj, setEvalObj] = React.useState<ObjectiveResponse | null>(null);
 
@@ -38,6 +39,10 @@ export function ReviewDetail({ reviewId }: { reviewId: string }) {
     queryKey: ["hrm", "review", reviewId, "objectives"],
     queryFn: () => apiFetch<ObjectiveResponse[]>(`/api/hrm/reviews/${reviewId}/objectives`),
   });
+  const employeesQuery = useQuery({
+    queryKey: ["hrm", "employees", "list"],
+    queryFn: () => apiFetch<EmployeeResponse[]>("/api/hrm/employees"),
+  });
 
   const invalidate = React.useCallback(() => {
     queryClient.invalidateQueries({ queryKey: ["hrm", "review", reviewId] });
@@ -48,16 +53,6 @@ export function ReviewDetail({ reviewId }: { reviewId: string }) {
     else toast.error(tErrors("unknown"));
   }
 
-  const submitM = useMutation({
-    mutationFn: (body: { noteGlobale: number; commentaires: string; planAction: string }) =>
-      apiFetch(`/api/hrm/reviews/${reviewId}/submit`, { method: "POST", body }),
-    onSuccess: () => {
-      toast.success(t("detail.submitSuccess"));
-      setShowSubmit(false);
-      invalidate();
-    },
-    onError: handleError,
-  });
   const ackM = useMutation({
     mutationFn: () => apiFetch(`/api/hrm/reviews/${reviewId}/acknowledge`, { method: "POST" }),
     onSuccess: () => {
@@ -114,8 +109,11 @@ export function ReviewDetail({ reviewId }: { reviewId: string }) {
   }
   const r = query.data;
   const objectives = objectivesQuery.data ?? [];
+  const employee = employeesQuery.data?.find((e) => e.id === r.employeeId);
+  const employeeName =
+    employee?.actorDisplayName ?? employee?.matricule ?? `${r.employeeId.slice(0, 8)}…`;
 
-  const showSubmitBtn = canManage && r.status === "DRAFT";
+  const showLaunch = canManage && r.status === "DRAFT";
   const showAck = r.status === "SUBMITTED" && canManage;
   const showFinalize = r.status === "ACKNOWLEDGED" && canManage;
 
@@ -150,10 +148,10 @@ export function ReviewDetail({ reviewId }: { reviewId: string }) {
                 {t("detail.back")}
               </Button>
             </Link>
-            {showSubmitBtn && (
-              <Button type="button" onClick={() => setShowSubmit(true)}>
-                <Send className="h-4 w-4" />
-                {t("detail.actions.submit")}
+            {showLaunch && (
+              <Button type="button" onClick={() => setShowStudio(true)}>
+                <Sparkles className="h-4 w-4" />
+                {t("studio.launch")}
               </Button>
             )}
             {showAck && (
@@ -289,12 +287,15 @@ export function ReviewDetail({ reviewId }: { reviewId: string }) {
         )}
       </Card>
 
-      <SubmitDialog
-        open={showSubmit}
-        loading={submitM.isPending}
-        onClose={() => setShowSubmit(false)}
-        onConfirm={(v) => submitM.mutate(v)}
-      />
+      {showStudio && (
+        <EvaluationStudio
+          review={r}
+          objectives={objectives}
+          employeeName={employeeName}
+          onClose={() => setShowStudio(false)}
+          onCompleted={invalidate}
+        />
+      )}
       <AddObjectiveDialog
         open={showAddObj}
         loading={addObjM.isPending}
@@ -342,76 +343,6 @@ function workflowSteps(status: ReviewStatus, t: (k: string) => string): Workflow
 
 function shortRef(uuid: string): string {
   return `EV-${uuid.slice(0, 4).toUpperCase()}-${uuid.slice(4, 8).toUpperCase()}`;
-}
-
-function SubmitDialog({
-  open,
-  loading,
-  onClose,
-  onConfirm,
-}: {
-  open: boolean;
-  loading: boolean;
-  onClose: () => void;
-  onConfirm: (v: { noteGlobale: number; commentaires: string; planAction: string }) => void;
-}) {
-  const t = useTranslations("reviews.detail");
-  const tCommon = useTranslations("common");
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { isValid },
-  } = useForm<{ noteGlobale: string; commentaires: string; planAction: string }>({
-    mode: "onChange",
-    defaultValues: { noteGlobale: "4", commentaires: "", planAction: "" },
-  });
-  React.useEffect(() => {
-    if (!open) reset({ noteGlobale: "4", commentaires: "", planAction: "" });
-  }, [open, reset]);
-
-  return (
-    <Dialog
-      open={open}
-      onClose={onClose}
-      size="lg"
-      title={t("submitTitle")}
-      subtitle={t("submitSubtitle")}
-      footer={
-        <>
-          <Button type="button" variant="ghost" onClick={onClose}>
-            {tCommon("actions.cancel")}
-          </Button>
-          <Button
-            type="button"
-            disabled={!isValid || loading}
-            onClick={handleSubmit((v) =>
-              onConfirm({
-                noteGlobale: Number(v.noteGlobale),
-                commentaires: v.commentaires,
-                planAction: v.planAction,
-              }),
-            )}
-          >
-            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-            {t("submitConfirm")}
-          </Button>
-        </>
-      }
-    >
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-[120px_1fr]">
-        <Field label={t("noteLabel")}>
-          <Input type="number" step={0.1} min={0} max={5} {...register("noteGlobale", { required: true, min: 0, max: 5 })} />
-        </Field>
-        <Field label={t("commentsLabel")} className="md:col-span-1">
-          <Textarea rows={3} {...register("commentaires", { required: true, minLength: 5 })} />
-        </Field>
-        <Field label={t("planActionLabel")} className="md:col-span-2">
-          <Textarea rows={3} {...register("planAction")} />
-        </Field>
-      </div>
-    </Dialog>
-  );
 }
 
 function AddObjectiveDialog({

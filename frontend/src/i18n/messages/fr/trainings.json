@@ -23,22 +23,31 @@
     "all": "Toutes",
     "planned": "Planifiées",
     "inProgress": "En cours",
-    "completed": "Terminées"
+    "completed": "Terminées",
+    "cancelled": "Annulées"
   },
   "kpi": {
     "active": "Formations actives",
+    "activeSub": "Planifiées + en cours",
     "inProgress": "En cours",
     "completed": "Complétées",
-    "enrollments": "Inscriptions"
+    "enrollments": "Inscriptions",
+    "budget": "Budget (XAF)",
+    "budgetSub": "Sessions actives & terminées"
   },
   "catalog": {
     "title": "Catalogue · Sessions",
-    "empty": "Aucune session de formation."
+    "empty": "Aucune session de formation.",
+    "emptyFiltered": "Aucune session ne correspond à votre recherche.",
+    "searchPlaceholder": "Rechercher une formation, un organisme…"
   },
   "card": {
     "seats": "Inscrits",
     "session": "Session",
-    "cost": "Coût"
+    "cost": "Coût",
+    "free": "Gratuit",
+    "durationDays": "{days, plural, one {# jour} other {# jours}}",
+    "seatsCount": "{count, plural, one {# place} other {# places}}"
   },
   "enrollments": {
     "title": "Inscriptions récentes",
@@ -112,6 +121,16 @@
     "subtitle": "Planifiez une session et ouvrez les inscriptions.",
     "submit": "Créer la session",
     "success": "Session créée.",
+    "sections": {
+      "about": "La formation",
+      "schedule": "Calendrier",
+      "logistics": "Logistique & budget"
+    },
+    "preview": {
+      "title": "Aperçu de la session",
+      "untitled": "Intitulé de la formation",
+      "duration": "Durée"
+    },
     "fields": {
       "intitule": "Intitulé",
       "intitulePlaceholder": "Ex. Leadership & Management d'équipe",
@@ -121,7 +140,8 @@
       "dateFin": "Date de fin",
       "cout": "Coût (XAF)",
       "nbPlaces": "Places disponibles",
-      "lieu": "Lieu"
+      "lieu": "Lieu",
+      "lieuPlaceholder": "Ex. Douala — Akwa"
     }
   },
   "detail": {

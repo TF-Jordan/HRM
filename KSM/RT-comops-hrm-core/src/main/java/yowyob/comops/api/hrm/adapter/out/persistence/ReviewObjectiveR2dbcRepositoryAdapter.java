@@ -22,7 +22,14 @@ public class ReviewObjectiveR2dbcRepositoryAdapter implements ReviewObjectiveRep
 
     @Override
     public Mono<ReviewObjective> save(ReviewObjective objective) {
-        return repository.save(toEntity(objective)).map(this::toDomain);
+        // The id is domain-assigned, so we must tell Spring Data whether this is an
+        // INSERT (create) or UPDATE (evaluate) — otherwise it always inserts and an
+        // evaluation hits the primary-key constraint.
+        return repository.findByIdAndTenantId(objective.id(), objective.tenantId())
+                .map(existing -> Boolean.FALSE)
+                .defaultIfEmpty(Boolean.TRUE)
+                .flatMap(isNew -> repository.save(toEntity(objective, isNew)))
+                .map(this::toDomain);
     }
 
     @Override
@@ -35,9 +42,9 @@ public class ReviewObjectiveR2dbcRepositoryAdapter implements ReviewObjectiveRep
         return repository.findAllByTenantIdAndReviewId(tenantId, reviewId).map(this::toDomain);
     }
 
-    private ReviewObjectiveEntity toEntity(ReviewObjective o) {
-        return new ReviewObjectiveEntity(o.id(), o.tenantId(), o.reviewId(), o.description(),
-                o.poids(), o.noteAtteinte(), o.commentaire());
+    private ReviewObjectiveEntity toEntity(ReviewObjective o, boolean isNew) {
+        return ReviewObjectiveEntity.of(o.id(), o.tenantId(), o.reviewId(), o.description(),
+                o.poids(), o.noteAtteinte(), o.commentaire(), isNew);
     }
 
     private ReviewObjective toDomain(ReviewObjectiveEntity e) {

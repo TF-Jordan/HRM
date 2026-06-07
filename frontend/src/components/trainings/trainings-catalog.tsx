@@ -1,30 +1,37 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { Briefcase, Calendar, GraduationCap, Loader2, MapPin, Plus, Users } from "lucide-react";
+import { GraduationCap, Loader2, Plus, Search } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import * as React from "react";
 
 import { PageHeader } from "@/components/shell/page-header";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { useCan } from "@/hooks/use-can";
+import { TrainingPreviewCard } from "@/components/trainings/training-preview-card";
 import { AppLink as Link, useAppRouter as useRouter } from "@/components/ui/app-link";
+import { Button } from "@/components/ui/button";
+import { StatCard, StatCardGrid } from "@/components/ui/stat-card";
+import { useCan } from "@/hooks/use-can";
 import { apiFetch, BffApiError } from "@/lib/api-client";
-import { formatDate, formatNumber } from "@/lib/format";
-import { gradientForId, trainingStatusTone } from "@/lib/training-status";
+import { formatNumber } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { TrainingResponse, TrainingStatus } from "@/server/ksm/modules/trainings";
 
-type Filter = "ALL" | "PLANNED" | "IN_PROGRESS" | "COMPLETED";
+type Filter = "ALL" | "PLANNED" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED";
 
 const FILTERS: { key: Filter; tKey: string }[] = [
   { key: "ALL", tKey: "filters.all" },
   { key: "PLANNED", tKey: "filters.planned" },
   { key: "IN_PROGRESS", tKey: "filters.inProgress" },
   { key: "COMPLETED", tKey: "filters.completed" },
+  { key: "CANCELLED", tKey: "filters.cancelled" },
 ];
+
+function normalize(s: string): string {
+  return s
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+}
 
 export function TrainingsCatalog() {
   const t = useTranslations("trainings");
@@ -32,6 +39,7 @@ export function TrainingsCatalog() {
   const router = useRouter();
   const canCreate = useCan("hrm:training:create");
   const [filter, setFilter] = React.useState<Filter>("ALL");
+  const [search, setSearch] = React.useState("");
 
   const query = useQuery({
     queryKey: ["hrm", "trainings", "list"],
@@ -40,12 +48,27 @@ export function TrainingsCatalog() {
   });
 
   const all = React.useMemo(() => query.data ?? [], [query.data]);
-  const visible = filter === "ALL" ? all : all.filter((t) => t.status === filter);
-  const counts = React.useMemo(() => {
+
+  const stats = React.useMemo(() => {
     const c: Partial<Record<TrainingStatus, number>> = {};
-    for (const r of all) c[r.status] = (c[r.status] ?? 0) + 1;
-    return c;
+    let budget = 0;
+    for (const r of all) {
+      c[r.status] = (c[r.status] ?? 0) + 1;
+      if (r.status !== "CANCELLED" && r.cout != null) budget += Number(r.cout);
+    }
+    return { c, budget };
   }, [all]);
+
+  const visible = React.useMemo(() => {
+    const q = normalize(search.trim());
+    return all
+      .filter((r) => filter === "ALL" || r.status === filter)
+      .filter(
+        (r) =>
+          !q ||
+          normalize(`${r.intitule} ${r.organisme ?? ""} ${r.lieu ?? ""}`).includes(q),
+      );
+  }, [all, filter, search]);
 
   return (
     <>
@@ -66,29 +89,57 @@ export function TrainingsCatalog() {
         }
       />
 
-      <div className="mb-5 grid grid-cols-4 gap-4">
-        <Tile label={t("kpi.active")} value={(counts.PLANNED ?? 0) + (counts.IN_PROGRESS ?? 0)} tone="bg-orange-500" />
-        <Tile label={t("kpi.inProgress")} value={counts.IN_PROGRESS ?? 0} tone="bg-info-500" />
-        <Tile label={t("kpi.completed")} value={counts.COMPLETED ?? 0} tone="bg-success-500" />
-        <Tile label={t("kpi.enrollments")} value={all.length} tone="bg-violet-500" />
-      </div>
+      <StatCardGrid>
+        <StatCard
+          label={t("kpi.active")}
+          value={(stats.c.PLANNED ?? 0) + (stats.c.IN_PROGRESS ?? 0)}
+          tone="orange"
+          sub={t("kpi.activeSub")}
+        />
+        <StatCard label={t("kpi.inProgress")} value={stats.c.IN_PROGRESS ?? 0} tone="blue" />
+        <StatCard label={t("kpi.completed")} value={stats.c.COMPLETED ?? 0} tone="green" />
+        <StatCard
+          label={t("kpi.budget")}
+          value={`${formatNumber(stats.budget, locale)}`}
+          tone="violet"
+          sub={t("kpi.budgetSub")}
+        />
+      </StatCardGrid>
 
-      <div className="mb-4 flex flex-wrap gap-2">
-        {FILTERS.map((f) => (
-          <button
-            key={f.key}
-            type="button"
-            onClick={() => setFilter(f.key)}
-            className={cn(
-              "rounded-full px-3 py-1.5 text-[12px] font-semibold transition-colors",
-              filter === f.key
-                ? "bg-grad-orange text-white shadow-orange-brand"
-                : "border border-line bg-white text-ink-2 hover:bg-bg-soft",
-            )}
-          >
-            {t(f.tKey)}
-          </button>
-        ))}
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap gap-2">
+          {FILTERS.map((f) => {
+            const n = f.key === "ALL" ? all.length : stats.c[f.key as TrainingStatus] ?? 0;
+            return (
+              <button
+                key={f.key}
+                type="button"
+                onClick={() => setFilter(f.key)}
+                className={cn(
+                  "rounded-full px-3 py-1.5 text-[12px] font-semibold transition-colors",
+                  filter === f.key
+                    ? "bg-grad-orange text-white shadow-orange-brand"
+                    : "border border-line bg-white text-ink-2 hover:bg-bg-soft",
+                )}
+              >
+                {t(f.tKey)}
+                <span className={cn("ml-1.5", filter === f.key ? "text-white/80" : "text-ink-4")}>
+                  {n}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+        <div className="relative">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-ink-4" />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder={t("catalog.searchPlaceholder")}
+            className="h-9 w-64 rounded-[10px] border border-line bg-white pl-8 pr-3 text-[12.5px] text-ink outline-none placeholder:text-ink-4 focus:border-orange-400"
+          />
+        </div>
       </div>
 
       {query.isLoading ? (
@@ -100,102 +151,31 @@ export function TrainingsCatalog() {
           {query.error instanceof BffApiError ? query.error.message : "—"}
         </div>
       ) : visible.length === 0 ? (
-        <div className="rounded-[20px] border border-dashed border-line bg-white p-12 text-center text-ink-3">
-          {t("catalog.empty")}
+        <div className="grid place-items-center rounded-[20px] border border-dashed border-line bg-white p-12 text-center">
+          <GraduationCap className="mb-2 h-8 w-8 text-ink-4" />
+          <p className="text-[13px] text-ink-3">
+            {all.length === 0 ? t("catalog.empty") : t("catalog.emptyFiltered")}
+          </p>
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
           {visible.map((tr) => (
-            <button
+            <TrainingPreviewCard
               key={tr.id}
-              type="button"
+              headerLabel={t(`status.${tr.status}`)}
+              title={tr.intitule}
+              organisme={tr.organisme}
+              lieu={tr.lieu}
+              dateDebut={tr.dateDebut}
+              dateFin={tr.dateFin}
+              cout={tr.cout != null ? Number(tr.cout) : null}
+              nbPlaces={tr.nbPlaces}
+              locale={locale}
               onClick={() => router.push(`/trainings/${tr.id}`)}
-              className="text-left"
-            >
-              <Card clickable className="h-full">
-                <div
-                  className="relative -mb-4 h-[88px] overflow-hidden rounded-t-[20px] px-5 py-3"
-                  style={{ background: gradientForId(tr.id) }}
-                >
-                  <Badge className="bg-white/25 text-white backdrop-blur-sm">{t(`status.${tr.status}`)}</Badge>
-                  <GraduationCap
-                    className="absolute right-3 top-3 h-12 w-12 text-white/30"
-                    aria-hidden="true"
-                  />
-                </div>
-                <CardContent padding="lg">
-                  <div className="font-mono-tabular text-[10px] uppercase tracking-wider text-ink-4">
-                    {shortRef(tr.id)}
-                  </div>
-                  <div className="mt-1 text-[15px] font-bold tracking-tight text-ink">
-                    {tr.intitule}
-                  </div>
-                  <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-[11.5px] text-ink-3">
-                    {tr.organisme && (
-                      <span className="flex items-center gap-1">
-                        <Briefcase className="h-3 w-3" />
-                        {tr.organisme}
-                      </span>
-                    )}
-                    {tr.lieu && (
-                      <span className="flex items-center gap-1">
-                        <MapPin className="h-3 w-3" />
-                        {tr.lieu}
-                      </span>
-                    )}
-                    {tr.nbPlaces != null && (
-                      <span className="flex items-center gap-1">
-                        <Users className="h-3 w-3" />
-                        {tr.nbPlaces}
-                      </span>
-                    )}
-                  </div>
-                  <div className="mt-4 flex items-end justify-between border-t border-line-soft pt-3">
-                    <div>
-                      <div className="text-[10px] uppercase tracking-wider text-ink-4">
-                        {t("card.session")}
-                      </div>
-                      <div className="flex items-center gap-1 text-[12px] font-semibold text-ink">
-                        <Calendar className="h-3 w-3 text-orange-500" />
-                        {tr.dateDebut ? formatDate(tr.dateDebut, { locale }) : "—"}
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-[10px] uppercase tracking-wider text-ink-4">
-                        {t("card.cost")}
-                      </div>
-                      <div className="font-mono-tabular text-[13px] font-bold text-ink">
-                        {tr.cout != null ? `${formatNumber(Number(tr.cout), locale)} XAF` : "—"}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="mt-3">
-                    <Badge tone={trainingStatusTone(tr.status)}>{t(`status.${tr.status}`)}</Badge>
-                  </div>
-                </CardContent>
-              </Card>
-            </button>
+            />
           ))}
         </div>
       )}
     </>
   );
-}
-
-function Tile({ label, value, tone }: { label: string; value: React.ReactNode; tone: string }) {
-  return (
-    <div className="relative flex flex-col gap-1 overflow-hidden rounded-[16px] border border-line bg-white px-[18px] py-4 shadow-xs-brand">
-      <div className="flex items-center justify-between">
-        <span className="text-[11px] font-semibold uppercase tracking-[0.06em] text-ink-3">{label}</span>
-        <span className={cn("inline-block h-2 w-2 rounded-full", tone)} />
-      </div>
-      <div className="font-display font-mono-tabular text-[24px] font-extrabold tracking-tight text-ink">
-        {value}
-      </div>
-    </div>
-  );
-}
-
-function shortRef(uuid: string): string {
-  return `TR-${uuid.slice(0, 4).toUpperCase()}-${uuid.slice(4, 8).toUpperCase()}`;
 }

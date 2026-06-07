@@ -1,12 +1,14 @@
 import { redirect } from "next/navigation";
 
-import { roleHomePath, roleSlug } from "@/lib/roles";
+import { entitledSlugs, roleHomePath } from "@/lib/roles";
 import { readSession } from "@/server/session";
 
-// Namespace guard: only the PAYROLL-MANAGER role may reach /payroll-manager/*.
+// Namespace guard: reachable by anyone entitled to the PAYROLL-MANAGER space
+// (a multi-role user can hold it alongside their Employee space).
 export default async function Layout({ children }: LayoutProps<"/[locale]/payroll-manager">) {
   const session = await readSession();
   if (!session) redirect("/login");
-  if (roleSlug(session.user.roles, session.user.permissions) !== "payroll-manager") redirect(roleHomePath(session.user.roles, session.user.permissions));
+  if (!entitledSlugs(session.user.roles, session.user.permissions).includes("payroll-manager"))
+    redirect(roleHomePath(session.user.roles, session.user.permissions));
   return <>{children}</>;
 }

@@ -391,6 +391,8 @@ export async function GET() {
           hires: allApps.filter((a) => a.status === "HIRED").length,
           interviewing: interviewingApps.length,
         },
+        expenses: { pending: submittedExpenses.length },
+        contracts: { expiringSoon: cddExpiring.length },
         leaves: {
           pending: pendingLeaves.length,
           mineUpcoming:

@@ -1,13 +1,14 @@
 import { redirect } from "next/navigation";
 
-import { roleHomePath, roleSlug } from "@/lib/roles";
+import { entitledSlugs, roleHomePath } from "@/lib/roles";
 import { readSession } from "@/server/session";
 
-// Namespace guard: only the MANAGER role may reach /manager/*. Anyone else is
-// bounced to their own role home. KSM still enforces permissions on the API.
+// Namespace guard: reachable by anyone entitled to the MANAGER space. KSM still
+// enforces permissions on the API.
 export default async function ManagerLayout({ children }: LayoutProps<"/[locale]/manager">) {
   const session = await readSession();
   if (!session) redirect("/login");
-  if (roleSlug(session.user.roles, session.user.permissions) !== "manager") redirect(roleHomePath(session.user.roles, session.user.permissions));
+  if (!entitledSlugs(session.user.roles, session.user.permissions).includes("manager"))
+    redirect(roleHomePath(session.user.roles, session.user.permissions));
   return <>{children}</>;
 }

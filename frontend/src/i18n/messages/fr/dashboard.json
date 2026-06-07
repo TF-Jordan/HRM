@@ -65,6 +65,35 @@
     "reviewsClose": "Évaluations à clôturer",
     "bulletins": "Bulletins du mois"
   },
+  "hradmin": {
+    "actionCenter": "Centre d'action",
+    "actionCenterSub": "Vos priorités à traiter aujourd'hui",
+    "toProcess": "à traiter",
+    "nothing": "rien en attente",
+    "allCaughtUp": "Tout est à jour",
+    "pendingTotal": "{count} en attente",
+    "actions": {
+      "leaves": "Congés en attente",
+      "expenses": "Notes de frais",
+      "reviews": "Évaluations",
+      "contracts": "CDD à échéance",
+      "recruitment": "Candidatures actives"
+    },
+    "kind": {
+      "leave": "Congé",
+      "expense": "Note de frais",
+      "review": "Évaluation",
+      "contract": "Contrat",
+      "medical": "Médical"
+    },
+    "recruitment": {
+      "title": "Pipeline de recrutement",
+      "openOffers": "Offres ouvertes",
+      "applications": "Candidatures",
+      "interviewing": "En entretien",
+      "hires": "Recrutés"
+    }
+  },
   "employee": {
     "title": "Mon espace",
     "greetingMorning": "Bonjour, {name} 👋",

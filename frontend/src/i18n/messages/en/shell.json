@@ -8,6 +8,7 @@
     "compliance": "COMPLIANCE",
     "system": "SYSTEM",
     "administration": "ADMINISTRATION",
+    "access": "ACCESS & ROLES",
     "personal": "MY SPACE",
     "health": "HEALTH",
     "company": "COMPANY",
@@ -37,10 +38,13 @@
     "declarations": "Social declarations",
     "settings": "Settings",
     "users": "Users",
-    "services": "Services",
-    "audit": "Audit",
-    "organization": "Organization",
+    "services": "Subscription & services",
+    "audit": "Audit log",
+    "organization": "Company profile",
+    "agencies": "Agencies & sites",
+    "compliance": "Compliance",
     "administration": "Administration",
+    "roleAssignments": "Function assignments",
     "roles": "Roles & permissions",
     "myDashboard": "Home",
     "myProfile": "My profile",
@@ -70,6 +74,21 @@
     "taxBrackets": "Tax brackets",
     "team": "My team",
     "variables": "Monthly variables"
+  },
+  "switcher": {
+    "label": "Workspace"
+  },
+  "workspaces": {
+    "employee": "Employee space",
+    "manager": "Manager space",
+    "hr-admin": "HR administration",
+    "drh": "HR Director space",
+    "payroll-manager": "Payroll management",
+    "recruiter": "Recruitment",
+    "doctor": "Occupational health",
+    "controller": "Management control",
+    "accountant": "Accounting",
+    "admin": "HR administration"
   },
   "topbar": {
     "searchPlaceholder": "Search employees, leaves, payroll…",

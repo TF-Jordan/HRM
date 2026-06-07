@@ -1,6 +1,6 @@
 "use client";
 
-import { LogOut } from "lucide-react";
+import { Check, ChevronsUpDown, LogOut } from "lucide-react";
 import { useTranslations } from "next-intl";
 import * as React from "react";
 
@@ -10,7 +10,7 @@ import { Avatar } from "@/components/ui/avatar";
 import { useCan } from "@/hooks/use-can";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { apiFetch } from "@/lib/api-client";
-import { isMigratedRole, roleSlug } from "@/lib/roles";
+import { activeSlugFromPath, entitledSlugs, isMigratedRole, type RoleSlug } from "@/lib/roles";
 import { type NavItem, type NavSection, sidebarForRole } from "@/lib/sidebar";
 import { cn } from "@/lib/utils";
 
@@ -26,7 +26,13 @@ export function Sidebar() {
   // reach and selects the sidebar config in {@link sidebarForRole}. Hrefs are
   // prefixed with the role slug for migrated roles, and left flat (legacy
   // routes) for the rest. Per-item permissions provide an additional gate.
-  const slug = roleSlug(session?.user.roles, session?.user.permissions);
+  const entitled = React.useMemo(
+    () => entitledSlugs(session?.user.roles, session?.user.permissions),
+    [session?.user.roles, session?.user.permissions],
+  );
+  // The active workspace is the namespace we are currently browsing — this is
+  // what lets a multi-role user switch between, say, Employee and Payroll.
+  const slug = activeSlugFromPath(pathname, entitled);
   const isEmployee = slug === "employee";
   const prefix = isMigratedRole(slug) ? `/${slug}` : "";
   const rawSections = React.useMemo(() => sidebarForRole(slug), [slug]);
@@ -85,6 +91,16 @@ export function Sidebar() {
         </div>
       </Link>
 
+      {/* Workspace switcher — only when the user holds more than one space */}
+      {entitled.length > 1 && (
+        <WorkspaceSwitcher
+          entitled={entitled}
+          active={slug}
+          onSwitch={(target) => router.push(`/${target}/dashboard`)}
+          t={t}
+        />
+      )}
+
       {/* Employee mini-profile chip */}
       {isEmployee && session?.user && (
         <div className="mb-1 flex items-center gap-2.5 rounded-[14px] border border-orange-100 bg-[linear-gradient(135deg,#FFF4EB_0%,#fff_100%)] px-3 py-2.5">
@@ -94,7 +110,7 @@ export function Sidebar() {
               {firstName} 👋
             </div>
             <div className="font-mono-tabular truncate text-[11px] text-ink-3">
-              {session.user.roles[0] ?? "Employé"}
+              {t(`workspaces.${slug}`)}
             </div>
           </div>
         </div>
@@ -114,7 +130,7 @@ export function Sidebar() {
               {session.user.fullName}
             </span>
             <span className="truncate text-[11px] text-ink-3">
-              {session.user.roles[0] ?? "—"}
+              {t(`workspaces.${slug}`)}
             </span>
           </div>
           <button
@@ -200,4 +216,86 @@ function SidebarItem({
 
 function isActive(pathname: string, href: string): boolean {
   return pathname === href || pathname.startsWith(`${href}/`);
+}
+
+/**
+ * Lets a multi-role user jump between their workspaces (e.g. Employee ⇄ Payroll
+ * Manager). Hidden for plain employees, who hold a single space.
+ */
+function WorkspaceSwitcher({
+  entitled,
+  active,
+  onSwitch,
+  t,
+}: {
+  entitled: RoleSlug[];
+  active: RoleSlug;
+  onSwitch: (target: RoleSlug) => void;
+  t: ReturnType<typeof useTranslations<"shell">>;
+}) {
+  const [open, setOpen] = React.useState(false);
+  const ref = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    if (!open) return;
+    function onDocClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener("mousedown", onDocClick);
+    return () => document.removeEventListener("mousedown", onDocClick);
+  }, [open]);
+
+  return (
+    <div ref={ref} className="relative mb-1.5">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className={cn(
+          "flex w-full items-center gap-2.5 rounded-[12px] border border-line bg-white px-3 py-2.5",
+          "text-left transition-colors hover:border-line-strong",
+        )}
+      >
+        <span className="grid h-7 w-7 shrink-0 place-items-center rounded-[8px] bg-grad-orange text-white">
+          <ChevronsUpDown className="h-3.5 w-3.5" />
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block text-[9px] font-semibold uppercase tracking-[0.1em] text-ink-4">
+            {t("switcher.label")}
+          </span>
+          <span className="block truncate text-[12.5px] font-semibold text-ink">
+            {t(`workspaces.${active}`)}
+          </span>
+        </span>
+      </button>
+
+      {open && (
+        <div
+          className={cn(
+            "absolute left-0 right-0 top-[calc(100%+4px)] z-40 overflow-hidden rounded-[12px]",
+            "border border-line bg-white p-1 shadow-md-brand",
+          )}
+        >
+          {entitled.map((s) => (
+            <button
+              key={s}
+              type="button"
+              onClick={() => {
+                setOpen(false);
+                if (s !== active) onSwitch(s);
+              }}
+              className={cn(
+                "flex w-full items-center gap-2 rounded-[9px] px-2.5 py-2 text-[12.5px] transition-colors",
+                s === active
+                  ? "bg-orange-50 font-semibold text-orange-700"
+                  : "text-ink-2 hover:bg-bg-soft",
+              )}
+            >
+              <span className="truncate">{t(`workspaces.${s}`)}</span>
+              {s === active && <Check className="ml-auto h-3.5 w-3.5 shrink-0" />}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 }

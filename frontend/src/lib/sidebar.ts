@@ -9,6 +9,7 @@ import {
   ClipboardList,
   Clock,
   Coins,
+  FileSearch,
   FileSignature,
   FileText,
   Gauge,
@@ -23,6 +24,7 @@ import {
   Sparkles,
   Stethoscope,
   Target,
+  UserCog,
   Users,
   Wallet,
 } from "lucide-react";
@@ -261,12 +263,6 @@ const HR_ADMIN_SECTIONS: NavSection[] = [
   {
     labelKey: "sections.compensation",
     items: [
-      {
-        href: "/payroll",
-        labelKey: "nav.payroll",
-        icon: Wallet,
-        permission: "hrm:payroll:read",
-      },
       { href: "/loans", labelKey: "nav.loans", icon: Coins, permission: "hrm:loan:read" },
       {
         href: "/expenses",
@@ -285,29 +281,6 @@ const HR_ADMIN_SECTIONS: NavSection[] = [
         labelKey: "nav.trainings",
         icon: GraduationCap,
         permission: "hrm:training:read",
-      },
-      {
-        href: "/training-budgets",
-        labelKey: "nav.budget",
-        icon: ChartPie,
-        permission: "hrm:budget:read",
-      },
-    ],
-  },
-  {
-    labelKey: "sections.compliance",
-    items: [
-      {
-        href: "/medical",
-        labelKey: "nav.medical",
-        icon: Stethoscope,
-        permission: "hrm:medical:read",
-      },
-      {
-        href: "/declarations",
-        labelKey: "nav.declarations",
-        icon: ShieldCheck,
-        permission: "hrm:declaration:read",
       },
     ],
   },
@@ -702,6 +675,28 @@ const CONTROLLER_SECTIONS: NavSection[] = [
   },
 ];
 
+// ──────────────────────────────────────────────────────────────────────────────
+// SUPER ADMIN / ORG ADMIN — company administration (system, not day-to-day HR)
+// ──────────────────────────────────────────────────────────────────────────────
+const ADMIN_SECTIONS: NavSection[] = [
+  {
+    labelKey: "sections.pilotage",
+    items: [{ href: "/dashboard", labelKey: "nav.dashboard", icon: LayoutDashboard }],
+  },
+  {
+    labelKey: "sections.access",
+    items: [
+      { href: "/role-assignments", labelKey: "nav.roleAssignments", icon: UserCog },
+      { href: "/users", labelKey: "nav.users", icon: Users },
+      { href: "/roles", labelKey: "nav.roles", icon: ShieldCheck },
+    ],
+  },
+  {
+    labelKey: "sections.compliance",
+    items: [{ href: "/audit", labelKey: "nav.audit", icon: FileSearch }],
+  },
+];
+
 const SECTIONS_BY_ROLE: Record<RoleSlug, NavSection[]> = {
   employee: EMPLOYEE_SECTIONS,
   manager: MANAGER_SECTIONS,
@@ -711,9 +706,9 @@ const SECTIONS_BY_ROLE: Record<RoleSlug, NavSection[]> = {
   recruiter: RECRUITER_SECTIONS,
   doctor: DOCTOR_SECTIONS,
   controller: CONTROLLER_SECTIONS,
+  admin: ADMIN_SECTIONS,
   // Roles whose namespaces are not yet migrated fall back to the HR admin nav.
   accountant: HR_ADMIN_SECTIONS,
-  admin: HR_ADMIN_SECTIONS,
 };
 
 /** Returns the navigation sections for a role. */

@@ -18,12 +18,21 @@
   "kpi": {
     "cycle": "Cycle actif",
     "toClose": "À clôturer",
+    "toComplete": "À compléter",
+    "toCompleteSub": "Brouillons + soumises",
     "averageScore": "Score moyen",
+    "outOf5": "sur 5",
+    "progress": "Avancement",
+    "totalSuffix": "au total",
     "finalized": "Finalisées"
   },
   "queue": {
     "title": "Évaluations · {periode}",
     "empty": "Aucune évaluation pour cette période.",
+    "emptyFiltered": "Aucune évaluation ne correspond à votre recherche.",
+    "searchPlaceholder": "Rechercher un employé…",
+    "periodLabel": "Période",
+    "viewDetail": "Ouvrir",
     "columns": {
       "reference": "Réf.",
       "employee": "Employé",
@@ -32,6 +41,37 @@
       "score": "Score",
       "status": "Statut"
     }
+  },
+  "studio": {
+    "launch": "Lancer l'évaluation",
+    "title": "Studio d'évaluation",
+    "close": "Fermer",
+    "prev": "Précédent",
+    "next": "Suivant",
+    "finish": "Soumettre l'évaluation",
+    "liveScore": "Score en direct",
+    "submitSuccess": "Évaluation soumise.",
+    "steps": {
+      "step1": "Objectifs",
+      "step2": "Synthèse",
+      "step3": "Restitution"
+    },
+    "noObjectives": "Aucun objectif défini. Vous pourrez saisir directement la note globale à l'étape suivante. Ajoutez des objectifs depuis le détail pour une évaluation pondérée.",
+    "noObjectivesShort": "Aucun objectif à représenter.",
+    "objectiveComment": "Commentaire (optionnel)…",
+    "weightedScore": "Score pondéré",
+    "weightTotal": "Poids total des objectifs : {total}%",
+    "weightEqual": "Objectifs pondérés à parts égales",
+    "globalScore": "Note globale",
+    "suggested": "Suggérée : {value} / 5",
+    "reset": "Réinitialiser",
+    "overrideHint": "Calculée à partir de la moyenne pondérée des objectifs — vous pouvez l'ajuster librement.",
+    "radarTitle": "Profil par objectif",
+    "commentsLabel": "Appréciation générale",
+    "commentsPlaceholder": "Points forts, axes de progrès, faits marquants de la période…",
+    "planLabel": "Plan d'action & développement",
+    "planPlaceholder": "Objectifs de développement, formations, prochaines étapes…",
+    "summaryTitle": "Récapitulatif"
   },
   "mine": {
     "title": "Mes évaluations",

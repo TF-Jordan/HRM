@@ -1,14 +1,6 @@
 "use client";
 
-import {
-  Building2,
-  FileSearch,
-  Settings,
-  ShieldCheck,
-  Sparkles,
-  Store,
-  Users,
-} from "lucide-react";
+import { FileSearch, ShieldCheck, Sparkles, UserCog, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { PageHeader } from "@/components/shell/page-header";
@@ -18,16 +10,14 @@ import { Link } from "@/i18n/navigation";
 
 const CARDS: Array<{
   href: string;
-  icon: typeof Building2;
+  icon: typeof Users;
   tone: "orange" | "info" | "violet" | "success" | "warning" | "teal" | "gray";
-  key: "organization" | "agencies" | "users" | "roles" | "services" | "audit" | "settings";
+  key: "roleAssignments" | "users" | "roles" | "audit";
 }> = [
-  { href: "/admin/organization", icon: Building2, tone: "orange", key: "organization" },
-  { href: "/admin/agencies", icon: Store, tone: "info", key: "agencies" },
+  { href: "/admin/role-assignments", icon: UserCog, tone: "orange", key: "roleAssignments" },
   { href: "/admin/users", icon: Users, tone: "violet", key: "users" },
   { href: "/admin/roles", icon: ShieldCheck, tone: "success", key: "roles" },
   { href: "/admin/audit", icon: FileSearch, tone: "warning", key: "audit" },
-  { href: "/admin/settings", icon: Settings, tone: "gray", key: "settings" },
 ];
 
 export function AdminLanding() {

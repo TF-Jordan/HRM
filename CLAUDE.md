@@ -17,7 +17,7 @@ Design references are in `DESIGN/` and the full KSM/HRM analysis is in `ANALYSE_
 
 ### Stack
 
-- **Next.js 16.2.6** with App Router — **breaking changes vs. prior versions**; consult `node_modules/next/dist/docs/` before writing Next.js-specific code
+- **Next.js 16.2.6** with App Router — **this is NOT the Next.js you know**; APIs, conventions, and file structure have breaking changes vs. prior versions. **Always** consult `node_modules/next/dist/docs/` before writing Next.js-specific code and heed deprecation notices
 - TypeScript, Tailwind CSS v4, `next-intl` (fr/en)
 - React Query for server data, Zustand for client state
 - `react-hook-form` + `zod` for forms, `@react-pdf/renderer` for PDF export
@@ -26,13 +26,15 @@ Design references are in `DESIGN/` and the full KSM/HRM analysis is in `ANALYSE_
 ### Commands (run from `frontend/`)
 
 ```bash
-npm run dev          # local dev server
+npm run dev          # local dev server (Turbopack, port 3000)
 npm run build        # production build
 npm run typecheck    # tsc --noEmit
 npm run lint         # eslint
 npm run format       # prettier --write src/**
 npm run openapi:generate  # regenerate src/lib/types/ksm-openapi.ts from KSM/iwm-openapi.json
 ```
+
+**Validation before committing:** always run `npm run typecheck` and `npm run build` from `frontend/` to catch type errors and build failures.
 
 ### Architecture
 
@@ -97,8 +99,20 @@ Copy `.env.example` to `.env` at the repo root. Key vars:
 ### Commands (run from `KSM/`)
 
 ```bash
+# Build all modules (skip tests)
+mvn -DskipTests clean install
+
+# Run the backend (port 8080) — Liquibase auto-migrates on startup
+mvn -pl RT-comops-bootstrap -am spring-boot:run
+
 # Standard unit tests (in-memory profile)
 mvn -q test
+
+# Tests for a single module
+mvn -pl RT-comops-hrm-core test
+
+# Single test class
+mvn -pl RT-comops-hrm-core -Dtest=SomeTestClass test
 
 # Full contract tests against PostgreSQL (requires local PG)
 mvn -q -pl RT-comops-bootstrap -am \
@@ -162,6 +176,28 @@ Every request from the BFF to KSM carries:
 
 KSM exposes `GET /v3/api-docs`. The JSON snapshot used to generate frontend types is at `KSM/iwm-openapi.json`. After updating it, run `npm run openapi:generate` from `frontend/`.
 
+### Liquibase migrations
+
+Migrations live in `RT-comops-bootstrap/src/main/resources/db/changelog/` and follow the naming convention `V001` through `V076+`. They run automatically on startup. Seed data (demo accounts, employees, contracts) is included in V068 and V076.
+
+---
+
+## Demo accounts
+
+All demo accounts share the password **`Demo@2024!`**. After login, select the `MUFID Union` organization.
+
+| Email | Role |
+|---|---|
+| `super.admin@hrcore.demo` | SuperAdmin (TENANT scope — full access) |
+| `hr.admin@hrcore.demo` | Admin RH (ORG — HR + account/role creation) |
+| `drh@hrcore.demo` | DRH (ORG — training, reviews, strategy) |
+| `manager@hrcore.demo` | Manager (ORG — team, leave/mission approvals) |
+| `recruiter@hrcore.demo` | Recruiter (ORG — recruitment + onboarding) |
+| `accountant@hrcore.demo` | Accountant/DAF (ORG — expenses, payroll validation) |
+| `payroll@hrcore.demo` | Payroll Manager (ORG — payroll + social declarations) |
+| `doctor@hrcore.demo` | Occupational doctor (ORG — visits, certificates) |
+| `employee@hrcore.demo` | Employee (ORG — self-service) |
+
 ---
 
 ## Local infrastructure
@@ -174,3 +210,35 @@ Default dev coordinates from `.env.example`:
 - Kafka: `localhost:9092`
 - KSM: `http://localhost:8080`
 - Frontend: `http://localhost:3000`
+
+### Quick start (assuming Postgres + Redis are running)
+
+```bash
+# 1. Environment
+cp .env.example .env
+sed -i "s|^SESSION_SECRET=.*|SESSION_SECRET=$(openssl rand -hex 32)|" .env
+ln -sf ../.env frontend/.env.local
+
+# 2. Backend (Terminal 1)
+set -a; source .env; set +a
+mvn -f KSM/pom.xml -DskipTests clean install
+mvn -f KSM/pom.xml -pl RT-comops-bootstrap -am spring-boot:run
+
+# 3. Frontend (Terminal 2)
+cd frontend && npm install && npm run dev
+```
+
+Verify at `http://localhost:3000/fr/login` — use any demo account above.
+
+---
+
+## Project documents
+
+| File | Content |
+|---|---|
+| `STATUS.md` | Detailed progress report (done / remaining) |
+| `ANALYSE_KSM_HRM.md` | Full functional analysis of hrm-core |
+| `PROMPT_FRONTEND_HRM.md` | Frontend construction brief (use cases, design system, BFF) |
+| `KSM/ARCHITECTURE.md` | Backend architecture deep-dive |
+| `KSM/iwm-openapi.json` | API contract source of truth |
+| `DESIGN/Projet_design/` | Static design prototypes (reference mockups) |

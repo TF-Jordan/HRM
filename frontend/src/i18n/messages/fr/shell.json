@@ -8,6 +8,7 @@
     "compliance": "CONFORMITÉ",
     "system": "SYSTÈME",
     "administration": "ADMINISTRATION",
+    "access": "ACCÈS & RÔLES",
     "personal": "ESPACE PERSONNEL",
     "health": "SANTÉ",
     "company": "ENTREPRISE",
@@ -37,10 +38,13 @@
     "declarations": "Déclarations",
     "settings": "Paramètres",
     "users": "Utilisateurs",
-    "services": "Services",
-    "audit": "Audit",
-    "organization": "Entreprise",
+    "services": "Abonnement & services",
+    "audit": "Journal d'audit",
+    "organization": "Profil de l'entreprise",
+    "agencies": "Agences & sites",
+    "compliance": "Conformité",
     "administration": "Administration",
+    "roleAssignments": "Attribution des fonctions",
     "roles": "Rôles & permissions",
     "myDashboard": "Accueil",
     "myProfile": "Mon profil",
@@ -70,6 +74,21 @@
     "taxBrackets": "Barèmes fiscaux",
     "team": "Mon équipe",
     "variables": "Variables mensuelles"
+  },
+  "switcher": {
+    "label": "Espace de travail"
+  },
+  "workspaces": {
+    "employee": "Espace employé",
+    "manager": "Espace manager",
+    "hr-admin": "Administration RH",
+    "drh": "Espace DRH",
+    "payroll-manager": "Gestion de la paie",
+    "recruiter": "Recrutement",
+    "doctor": "Médecine du travail",
+    "controller": "Contrôle de gestion",
+    "accountant": "Comptabilité",
+    "admin": "Administration RH"
   },
   "topbar": {
     "searchPlaceholder": "Rechercher employés, congés, paie…",

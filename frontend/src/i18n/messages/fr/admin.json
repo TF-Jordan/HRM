@@ -1,37 +1,86 @@
 {
   "ucBadge": "ADMIN · SuperAdmin",
   "landing": {
-    "title": "Administration",
-    "subtitle": "Configurez votre plateforme : organisation, utilisateurs, rôles et services.",
+    "title": "Administration RH",
+    "subtitle": "Gérez les accès : attribution des fonctions, comptes, rôles et journal d'audit.",
     "cards": {
-      "organization": {
-        "title": "Organisation",
-        "description": "Informations légales, logo, statuts, contacts"
-      },
-      "agencies": {
-        "title": "Agences",
-        "description": "Créer et gérer les agences rattachées à votre organisation"
+      "roleAssignments": {
+        "title": "Attribution des fonctions",
+        "description": "Désignez le gestionnaire de paie, le recruteur et les autres fonctions"
       },
       "users": {
-        "title": "Utilisateurs",
-        "description": "Créer, lister et attribuer des rôles aux utilisateurs"
+        "title": "Comptes",
+        "description": "Créer, lister et activer les comptes d'accès"
       },
       "roles": {
         "title": "Rôles & permissions",
         "description": "Modèles de rôles, provisionnement et permissions"
       },
-      "services": {
-        "title": "Services",
-        "description": "Modules activés pour votre organisation"
-      },
       "audit": {
-        "title": "Audit",
+        "title": "Journal d'audit",
         "description": "Historique des actions d'administration"
-      },
-      "settings": {
-        "title": "Paramètres",
-        "description": "Séquences de documents, paie, jours fériés"
       }
+    }
+  },
+  "roleAssignments": {
+    "title": "Attribution des fonctions",
+    "subtitle": "Désignez qui occupe chaque fonction de gestion. Une fonction ne peut être tenue que par un seul compte à la fois.",
+    "loadError": "Impossible de charger les attributions.",
+    "summary": {
+      "title": "Fonctions de gestion",
+      "coverage": "{assigned} attribuée(s) sur {total}",
+      "rule": "Une fonction = un seul titulaire"
+    },
+    "scope": {
+      "SYSTEM": "Système",
+      "TENANT": "Organisation",
+      "ORGANIZATION": "Organisation",
+      "AGENCY": "Agence"
+    },
+    "permissionCount": "{count, plural, =0 {Aucune permission} one {# permission} other {# permissions}}",
+    "conflict": "Conflit · {count} titulaires",
+    "assigned": "Attribuée",
+    "unassigned": "Non attribuée",
+    "assign": "Attribuer",
+    "reassign": "Réattribuer",
+    "vacate": "Libérer",
+    "functions": {
+      "HR_ADMIN": {
+        "title": "Administrateur RH",
+        "description": "Gestion opérationnelle complète du module RH"
+      },
+      "HR_DIRECTOR": {
+        "title": "Directeur des RH",
+        "description": "Pilotage RH, formations, budgets et évaluations"
+      },
+      "PAYROLL_MANAGER": {
+        "title": "Gestionnaire de paie",
+        "description": "Cycles de paie, bulletins et déclarations sociales"
+      },
+      "RECRUITER": {
+        "title": "Recruteur",
+        "description": "Recrutement, candidatures et onboarding"
+      },
+      "HR_CONTROLLER": {
+        "title": "Contrôleur de gestion RH",
+        "description": "Indicateurs, reporting et contrôle de la masse salariale"
+      },
+      "OCCUPATIONAL_DOCTOR": {
+        "title": "Médecin du travail",
+        "description": "Visites médicales et aptitudes"
+      },
+      "ACCOUNTANT": {
+        "title": "Comptable",
+        "description": "Écritures comptables et trésorerie"
+      }
+    },
+    "dialog": {
+      "title": "Attribuer · {function}",
+      "subtitle": "Sélectionnez le compte qui occupera cette fonction. Le titulaire actuel sera automatiquement remplacé.",
+      "confirm": "Confirmer l'attribution",
+      "searchPlaceholder": "Rechercher un compte…",
+      "noAccounts": "Aucun compte trouvé.",
+      "current": "Titulaire actuel"
     }
   },
   "organization": {

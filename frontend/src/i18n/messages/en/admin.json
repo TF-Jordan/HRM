@@ -1,37 +1,86 @@
 {
   "ucBadge": "ADMIN · SuperAdmin",
   "landing": {
-    "title": "Administration",
-    "subtitle": "Set up your platform: organization, users, roles and services.",
+    "title": "HR Administration",
+    "subtitle": "Manage access: function assignments, accounts, roles and audit log.",
     "cards": {
-      "organization": {
-        "title": "Organization",
-        "description": "Legal info, logo, status, contacts"
-      },
-      "agencies": {
-        "title": "Agencies",
-        "description": "Create and manage agencies attached to your organization"
+      "roleAssignments": {
+        "title": "Function assignments",
+        "description": "Designate the payroll manager, recruiter and other functions"
       },
       "users": {
-        "title": "Users",
-        "description": "Create, list and assign roles"
+        "title": "Accounts",
+        "description": "Create, list and activate access accounts"
       },
       "roles": {
         "title": "Roles & permissions",
         "description": "Role templates, provisioning and permissions"
       },
-      "services": {
-        "title": "Services",
-        "description": "Modules enabled for your organization"
-      },
       "audit": {
-        "title": "Audit",
+        "title": "Audit log",
         "description": "Administrative action history"
-      },
-      "settings": {
-        "title": "Settings",
-        "description": "Document sequences, payroll, holidays"
       }
+    }
+  },
+  "roleAssignments": {
+    "title": "Function assignments",
+    "subtitle": "Designate who holds each management function. A function can be held by a single account at a time.",
+    "loadError": "Failed to load assignments.",
+    "summary": {
+      "title": "Management functions",
+      "coverage": "{assigned} assigned of {total}",
+      "rule": "One function = one holder"
+    },
+    "scope": {
+      "SYSTEM": "System",
+      "TENANT": "Organization",
+      "ORGANIZATION": "Organization",
+      "AGENCY": "Agency"
+    },
+    "permissionCount": "{count, plural, =0 {No permission} one {# permission} other {# permissions}}",
+    "conflict": "Conflict · {count} holders",
+    "assigned": "Assigned",
+    "unassigned": "Unassigned",
+    "assign": "Assign",
+    "reassign": "Reassign",
+    "vacate": "Vacate",
+    "functions": {
+      "HR_ADMIN": {
+        "title": "HR Administrator",
+        "description": "Full operational management of the HR module"
+      },
+      "HR_DIRECTOR": {
+        "title": "HR Director",
+        "description": "HR steering, training, budgets and reviews"
+      },
+      "PAYROLL_MANAGER": {
+        "title": "Payroll Manager",
+        "description": "Payroll cycles, payslips and social declarations"
+      },
+      "RECRUITER": {
+        "title": "Recruiter",
+        "description": "Recruitment, applications and onboarding"
+      },
+      "HR_CONTROLLER": {
+        "title": "HR Controller",
+        "description": "Indicators, reporting and payroll cost control"
+      },
+      "OCCUPATIONAL_DOCTOR": {
+        "title": "Occupational Doctor",
+        "description": "Medical visits and fitness checks"
+      },
+      "ACCOUNTANT": {
+        "title": "Accountant",
+        "description": "Accounting entries and treasury"
+      }
+    },
+    "dialog": {
+      "title": "Assign · {function}",
+      "subtitle": "Pick the account that will hold this function. The current holder will be replaced automatically.",
+      "confirm": "Confirm assignment",
+      "searchPlaceholder": "Search an account…",
+      "noAccounts": "No account found.",
+      "current": "Current holder"
     }
   },
   "organization": {

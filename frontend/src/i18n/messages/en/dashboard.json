@@ -65,6 +65,35 @@
     "reviewsClose": "Reviews to close",
     "bulletins": "Payslips this month"
   },
+  "hradmin": {
+    "actionCenter": "Action center",
+    "actionCenterSub": "Your priorities to handle today",
+    "toProcess": "to process",
+    "nothing": "nothing pending",
+    "allCaughtUp": "All caught up",
+    "pendingTotal": "{count} pending",
+    "actions": {
+      "leaves": "Pending leaves",
+      "expenses": "Expense reports",
+      "reviews": "Reviews",
+      "contracts": "Expiring contracts",
+      "recruitment": "Active applications"
+    },
+    "kind": {
+      "leave": "Leave",
+      "expense": "Expense",
+      "review": "Review",
+      "contract": "Contract",
+      "medical": "Medical"
+    },
+    "recruitment": {
+      "title": "Recruitment pipeline",
+      "openOffers": "Open offers",
+      "applications": "Applications",
+      "interviewing": "Interviewing",
+      "hires": "Hires"
+    }
+  },
   "employee": {
     "title": "My space",
     "greetingMorning": "Good morning, {name} 👋",

@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Check, Loader2, Plus, X } from "lucide-react";
+import { Check, Loader2, X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import * as React from "react";
@@ -13,7 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useCan } from "@/hooks/use-can";
-import { Link, useRouter } from "@/i18n/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { apiFetch, BffApiError } from "@/lib/api-client";
 import { formatNumber } from "@/lib/format";
 import { expenseStatusTone } from "@/lib/expense-status";
@@ -38,7 +38,6 @@ export function ExpensesQueue() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const canManage = useCan("hrm:expense:manage");
-  const canCreate = useCan("hrm:expense:create");
   const searchParams = useSearchParams();
   const initialFilter = (searchParams.get("status") as Filter | null) ?? "ALL";
   const [filter, setFilter] = React.useState<Filter>(
@@ -118,16 +117,6 @@ export function ExpensesQueue() {
         breadcrumb={[{ label: "HR Core" }, { label: t("title") }]}
         title={t("title")}
         subtitle={t("subtitle")}
-        actions={
-          canCreate ? (
-            <Link href="/expenses/new">
-              <Button>
-                <Plus className="h-4 w-4" />
-                {t("new.title")}
-              </Button>
-            </Link>
-          ) : undefined
-        }
       />
 
       <div className="mb-5 grid grid-cols-4 gap-4">
