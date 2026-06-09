@@ -80,15 +80,11 @@
   },
   "workspaces": {
     "employee": "Espace employé",
-    "manager": "Espace manager",
     "hr-admin": "Administration RH",
-    "drh": "Espace DRH",
     "payroll-manager": "Gestion de la paie",
-    "recruiter": "Recrutement",
     "doctor": "Médecine du travail",
     "controller": "Contrôle de gestion",
-    "accountant": "Comptabilité",
-    "admin": "Administration RH"
+    "admin": "Administration système"
   },
   "topbar": {
     "searchPlaceholder": "Rechercher employés, congés, paie…",

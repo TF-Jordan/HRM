@@ -80,15 +80,11 @@
   },
   "workspaces": {
     "employee": "Employee space",
-    "manager": "Manager space",
     "hr-admin": "HR administration",
-    "drh": "HR Director space",
     "payroll-manager": "Payroll management",
-    "recruiter": "Recruitment",
     "doctor": "Occupational health",
     "controller": "Management control",
-    "accountant": "Accounting",
-    "admin": "HR administration"
+    "admin": "System administration"
   },
   "topbar": {
     "searchPlaceholder": "Search employees, leaves, payroll…",

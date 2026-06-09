@@ -43,6 +43,11 @@ public final class Organization extends BaseEntity {
     private final String countryCode;
     private final String cnpsEmployerNumber;
     private final BigDecimal atRiskRate;
+    private final String address;
+    private final String city;
+    private final String postalCode;
+    private final String phone;
+    private final String conventionCollective;
 
     private Organization(
             UUID id,
@@ -78,7 +83,12 @@ public final class Organization extends BaseEntity {
             Instant deletedAt,
             String countryCode,
             String cnpsEmployerNumber,
-            BigDecimal atRiskRate) {
+            BigDecimal atRiskRate,
+            String address,
+            String city,
+            String postalCode,
+            String phone,
+            String conventionCollective) {
         super(id, tenantId, createdAt, updatedAt);
         this.businessActorId = Objects.requireNonNull(businessActorId, "businessActorId is required");
         this.governanceStatus = governanceStatus == null ? OrganizationGovernanceStatus.PENDING_APPROVAL : governanceStatus;
@@ -110,6 +120,11 @@ public final class Organization extends BaseEntity {
         this.countryCode = normalizeOptional(countryCode);
         this.cnpsEmployerNumber = normalizeOptional(cnpsEmployerNumber);
         this.atRiskRate = atRiskRate;
+        this.address = normalizeOptional(address);
+        this.city = normalizeOptional(city);
+        this.postalCode = normalizeOptional(postalCode);
+        this.phone = normalizeOptional(phone);
+        this.conventionCollective = normalizeOptional(conventionCollective);
     }
 
     public static Organization create(UUID tenantId, UUID businessActorId, String code, String legalName, String displayName,
@@ -129,7 +144,8 @@ public final class Organization extends BaseEntity {
                 OrganizationGovernanceStatus.PENDING_APPROVAL, null, null, null, code, service,
                 isIndividualBusiness, email, shortName, longName, description, logoUri, logoId, websiteUrl,
                 socialNetwork, businessRegistrationNumber, taxNumber, capitalShare, ceoName, yearFounded, keywords,
-                numberOfEmployees, legalForm, isActive, status, null, null, null, null);
+                numberOfEmployees, legalForm, isActive, status, null, null, null, null,
+                null, null, null, null, null);
     }
 
     public static Organization rehydrate(UUID id, UUID tenantId, Instant createdAt, Instant updatedAt,
@@ -151,7 +167,7 @@ public final class Organization extends BaseEntity {
                 governedAt, governanceReason, code, service, isIndividualBusiness, email, shortName, longName,
                 description, logoUri, logoId, websiteUrl, socialNetwork, businessRegistrationNumber, taxNumber,
                 capitalShare, ceoName, yearFounded, keywords, numberOfEmployees, legalForm, isActive, status,
-                deletedAt, null, null, null);
+                deletedAt, null, null, null, null, null, null, null, null);
     }
 
     /** Full rehydrate including the payroll extensions; used by the persistence adapter. */
@@ -162,13 +178,14 @@ public final class Organization extends BaseEntity {
             String socialNetwork, String businessRegistrationNumber, String taxNumber, BigDecimal capitalShare,
             String ceoName, Integer yearFounded, Set<String> keywords, Integer numberOfEmployees, String legalForm,
             boolean isActive, String status, Instant deletedAt,
-            String countryCode, String cnpsEmployerNumber, BigDecimal atRiskRate) {
+            String countryCode, String cnpsEmployerNumber, BigDecimal atRiskRate,
+            String address, String city, String postalCode, String phone, String conventionCollective) {
         return new Organization(id, tenantId, createdAt, updatedAt, businessActorId,
                 OrganizationGovernanceStatus.from(governanceStatus), governedByUserId, governedAt, governanceReason,
                 code, service, isIndividualBusiness, email, shortName, longName, description, logoUri, logoId,
                 websiteUrl, socialNetwork, businessRegistrationNumber, taxNumber, capitalShare, ceoName,
                 yearFounded, keywords, numberOfEmployees, legalForm, isActive, status, deletedAt,
-                countryCode, cnpsEmployerNumber, atRiskRate);
+                countryCode, cnpsEmployerNumber, atRiskRate, address, city, postalCode, phone, conventionCollective);
     }
 
     /** Returns a copy with the payroll extension fields set; preserves all other fields. */
@@ -179,7 +196,7 @@ public final class Organization extends BaseEntity {
                 shortName, longName, description, logoUri, logoId, websiteUrl, socialNetwork,
                 businessRegistrationNumber, taxNumber, capitalShare, ceoName, yearFounded, keywords,
                 numberOfEmployees, legalForm, isActive, status, deletedAt,
-                countryCode, cnpsEmployerNumber, atRiskRate);
+                countryCode, cnpsEmployerNumber, atRiskRate, address, city, postalCode, phone, conventionCollective);
     }
 
     public Organization update(String code, String legalName, String displayName, String organizationType) {
@@ -198,7 +215,7 @@ public final class Organization extends BaseEntity {
                 shortName, longName, description, logoUri, logoId, websiteUrl, socialNetwork,
                 businessRegistrationNumber, taxNumber, capitalShare, ceoName, yearFounded, keywords,
                 numberOfEmployees, legalForm, isActive, status, deletedAt,
-                countryCode, cnpsEmployerNumber, atRiskRate);
+                countryCode, cnpsEmployerNumber, atRiskRate, address, city, postalCode, phone, conventionCollective);
     }
 
     public Organization transferOwnership(UUID newBusinessActorId) {
@@ -207,7 +224,7 @@ public final class Organization extends BaseEntity {
                 shortName, longName, description, logoUri, logoId, websiteUrl, socialNetwork,
                 businessRegistrationNumber, taxNumber, capitalShare, ceoName, yearFounded, keywords,
                 numberOfEmployees, legalForm, isActive, status, deletedAt,
-                countryCode, cnpsEmployerNumber, atRiskRate);
+                countryCode, cnpsEmployerNumber, atRiskRate, address, city, postalCode, phone, conventionCollective);
     }
 
     public Organization approve(UUID adminUserId, String reason) {
@@ -242,7 +259,7 @@ public final class Organization extends BaseEntity {
                 shortName, longName, description, logoUri, logoId, websiteUrl, socialNetwork,
                 businessRegistrationNumber, taxNumber, capitalShare, ceoName, yearFounded, keywords,
                 numberOfEmployees, legalForm, active, nextStatus.name(), deletedAt,
-                countryCode, cnpsEmployerNumber, atRiskRate);
+                countryCode, cnpsEmployerNumber, atRiskRate, address, city, postalCode, phone, conventionCollective);
     }
 
     public UUID businessActorId() { return businessActorId; }
@@ -278,6 +295,11 @@ public final class Organization extends BaseEntity {
     public String countryCode() { return countryCode; }
     public String cnpsEmployerNumber() { return cnpsEmployerNumber; }
     public BigDecimal atRiskRate() { return atRiskRate; }
+    public String address() { return address; }
+    public String city() { return city; }
+    public String postalCode() { return postalCode; }
+    public String phone() { return phone; }
+    public String conventionCollective() { return conventionCollective; }
 
     private static String requireText(String value, String field) {
         if (value == null || value.isBlank()) {

@@ -191,28 +191,29 @@ npm start
 
 **Vérification** : ouvrir <http://localhost:3000/fr/login>.
 
-#### Comptes de démo seedés (V068 + V076)
+#### Comptes de démo seedés (V068 + V076 + V095)
 
 Tous partagent le même mot de passe **`Demo@2024!`** (BCrypt strength 10).
 Au premier login, l'application demande une organisation de travail
 (`MUFID Union` est la seule seedée pour la démo).
 
-| Email                          | Rôle             | Périmètre des permissions                     |
-| ------------------------------ | ---------------- | --------------------------------------------- |
-| `super.admin@hrcore.demo`      | SuperAdmin       | TENANT — tout                                 |
-| `hr.admin@hrcore.demo`         | Admin RH         | ORG — RH complet + création de comptes / rôles |
-| `drh@hrcore.demo`              | DRH              | ORG — pilotage, formation, évaluations         |
-| `manager@hrcore.demo`          | Manager          | ORG — équipe, approbations congés / missions  |
-| `recruiter@hrcore.demo`        | Recruteur        | ORG — recrutement + onboarding                |
-| `accountant@hrcore.demo`       | Comptable / DAF  | ORG — notes de frais, validation paie         |
-| `payroll@hrcore.demo`          | Payroll Manager  | ORG — calcul paie + déclarations sociales     |
-| `doctor@hrcore.demo`           | Médecin du travail | ORG — visites, certificats                  |
-| `employee@hrcore.demo`         | Employé          | ORG — self-service (congés, missions, paie)   |
+| Email                          | Rôle                | Espace frontend   | Périmètre des permissions                      |
+| ------------------------------ | ------------------- | ----------------- | ---------------------------------------------- |
+| `super.admin@hrcore.demo`      | SuperAdmin          | `admin`           | TENANT — tout                                  |
+| `hr.admin@hrcore.demo`         | Admin RH            | `hr-admin`        | ORG — RH complet + recrutement + formation + médical + déclarations |
+| `payroll@hrcore.demo`          | Payroll Manager     | `payroll-manager` | ORG — calcul paie + déclarations sociales      |
+| `employee@hrcore.demo`         | Employé             | `employee`        | ORG — self-service (congés, missions, paie)    |
+| `doctor@hrcore.demo`           | Médecin du travail  | `doctor`          | ORG — visites, certificats                     |
+| `controller@hrcore.demo`       | Contrôleur de gestion | `controller`    | ORG — lecture transverse + KPI                 |
 
-En plus de ces comptes, V076 crée **11 fiches employés réelles** (5 liées
-aux comptes ci-dessus + 6 « orphelines » sans login) avec leurs contrats
-CDI/CDD actifs, prêtes pour tester la liste des employés, le moteur de paie
-et le tableau de bord.
+> **Comptes supprimés en V095** : `manager@hrcore.demo`, `drh@hrcore.demo`,
+> `recruiter@hrcore.demo`, `accountant@hrcore.demo`. Ces rôles sont désormais
+> fusionnés dans l'espace `hr-admin`. Les fiches employés associées sont
+> conservées comme données de test.
+
+V076 crée également des **fiches employés supplémentaires** (orphelines sans
+login) avec leurs contrats CDI/CDD actifs, prêtes pour tester la liste des
+employés, le moteur de paie et le tableau de bord.
 
 ### 3.4 Workflow : créer un nouvel employé et lui permettre de se connecter
 

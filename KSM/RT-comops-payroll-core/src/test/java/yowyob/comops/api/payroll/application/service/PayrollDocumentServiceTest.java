@@ -143,7 +143,8 @@ class PayrollDocumentServiceTest {
 
     private EmployerInfo employer() {
         return new EmployerInfo("ACME SARL", "ACME", "RC/DLA/2020/B/1234", "M012345678", "J123",
-                "Jean Directeur", "contact@acme.cm");
+                "Jean Directeur", "contact@acme.cm", "123 Rue de la Paix", "Douala", "BP 1234",
+                "+237 699 000 000", "SARL", new BigDecimal("10000000"), "Convention collective nationale");
     }
 
     private Function<Context, Context> withContext() {

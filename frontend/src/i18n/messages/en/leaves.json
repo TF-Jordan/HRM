@@ -121,7 +121,9 @@
     },
     "submit": "Submit request",
     "success": "Request submitted",
-    "hint": "Saturdays, Sundays and Cameroon public holidays are automatically excluded."
+    "hint": "Sundays and Cameroon public holidays are excluded (working days: Monday to Saturday).",
+    "maternityMax": "Maternity leave cannot exceed 14 weeks (98 calendar days).",
+    "paternityMax": "Paternity leave cannot exceed 3 working days."
   },
   "detail": {
     "title": "Leave request",

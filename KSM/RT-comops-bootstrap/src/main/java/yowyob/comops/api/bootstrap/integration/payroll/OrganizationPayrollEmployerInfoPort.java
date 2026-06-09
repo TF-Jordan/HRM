@@ -27,7 +27,10 @@ public class OrganizationPayrollEmployerInfoPort implements EmployerInfoPort {
     public Mono<EmployerInfo> find(UUID tenantId, UUID organizationId) {
         return getOrganizationUseCase.getOrganization(organizationId)
                 .map(o -> new EmployerInfo(o.longName(), o.shortName(), o.businessRegistrationNumber(),
-                        o.taxNumber(), o.cnpsEmployerNumber(), o.ceoName(), o.email()))
-                .defaultIfEmpty(new EmployerInfo("", "", null, null, null, null, null));
+                        o.taxNumber(), o.cnpsEmployerNumber(), o.ceoName(), o.email(),
+                        o.address(), o.city(), o.postalCode(), o.phone(),
+                        o.legalForm(), o.capitalShare(), o.conventionCollective()))
+                .defaultIfEmpty(new EmployerInfo("", "", null, null, null, null, null,
+                        null, null, null, null, null, null, null));
     }
 }

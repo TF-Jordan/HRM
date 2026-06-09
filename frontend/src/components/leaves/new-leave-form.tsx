@@ -56,8 +56,21 @@ export function NewLeaveForm() {
 
   const start = watch("dateDebut");
   const end = watch("dateFin");
+  const leaveType = watch("type");
   const days = React.useMemo(() => workingDaysBetween(start, end), [start, end]);
   const datesInvalid = !!start && !!end && new Date(end) < new Date(start);
+
+  // Type-specific duration constraints (Cameroon labour code)
+  const calendarDays = React.useMemo(() => {
+    if (!start || !end) return 0;
+    const s = new Date(start);
+    const e = new Date(end);
+    if (e < s) return 0;
+    return Math.round((e.getTime() - s.getTime()) / 86_400_000) + 1;
+  }, [start, end]);
+  const maternityExceeded = leaveType === "MATERNITY" && calendarDays > 98;
+  const paternityExceeded = leaveType === "PATERNITY" && days > 3;
+  const typeError = maternityExceeded || paternityExceeded;
 
   const mutation = useMutation({
     mutationFn: async (v: FormValues) => {
@@ -102,7 +115,7 @@ export function NewLeaveForm() {
                 {tCommon("actions.cancel")}
               </Button>
             </Link>
-            <Button type="submit" disabled={!isValid || datesInvalid || mutation.isPending}>
+            <Button type="submit" disabled={!isValid || datesInvalid || typeError || mutation.isPending}>
               {mutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : tNew("submit")}
             </Button>
           </>
@@ -128,7 +141,15 @@ export function NewLeaveForm() {
             <Field
               label={tNew("fields.duration")}
               hint={tNew("hint")}
-              error={datesInvalid ? tVal("dateRange.endBeforeStart") : undefined}
+              error={
+                datesInvalid
+                  ? tVal("dateRange.endBeforeStart")
+                  : maternityExceeded
+                    ? tNew("maternityMax")
+                    : paternityExceeded
+                      ? tNew("paternityMax")
+                      : undefined
+              }
             >
               <div className="flex items-center gap-2 rounded-[11px] border border-line bg-bg-soft px-3.5 py-[11px]">
                 <CalendarRange className="h-4 w-4 text-orange-600" />

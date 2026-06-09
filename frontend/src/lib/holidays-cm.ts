@@ -74,8 +74,11 @@ export function holidaysCmForYear(year: number): Set<string> {
 }
 
 /**
- * Number of working days between two YYYY-MM-DD dates (inclusive), excluding
- * weekends (Saturday + Sunday) and Cameroon public holidays.
+ * Number of jours ouvrables (Mon–Sat) between two YYYY-MM-DD dates (inclusive),
+ * excluding Sundays and Cameroon public holidays.
+ *
+ * This matches the Cameroon labour code definition: jours ouvrables = all days
+ * except the weekly rest day (Sunday) and public holidays.
  */
 export function workingDaysBetween(startIso: string, endIso: string): number {
   if (!startIso || !endIso) return 0;
@@ -94,7 +97,8 @@ export function workingDaysBetween(startIso: string, endIso: string): number {
   while (cursor <= end) {
     const day = cursor.getUTCDay(); // 0 = Sun, 6 = Sat
     const iso = format(cursor);
-    if (day !== 0 && day !== 6 && !holidaysFor(cursor.getUTCFullYear()).has(iso)) {
+    // Jours ouvrables: exclude only Sunday (day 0) and public holidays
+    if (day !== 0 && !holidaysFor(cursor.getUTCFullYear()).has(iso)) {
       count += 1;
     }
     cursor.setUTCDate(cursor.getUTCDate() + 1);

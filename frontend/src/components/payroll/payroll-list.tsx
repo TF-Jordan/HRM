@@ -1,6 +1,5 @@
 "use client";
 
-import { Document, Image, Page, StyleSheet, Text, View, pdf } from "@react-pdf/renderer";
 import { useQuery } from "@tanstack/react-query";
 import {
   ChevronRight,
@@ -882,136 +881,52 @@ function PayslipLine({
 }
 
 // ────────────────────────────────────────────────────────────────────────────
-// Run download button — generates full cycle PDF (summary + all payslips)
+// Run download button — triggers backend PDF generation for each entry
 // Disabled until the cycle is VALIDATED or PAID
 // ────────────────────────────────────────────────────────────────────────────
 
-type OrgLegalData = {
-  shortName?: string | null;
-  longName?: string | null;
-  businessRegistrationNumber?: string | null;
-  taxNumber?: string | null;
-  capitalShare?: number | string | null;
-  ceoName?: string | null;
-  email?: string | null;
-  websiteUrl?: string | null;
-  logoUri?: string | null;
-  logoId?: string | null;
+type PayrollDocumentResponse = {
+  id: string;
+  fileId: string;
+  fileName: string;
+  type: string;
+  verificationCode: string;
 };
-
-async function toDataUrl(url: string): Promise<string> {
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`logo fetch ${res.status}`);
-  const blob = await res.blob();
-  return new Promise<string>((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = reject;
-    reader.readAsDataURL(blob);
-  });
-}
 
 function RunDownloadButton({
   run,
   t,
-  locale,
 }: {
   run: PayrollRunResponse;
   t: ReturnType<typeof useTranslations<"payroll">>;
   locale: "fr" | "en";
 }) {
-  const { session } = useSession();
   const [isDownloading, setIsDownloading] = React.useState(false);
   const isValidated = run.status === "VALIDATED" || run.status === "PAID";
-
 
   async function handleDownload() {
     if (!isValidated || isDownloading) return;
     setIsDownloading(true);
     try {
-      // Always fetch fresh org data at download time
-      let orgData: OrgLegalData | undefined;
-      try {
-        orgData = await apiFetch<OrgLegalData>("/api/admin/organization");
-      } catch { /* session fallback */ }
-
-      const legalLine = [
-        orgData?.businessRegistrationNumber ? `RCCM ${orgData.businessRegistrationNumber}` : null,
-        orgData?.taxNumber ? `NIU ${orgData.taxNumber}` : null,
-        orgData?.capitalShare ? `Capital ${Number(orgData.capitalShare).toLocaleString("fr-FR")} XAF` : null,
-        orgData?.ceoName ? `DG ${orgData.ceoName}` : null,
-      ].filter(Boolean).join(" · ") || (session?.workspace?.organizationId?.slice(0, 8) ?? "");
-
-      const contactLine = [
-        orgData?.email,
-        orgData?.websiteUrl?.replace(/^https?:\/\//, ""),
-      ].filter(Boolean).join(" · ");
-
-      let logoDataUrl: string | undefined;
-      if (orgData?.logoId) {
-        try { logoDataUrl = await toDataUrl(`/api/files/${orgData.logoId}`); } catch { /* fallback */ }
-      }
-
+      // Generate backend PDFs for all entries in the run, then download each
       const entries = await apiFetch<PayrollEntryResponse[]>(
         `/api/hrm/payroll/${run.id}/entries`,
       );
-      const entryData = await Promise.all(
-        entries.map(async (entry) => {
-          const [lines, employee] = await Promise.all([
-            apiFetch<PayslipLineResponse[]>(
-              `/api/hrm/payroll/entries/${entry.id}/payslip`,
-            ),
-            apiFetch<EmployeeResponse>(`/api/hrm/employees/${entry.employeeId}`).catch(
-              () => null,
-            ),
-          ]);
-          return { entry, employee: employee as EmployeeResponse | null, lines };
-        }),
-      );
-
-      const blob = await pdf(
-        <PayrollCyclePdfDocument
-          organizationName={orgData?.longName || orgData?.shortName || session?.workspace?.organizationName || "—"}
-          organizationRef={legalLine}
-          organizationContact={contactLine}
-          logoDataUrl={logoDataUrl}
-          run={run}
-          entries={entryData}
-          locale={locale}
-          reportTitle={t("pdf.reportTitle")}
-          periodLabel={t("payslip.period")}
-          nbEmployeesLabel={t("hero.employeesPaid")}
-          grossMassLabel={t("hero.grossMass")}
-          netPayableLabel={t("payslip.netLabel")}
-          cnpsEmployeurLabel={t("detail.cnpsEmployeur")}
-          irppLabel={t("detail.irpp")}
-          totalRetenuesLabel={t("pdf.totalRetenues")}
-          validatedByLabel={t("pdf.validatedBy")}
-          validatedAtLabel={t("pdf.validatedAt")}
-          calculatedAtLabel={t("pdf.calculatedAt")}
-          statusLabel={t("pdf.statusLabel")}
-          payslipTitle={t("payslip.headerTitle")}
-          employeeLabel={t("payslip.employee")}
-          noEmployeeLabel={t("payslip.noEmployee")}
-          rubricBrutLabel={t("payslip.rubricBrut")}
-          rubricRetenuesLabel={t("payslip.rubricRetenues")}
-          subtotalGrossLabel={t("payslip.subtotalGross")}
-          subtotalRetenuesLabel={t("payslip.subtotalRetenues")}
-          netLabel={t("payslip.netLabel")}
-          colLibelle={t("payslip.tableLibelle")}
-          colBase={t("payslip.tableBase")}
-          colTaux={t("payslip.tableTaux")}
-          colGain={t("payslip.tableGain")}
-          colRetenue={t("payslip.tableRetenue")}
-        />,
-      ).toBlob();
-
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `cycle-paie-${run.periode}.pdf`;
-      a.click();
-      URL.revokeObjectURL(url);
+      for (const entry of entries) {
+        const doc = await apiFetch<PayrollDocumentResponse>(
+          `/api/hrm/payroll/documents/payslip?entryId=${entry.id}`,
+          { method: "POST" },
+        );
+        const res = await fetch(`/api/files/${doc.fileId}`);
+        if (!res.ok) continue;
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = doc.fileName || `bulletin-${run.periode}-${entry.id.slice(0, 6)}.pdf`;
+        a.click();
+        URL.revokeObjectURL(url);
+      }
     } catch {
       toast.error(t("form.errorTitle"));
     } finally {
@@ -1038,473 +953,5 @@ function RunDownloadButton({
         <Download className="h-3.5 w-3.5" />
       )}
     </Button>
-  );
-}
-
-// ────────────────────────────────────────────────────────────────────────────
-// Payroll cycle PDF document
-// Page 1: run summary  |  Pages 2+: one payslip per employee
-// ────────────────────────────────────────────────────────────────────────────
-
-const SC = StyleSheet.create({
-  page: {
-    paddingHorizontal: 36,
-    paddingVertical: 32,
-    fontSize: 9,
-    fontFamily: "Helvetica",
-    color: "#111827",
-    backgroundColor: "#ffffff",
-  },
-  // ── Shared header ──
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    paddingBottom: 10,
-    borderBottom: "2pt solid #111827",
-    marginBottom: 14,
-  },
-  orgRow: { flexDirection: "row", alignItems: "center" },
-  orgInitial: {
-    width: 28,
-    height: 28,
-    backgroundColor: "#F97316",
-    borderRadius: 6,
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 7,
-  },
-  orgInitialText: { fontFamily: "Helvetica-Bold", fontSize: 14, color: "#ffffff" },
-  orgLogo: { width: 28, height: 28, borderRadius: 6, marginRight: 7, objectFit: "contain" },
-  orgName: { fontFamily: "Helvetica-Bold", fontSize: 12, color: "#111827" },
-  orgRef: { fontSize: 7.5, color: "#6B7280", marginTop: 2 },
-  headerRight: { alignItems: "flex-end" },
-  headerTitle: { fontFamily: "Helvetica-Bold", fontSize: 11, color: "#111827" },
-  headerSub: { fontSize: 8, color: "#6B7280", marginTop: 2 },
-  // ── Summary page: stats ──
-  statsRow: { flexDirection: "row", gap: 8, marginBottom: 14 },
-  statBox: { flex: 1, backgroundColor: "#F9FAFB", borderRadius: 6, padding: 8 },
-  statLabel: {
-    fontSize: 7,
-    color: "#6B7280",
-    fontFamily: "Helvetica-Bold",
-    textTransform: "uppercase",
-    marginBottom: 3,
-  },
-  statValue: { fontFamily: "Helvetica-Bold", fontSize: 13, color: "#111827" },
-  statSub: { fontSize: 7, color: "#9CA3AF", marginTop: 2 },
-  // ── Summary page: totals table ──
-  tableSection: { marginBottom: 16 },
-  tableSectionTitle: {
-    fontFamily: "Helvetica-Bold",
-    fontSize: 8,
-    color: "#C2410C",
-    backgroundColor: "#FFF7ED",
-    padding: 5,
-  },
-  tableRow: {
-    flexDirection: "row",
-    borderBottom: "0.5pt solid #F3F4F6",
-    paddingVertical: 5,
-    paddingHorizontal: 5,
-  },
-  tableRowBg: { backgroundColor: "#F9FAFB" },
-  tableRowDark: { backgroundColor: "#111827" },
-  tableLabel: { flex: 1, fontSize: 8.5, color: "#374151" },
-  tableLabelBold: { flex: 1, fontSize: 8.5, color: "#111827", fontFamily: "Helvetica-Bold" },
-  tableLabelWhite: { flex: 1, fontSize: 10, color: "#ffffff", fontFamily: "Helvetica-Bold" },
-  tableValue: {
-    width: 100,
-    fontSize: 8.5,
-    color: "#374151",
-    textAlign: "right",
-    fontFamily: "Courier",
-  },
-  tableValueBold: {
-    width: 100,
-    fontSize: 8.5,
-    color: "#111827",
-    textAlign: "right",
-    fontFamily: "Helvetica-Bold",
-  },
-  tableValueWhite: {
-    width: 100,
-    fontSize: 12,
-    color: "#ffffff",
-    textAlign: "right",
-    fontFamily: "Helvetica-Bold",
-  },
-  // ── Summary page: validation info ──
-  validationBox: {
-    marginTop: 16,
-    backgroundColor: "#F9FAFB",
-    borderRadius: 6,
-    padding: 10,
-    flexDirection: "row",
-    gap: 24,
-  },
-  validationLabel: {
-    fontSize: 7,
-    color: "#6B7280",
-    fontFamily: "Helvetica-Bold",
-    textTransform: "uppercase",
-    marginBottom: 3,
-  },
-  validationValue: { fontSize: 8.5, color: "#111827", fontFamily: "Helvetica-Bold" },
-  // ── Payslip page: info boxes ──
-  infoGrid: { flexDirection: "row", gap: 10, marginBottom: 14 },
-  infoBox: { flex: 1, backgroundColor: "#F9FAFB", borderRadius: 6, padding: 8 },
-  infoLabel: {
-    fontSize: 7,
-    color: "#6B7280",
-    textTransform: "uppercase",
-    fontFamily: "Helvetica-Bold",
-    marginBottom: 4,
-  },
-  infoValue: { fontFamily: "Helvetica-Bold", fontSize: 10, color: "#111827" },
-  infoSub: { fontSize: 8, color: "#6B7280", marginTop: 2 },
-  // ── Payslip page: lines table ──
-  tableHeaderRow: {
-    flexDirection: "row",
-    borderBottom: "0.75pt solid #D1D5DB",
-    paddingBottom: 4,
-    marginBottom: 2,
-  },
-  thLibelle: {
-    flex: 1,
-    fontSize: 7,
-    color: "#9CA3AF",
-    fontFamily: "Helvetica-Bold",
-    textTransform: "uppercase",
-  },
-  thNum: {
-    width: 72,
-    fontSize: 7,
-    color: "#9CA3AF",
-    fontFamily: "Helvetica-Bold",
-    textTransform: "uppercase",
-    textAlign: "right",
-  },
-  thTaux: {
-    width: 44,
-    fontSize: 7,
-    color: "#9CA3AF",
-    fontFamily: "Helvetica-Bold",
-    textTransform: "uppercase",
-    textAlign: "right",
-  },
-  thAmount: {
-    width: 82,
-    fontSize: 7,
-    color: "#9CA3AF",
-    fontFamily: "Helvetica-Bold",
-    textTransform: "uppercase",
-    textAlign: "right",
-  },
-  sectionRow: { backgroundColor: "#FFF7ED", paddingVertical: 4, paddingHorizontal: 4, marginTop: 4 },
-  sectionText: { fontSize: 8, color: "#C2410C", fontFamily: "Helvetica-Bold" },
-  dataRow: {
-    flexDirection: "row",
-    paddingVertical: 3,
-    paddingHorizontal: 4,
-    borderBottom: "0.5pt solid #F3F4F6",
-  },
-  cellLibelle: { flex: 1, fontSize: 8.5, color: "#374151" },
-  cellBase: { width: 72, fontSize: 8.5, color: "#6B7280", textAlign: "right", fontFamily: "Courier" },
-  cellTaux: { width: 44, fontSize: 8.5, color: "#6B7280", textAlign: "right", fontFamily: "Courier" },
-  cellGain: { width: 82, fontSize: 8.5, color: "#111827", textAlign: "right", fontFamily: "Courier" },
-  cellRetenue: { width: 82, fontSize: 8.5, color: "#111827", textAlign: "right", fontFamily: "Courier" },
-  subtotalRow: {
-    flexDirection: "row",
-    backgroundColor: "#F9FAFB",
-    paddingVertical: 5,
-    paddingHorizontal: 4,
-  },
-  subtotalLabel: { flex: 1, fontSize: 9, color: "#111827", fontFamily: "Helvetica-Bold" },
-  subtotalValue: { width: 82, fontSize: 9, color: "#111827", textAlign: "right", fontFamily: "Helvetica-Bold" },
-  subtotalEmpty: { width: 82 },
-  netRow: {
-    flexDirection: "row",
-    backgroundColor: "#111827",
-    paddingVertical: 10,
-    paddingHorizontal: 6,
-    marginTop: 4,
-  },
-  netLabel: { flex: 1, fontSize: 12, color: "#ffffff", fontFamily: "Helvetica-Bold" },
-  netValue: { width: 82, fontSize: 16, color: "#ffffff", textAlign: "right", fontFamily: "Helvetica-Bold" },
-});
-
-type CyclePdfEntry = {
-  entry: PayrollEntryResponse;
-  employee: EmployeeResponse | null;
-  lines: PayslipLineResponse[];
-};
-
-type CyclePdfProps = {
-  organizationName: string;
-  organizationRef: string;
-  organizationContact?: string;
-  logoDataUrl?: string;
-  run: PayrollRunResponse;
-  entries: CyclePdfEntry[];
-  locale: "fr" | "en";
-  reportTitle: string;
-  periodLabel: string;
-  nbEmployeesLabel: string;
-  grossMassLabel: string;
-  netPayableLabel: string;
-  cnpsEmployeurLabel: string;
-  irppLabel: string;
-  totalRetenuesLabel: string;
-  validatedByLabel: string;
-  validatedAtLabel: string;
-  calculatedAtLabel: string;
-  statusLabel: string;
-  payslipTitle: string;
-  employeeLabel: string;
-  noEmployeeLabel: string;
-  rubricBrutLabel: string;
-  rubricRetenuesLabel: string;
-  subtotalGrossLabel: string;
-  subtotalRetenuesLabel: string;
-  netLabel: string;
-  colLibelle: string;
-  colBase: string;
-  colTaux: string;
-  colGain: string;
-  colRetenue: string;
-};
-
-function PayrollCyclePdfDocument(props: CyclePdfProps) {
-  const {
-    organizationName, organizationRef, organizationContact, logoDataUrl,
-    run, entries, locale,
-    reportTitle, periodLabel, nbEmployeesLabel, grossMassLabel, netPayableLabel,
-    cnpsEmployeurLabel, irppLabel, totalRetenuesLabel,
-    validatedByLabel: _vbl, validatedAtLabel, calculatedAtLabel, statusLabel,
-    payslipTitle, employeeLabel, noEmployeeLabel,
-    rubricBrutLabel, rubricRetenuesLabel, subtotalGrossLabel, subtotalRetenuesLabel,
-    netLabel, colLibelle, colBase, colTaux, colGain, colRetenue,
-  } = props;
-
-  const fmt = (n: number | string) =>
-    formatMoney(Number(n ?? 0), { locale, withCurrency: false });
-
-  const fmtTaux = (taux: number | string | null) => {
-    if (taux == null) return "—";
-    const n = Number(taux);
-    return `${(n * 100).toFixed(n === 0 ? 0 : 1)}%`;
-  };
-
-  const fmtDate = (iso: string | null) => {
-    if (!iso) return "—";
-    return new Date(iso).toLocaleDateString(locale === "fr" ? "fr-FR" : "en-US", {
-      day: "2-digit",
-      month: "long",
-      year: "numeric",
-    });
-  };
-
-  const initial = organizationName?.[0]?.toUpperCase() ?? "R";
-  const totalRetenues = Number(run.totalEmployeeDeductions ?? 0);
-
-  return (
-    <Document>
-      {/* ── Page 1: Cycle summary ── */}
-      <Page size="A4" style={SC.page}>
-        <View style={SC.header}>
-          <View style={SC.orgRow}>
-            {logoDataUrl ? (
-              <Image src={logoDataUrl} style={SC.orgLogo} />
-            ) : (
-              <View style={SC.orgInitial}>
-                <Text style={SC.orgInitialText}>{initial}</Text>
-              </View>
-            )}
-            <View>
-              <Text style={SC.orgName}>{organizationName}</Text>
-              {organizationRef ? <Text style={SC.orgRef}>{organizationRef}</Text> : null}
-              {organizationContact ? <Text style={[SC.orgRef, { marginTop: 1 }]}>{organizationContact}</Text> : null}
-            </View>
-          </View>
-          <View style={SC.headerRight}>
-            <Text style={SC.headerTitle}>{reportTitle}</Text>
-            <Text style={SC.headerSub}>
-              {periodLabel} · {formatPeriodFr(run.periode)}
-            </Text>
-            <Text style={[SC.headerSub, { color: "#F97316", marginTop: 3 }]}>
-              {run.nbEmployes} {nbEmployeesLabel.toLowerCase()}
-            </Text>
-          </View>
-        </View>
-
-        {/* Stats */}
-        <View style={SC.statsRow}>
-          <View style={SC.statBox}>
-            <Text style={SC.statLabel}>{nbEmployeesLabel}</Text>
-            <Text style={SC.statValue}>{run.nbEmployes}</Text>
-          </View>
-          <View style={SC.statBox}>
-            <Text style={SC.statLabel}>{grossMassLabel}</Text>
-            <Text style={SC.statValue}>{fmt(run.totalGross)}</Text>
-            <Text style={SC.statSub}>XAF brut</Text>
-          </View>
-          <View style={SC.statBox}>
-            <Text style={SC.statLabel}>{netPayableLabel}</Text>
-            <Text style={[SC.statValue, { color: "#F97316" }]}>{fmt(run.totalNet)}</Text>
-            <Text style={SC.statSub}>XAF net</Text>
-          </View>
-        </View>
-
-        {/* Totals */}
-        <View style={SC.tableSection}>
-          <Text style={SC.tableSectionTitle}>RÉCAPITULATIF DES CHARGES</Text>
-          <View style={SC.tableRow}>
-            <Text style={SC.tableLabel}>Masse salariale brute</Text>
-            <Text style={SC.tableValue}>{fmt(run.totalGross)}</Text>
-          </View>
-          <View style={SC.tableRow}>
-            <Text style={SC.tableLabel}>{irppLabel}</Text>
-            <Text style={SC.tableValue}>{fmt(run.totalIncomeTax)}</Text>
-          </View>
-          <View style={SC.tableRow}>
-            <Text style={SC.tableLabel}>{cnpsEmployeurLabel}</Text>
-            <Text style={SC.tableValue}>{fmt(run.totalEmployerCharges)}</Text>
-          </View>
-          <View style={[SC.tableRow, SC.tableRowBg]}>
-            <Text style={SC.tableLabelBold}>{totalRetenuesLabel}</Text>
-            <Text style={SC.tableValueBold}>{fmt(totalRetenues)}</Text>
-          </View>
-          <View style={[SC.tableRow, SC.tableRowDark]}>
-            <Text style={SC.tableLabelWhite}>{netPayableLabel}</Text>
-            <Text style={SC.tableValueWhite}>{fmt(run.totalNet)}</Text>
-          </View>
-        </View>
-
-        {/* Validation info */}
-        <View style={SC.validationBox}>
-          {run.calculatedAt && (
-            <View>
-              <Text style={SC.validationLabel}>{calculatedAtLabel}</Text>
-              <Text style={SC.validationValue}>{fmtDate(run.calculatedAt)}</Text>
-            </View>
-          )}
-          {run.validatedAt && (
-            <View>
-              <Text style={SC.validationLabel}>{validatedAtLabel}</Text>
-              <Text style={SC.validationValue}>{fmtDate(run.validatedAt)}</Text>
-            </View>
-          )}
-          <View>
-            <Text style={SC.validationLabel}>{statusLabel}</Text>
-            <Text style={[SC.validationValue, { color: "#22C55E" }]}>{run.status}</Text>
-          </View>
-        </View>
-      </Page>
-
-      {/* ── Pages 2+N: Individual payslips ── */}
-      {entries.map(({ entry, employee, lines }) => {
-        const earnings = lines
-          .filter((l) => l.type === "EARNING")
-          .sort((a, b) => a.ordreAffichage - b.ordreAffichage);
-        const deductions = lines
-          .filter((l) => l.type === "DEDUCTION")
-          .sort((a, b) => a.ordreAffichage - b.ordreAffichage);
-        const matricule = employee?.matricule ?? entry.employeeId.slice(0, 8);
-        const deptCode = employee?.departmentCode ? ` · ${employee.departmentCode}` : "";
-        const ref = `PSL-${run.periode}-${employee?.matricule ?? entry.id.slice(0, 6)}`;
-
-        return (
-          <Page key={entry.id} size="A4" style={SC.page}>
-            <View style={SC.header}>
-              <View style={SC.orgRow}>
-                <View style={SC.orgInitial}>
-                  <Text style={SC.orgInitialText}>{initial}</Text>
-                </View>
-                <View>
-                  <Text style={SC.orgName}>{organizationName}</Text>
-                  <Text style={SC.orgRef}>{organizationRef}</Text>
-                </View>
-              </View>
-              <View style={SC.headerRight}>
-                <Text style={SC.headerTitle}>{payslipTitle}</Text>
-                <Text style={SC.headerSub}>
-                  {periodLabel} · {formatPeriodFr(run.periode)}
-                </Text>
-                <Text style={[SC.headerSub, { fontSize: 7 }]}>{`N° ${ref}`}</Text>
-              </View>
-            </View>
-
-            <View style={SC.infoGrid}>
-              <View style={SC.infoBox}>
-                <Text style={SC.infoLabel}>{employeeLabel}</Text>
-                <Text style={SC.infoValue}>
-                  {employee?.actorDisplayName ?? noEmployeeLabel}
-                </Text>
-                <Text style={SC.infoSub}>{matricule}{deptCode}</Text>
-                {employee?.numCnps ? (
-                  <Text style={SC.infoSub}>{"CNPS · " + employee.numCnps}</Text>
-                ) : null}
-              </View>
-              <View style={SC.infoBox}>
-                <Text style={SC.infoLabel}>{"Matricule · Poste"}</Text>
-                <Text style={SC.infoValue}>{matricule}</Text>
-                <Text style={SC.infoSub}>{employee?.departmentCode ?? "—"}</Text>
-              </View>
-            </View>
-
-            <View style={SC.tableHeaderRow}>
-              <Text style={SC.thLibelle}>{colLibelle}</Text>
-              <Text style={SC.thNum}>{colBase}</Text>
-              <Text style={SC.thTaux}>{colTaux}</Text>
-              <Text style={SC.thAmount}>{colGain}</Text>
-              <Text style={SC.thAmount}>{colRetenue}</Text>
-            </View>
-
-            <View style={SC.sectionRow}>
-              <Text style={SC.sectionText}>{rubricBrutLabel}</Text>
-            </View>
-            {earnings.map((l) => (
-              <View key={l.id} style={SC.dataRow}>
-                <Text style={SC.cellLibelle}>{l.libelle}</Text>
-                <Text style={SC.cellBase}>{l.base != null ? fmt(l.base) : "—"}</Text>
-                <Text style={SC.cellTaux}>{fmtTaux(l.taux)}</Text>
-                <Text style={SC.cellGain}>{fmt(l.montant)}</Text>
-                <Text style={SC.cellRetenue}>{""}</Text>
-              </View>
-            ))}
-            <View style={SC.subtotalRow}>
-              <Text style={SC.subtotalLabel}>{subtotalGrossLabel}</Text>
-              <Text style={[SC.subtotalValue, { width: 72 + 44 }]}>{fmt(entry.brut)}</Text>
-              <Text style={SC.subtotalEmpty}>{""}</Text>
-            </View>
-
-            <View style={[SC.sectionRow, { marginTop: 8 }]}>
-              <Text style={SC.sectionText}>{rubricRetenuesLabel}</Text>
-            </View>
-            {deductions.map((l) => (
-              <View key={l.id} style={SC.dataRow}>
-                <Text style={SC.cellLibelle}>{l.libelle}</Text>
-                <Text style={SC.cellBase}>{l.base != null ? fmt(l.base) : "—"}</Text>
-                <Text style={SC.cellTaux}>{fmtTaux(l.taux)}</Text>
-                <Text style={SC.cellGain}>{""}</Text>
-                <Text style={SC.cellRetenue}>{fmt(l.montant)}</Text>
-              </View>
-            ))}
-            <View style={SC.subtotalRow}>
-              <Text style={SC.subtotalLabel}>{subtotalRetenuesLabel}</Text>
-              <Text style={[SC.subtotalValue, { width: 72 + 44 + 82 }]}>
-                {fmt(entry.totalDeductions)}
-              </Text>
-            </View>
-
-            <View style={SC.netRow}>
-              <Text style={SC.netLabel}>{netLabel}</Text>
-              <Text style={SC.netValue}>{fmt(entry.net)}</Text>
-            </View>
-          </Page>
-        );
-      })}
-    </Document>
   );
 }

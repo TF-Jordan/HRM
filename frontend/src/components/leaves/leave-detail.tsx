@@ -189,7 +189,7 @@ export function LeaveDetail({ leaveRequestId }: { leaveRequestId: string }) {
                 </Button>
               </>
             )}
-            {canCreate && (isPending || (isApproved && startInFuture)) && (
+            {canCreate && !canApprove && (isPending || (isApproved && startInFuture)) && (
               <Button type="button" variant="danger" onClick={() => setModal("cancel")}>
                 {tDetail("actions.cancel")}
               </Button>

@@ -66,7 +66,8 @@ public class OrganizationR2dbcRepositoryAdapter implements OrganizationRepositor
                 organization.numberOfEmployees(), organization.legalForm(), organization.isActive(),
                 organization.status(), organization.deletedAt(), organization.legalName(), organization.displayName(),
                 organization.organizationType(), organization.countryCode(), organization.cnpsEmployerNumber(),
-                organization.atRiskRate())).map(this::toDomain);
+                organization.atRiskRate(), organization.address(), organization.city(), organization.postalCode(),
+                organization.phone(), organization.conventionCollective())).map(this::toDomain);
     }
 
     @Override
@@ -84,7 +85,9 @@ public class OrganizationR2dbcRepositoryAdapter implements OrganizationRepositor
                 entity.taxNumber(), entity.capitalShare(), entity.ceoName(), entity.yearFounded(),
                 entity.keywords() == null ? Set.of() : entity.keywords(), entity.numberOfEmployees(),
                 entity.legalForm(), entity.isActive(), entity.status(), entity.deletedAt(),
-                entity.countryCode(), entity.cnpsEmployerNumber(), entity.atRiskRate());
+                entity.countryCode(), entity.cnpsEmployerNumber(), entity.atRiskRate(),
+                entity.address(), entity.city(), entity.postalCode(), entity.phone(),
+                entity.conventionCollective());
     }
 
     private String firstNonBlank(String primary, String fallback) {

@@ -1,9 +1,8 @@
 "use client";
 
-import { Document, Image, Page, StyleSheet, Text, View, pdf } from "@react-pdf/renderer";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, Download, Loader2, Mail } from "lucide-react";
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import * as React from "react";
 
 import { PageHeader } from "@/components/shell/page-header";
@@ -35,24 +34,36 @@ type OrgLegalData = {
   logoId?: string | null;
 };
 
-/** Fetch any URL (relative BFF route) and return a base64 data URL for react-pdf. */
-export async function toDataUrl(url: string): Promise<string> {
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`logo fetch ${res.status}`);
+type PayrollDocumentResponse = {
+  id: string;
+  fileId: string;
+  fileName: string;
+  type: string;
+  verificationCode: string;
+};
+
+/** Download a backend-generated signed PDF for a payroll entry. */
+async function downloadBackendPayslip(entryId: string): Promise<void> {
+  const doc = await apiFetch<PayrollDocumentResponse>(
+    `/api/hrm/payroll/documents/payslip?entryId=${entryId}`,
+    { method: "POST" },
+  );
+  const res = await fetch(`/api/files/${doc.fileId}`);
+  if (!res.ok) throw new Error(`File download failed: ${res.status}`);
   const blob = await res.blob();
-  return new Promise<string>((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = reject;
-    reader.readAsDataURL(blob);
-  });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = doc.fileName || `bulletin-${entryId}.pdf`;
+  link.click();
+  URL.revokeObjectURL(url);
 }
 
 export function PayslipPreview({ runId, entryId }: { runId: string; entryId: string }) {
   const t = useTranslations("payroll");
-  const locale = useLocale() as "fr" | "en";
   const { session } = useSession();
   const [isDownloading, setIsDownloading] = React.useState(false);
+  const locale = "fr" as const;
 
   const orgQuery = useQuery({
     queryKey: ["admin", "organization"],
@@ -86,7 +97,6 @@ export function PayslipPreview({ runId, entryId }: { runId: string; entryId: str
   const lines = linesQuery.data ?? [];
   const org = orgQuery.data;
 
-  // Legal header lines — shown in both screen preview and PDF
   const orgLegalLine = [
     org?.businessRegistrationNumber ? `RCCM ${org.businessRegistrationNumber}` : null,
     org?.taxNumber ? `NIU ${org.taxNumber}` : null,
@@ -110,66 +120,7 @@ export function PayslipPreview({ runId, entryId }: { runId: string; entryId: str
     if (!entry || !run || isDownloading) return;
     setIsDownloading(true);
     try {
-      // Always fetch fresh org data at download time — never rely on React Query cache alone
-      let orgData: OrgLegalData | undefined;
-      try {
-        orgData = await apiFetch<OrgLegalData>("/api/admin/organization");
-      } catch { /* continue with session fallback */ }
-
-      const legalLine = [
-        orgData?.businessRegistrationNumber ? `RCCM ${orgData.businessRegistrationNumber}` : null,
-        orgData?.taxNumber ? `NIU ${orgData.taxNumber}` : null,
-        orgData?.capitalShare ? `Capital ${Number(orgData.capitalShare).toLocaleString("fr-FR")} XAF` : null,
-        orgData?.ceoName ? `DG ${orgData.ceoName}` : null,
-      ].filter(Boolean).join(" · ") || (session?.workspace?.organizationId?.slice(0, 8) ?? "");
-
-      const contactLine = [
-        orgData?.email,
-        orgData?.websiteUrl?.replace(/^https?:\/\//, ""),
-      ].filter(Boolean).join(" · ");
-
-      // Use logoId to build the BFF proxy URL (/api/files/{id}) — logoUri from KSM
-      // is the KSM direct URL which is not accessible from the browser without headers.
-      let logoDataUrl: string | undefined;
-      if (orgData?.logoId) {
-        try { logoDataUrl = await toDataUrl(`/api/files/${orgData.logoId}`); } catch { /* fallback to initial */ }
-      }
-
-      const blob = await pdf(
-        <PayslipPdfDocument
-          organizationName={orgData?.longName || orgData?.shortName || session?.workspace?.organizationName || "—"}
-          organizationRef={legalLine}
-          organizationContact={contactLine}
-          logoDataUrl={logoDataUrl}
-          run={run}
-          entry={entry}
-          employee={employee ?? null}
-          earnings={earnings}
-          deductions={deductions}
-          locale={locale}
-          headerTitle={t("payslip.headerTitle")}
-          periodLabel={t("payslip.period")}
-          refPrefix="PSL"
-          employeeLabel={t("payslip.employee")}
-          noEmployeeLabel={t("payslip.noEmployee")}
-          rubricBrutLabel={t("payslip.rubricBrut")}
-          rubricRetenuesLabel={t("payslip.rubricRetenues")}
-          subtotalBrutLabel={t("payslip.subtotalBrut")}
-          subtotalRetenuesLabel={t("payslip.subtotalRetenues")}
-          netLabel={t("payslip.netLabel")}
-          colLibelle={t("payslip.tableLibelle")}
-          colBase={t("payslip.tableBase")}
-          colTaux={t("payslip.tableTaux")}
-          colGain={t("payslip.tableGain")}
-          colRetenue={t("payslip.tableRetenue")}
-        />,
-      ).toBlob();
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `bulletin-${run.periode}-${employee?.matricule ?? entry.id.slice(0, 6)}.pdf`;
-      link.click();
-      URL.revokeObjectURL(url);
+      await downloadBackendPayslip(entryId);
     } finally {
       setIsDownloading(false);
     }
@@ -440,253 +391,4 @@ function Line({
 function maskAccount(s: string): string {
   if (s.length <= 4) return s;
   return s.slice(0, 3) + " ** ** " + s.slice(-2);
-}
-
-// ────────────────────────────────────────────────────────────────────────
-// PDF document — mirrors the on-screen payslip from the org header to NET À PAYER
-// ────────────────────────────────────────────────────────────────────────
-
-const S = StyleSheet.create({
-  page: {
-    paddingHorizontal: 40,
-    paddingVertical: 36,
-    fontSize: 9,
-    fontFamily: "Helvetica",
-    color: "#111827",
-    backgroundColor: "#ffffff",
-  },
-  // ── Header ──
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    paddingBottom: 10,
-    borderBottom: "2pt solid #111827",
-    marginBottom: 14,
-  },
-  orgRow: { flexDirection: "row", alignItems: "center" },
-  orgInitial: {
-    width: 30,
-    height: 30,
-    backgroundColor: "#F97316",
-    borderRadius: 6,
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 8,
-  },
-  orgInitialText: { fontFamily: "Helvetica-Bold", fontSize: 15, color: "#ffffff" },
-  orgLogo: { width: 30, height: 30, borderRadius: 6, marginRight: 8, objectFit: "contain" },
-  orgName: { fontFamily: "Helvetica-Bold", fontSize: 13, color: "#111827" },
-  orgRef: { fontSize: 8, color: "#6B7280", marginTop: 2 },
-  headerRight: { alignItems: "flex-end" },
-  headerTitle: { fontFamily: "Helvetica-Bold", fontSize: 11, color: "#111827" },
-  headerPeriod: { fontSize: 8, color: "#6B7280", marginTop: 2 },
-  headerRef: { fontSize: 7, color: "#9CA3AF", marginTop: 1 },
-  // ── Info boxes ──
-  infoGrid: { flexDirection: "row", gap: 10, marginBottom: 14 },
-  infoBox: { flex: 1, backgroundColor: "#F9FAFB", borderRadius: 6, padding: 8 },
-  infoLabel: {
-    fontSize: 7,
-    color: "#6B7280",
-    textTransform: "uppercase",
-    fontFamily: "Helvetica-Bold",
-    marginBottom: 4,
-  },
-  infoValue: { fontFamily: "Helvetica-Bold", fontSize: 10, color: "#111827" },
-  infoSub: { fontSize: 8, color: "#6B7280", marginTop: 2 },
-  // ── Table ──
-  tableHeaderRow: {
-    flexDirection: "row",
-    borderBottom: "0.75pt solid #D1D5DB",
-    paddingBottom: 4,
-    marginBottom: 2,
-  },
-  thLibelle: { flex: 1, fontSize: 7, color: "#9CA3AF", fontFamily: "Helvetica-Bold", textTransform: "uppercase" },
-  thNum: { width: 72, fontSize: 7, color: "#9CA3AF", fontFamily: "Helvetica-Bold", textTransform: "uppercase", textAlign: "right" },
-  thTaux: { width: 44, fontSize: 7, color: "#9CA3AF", fontFamily: "Helvetica-Bold", textTransform: "uppercase", textAlign: "right" },
-  thAmount: { width: 82, fontSize: 7, color: "#9CA3AF", fontFamily: "Helvetica-Bold", textTransform: "uppercase", textAlign: "right" },
-  // Section header
-  sectionRow: { backgroundColor: "#FFF7ED", paddingVertical: 4, paddingHorizontal: 4, marginTop: 4 },
-  sectionText: { fontSize: 8, color: "#C2410C", fontFamily: "Helvetica-Bold" },
-  // Data row
-  dataRow: {
-    flexDirection: "row",
-    paddingVertical: 3,
-    paddingHorizontal: 4,
-    borderBottom: "0.5pt solid #F3F4F6",
-  },
-  cellLibelle: { flex: 1, fontSize: 8.5, color: "#374151" },
-  cellBase: { width: 72, fontSize: 8.5, color: "#6B7280", textAlign: "right", fontFamily: "Courier" },
-  cellTaux: { width: 44, fontSize: 8.5, color: "#6B7280", textAlign: "right", fontFamily: "Courier" },
-  cellGain: { width: 82, fontSize: 8.5, color: "#111827", textAlign: "right", fontFamily: "Courier" },
-  cellRetenue: { width: 82, fontSize: 8.5, color: "#111827", textAlign: "right", fontFamily: "Courier" },
-  // Subtotal row
-  subtotalRow: { flexDirection: "row", backgroundColor: "#F9FAFB", paddingVertical: 5, paddingHorizontal: 4 },
-  subtotalLabel: { flex: 1, fontSize: 9, color: "#111827", fontFamily: "Helvetica-Bold" },
-  subtotalValue: { width: 82, fontSize: 9, color: "#111827", textAlign: "right", fontFamily: "Helvetica-Bold" },
-  subtotalEmpty: { width: 82 },
-  // NET À PAYER
-  netRow: { flexDirection: "row", backgroundColor: "#111827", paddingVertical: 10, paddingHorizontal: 6, marginTop: 4 },
-  netLabel: { flex: 1, fontSize: 12, color: "#ffffff", fontFamily: "Helvetica-Bold" },
-  netValue: { width: 82, fontSize: 16, color: "#ffffff", textAlign: "right", fontFamily: "Helvetica-Bold" },
-});
-
-export type PdfProps = {
-  organizationName: string;
-  organizationRef: string;
-  organizationContact?: string;
-  logoDataUrl?: string;
-  run: PayrollRunResponse;
-  entry: PayrollEntryResponse;
-  employee: EmployeeResponse | null;
-  earnings: PayslipLineResponse[];
-  deductions: PayslipLineResponse[];
-  locale: "fr" | "en";
-  headerTitle: string;
-  periodLabel: string;
-  refPrefix: string;
-  employeeLabel: string;
-  noEmployeeLabel: string;
-  rubricBrutLabel: string;
-  rubricRetenuesLabel: string;
-  subtotalBrutLabel: string;
-  subtotalRetenuesLabel: string;
-  netLabel: string;
-  colLibelle: string;
-  colBase: string;
-  colTaux: string;
-  colGain: string;
-  colRetenue: string;
-};
-
-export function PayslipPdfDocument(props: PdfProps) {
-  const {
-    organizationName, organizationRef, organizationContact, logoDataUrl,
-    run, entry, employee, earnings, deductions, locale,
-    headerTitle, periodLabel, refPrefix, employeeLabel, noEmployeeLabel,
-    rubricBrutLabel, rubricRetenuesLabel, subtotalBrutLabel, subtotalRetenuesLabel, netLabel,
-    colLibelle, colBase, colTaux, colGain, colRetenue,
-  } = props;
-
-  const fmt = (n: number | string) =>
-    formatMoney(Number(n ?? 0), { locale, withCurrency: false });
-
-  const fmtTaux = (taux: number | string | null) => {
-    if (taux == null) return "—";
-    const n = Number(taux);
-    return `${(n * 100).toFixed(n === 0 ? 0 : 1)}%`;
-  };
-
-  const matricule = employee?.matricule ?? entry.employeeId.slice(0, 8);
-  const deptCode = employee?.departmentCode ? ` · ${employee.departmentCode}` : "";
-  const ref = `${refPrefix}-${run.periode}-${employee?.matricule ?? entry.id.slice(0, 6)}`;
-  const initial = organizationName?.[0]?.toUpperCase() ?? "R";
-
-  return (
-    <Document>
-      <Page size="A4" style={S.page}>
-        {/* ── Header ── */}
-        <View style={S.header}>
-          <View style={S.orgRow}>
-            {logoDataUrl ? (
-              <Image src={logoDataUrl} style={S.orgLogo} />
-            ) : (
-              <View style={S.orgInitial}>
-                <Text style={S.orgInitialText}>{initial}</Text>
-              </View>
-            )}
-            <View>
-              <Text style={S.orgName}>{organizationName}</Text>
-              {organizationRef ? <Text style={S.orgRef}>{organizationRef}</Text> : null}
-              {organizationContact ? <Text style={[S.orgRef, { marginTop: 1 }]}>{organizationContact}</Text> : null}
-            </View>
-          </View>
-          <View style={S.headerRight}>
-            <Text style={S.headerTitle}>{headerTitle}</Text>
-            <Text style={S.headerPeriod}>
-              {periodLabel} · {formatPeriodFr(run.periode)}
-            </Text>
-            <Text style={S.headerRef}>{`N° ${ref}`}</Text>
-          </View>
-        </View>
-
-        {/* ── Employee / Payment info ── */}
-        <View style={S.infoGrid}>
-          <View style={S.infoBox}>
-            <Text style={S.infoLabel}>{employeeLabel}</Text>
-            <Text style={S.infoValue}>
-              {employee?.actorDisplayName ?? noEmployeeLabel}
-            </Text>
-            <Text style={S.infoSub}>
-              {matricule}{deptCode}
-            </Text>
-            {employee?.numCnps ? (
-              <Text style={S.infoSub}>{"CNPS · " + employee.numCnps}</Text>
-            ) : null}
-          </View>
-          <View style={S.infoBox}>
-            <Text style={S.infoLabel}>{"Matricule · Poste"}</Text>
-            <Text style={S.infoValue}>{matricule}</Text>
-            <Text style={S.infoSub}>{employee?.departmentCode ?? "—"}</Text>
-          </View>
-        </View>
-
-        {/* ── Table header ── */}
-        <View style={S.tableHeaderRow}>
-          <Text style={S.thLibelle}>{colLibelle}</Text>
-          <Text style={S.thNum}>{colBase}</Text>
-          <Text style={S.thTaux}>{colTaux}</Text>
-          <Text style={S.thAmount}>{colGain}</Text>
-          <Text style={S.thAmount}>{colRetenue}</Text>
-        </View>
-
-        {/* ── RÉMUNÉRATION BRUTE ── */}
-        <View style={S.sectionRow}>
-          <Text style={S.sectionText}>{rubricBrutLabel}</Text>
-        </View>
-        {earnings.map((l) => (
-          <View key={l.id} style={S.dataRow}>
-            <Text style={S.cellLibelle}>{l.libelle}</Text>
-            <Text style={S.cellBase}>
-              {l.base != null ? fmt(l.base) : "—"}
-            </Text>
-            <Text style={S.cellTaux}>{fmtTaux(l.taux)}</Text>
-            <Text style={S.cellGain}>{fmt(l.montant)}</Text>
-            <Text style={S.cellRetenue}>{""}</Text>
-          </View>
-        ))}
-        <View style={S.subtotalRow}>
-          <Text style={S.subtotalLabel}>{subtotalBrutLabel}</Text>
-          <Text style={[S.subtotalValue, { width: 72 + 44 }]}>{fmt(entry.brut)}</Text>
-          <Text style={S.subtotalEmpty}>{""}</Text>
-        </View>
-
-        {/* ── RETENUES SALARIALES ── */}
-        <View style={[S.sectionRow, { marginTop: 8 }]}>
-          <Text style={S.sectionText}>{rubricRetenuesLabel}</Text>
-        </View>
-        {deductions.map((l) => (
-          <View key={l.id} style={S.dataRow}>
-            <Text style={S.cellLibelle}>{l.libelle}</Text>
-            <Text style={S.cellBase}>
-              {l.base != null ? fmt(l.base) : "—"}
-            </Text>
-            <Text style={S.cellTaux}>{fmtTaux(l.taux)}</Text>
-            <Text style={S.cellGain}>{""}</Text>
-            <Text style={S.cellRetenue}>{fmt(l.montant)}</Text>
-          </View>
-        ))}
-        <View style={S.subtotalRow}>
-          <Text style={S.subtotalLabel}>{subtotalRetenuesLabel}</Text>
-          <Text style={[S.subtotalValue, { width: 72 + 44 + 82 }]}>{fmt(entry.totalDeductions)}</Text>
-        </View>
-
-        {/* ── NET À PAYER ── */}
-        <View style={S.netRow}>
-          <Text style={S.netLabel}>{netLabel}</Text>
-          <Text style={S.netValue}>{fmt(entry.net)}</Text>
-        </View>
-      </Page>
-    </Document>
-  );
 }

@@ -46,5 +46,10 @@ public record OrganizationEntity(
         String organizationType,
         String countryCode,
         String cnpsEmployerNumber,
-        BigDecimal atRiskRate) implements PersistableEntity {
+        BigDecimal atRiskRate,
+        String address,
+        String city,
+        String postalCode,
+        String phone,
+        String conventionCollective) implements PersistableEntity {
 }

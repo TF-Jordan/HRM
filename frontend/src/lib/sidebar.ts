@@ -9,22 +9,16 @@ import {
   ClipboardList,
   Clock,
   Coins,
-  FileSearch,
-  FileSignature,
   FileText,
   Gauge,
   GraduationCap,
   HeartPulse,
   LayoutDashboard,
   Map,
-  RefreshCw,
-  Scale,
-  Settings,
   ShieldCheck,
   Sparkles,
   Stethoscope,
   Target,
-  UserCog,
   Users,
   Wallet,
 } from "lucide-react";
@@ -127,169 +121,9 @@ const EMPLOYEE_SECTIONS: NavSection[] = [
 ];
 
 // ──────────────────────────────────────────────────────────────────────────────
-// MANAGER — team operations
-// ──────────────────────────────────────────────────────────────────────────────
-const MANAGER_SECTIONS: NavSection[] = [
-  {
-    labelKey: "sections.pilotage",
-    items: [{ href: "/dashboard", labelKey: "nav.dashboard", icon: LayoutDashboard }],
-  },
-  {
-    labelKey: "sections.personnel",
-    items: [
-      {
-        href: "/employees",
-        labelKey: "nav.team",
-        icon: Users,
-        permission: "hrm:employee:read",
-      },
-      { href: "/skills", labelKey: "nav.skills", icon: Sparkles, permission: "hrm:skill:read" },
-    ],
-  },
-  {
-    labelKey: "sections.activity",
-    items: [
-      {
-        href: "/leaves",
-        labelKey: "nav.leaves",
-        icon: CalendarRange,
-        permission: "hrm:leave:approve",
-      },
-      {
-        href: "/timesheets",
-        labelKey: "nav.time",
-        icon: Clock,
-        permission: "hrm:timesheet:validate",
-      },
-      {
-        href: "/mission-orders",
-        labelKey: "nav.missions",
-        icon: Map,
-        permission: "hrm:mission:manage",
-      },
-    ],
-  },
-  {
-    labelKey: "sections.compensation",
-    items: [
-      {
-        href: "/expenses",
-        labelKey: "nav.expenses",
-        icon: ClipboardList,
-        permission: "hrm:expense:read",
-      },
-    ],
-  },
-  {
-    labelKey: "sections.development",
-    items: [
-      { href: "/reviews", labelKey: "nav.reviews", icon: Target, permission: "hrm:review:read" },
-      {
-        href: "/trainings",
-        labelKey: "nav.trainings",
-        icon: GraduationCap,
-        permission: "hrm:training:read",
-      },
-    ],
-  },
-  {
-    labelKey: "sections.personnel",
-    items: [
-      {
-        href: "/recruitment",
-        labelKey: "nav.recruitment",
-        icon: Briefcase,
-        permission: "hrm:recruitment:read",
-      },
-    ],
-  },
-];
-
-// ──────────────────────────────────────────────────────────────────────────────
-// HR ADMIN — full operational scope
+// HR ADMIN — full operational scope (includes former DRH, Manager, Recruiter)
 // ──────────────────────────────────────────────────────────────────────────────
 const HR_ADMIN_SECTIONS: NavSection[] = [
-  {
-    labelKey: "sections.pilotage",
-    items: [{ href: "/dashboard", labelKey: "nav.dashboard", icon: LayoutDashboard }],
-  },
-  {
-    labelKey: "sections.personnel",
-    items: [
-      {
-        href: "/employees",
-        labelKey: "nav.employees",
-        icon: Users,
-        permission: "hrm:employee:read",
-      },
-      {
-        href: "/contracts",
-        labelKey: "nav.contracts",
-        icon: FileText,
-        permission: "hrm:contract:read",
-      },
-      { href: "/skills", labelKey: "nav.skills", icon: Sparkles, permission: "hrm:skill:read" },
-      {
-        href: "/recruitment",
-        labelKey: "nav.recruitment",
-        icon: Briefcase,
-        permission: "hrm:recruitment:read",
-      },
-    ],
-  },
-  {
-    labelKey: "sections.activity",
-    items: [
-      {
-        href: "/leaves",
-        labelKey: "nav.leaves",
-        icon: CalendarRange,
-        permission: "hrm:leave:read",
-      },
-      {
-        href: "/timesheets",
-        labelKey: "nav.time",
-        icon: Clock,
-        permission: "hrm:timesheet:read",
-      },
-      {
-        href: "/mission-orders",
-        labelKey: "nav.missions",
-        icon: Map,
-        permission: "hrm:mission:read",
-      },
-    ],
-  },
-  {
-    labelKey: "sections.compensation",
-    items: [
-      { href: "/loans", labelKey: "nav.loans", icon: Coins, permission: "hrm:loan:read" },
-      {
-        href: "/expenses",
-        labelKey: "nav.expenses",
-        icon: ClipboardList,
-        permission: "hrm:expense:read",
-      },
-    ],
-  },
-  {
-    labelKey: "sections.development",
-    items: [
-      { href: "/reviews", labelKey: "nav.reviews", icon: Target, permission: "hrm:review:read" },
-      {
-        href: "/trainings",
-        labelKey: "nav.trainings",
-        icon: GraduationCap,
-        permission: "hrm:training:read",
-      },
-    ],
-  },
-];
-
-// ──────────────────────────────────────────────────────────────────────────────
-// DRH — strategic, mostly read-only
-// ──────────────────────────────────────────────────────────────────────────────
-const DRH_SECTIONS: NavSection[] = [
   {
     labelKey: "sections.pilotage",
     items: [
@@ -320,6 +154,35 @@ const DRH_SECTIONS: NavSection[] = [
         icon: Briefcase,
         permission: "hrm:recruitment:read",
       },
+      {
+        href: "/recruitment/onboarding",
+        labelKey: "nav.onboarding",
+        icon: CheckSquare,
+        permission: "hrm:onboarding:read",
+      },
+    ],
+  },
+  {
+    labelKey: "sections.activity",
+    items: [
+      {
+        href: "/leaves",
+        labelKey: "nav.leaves",
+        icon: CalendarRange,
+        permission: "hrm:leave:read",
+      },
+      {
+        href: "/timesheets",
+        labelKey: "nav.time",
+        icon: Clock,
+        permission: "hrm:timesheet:read",
+      },
+      {
+        href: "/mission-orders",
+        labelKey: "nav.missions",
+        icon: Map,
+        permission: "hrm:mission:read",
+      },
     ],
   },
   {
@@ -330,6 +193,13 @@ const DRH_SECTIONS: NavSection[] = [
         labelKey: "nav.payrollOverview",
         icon: Wallet,
         permission: "hrm:payroll:read",
+      },
+      { href: "/loans", labelKey: "nav.loans", icon: Coins, permission: "hrm:loan:read" },
+      {
+        href: "/expenses",
+        labelKey: "nav.expenses",
+        icon: ClipboardList,
+        permission: "hrm:expense:read",
       },
     ],
   },
@@ -368,29 +238,6 @@ const DRH_SECTIONS: NavSection[] = [
       },
     ],
   },
-  {
-    labelKey: "sections.activity",
-    items: [
-      {
-        href: "/leaves",
-        labelKey: "nav.leaves",
-        icon: CalendarRange,
-        permission: "hrm:leave:read",
-      },
-      {
-        href: "/timesheets",
-        labelKey: "nav.time",
-        icon: Clock,
-        permission: "hrm:timesheet:read",
-      },
-      {
-        href: "/mission-orders",
-        labelKey: "nav.missions",
-        icon: Map,
-        permission: "hrm:mission:read",
-      },
-    ],
-  },
 ];
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -414,7 +261,7 @@ const PAYROLL_MANAGER_SECTIONS: NavSection[] = [
       {
         href: "/retroactive",
         labelKey: "nav.retroactive",
-        icon: RefreshCw,
+        icon: Target,
         permission: "hrm:payroll:run",
       },
     ],
@@ -425,13 +272,13 @@ const PAYROLL_MANAGER_SECTIONS: NavSection[] = [
       {
         href: "/pay-elements",
         labelKey: "nav.payElements",
-        icon: Settings,
+        icon: Target,
         permission: "hrm:payroll:run",
       },
       {
         href: "/tax-brackets",
         labelKey: "nav.taxBrackets",
-        icon: Scale,
+        icon: Target,
         permission: "hrm:payroll:run",
       },
     ],
@@ -442,7 +289,7 @@ const PAYROLL_MANAGER_SECTIONS: NavSection[] = [
       {
         href: "/documents",
         labelKey: "nav.documents",
-        icon: FileSignature,
+        icon: FileText,
         permission: "hrm:payroll:read",
       },
       {
@@ -465,48 +312,9 @@ const PAYROLL_MANAGER_SECTIONS: NavSection[] = [
       {
         href: "/garnishments",
         labelKey: "nav.garnishments",
-        icon: Scale,
+        icon: Target,
         permission: "hrm:payroll:run",
       },
-    ],
-  },
-];
-
-// ──────────────────────────────────────────────────────────────────────────────
-// RECRUITER — recruitment + onboarding only
-// ──────────────────────────────────────────────────────────────────────────────
-const RECRUITER_SECTIONS: NavSection[] = [
-  {
-    labelKey: "sections.pilotage",
-    items: [{ href: "/dashboard", labelKey: "nav.dashboard", icon: LayoutDashboard }],
-  },
-  {
-    labelKey: "sections.recruitment",
-    items: [
-      {
-        href: "/recruitment",
-        labelKey: "nav.recruitment",
-        icon: Briefcase,
-        permission: "hrm:recruitment:read",
-      },
-      {
-        href: "/recruitment/onboarding",
-        labelKey: "nav.onboarding",
-        icon: CheckSquare,
-        permission: "hrm:onboarding:read",
-      },
-    ],
-  },
-  {
-    labelKey: "sections.personnel",
-    items: [
-      {
-        href: "/employees",
-        labelKey: "nav.directory",
-        icon: Users,
-        permission: "hrm:employee:read",
-      },
-      { href: "/skills", labelKey: "nav.skills", icon: Sparkles, permission: "hrm:skill:read" },
     ],
   },
 ];
@@ -686,29 +494,24 @@ const ADMIN_SECTIONS: NavSection[] = [
   {
     labelKey: "sections.access",
     items: [
-      { href: "/role-assignments", labelKey: "nav.roleAssignments", icon: UserCog },
+      { href: "/role-assignments", labelKey: "nav.roleAssignments", icon: Users },
       { href: "/users", labelKey: "nav.users", icon: Users },
       { href: "/roles", labelKey: "nav.roles", icon: ShieldCheck },
     ],
   },
   {
     labelKey: "sections.compliance",
-    items: [{ href: "/audit", labelKey: "nav.audit", icon: FileSearch }],
+    items: [{ href: "/audit", labelKey: "nav.audit", icon: Target }],
   },
 ];
 
 const SECTIONS_BY_ROLE: Record<RoleSlug, NavSection[]> = {
   employee: EMPLOYEE_SECTIONS,
-  manager: MANAGER_SECTIONS,
   "hr-admin": HR_ADMIN_SECTIONS,
-  drh: DRH_SECTIONS,
   "payroll-manager": PAYROLL_MANAGER_SECTIONS,
-  recruiter: RECRUITER_SECTIONS,
   doctor: DOCTOR_SECTIONS,
   controller: CONTROLLER_SECTIONS,
   admin: ADMIN_SECTIONS,
-  // Roles whose namespaces are not yet migrated fall back to the HR admin nav.
-  accountant: HR_ADMIN_SECTIONS,
 };
 
 /** Returns the navigation sections for a role. */

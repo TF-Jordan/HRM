@@ -109,7 +109,8 @@ public class PayrollDocumentService implements GeneratePayrollDocumentUseCase {
             PayslipView view = new PayslipView(run.period().format(), emp.displayName(), emp.matricule(),
                     emp.socialSecurityNo(), String.valueOf(emp.categorie()), emp.echelon(), emp.hireDate(),
                     entry.brut(), entry.totalDeductions(), entry.incomeTax(), entry.employerCharges(),
-                    entry.net(), cumuls.getT1(), cumuls.getT2(), lines);
+                    entry.net(), cumuls.getT1(), cumuls.getT2(), lines,
+                    emp.paymentChannel() != null ? emp.paymentChannel().name() : null, emp.accountRef());
             String canonical = PayrollPdfRenderer.payslipCanonical(view, employer);
             DocumentSeal seal = seal(ctx, canonical);
             byte[] pdf = PayrollPdfRenderer.renderPayslip(view, employer, seal);

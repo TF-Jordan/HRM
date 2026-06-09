@@ -3,7 +3,7 @@
  *
  * Business rule (per tenant): exactly ONE account per privileged role, and many
  * EMPLOYEE accounts. A user therefore carries a single role, which becomes the
- * prefix of every page they can reach (e.g. `/employee/leaves`, `/manager/...`).
+ * prefix of every page they can reach (e.g. `/employee/leaves`, `/hr-admin/...`).
  *
  * KSM emits role *codes* (e.g. `HR_DIRECTOR`). The frontend maps each code to a
  * URL *slug* that names the role's dedicated route tree under `(app)`.
@@ -15,14 +15,10 @@
 export type RoleSlug =
   | "admin"
   | "hr-admin"
-  | "drh"
   | "payroll-manager"
-  | "manager"
   | "employee"
-  | "recruiter"
   | "doctor"
-  | "controller"
-  | "accountant";
+  | "controller";
 
 /** KSM role code → frontend URL slug. */
 export const ROLE_CODE_TO_SLUG: Record<string, RoleSlug> = {
@@ -30,14 +26,13 @@ export const ROLE_CODE_TO_SLUG: Record<string, RoleSlug> = {
   ORGANIZATION_ADMIN: "admin",
   HR_ADMIN: "hr-admin",
   HR_MANAGER: "hr-admin",
-  HR_DIRECTOR: "drh",
+  HR_DIRECTOR: "hr-admin",
   PAYROLL_MANAGER: "payroll-manager",
-  MANAGER: "manager",
+  MANAGER: "hr-admin",
   EMPLOYEE: "employee",
-  RECRUITER: "recruiter",
+  RECRUITER: "hr-admin",
   OCCUPATIONAL_DOCTOR: "doctor",
   HR_CONTROLLER: "controller",
-  ACCOUNTANT: "accountant",
 };
 
 /**
@@ -48,11 +43,8 @@ export const ROLE_CODE_TO_SLUG: Record<string, RoleSlug> = {
  */
 export const MIGRATED_ROLES: ReadonlySet<RoleSlug> = new Set<RoleSlug>([
   "employee",
-  "manager",
   "hr-admin",
-  "drh",
   "payroll-manager",
-  "recruiter",
   "doctor",
   "controller",
   "admin",
@@ -102,23 +94,15 @@ export function inferRoleSlugFromPermissions(
 
   // SUPER_ADMIN / ORGANIZATION_ADMIN — only roles holding `tenant:admin`.
   if (has("tenant:admin")) return "admin";
-  // HR_ADMIN / HR_MANAGER — full HRM perimeter incl. payroll run + employee create.
-  if (has("hrm:payroll:run", "hrm:employee:create", "hrm:declaration:create")) return "hr-admin";
+  // HR_ADMIN / HR_MANAGER / HR_DIRECTOR / MANAGER / RECRUITER — full HRM perimeter.
+  if (has("hrm:employee:create")) return "hr-admin";
   // PAYROLL_MANAGER — payroll run/validate without employee/declaration create.
   if (has("hrm:payroll:run", "hrm:payroll:validate")) return "payroll-manager";
-  // HR_DIRECTOR (DRH) — training+budget governance without payroll:run.
-  if (has("hrm:training:manage", "hrm:budget:manage", "hrm:review:manage")) return "drh";
-  // RECRUITER — recruitment + onboarding manage + can create employees.
-  if (has("hrm:recruitment:manage", "hrm:onboarding:manage", "hrm:employee:create")) return "recruiter";
   // OCCUPATIONAL_DOCTOR — medical-only.
   if (has("hrm:medical:create", "hrm:medical:read") && !has("hrm:leave:read")) return "doctor";
-  // ACCOUNTANT — accounting permissions (no HRM management).
-  if (has("accounting:read", "accounting:write")) return "accountant";
   // HR_CONTROLLER — broad HRM reads + KPI create, no manage.
   if (has("hrm:kpi:create", "hrm:declaration:read", "hrm:payroll:read") &&
       !has("hrm:payroll:run") && !has("hrm:employee:create")) return "controller";
-  // MANAGER — leave approval + timesheet validation + mission management.
-  if (has("hrm:leave:approve", "hrm:timesheet:validate", "hrm:mission:manage")) return "manager";
   // Plain EMPLOYEE.
   return "employee";
 }
@@ -135,20 +119,16 @@ export function isMigratedRole(slug: RoleSlug): boolean {
 const SLUG_PRIORITY: readonly RoleSlug[] = [
   "admin",
   "hr-admin",
-  "drh",
   "payroll-manager",
   "controller",
-  "recruiter",
   "doctor",
-  "manager",
-  "accountant",
   "employee",
 ];
 
 /**
  * All workspaces a user may enter. A single account can hold several roles —
  * a company employee may be assigned a management function (Payroll Manager,
- * Recruiter, …) and then switches between their Employee self-service space and
+ * …) and then switches between their Employee self-service space and
  * that function's space.
  *
  * The Employee space is offered ONLY when the account is actually an employee
@@ -177,7 +157,7 @@ export function entitledSlugs(
   if (fromRoles.has("employee")) result.push("employee");
   if (result.length > 0) return result;
 
-  // Non-migrated single role (e.g. accountant) keeps its legacy flat experience.
+  // Non-migrated single role keeps its legacy flat experience.
   return SLUG_PRIORITY.filter((s) => fromRoles.has(s));
 }
 

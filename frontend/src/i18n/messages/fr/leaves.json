@@ -121,7 +121,9 @@
     },
     "submit": "Soumettre la demande",
     "success": "Demande soumise",
-    "hint": "Les samedis, dimanches et jours fériés camerounais sont automatiquement exclus du décompte."
+    "hint": "Les dimanches et jours fériés camerounais sont exclus du décompte (jours ouvrables : lundi à samedi).",
+    "maternityMax": "Le congé maternité ne peut excéder 14 semaines (98 jours calendaires).",
+    "paternityMax": "Le congé paternité ne peut excéder 3 jours ouvrables."
   },
   "detail": {
     "title": "Demande de congé",

@@ -1,7 +1,6 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { pdf } from "@react-pdf/renderer";
 import {
   ArrowLeft,
   Building2,
@@ -29,98 +28,28 @@ import { cn } from "@/lib/utils";
 import type { MyPayslipSummaryResponse, PayslipLineResponse } from "@/server/ksm/modules/payroll";
 import type { OrganizationResponse } from "@/server/ksm/modules/organization";
 import type { EmployeeResponse } from "@/server/ksm/modules/employees";
-import { PayslipPdfDocument, toDataUrl } from "./payslip-preview";
 
-type OrgLegalData = {
-  shortName?: string | null;
-  longName?: string | null;
-  businessRegistrationNumber?: string | null;
-  taxNumber?: string | null;
-  capitalShare?: number | string | null;
-  ceoName?: string | null;
-  email?: string | null;
-  websiteUrl?: string | null;
-  logoId?: string | null;
+type PayrollDocumentResponse = {
+  id: string;
+  fileId: string;
+  fileName: string;
+  type: string;
+  verificationCode: string;
 };
 
-/** Génère et déclenche le téléchargement d'un bulletin PDF en réutilisant PayslipPdfDocument. */
-async function downloadPayslipPdf(
-  summary: MyPayslipSummaryResponse,
-  lines: PayslipLineResponse[],
-  employee: EmployeeResponse | null | undefined,
-  org: OrgLegalData | null | undefined,
-  sessionOrgName: string | undefined,
-  locale: "fr" | "en",
-  tPayroll: ReturnType<typeof useTranslations<"payroll">>,
-) {
-  const orgData = org ?? (await apiFetch<OrgLegalData>("/api/admin/organization").catch(() => null));
-
-  const legalLine = [
-    orgData?.businessRegistrationNumber ? `RCCM ${orgData.businessRegistrationNumber}` : null,
-    orgData?.taxNumber ? `NIU ${orgData.taxNumber}` : null,
-    orgData?.capitalShare ? `Capital ${Number(orgData.capitalShare).toLocaleString("fr-FR")} XAF` : null,
-    orgData?.ceoName ? `DG ${orgData.ceoName}` : null,
-  ].filter(Boolean).join(" · ");
-
-  let logoDataUrl: string | undefined;
-  if (orgData?.logoId) {
-    try { logoDataUrl = await toDataUrl(`/api/files/${orgData.logoId}`); } catch { /* fallback */ }
-  }
-
-  const earnings = lines.filter((l) => l.type === "EARNING").sort((a, b) => a.ordreAffichage - b.ordreAffichage);
-  const deductions = lines.filter((l) => l.type === "DEDUCTION").sort((a, b) => a.ordreAffichage - b.ordreAffichage);
-  const totalRetenues = deductions.reduce((s, l) => s + Number(l.montant ?? 0), 0);
-
-  // Adapter MyPayslipSummaryResponse → shapes attendues par PayslipPdfDocument
-  const runForPdf = { id: summary.runId, periode: summary.periode, status: summary.runStatus } as Parameters<typeof PayslipPdfDocument>[0]["run"];
-  const entryForPdf = {
-    id: summary.entryId,
-    employeeId: employee?.id ?? "",
-    currency: "XAF",
-    salaireBase: 0,
-    brut: summary.brut,
-    totalDeductions: summary.totalDeductions ?? totalRetenues,
-    incomeTax: summary.incomeTax,
-    employerCharges: 0,
-    net: summary.net,
-    paymentStatus: summary.paymentStatus,
-    paymentChannel: summary.paymentChannel ?? "—",
-    accountRef: null,
-  } as Parameters<typeof PayslipPdfDocument>[0]["entry"];
-
-  const blob = await pdf(
-    <PayslipPdfDocument
-      organizationName={orgData?.longName || orgData?.shortName || sessionOrgName || "—"}
-      organizationRef={legalLine}
-      logoDataUrl={logoDataUrl}
-      run={runForPdf}
-      entry={entryForPdf}
-      employee={employee ?? null}
-      earnings={earnings}
-      deductions={deductions}
-      locale={locale}
-      headerTitle={tPayroll("payslip.headerTitle")}
-      periodLabel={tPayroll("payslip.period")}
-      refPrefix="PSL"
-      employeeLabel={tPayroll("payslip.employee")}
-      noEmployeeLabel={tPayroll("payslip.noEmployee")}
-      rubricBrutLabel={tPayroll("payslip.rubricBrut")}
-      rubricRetenuesLabel={tPayroll("payslip.rubricRetenues")}
-      subtotalBrutLabel={tPayroll("payslip.subtotalBrut")}
-      subtotalRetenuesLabel={tPayroll("payslip.subtotalRetenues")}
-      netLabel={tPayroll("payslip.netLabel")}
-      colLibelle={tPayroll("payslip.tableLibelle")}
-      colBase={tPayroll("payslip.tableBase")}
-      colTaux={tPayroll("payslip.tableTaux")}
-      colGain={tPayroll("payslip.tableGain")}
-      colRetenue={tPayroll("payslip.tableRetenue")}
-    />,
-  ).toBlob();
-
+/** Download a backend-generated signed PDF for a payroll entry. */
+async function downloadBackendPayslip(entryId: string): Promise<void> {
+  const doc = await apiFetch<PayrollDocumentResponse>(
+    `/api/hrm/payroll/documents/payslip?entryId=${entryId}`,
+    { method: "POST" },
+  );
+  const res = await fetch(`/api/files/${doc.fileId}`);
+  if (!res.ok) throw new Error(`File download failed: ${res.status}`);
+  const blob = await res.blob();
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = `bulletin-${summary.periode}-${employee?.matricule ?? summary.entryId.slice(0, 6)}.pdf`;
+  link.download = doc.fileName || `bulletin-${entryId}.pdf`;
   link.click();
   URL.revokeObjectURL(url);
 }
@@ -339,7 +268,7 @@ function PayslipDetail({
   onBack: () => void;
 }) {
   const t = useTranslations("payslips");
-  const tPayroll = useTranslations("payroll");
+
   const locale = useLocale() as "fr" | "en";
   const { session } = useSession();
   const [isDownloading, setIsDownloading] = React.useState(false);
@@ -412,18 +341,9 @@ function PayslipDetail({
             size="sm"
             disabled={isDownloading || linesQuery.isLoading}
             onClick={async () => {
-              if (!linesQuery.data) return;
               setIsDownloading(true);
               try {
-                await downloadPayslipPdf(
-                  summary,
-                  linesQuery.data,
-                  employeeQuery.data,
-                  orgData,
-                  session?.workspace?.organizationName,
-                  locale,
-                  tPayroll,
-                );
+                await downloadBackendPayslip(summary.entryId);
               } catch {
                 // silent — PDF errors are non-critical
               } finally {
@@ -636,7 +556,7 @@ function PayslipDetail({
 
 export function MyPayslips() {
   const t = useTranslations("payslips");
-  const tPayroll = useTranslations("payroll");
+
   const locale = useLocale() as "fr" | "en";
   const { session } = useSession();
   const [selectedEntry, setSelectedEntry] = React.useState<MyPayslipSummaryResponse | null>(null);
@@ -664,18 +584,7 @@ export function MyPayslips() {
   async function handleDownloadEntry(summary: MyPayslipSummaryResponse) {
     setIsDownloading(true);
     try {
-      const lines = await apiFetch<PayslipLineResponse[]>(
-        `/api/hrm/payroll/mine/${summary.entryId}/payslip`,
-      );
-      await downloadPayslipPdf(
-        summary,
-        lines,
-        employeeQuery.data,
-        orgQuery.data,
-        session?.workspace?.organizationName,
-        locale,
-        tPayroll,
-      );
+      await downloadBackendPayslip(summary.entryId);
     } catch {
       // silent
     } finally {

@@ -186,17 +186,14 @@ Migrations live in `RT-comops-bootstrap/src/main/resources/db/changelog/` and fo
 
 All demo accounts share the password **`Demo@2024!`**. After login, select the `MUFID Union` organization.
 
-| Email | Role |
-|---|---|
-| `super.admin@hrcore.demo` | SuperAdmin (TENANT scope — full access) |
-| `hr.admin@hrcore.demo` | Admin RH (ORG — HR + account/role creation) |
-| `drh@hrcore.demo` | DRH (ORG — training, reviews, strategy) |
-| `manager@hrcore.demo` | Manager (ORG — team, leave/mission approvals) |
-| `recruiter@hrcore.demo` | Recruiter (ORG — recruitment + onboarding) |
-| `accountant@hrcore.demo` | Accountant/DAF (ORG — expenses, payroll validation) |
-| `payroll@hrcore.demo` | Payroll Manager (ORG — payroll + social declarations) |
-| `doctor@hrcore.demo` | Occupational doctor (ORG — visits, certificates) |
-| `employee@hrcore.demo` | Employee (ORG — self-service) |
+| Email | Role | Frontend space |
+|---|---|---|
+| `super.admin@hrcore.demo` | SuperAdmin | `admin` |
+| `hr.admin@hrcore.demo` | Admin RH | `hr-admin` |
+| `payroll@hrcore.demo` | Payroll Manager | `payroll-manager` |
+| `employee@hrcore.demo` | Employee | `employee` |
+| `doctor@hrcore.demo` | Occupational doctor | `doctor` |
+| `controller@hrcore.demo` | HR Controller | `controller` |
 
 ---
 
