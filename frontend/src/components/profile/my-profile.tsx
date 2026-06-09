@@ -184,9 +184,20 @@ function DonutChart({ pct }: { pct: number }) {
 
 // ─── Personal info form ────────────────────────────────────────────────────────
 
+const MARITAL_STATUSES = ["SINGLE", "MARRIED", "DIVORCED", "WIDOWED"] as const;
+type MaritalStatus = (typeof MARITAL_STATUSES)[number];
+
+const PROFILE_SELECT_CLS =
+  "w-full rounded-[11px] border border-line bg-white px-3.5 py-[11px] text-[13.5px] text-ink shadow-xs-brand outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-500/12";
+
+function normalizeMaritalStatus(value?: string | null): "" | MaritalStatus {
+  const v = (value ?? "").toUpperCase();
+  return (MARITAL_STATUSES as readonly string[]).includes(v) ? (v as MaritalStatus) : "";
+}
+
 type PersonalInfoFormValues = {
   lieuNaissance: string;
-  situationMatrimoniale: string;
+  situationMatrimoniale: "" | MaritalStatus;
   typePiece: string;
   numeroPiece: string;
   dateEmissionPiece: string;
@@ -209,7 +220,7 @@ function OverviewTab({
   const { register, handleSubmit, reset } = useForm<PersonalInfoFormValues>({
     defaultValues: {
       lieuNaissance: personalInfo?.lieuNaissance ?? "",
-      situationMatrimoniale: personalInfo?.situationMatrimoniale ?? "",
+      situationMatrimoniale: normalizeMaritalStatus(personalInfo?.situationMatrimoniale),
       typePiece: personalInfo?.typePiece ?? "",
       numeroPiece: personalInfo?.numeroPiece ?? "",
       dateEmissionPiece: personalInfo?.dateEmissionPiece ?? "",
@@ -255,7 +266,14 @@ function OverviewTab({
           <Field2 label={t("overview.birthPlace")} value={personalInfo?.lieuNaissance} />
           <Field2 label={t("overview.nationality")} value={profile?.actorNationality} />
           <Field2 label={t("overview.gender")} value={profile?.actorGender} />
-          <Field2 label={t("overview.maritalStatus")} value={personalInfo?.situationMatrimoniale} />
+          <Field2
+            label={t("overview.maritalStatus")}
+            value={
+              normalizeMaritalStatus(personalInfo?.situationMatrimoniale)
+                ? t(`maritalStatus.${normalizeMaritalStatus(personalInfo?.situationMatrimoniale)}`)
+                : personalInfo?.situationMatrimoniale
+            }
+          />
           <Field2 label={t("overview.idDocument")} value={idDisplay} />
           <Field2
             label={t("overview.idIssuedDate")}
@@ -292,7 +310,13 @@ function OverviewTab({
         </Field>
         <Field>
           <Label>{t("overview.maritalStatus")}</Label>
-          <Input {...register("situationMatrimoniale")} placeholder="Ex: Marié(e), Célibataire…" />
+          <select {...register("situationMatrimoniale")} className={PROFILE_SELECT_CLS}>
+            <option value="">—</option>
+            <option value="SINGLE">{t("maritalStatus.SINGLE")}</option>
+            <option value="MARRIED">{t("maritalStatus.MARRIED")}</option>
+            <option value="DIVORCED">{t("maritalStatus.DIVORCED")}</option>
+            <option value="WIDOWED">{t("maritalStatus.WIDOWED")}</option>
+          </select>
         </Field>
         <Field>
           <Label>{t("overview.idDocument")} — Type</Label>

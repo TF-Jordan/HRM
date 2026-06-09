@@ -93,6 +93,16 @@
     "profile": "Mon profil",
     "logout": "Se déconnecter"
   },
+  "search": {
+    "placeholder": "Rechercher un employé, une page…",
+    "employees": "Employés",
+    "navigation": "Navigation",
+    "noResults": "Aucun résultat",
+    "loading": "Recherche…",
+    "hintNavigate": "naviguer",
+    "hintSelect": "ouvrir",
+    "hintClose": "fermer"
+  },
   "user": {
     "role": "Rôle"
   }

@@ -1,10 +1,10 @@
 "use client";
 
 import { useMutation } from "@tanstack/react-query";
-import { Check, Copy, Eye, EyeOff, Loader2 } from "lucide-react";
+import { Check, Copy, Eye, EyeOff, Loader2, Plus, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import * as React from "react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 import { PageHeader } from "@/components/shell/page-header";
@@ -240,6 +240,7 @@ type FormValues = {
   gender: "" | "MALE" | "FEMALE" | "OTHER";
   nationality: string;
   birthDate: string;
+  situationMatrimoniale: "" | "SINGLE" | "MARRIED" | "DIVORCED" | "WIDOWED";
   numCnps: string;
   dateEmbauche: string;
   categorie: string;
@@ -249,6 +250,14 @@ type FormValues = {
   compteBancaire: string;
   numMobileMoney: string;
   operateurMm: "" | MobileOperator;
+  dependents: DependentFormValue[];
+};
+
+type DependentFormValue = {
+  prenom: string;
+  nom: string;
+  dateNaissance: string;
+  lienParente: "" | "SPOUSE" | "CHILD" | "PARENT" | "OTHER";
 };
 
 export function EmployeeCreateForm() {
@@ -289,6 +298,7 @@ export function EmployeeCreateForm() {
       gender: savedDraft?.gender ?? "",
       nationality: savedDraft?.nationality ?? "CMR",
       birthDate: savedDraft?.birthDate ?? "",
+      situationMatrimoniale: savedDraft?.situationMatrimoniale ?? "",
       numCnps: savedDraft?.numCnps ?? "",
       dateEmbauche: savedDraft?.dateEmbauche ?? new Date().toISOString().slice(0, 10),
       categorie: savedDraft?.categorie ?? "11",
@@ -298,9 +308,12 @@ export function EmployeeCreateForm() {
       compteBancaire: savedDraft?.compteBancaire ?? "",
       numMobileMoney: savedDraft?.numMobileMoney ?? "",
       operateurMm: savedDraft?.operateurMm ?? "",
+      dependents: savedDraft?.dependents ?? [],
     },
     mode: "onTouched",
   });
+
+  const dependentsArray = useFieldArray({ control, name: "dependents" });
 
   const watched = watch();
   const isMobile =
@@ -347,6 +360,7 @@ export function EmployeeCreateForm() {
             gender: v.gender || undefined,
             nationality: v.nationality.trim() || undefined,
             birthDate: v.birthDate || undefined,
+            situationMatrimoniale: v.situationMatrimoniale || undefined,
             numCnps: v.numCnps.trim() || undefined,
             categorie: Number(v.categorie),
             echelon: v.echelon.trim() || undefined,
@@ -356,6 +370,14 @@ export function EmployeeCreateForm() {
             compteBancaire: isBank && v.compteBancaire ? v.compteBancaire.trim() : undefined,
             numMobileMoney: isMobile ? v.numMobileMoney.trim() || undefined : undefined,
             operateurMm: isMobile ? v.operateurMm || undefined : undefined,
+            dependents: v.dependents
+              .filter((d) => d.prenom.trim() && d.nom.trim() && d.dateNaissance && d.lienParente)
+              .map((d) => ({
+                prenom: d.prenom.trim(),
+                nom: d.nom.trim(),
+                dateNaissance: d.dateNaissance,
+                lienParente: d.lienParente,
+              })),
           },
         },
       );
@@ -445,6 +467,18 @@ export function EmployeeCreateForm() {
                 </Field>
                 <Field label={tCreate("fields.birthDate")}>
                   <Input type="date" {...register("birthDate")} />
+                </Field>
+                <Field
+                  label={tCreate("fields.situationMatrimoniale")}
+                  hint={tCreate("fields.situationMatrimonialeHint")}
+                >
+                  <select {...register("situationMatrimoniale")} className={SELECT_CLS}>
+                    <option value="">—</option>
+                    <option value="SINGLE">{tCreate("maritalStatus.SINGLE")}</option>
+                    <option value="MARRIED">{tCreate("maritalStatus.MARRIED")}</option>
+                    <option value="DIVORCED">{tCreate("maritalStatus.DIVORCED")}</option>
+                    <option value="WIDOWED">{tCreate("maritalStatus.WIDOWED")}</option>
+                  </select>
                 </Field>
               </div>
 
@@ -605,6 +639,85 @@ export function EmployeeCreateForm() {
                   )}
                 </div>
               )}
+            </CardContent>
+          </Card>
+        </section>
+
+        {/* Section 4: Personnes à charge (optionnel) */}
+        <section>
+          <SectionTitle>{tCreate("sections.dependents")}</SectionTitle>
+          <Card>
+            <CardContent padding="lg">
+              <p className="mb-4 text-[12.5px] text-ink-3">
+                {tCreate("dependents.hint")}
+              </p>
+
+              {dependentsArray.fields.length > 0 && (
+                <div className="mb-4 space-y-3">
+                  {dependentsArray.fields.map((field, index) => (
+                    <div
+                      key={field.id}
+                      className="grid grid-cols-[1fr_1fr_1fr_1fr_auto] items-end gap-3 rounded-[12px] border border-line bg-bg-soft p-3"
+                    >
+                      <Field label={tCreate("fields.firstName")}>
+                        <Input
+                          placeholder={tCreate("fields.firstName")}
+                          {...register(`dependents.${index}.prenom` as const)}
+                        />
+                      </Field>
+                      <Field label={tCreate("fields.lastName")}>
+                        <Input
+                          placeholder={tCreate("fields.lastName")}
+                          {...register(`dependents.${index}.nom` as const)}
+                        />
+                      </Field>
+                      <Field label={tCreate("fields.birthDate")}>
+                        <Input
+                          type="date"
+                          {...register(`dependents.${index}.dateNaissance` as const)}
+                        />
+                      </Field>
+                      <Field label={tCreate("dependents.relationship")}>
+                        <select
+                          className={SELECT_CLS}
+                          {...register(`dependents.${index}.lienParente` as const)}
+                        >
+                          <option value="">—</option>
+                          <option value="SPOUSE">{tCreate("dependents.relations.SPOUSE")}</option>
+                          <option value="CHILD">{tCreate("dependents.relations.CHILD")}</option>
+                          <option value="PARENT">{tCreate("dependents.relations.PARENT")}</option>
+                          <option value="OTHER">{tCreate("dependents.relations.OTHER")}</option>
+                        </select>
+                      </Field>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => dependentsArray.remove(index)}
+                        aria-label={tCommon("actions.delete")}
+                      >
+                        <Trash2 className="h-4 w-4 text-danger-600" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() =>
+                  dependentsArray.append({
+                    prenom: "",
+                    nom: "",
+                    dateNaissance: "",
+                    lienParente: "",
+                  })
+                }
+              >
+                <Plus className="h-4 w-4" />
+                {tCreate("dependents.add")}
+              </Button>
             </CardContent>
           </Card>
         </section>

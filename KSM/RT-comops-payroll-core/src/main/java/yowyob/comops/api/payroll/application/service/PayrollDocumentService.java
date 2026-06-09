@@ -21,6 +21,7 @@ import yowyob.comops.api.payroll.application.port.out.EmployerInfo;
 import yowyob.comops.api.payroll.application.port.out.EmployerInfoPort;
 import yowyob.comops.api.payroll.application.port.out.FinalSettlementRepository;
 import yowyob.comops.api.payroll.application.port.out.HrmEmployeeDataPort;
+import yowyob.comops.api.payroll.application.port.out.LeaveBalanceView;
 import yowyob.comops.api.payroll.application.port.out.AnnualAccumulatorRepository;
 import yowyob.comops.api.payroll.application.port.out.PayrollDocumentRepository;
 import yowyob.comops.api.payroll.application.port.out.PayrollEntryRepository;
@@ -105,11 +106,16 @@ public class PayrollDocumentService implements GeneratePayrollDocumentUseCase {
     private Mono<PayrollDocument> buildPayslip(TenantContext ctx, PayrollEntry entry, PayrollRun run,
                                                EmployeePayrollView emp, List<PayslipLine> lines,
                                                EmployerInfo employer) {
-        return cumuls(ctx, entry.employeeId(), run.period().year()).flatMap(cumuls -> {
+        int year = run.period().year();
+        return Mono.zip(cumuls(ctx, entry.employeeId(), year),
+                        leaveRemaining(ctx, entry.employeeId(), year))
+                .flatMap(tuple -> {
+            Tuple2<BigDecimal, BigDecimal> cumuls = tuple.getT1();
+            BigDecimal leaveRemaining = tuple.getT2();
             PayslipView view = new PayslipView(run.period().format(), emp.displayName(), emp.matricule(),
-                    emp.socialSecurityNo(), String.valueOf(emp.categorie()), emp.echelon(), emp.hireDate(),
-                    entry.brut(), entry.totalDeductions(), entry.incomeTax(), entry.employerCharges(),
-                    entry.net(), cumuls.getT1(), cumuls.getT2(), lines,
+                    emp.socialSecurityNo(), String.valueOf(emp.categorie()), emp.echelon(), emp.position(),
+                    emp.hireDate(), entry.brut(), entry.totalDeductions(), entry.incomeTax(), entry.employerCharges(),
+                    entry.net(), cumuls.getT1(), cumuls.getT2(), leaveRemaining, lines,
                     emp.paymentChannel() != null ? emp.paymentChannel().name() : null, emp.accountRef());
             String canonical = PayrollPdfRenderer.payslipCanonical(view, employer);
             DocumentSeal seal = seal(ctx, canonical);
@@ -223,6 +229,12 @@ public class PayrollDocumentService implements GeneratePayrollDocumentUseCase {
         return hrmEmployeeDataPort.findEmployee(ctx.tenantId(), employeeId)
                 .map(EmployeePayrollView::displayName)
                 .defaultIfEmpty(employeeId.toString());
+    }
+
+    private Mono<BigDecimal> leaveRemaining(TenantContext ctx, UUID employeeId, int year) {
+        return hrmEmployeeDataPort.findAnnualLeaveBalance(ctx.tenantId(), employeeId, year)
+                .map(LeaveBalanceView::remaining)
+                .defaultIfEmpty(BigDecimal.ZERO);
     }
 
     private static String safe(String s) {

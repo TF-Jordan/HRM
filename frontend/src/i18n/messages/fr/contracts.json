@@ -52,6 +52,10 @@
     "trialHint": "Indiquez 0 ou laissez vide s'il n'y a pas de période d'essai.",
     "fields": {
       "type": "Type de contrat",
+      "position": "Poste / fonction",
+      "positionHint": "Intitulé porté sur le contrat et le bulletin de paie",
+      "positionPlaceholder": "Ex. Comptable, Développeur, Chef de projet…",
+      "positionRequired": "Le poste est obligatoire",
       "dateDebut": "Date de début",
       "dateFin": "Date de fin",
       "periodeEssai": "Période d'essai (jours)",

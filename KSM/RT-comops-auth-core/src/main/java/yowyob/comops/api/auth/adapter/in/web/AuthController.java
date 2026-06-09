@@ -386,7 +386,8 @@ public class AuthController {
                         tuple.getT1().phoneNumber(),
                         tuple.getT1().password(),
                         tuple.getT1().authProvider(),
-                        tuple.getT1().externalSubject())))
+                        tuple.getT1().externalSubject(),
+                        tuple.getT1().forcePasswordChange())))
                 .flatMap(authUserViewAssembler::toUserAccountResponse)
                 .map(response -> ResponseEntity.status(HttpStatus.CREATED)
                         .body(ApiResponse.success(response, "User registered.")));

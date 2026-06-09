@@ -68,7 +68,7 @@ export function LoginForm({ reason }: { reason?: string }) {
         return;
       }
       if (result.step === "change_password") {
-        router.push("/change-password");
+        router.push("/dashboard");
         return;
       }
       router.push("/dashboard");

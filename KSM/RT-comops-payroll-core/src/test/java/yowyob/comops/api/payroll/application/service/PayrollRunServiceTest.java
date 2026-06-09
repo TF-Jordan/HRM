@@ -168,9 +168,11 @@ class PayrollRunServiceTest {
     }
 
     @Test
-    void runFailsWhenAlreadyExists() {
+    void runFailsWhenAlreadyPaid() {
+        var existingRun = mock(yowyob.comops.api.payroll.domain.model.PayrollRun.class);
+        when(existingRun.status()).thenReturn(yowyob.comops.api.payroll.domain.model.PayrollRunStatus.PAID);
         when(runRepo.findByOrganizationAndPeriodAndType(eq(TENANT), eq(ORG), eq("2026-10"), eq("REGULAR")))
-                .thenReturn(Mono.just(mock(yowyob.comops.api.payroll.domain.model.PayrollRun.class)));
+                .thenReturn(Mono.just(existingRun));
 
         StepVerifier.create(service.runPayroll(new RunPayrollCommand("2026-10", null, null))
                         .contextWrite(withContext()))

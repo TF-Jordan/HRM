@@ -10,7 +10,7 @@ export default async function SelectContextPage({ params }: PageProps<"/[locale]
 
   const session = await readSession();
   if (session) {
-    redirect(session.forcePasswordChange ? "/change-password" : "/dashboard");
+    redirect("/dashboard");
   }
 
   return <SelectContextForm />;

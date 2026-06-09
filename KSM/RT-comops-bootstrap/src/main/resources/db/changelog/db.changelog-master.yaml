@@ -282,3 +282,9 @@ databaseChangeLog:
   - include:
       file: releases/094-hrm-leave-accrual-period.yaml
       relativeToChangelogFile: true
+  - include:
+      file: releases/095-consolidate-demo-roles.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: releases/096-organization-address-fields.yaml
+      relativeToChangelogFile: true

@@ -14,7 +14,7 @@ export default async function LoginPage({
   // If already authenticated, send the user to the dashboard.
   const session = await readSession();
   if (session) {
-    redirect(session.forcePasswordChange ? "/change-password" : "/dashboard");
+    redirect("/dashboard");
   }
 
   const reasonRaw = (await searchParams).reason;

@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 095-consolidate-demo-roles
+      author: cursor
+      changes:
+        - sqlFile:
+            path: db/r2dbc/V95__consolidate_demo_roles.sql
+            relativeToChangelogFile: false

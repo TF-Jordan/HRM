@@ -81,6 +81,12 @@
     "edit": "Edit",
     "noData": "Not specified"
   },
+  "maritalStatus": {
+    "SINGLE": "Single",
+    "MARRIED": "Married",
+    "DIVORCED": "Divorced",
+    "WIDOWED": "Widowed"
+  },
   "contact": {
     "title": "Contact & address",
     "professionalEmail": "Professional email",

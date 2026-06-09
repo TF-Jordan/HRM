@@ -14,6 +14,7 @@ import {
   UserRound,
   Users,
 } from "lucide-react";
+import { AlertTriangle } from "lucide-react";
 import { useTranslations } from "next-intl";
 import * as React from "react";
 import { useForm } from "react-hook-form";
@@ -44,6 +45,7 @@ type Tab = "overview" | "contracts" | "dependents" | "leaves";
 
 import type {
   EmployeeProfileResponse,
+  PersonalInfoResponse,
   TimelineEventResponse,
 } from "@/server/ksm/modules/employee-profile";
 import {
@@ -99,6 +101,17 @@ export function EmployeeDetail({ employeeId }: { employeeId: string }) {
 
   const activeContract = (heroContracts.data ?? []).find((c) => c.status === "ACTIVE");
   const annualBalance = (heroBalances.data ?? []).find((b) => b.type === "ANNUAL");
+
+  // Payroll-readiness check: marital status feeds the IRPP family quotient and
+  // an active contract carries the salary + job title used on the payslip.
+  const personalInfoQuery = useQuery({
+    queryKey: ["hrm", "personal-info", employeeId],
+    enabled: canEdit,
+    queryFn: () =>
+      apiFetch<PersonalInfoResponse | null>(
+        `/api/hrm/employees/${employeeId}/personal-info`,
+      ),
+  });
 
   // Performance + trainings tiles (design hero) — gated by permission so roles
   // without review/training read access don't trigger 403s.
@@ -199,6 +212,21 @@ export function EmployeeDetail({ employeeId }: { employeeId: string }) {
   const avatarTone = (["orange", "blue", "green", "violet", "amber", "teal"] as const)[
     e.id.charCodeAt(0) % 6
   ];
+
+  // Build the list of payroll-critical data that is still missing.
+  const maritalKnown = ["SINGLE", "MARRIED", "DIVORCED", "WIDOWED"].includes(
+    (personalInfoQuery.data?.situationMatrimoniale ?? "").toUpperCase(),
+  );
+  const payrollIssues: string[] = [];
+  if (canEdit && !isTerminated) {
+    if (!e.numCnps) payrollIssues.push(tDetail("payrollReadiness.items.cnps"));
+    if (!maritalKnown && !personalInfoQuery.isLoading)
+      payrollIssues.push(tDetail("payrollReadiness.items.maritalStatus"));
+    if (!activeContract && !heroContracts.isLoading)
+      payrollIssues.push(tDetail("payrollReadiness.items.contract"));
+    else if (activeContract && !activeContract.position)
+      payrollIssues.push(tDetail("payrollReadiness.items.position"));
+  }
 
   return (
     <>
@@ -332,6 +360,51 @@ export function EmployeeDetail({ employeeId }: { employeeId: string }) {
         </div>
       </div>
 
+      {/* Payroll-readiness banner */}
+      {payrollIssues.length > 0 && (
+        <div className="mb-5 rounded-[16px] border border-warning-300 bg-warning-50 p-4">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="mt-0.5 h-4.5 w-4.5 shrink-0 text-warning-600" />
+            <div className="min-w-0 flex-1">
+              <p className="text-[13.5px] font-semibold text-warning-700">
+                {tDetail("payrollReadiness.title")}
+              </p>
+              <p className="mt-0.5 text-[12.5px] text-warning-600">
+                {tDetail("payrollReadiness.subtitle")}
+              </p>
+              <ul className="mt-2 flex flex-wrap gap-x-4 gap-y-1">
+                {payrollIssues.map((issue) => (
+                  <li
+                    key={issue}
+                    className="flex items-center gap-1.5 text-[12.5px] font-medium text-warning-700"
+                  >
+                    <span className="h-1.5 w-1.5 rounded-full bg-warning-500" />
+                    {issue}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="flex shrink-0 flex-col gap-2">
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                onClick={() => router.push(`/employees/${employeeId}/edit`)}
+              >
+                <Pencil className="h-3.5 w-3.5" />
+                {tDetail("payrollReadiness.completeData")}
+              </Button>
+              {canAddContract && !activeContract && (
+                <Button type="button" size="sm" onClick={() => setModal("addContract")}>
+                  <Plus className="h-3.5 w-3.5" />
+                  {tDetail("payrollReadiness.addContract")}
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Tabs */}
       <div className="mb-6 flex flex-wrap gap-2 border-b border-line-soft pb-2">
         {(["overview", "contracts", "dependents", "leaves"] as const).map((tabKey) => (
@@ -458,6 +531,11 @@ function ContractsTab({
       cell: (c) => (
         <span className="font-semibold text-ink">{t(`contractType.${c.type}`)}</span>
       ),
+    },
+    {
+      key: "position",
+      header: tC("columns.position"),
+      cell: (c) => <span className="text-ink-2">{c.position || "—"}</span>,
     },
     {
       key: "period",

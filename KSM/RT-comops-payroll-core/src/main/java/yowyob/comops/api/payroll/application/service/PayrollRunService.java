@@ -34,6 +34,7 @@ import yowyob.comops.api.payroll.domain.model.PayVariable;
 import yowyob.comops.api.payroll.domain.model.PaymentStatus;
 import yowyob.comops.api.payroll.domain.model.PayrollEntry;
 import yowyob.comops.api.payroll.domain.model.PayrollRun;
+import yowyob.comops.api.payroll.domain.model.PayrollRunStatus;
 import yowyob.comops.api.payroll.domain.model.PayrollRunTotals;
 import yowyob.comops.api.payroll.domain.model.PayslipLine;
 import yowyob.comops.api.payroll.domain.model.PayslipLineType;
@@ -126,17 +127,31 @@ public class PayrollRunService implements RunPayrollUseCase {
         return ReactiveRequestContextHolder.getRequiredContext().flatMap(ctx -> {
             PayPeriod period = PayPeriod.parse(command.period());
             String runType = command.runTypeOrDefault().name();
-            Mono<Boolean> exists = command.agencyId() != null
+            Mono<PayrollRun> existing = command.agencyId() != null
                     ? payrollRunRepository.findByOrganizationAndAgencyAndPeriodAndType(
                             ctx.tenantId(), ctx.organizationId(), command.agencyId(),
-                            period.format(), runType).hasElement()
+                            period.format(), runType)
                     : payrollRunRepository.findByOrganizationAndPeriodAndType(
-                            ctx.tenantId(), ctx.organizationId(), period.format(), runType).hasElement();
-            return exists.flatMap(present -> present
-                    ? Mono.error(new IllegalStateException(
-                            "Payroll run already exists for period " + command.period()))
-                    : executeRun(ctx, command, period));
+                            ctx.tenantId(), ctx.organizationId(), period.format(), runType);
+            return existing
+                    .flatMap(run -> recalculateExistingRun(ctx, run, command, period))
+                    .switchIfEmpty(Mono.defer(() -> executeRun(ctx, command, period)));
         });
+    }
+
+    private Mono<PayrollRun> recalculateExistingRun(TenantContext ctx, PayrollRun run,
+                                                     RunPayrollCommand command, PayPeriod period) {
+        if (run.status() == PayrollRunStatus.PAID || run.status() == PayrollRunStatus.CLOSED) {
+            return Mono.error(new IllegalStateException(
+                    "Payroll run for period " + command.period() + " is already " + run.status()));
+        }
+        return loadConfig(ctx.tenantId()).flatMap(config ->
+                hrmEmployeeDataPort
+                        .findActiveEmployees(ctx.tenantId(), ctx.organizationId(), command.agencyId())
+                        .collectList()
+                        .flatMap(employees -> employees.isEmpty()
+                                ? Mono.error(new IllegalStateException("No active employees found"))
+                                : calculateAll(ctx, run, config, period, employees)));
     }
 
     private Mono<PayrollRun> executeRun(TenantContext ctx, RunPayrollCommand command, PayPeriod period) {

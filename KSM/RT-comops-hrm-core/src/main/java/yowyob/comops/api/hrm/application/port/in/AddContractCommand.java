@@ -7,6 +7,7 @@ import java.util.UUID;
 
 public record AddContractCommand(
         String type,
+        String position,
         LocalDate dateDebut,
         LocalDate dateFin,
         BigDecimal salaireBase,

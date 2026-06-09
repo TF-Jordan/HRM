@@ -136,32 +136,16 @@ export type PayrollWindowState =
   | { canRun: true; daysUntilMonthEnd: number };
 
 /**
- * Returns whether the "Run payroll" button should be active, and why if not.
- *
- * Rules:
- *  - If a run already exists for the current month → disabled (already_run)
- *  - If more than 5 days remain until month-end → disabled (too_early)
- *  - Otherwise → active (last 5 calendar days of the month)
+ * Returns whether the "Run payroll" button should be active.
+ * The button is always active — the backend validates business rules.
  */
 export function getPayrollWindowState(
-  runs: Pick<PayrollRunResponse, "periode">[],
+  _runs: Pick<PayrollRunResponse, "periode">[],
   now = new Date(),
 ): PayrollWindowState {
-  const currentPeriode = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
-
-  if (runs.some((r) => r.periode === currentPeriode)) {
-    return { canRun: false, reason: "already_run" };
-  }
-
-  // Last day of the current month
   const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-  // Days remaining (inclusive of today → ceil)
   const msRemaining = lastDay.getTime() - now.getTime() + 1;
   const daysRemaining = Math.max(0, Math.ceil(msRemaining / (1000 * 60 * 60 * 24)));
-
-  if (daysRemaining > 5) {
-    return { canRun: false, reason: "too_early", daysUntilOpen: daysRemaining - 5 };
-  }
 
   return { canRun: true, daysUntilMonthEnd: daysRemaining };
 }

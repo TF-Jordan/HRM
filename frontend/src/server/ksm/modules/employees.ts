@@ -38,6 +38,7 @@ export type ContractResponse = {
   id: string;
   employeeId: string;
   type: ContractType;
+  position?: string | null;
   dateDebut: string;
   dateFin?: string | null;
   salaireBase: number | string;
@@ -100,6 +101,7 @@ export type SuspendEmployeeRequest = { reason: string };
 
 export type AddContractRequest = {
   type: ContractType;
+  position?: string;
   dateDebut: string;
   dateFin?: string;
   salaireBase: number;

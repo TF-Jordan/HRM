@@ -47,6 +47,7 @@ type Step = "select-employee" | "contract-form";
 
 type FormValues = {
   type: ContractType;
+  position: string;
   dateDebut: string;
   dateFin: string;
   salaireBase: string;
@@ -259,6 +260,7 @@ export function AddContractDialog({
     mode: "onChange",
     defaultValues: {
       type: "CDI",
+      position: "",
       dateDebut: today,
       dateFin: "",
       salaireBase: "",
@@ -299,6 +301,7 @@ export function AddContractDialog({
     if (!open) {
       reset({
         type: "CDI",
+        position: "",
         dateDebut: today,
         dateFin: "",
         salaireBase: "",
@@ -324,6 +327,7 @@ export function AddContractDialog({
           method: "POST",
           body: {
             type: v.type,
+            position: v.position.trim() || undefined,
             dateDebut: v.dateDebut,
             dateFin: needsEndDate && v.dateFin ? v.dateFin : undefined,
             salaireBase: Number(v.salaireBase),
@@ -570,6 +574,22 @@ export function AddContractDialog({
             <span>
               {needsEndDate ? t("form.fixedTermHint") : t("form.permanentHint")}
             </span>
+          </div>
+
+          {/* Poste / fonction */}
+          <div className="mb-4">
+            <Field
+              label={t("form.fields.position")}
+              hint={t("form.fields.positionHint")}
+              error={errors.position?.message}
+            >
+              <Input
+                type="text"
+                maxLength={160}
+                placeholder={t("form.fields.positionPlaceholder")}
+                {...register("position", { required: t("form.fields.positionRequired") })}
+              />
+            </Field>
           </div>
 
           {/* Dates */}

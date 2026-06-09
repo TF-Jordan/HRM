@@ -3,7 +3,7 @@ import "server-only";
 import type { NextRequest } from "next/server";
 
 import { handleRoute } from "@/server/api-response";
-import { buildSessionFromContextual, logAuthEvent } from "@/server/auth-flow";
+import { buildSessionFromContextual, enrichSessionWithActorName, logAuthEvent } from "@/server/auth-flow";
 import * as authApi from "@/server/ksm/modules/auth";
 import { writeSession } from "@/server/session";
 
@@ -29,6 +29,7 @@ export async function POST(request: NextRequest) {
       organizationId: body.organizationId,
     });
     const appSession = buildSessionFromContextual(contextual);
+    await enrichSessionWithActorName(appSession);
     await writeSession(appSession);
 
     logAuthEvent("context_selected", {

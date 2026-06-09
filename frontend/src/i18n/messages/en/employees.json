@@ -61,7 +61,19 @@
     "subtitle": "Administrative onboarding for a new team member · generates employee code, initial contract and login account",
     "sections": {
       "admin": "Administrative identification",
-      "paiement": "Salary payment method"
+      "paiement": "Salary payment method",
+      "dependents": "Dependents (optional)"
+    },
+    "dependents": {
+      "hint": "Add dependents for the income-tax family quotient (IRPP). You can also add them later from the employee profile.",
+      "add": "Add a dependent",
+      "relationship": "Relationship",
+      "relations": {
+        "SPOUSE": "Spouse",
+        "CHILD": "Child",
+        "PARENT": "Parent",
+        "OTHER": "Other"
+      }
     },
     "sidebar": {
       "bonASavoirTitle": "Good to know",
@@ -104,6 +116,8 @@
       "gender": "Gender",
       "nationality": "Nationality",
       "birthDate": "Date of birth",
+      "situationMatrimoniale": "Marital status",
+      "situationMatrimonialeHint": "Used for income tax (family quotient)",
       "categorie": "Category",
       "echelon": "Step",
       "departmentCode": "Department code",
@@ -116,12 +130,25 @@
       "operateurMm": "Operator"
     },
     "gender": { "MALE": "Male", "FEMALE": "Female", "OTHER": "Other" },
+    "maritalStatus": { "SINGLE": "Single", "MARRIED": "Married", "DIVORCED": "Divorced", "WIDOWED": "Widowed" },
     "operator": { "MTN": "MTN", "ORANGE": "Orange" },
     "submit": "Create employee",
     "success": "Employee created",
     "summaryEmail": "Email"
   },
   "detail": {
+    "payrollReadiness": {
+      "title": "Incomplete payroll data",
+      "subtitle": "This information is required to produce a compliant payslip.",
+      "completeData": "Complete",
+      "addContract": "Add a contract",
+      "items": {
+        "cnps": "CNPS number",
+        "maritalStatus": "Marital status (income tax)",
+        "contract": "Active contract",
+        "position": "Job title on contract"
+      }
+    },
     "hero": {
       "salary": "Base salary",
       "noContract": "No active contract",
@@ -213,6 +240,7 @@
       "noContracts": "No contract recorded.",
       "columns": {
         "type": "Type",
+        "position": "Position",
         "period": "Period",
         "dateDebut": "Start",
         "dateFin": "End",

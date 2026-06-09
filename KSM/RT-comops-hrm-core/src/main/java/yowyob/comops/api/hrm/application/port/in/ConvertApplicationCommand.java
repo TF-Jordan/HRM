@@ -23,6 +23,7 @@ public record ConvertApplicationCommand(
         String numMobileMoney,
         String operateurMm,
         String contractType,
+        String position,
         LocalDate contractDateDebut,
         LocalDate contractDateFin,
         BigDecimal salaireBase,

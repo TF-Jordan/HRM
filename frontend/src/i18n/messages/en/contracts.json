@@ -52,6 +52,10 @@
     "trialHint": "Enter 0 or leave blank if there is no probationary period.",
     "fields": {
       "type": "Contract type",
+      "position": "Position / job title",
+      "positionHint": "Shown on the contract and the payslip",
+      "positionPlaceholder": "E.g. Accountant, Developer, Project manager…",
+      "positionRequired": "Job title is required",
       "dateDebut": "Start date",
       "dateFin": "End date",
       "periodeEssai": "Probation period (days)",

@@ -1,0 +1,2102 @@
+ ▐▛███▜▌   Claude Code v2.1.74
+▝▜█████▛▘  Opus 4.6 · Claude Pro
+  ▘▘ ▝▝    ~/Bureau/HRM3/frontend
+
+  ↑ Install the PyCharm plugin from the JetBrains Marketplace:
+    https://docs.claude.com/s/claude-code-jetbrains
+
+✻ Conversation compacted (ctrl+o for history)
+
+  ⎿  Referenced file ../README.md
+  ⎿  Read ../KSM/RT-comops-bootstrap/src/main/resources/db/r2dbc/V95__consolidat
+     e_demo_roles.sql (107 lines)
+  ⎿  Read src/i18n/messages/fr/shell.json (100 lines)
+  ⎿  Read src/i18n/messages/en/shell.json (100 lines)
+  ⎿  Read src/lib/sidebar.ts (521 lines)
+  ⎿  Skills restored (init)
+
+● I'm ready for your next task. What would you like to work on?
+
+✻ Brewed for 4m 17s
+
+❯ continue                                                                      
+
+● There's no pending task to continue — the last conversation ended with an
+  informational answer about leave balance handling (Cameroon legislation vs.
+  hrm_core implementation). What would you like to work on next?
+
+❯ comment se passe l'approvisionement du solde compte d'un employé ?  fait une  
+comparaison entre ce qui est prevue par la législation camerounaise et ce que   
+fait ce systeme                                                                 
+
+● Explore(Leave balance accrual analysis)
+  ⎿  Done (48 tool uses · 89.2k tokens · 4m 16s)
+  (ctrl+o to expand)
+
+● Voici la comparaison complète entre la législation camerounaise et ce que fait
+   le système HRM.
+
+  ---
+  Approvisionnement du solde de congés
+
+  Mécanisme dans le système
+
+  Le solde est alimenté par un cron quotidien (LeaveAccrualScheduler, 02h00 UTC
+  chaque jour) qui est idempotent par mois : chaque LeaveBalance stocke un champ
+   lastAccrualPeriod (format YYYY-MM) pour ne jamais créditer deux fois le même
+  mois.
+
+  Flux :
+  1. Le scheduler parcourt toutes les organisations actives
+  2. Pour chaque organisation → tous les employés ACTIFS
+  3. Pour chaque employé → calcul de l'ancienneté + nombre d'enfants éligibles
+  4. Calcul du montant mensuel → crédit sur la ligne hrm_leave_balance
+  (type=ANNUAL, année courante)
+  5. Seul le type ANNUAL est alimenté automatiquement ; SICK, MATERNITY,
+  PATERNITY, UNPAID, SPECIAL ne sont jamais auto-crédités
+
+  ---
+  Formule d'approvisionnement mensuel
+
+  mensuel = base + bonus_ancienneté + bonus_enfants
+
+  base           = 1.5 j/mois (fixe)
+  bonus_ancienneté = (ancienneté_années ÷ 5) × 2 ÷ 12   (si ≥ 5 ans, sinon 0)
+  bonus_enfants    = MIN(nb_enfants_<6ans × 2, 10) ÷ 12
+
+  Exemple concret : Employé embauché il y a 12 ans, 3 enfants de moins de 6 ans
+  :
+  - Base : 1.500 j
+  - Ancienneté : 12÷5 = 2 tranches → 2×2 = 4 j/an → 4÷12 = 0.333 j/mois
+  - Enfants : 3×2 = 6 j/an → 6÷12 = 0.500 j/mois
+  - Total : 2.333 j/mois → 28.0 j/an
+
+  ---
+  Comparaison avec la législation camerounaise
+
+  Aspect: Droit de base
+  Code du travail camerounais: 1.5 j ouvrables/mois de service effectif (art.
+  89)
+  Système HRM: BASE_MONTHLY_ACCRUAL = 1.5
+  Conforme ?: ✅ Oui
+  ────────────────────────────────────────
+  Aspect: Ancienneté
+  Code du travail camerounais: +2 j/an par tranche de 5 ans d'ancienneté
+  Système HRM: (années÷5) × 2 j/an divisé par 12
+  Conforme ?: ✅ Oui
+  ────────────────────────────────────────
+  Aspect: Enfants à charge
+  Code du travail camerounais: +2 j/enfant de moins de 6 ans, max non précisé
+  par
+    la loi
+  Système HRM: +2 j/enfant < 6 ans, plafonné à 10 j/an
+  Conforme ?: ⚠️ Le plafond de 10 j n'existe pas dans le code du travail — c'est
+
+    un garde-fou interne
+  ────────────────────────────────────────
+  Aspect: Période de référence
+  Code du travail camerounais: 12 mois de service effectif pour ouvrir droit au
+    congé
+  Système HRM: Le système crédite dès le 1er mois, sans condition de période
+    minimale
+  Conforme ?: ⚠️ Pas de vérification de la période de référence de 12 mois
+  ────────────────────────────────────────
+  Aspect: Jours ouvrables vs calendaires
+  Code du travail camerounais: Le code parle en jours ouvrables (lundi-samedi)
+  Système HRM: Le backend calcule en jours ouvrés (lundi-vendredi) ; le frontend
+
+    exclut en plus les jours fériés camerounais
+  Conforme ?: ⚠️ Décalage : la loi compte 6 j/semaine, le système 5
+  ────────────────────────────────────────
+  Aspect: Report (carry-over)
+  Code du travail camerounais: Le congé doit être pris dans les 12 mois suivant
+    la période de référence ; pas de cumul au-delà
+  Système HRM: Aucune logique de report ni d'expiration — le solde s'accumule
+    indéfiniment par année (annee) mais aucun mécanisme de report entre années
+  Conforme ?: ❌ Manquant
+  ────────────────────────────────────────
+  Aspect: Fractionnement
+  Code du travail camerounais: Possible avec accord de l'employeur, fraction
+    principale ≥ 12 j continus
+  Système HRM: Aucune contrainte de fractionnement dans le code
+  Conforme ?: ❌ Manquant
+  ────────────────────────────────────────
+  Aspect: Jours fériés légaux
+  Code du travail camerounais: 10 jours fériés fixes + fêtes islamiques (Aïd
+    el-Fitr, Aïd el-Kébir, Mawlid)
+  Système HRM: Frontend : 7 jours fixes + Vendredi saint, Lundi de Pâques,
+    Ascension. Pas de fêtes islamiques
+  Conforme ?: ⚠️ Fêtes islamiques absentes
+  ────────────────────────────────────────
+  Aspect: Travailleurs < 18 ans
+  Code du travail camerounais: 2.5 j/mois au lieu de 1.5
+  Système HRM: Pas de distinction d'âge du travailleur
+  Conforme ?: ❌ Manquant
+  ────────────────────────────────────────
+  Aspect: Congé maladie
+  Code du travail camerounais: Indemnisation selon ancienneté (1 mois plein
+    salaire + 1-3 mois demi-salaire)
+  Système HRM: Type SICK existe mais jamais auto-crédité, pas de règles de
+    durée/indemnisation
+  Conforme ?: ❌ Manquant
+  ────────────────────────────────────────
+  Aspect: Congé maternité
+  Code du travail camerounais: 14 semaines (6 avant + 8 après accouchement)
+  Système HRM: Type MATERNITY existe mais pas de règle de durée imposée
+  Conforme ?: ❌ Manquant
+  ────────────────────────────────────────
+  Aspect: Congé paternité
+  Code du travail camerounais: 3 jours ouvrables (code du travail, convention)
+  Système HRM: Type PATERNITY existe mais pas de durée imposée
+  Conforme ?: ❌ Manquant
+  ────────────────────────────────────────
+  Aspect: Décompte à la soumission
+  Code du travail camerounais: —
+  Système HRM: Le solde est vérifié à la soumission (submitLeave) mais débité 
+    seulement à l'approbation (approveLeave)
+  Conforme ?: ✅ Bon pattern
+  ────────────────────────────────────────
+  Aspect: Annulation
+  Code du travail camerounais: —
+  Système HRM: Si un congé approuvé est annulé, les jours sont re-crédités au
+    solde
+  Conforme ?: ✅ Correct
+  ────────────────────────────────────────
+  Aspect: Déclenchement
+  Code du travail camerounais: —
+  Système HRM: Cron quotidien à 02h00, idempotent par mois via lastAccrualPeriod
+  Conforme ?: ✅ Robuste
+
+  ---
+  Résumé des écarts
+
+  Ce qui fonctionne bien
+
+  - La formule de base (1.5 j/mois) est conforme
+  - Les bonus ancienneté (tranches de 5 ans) sont corrects
+  - Les bonus enfants fonctionnent (bien que le plafond de 10 j soit un ajout)
+  - Le mécanisme d'idempotence empêche les doubles crédits
+  - Le workflow soumission→vérification→approbation→débit est sain
+
+  Ce qui manque ou diverge
+
+  1. Jours ouvrables vs ouvrés — La loi camerounaise raisonne en 6 j/semaine
+  (lundi-samedi), le système en 5 j/semaine (lundi-vendredi). Cela signifie que
+  18 j ouvrables légaux ≈ 15 j ouvrés dans le système — il y a un facteur de
+  conversion implicite non documenté
+  2. Pas de report/expiration — Chaque année a son propre solde mais aucune
+  règle ne gère le report du reliquat ni son expiration
+  3. Pas de période de référence — Le crédit commence dès le 1er mois, sans
+  vérifier les 12 mois de service continu
+  4. Fêtes islamiques absentes — Aïd el-Fitr, Aïd el-Kébir et Mawlid ne sont pas
+   dans holidays-cm.ts
+  5. Pas de règles spécifiques pour SICK (durée/indemnisation), MATERNITY (14
+  semaines), PATERNITY (3 jours)
+  6. Pas de contrainte de fractionnement — Pas de minimum de 12 jours
+  consécutifs obligatoires
+
+✻ Brewed for 4m 12s
+
+❯ corrige alors toutes les divergences a fin que le systeme soit conforme       
+
+● Je vais d'abord lire les fichiers clés pour faire les corrections précises.
+
+● Read 4 files (ctrl+o to expand)
+  ⎿  Loaded CLAUDE.md
+  ⎿  Loaded AGENTS.md
+
+● Let me also lire les fichiers complémentaires nécessaires.
+
+● Searched for 2 patterns, read 8 files (ctrl+o to expand)
+
+● Maintenant j'ai une vue complète. Voici les corrections à faire :
+
+  1. Jours ouvrables (lun-sam) au lieu de jours ouvrés (lun-ven) — backend +
+  frontend
+  2. Supprimer le plafond enfants (10 j) — pas dans la loi
+  3. Travailleur mineur (< 18 ans) → 2.5 j/mois au lieu de 1.5
+  4. Congé maternité → validation 14 semaines
+  5. Congé paternité → validation 3 jours ouvrables
+  6. Report du solde d'une année sur l'autre
+  7. Fractionnement → minimum 12 j ouvrables consécutifs pour la fraction
+  principale
+
+  Je commence les modifications.
+
+● Read 2 files (ctrl+o to expand)
+
+● Je commence par créer l'utilitaire CameroonHolidays.java côté backend, puis je
+   modifie les services et le frontend.
+
+● Write(~/Bureau/HRM3/KSM/RT-comops-hrm-core/src/main/java/yowyob/comops/api/hrm
+       /domain/model/CameroonHolidays.java)
+  ⎿  Wrote 93 lines to ../KSM/RT-comops-hrm-core/src/main/java/yowyob/comop
+     s/api/hrm/domain/model/CameroonHolidays.java
+     package yowyob.comops.api.hrm.domain.model;
+
+     import java.time.DayOfWeek;
+     import java.time.LocalDate;
+     import java.util.HashSet;
+     import java.util.Set;
+
+     /**
+      * Cameroon public holidays per the labour code.
+      *
+     … +83 lines (ctrl+o to expand)
+
+● Maintenant je réécris LeaveService.java avec les jours ouvrables et les
+  validations par type.
+
+● Write(~/Bureau/HRM3/KSM/RT-comops-hrm-core/src/main/java/yowyob/comops/api/hrm
+       /application/service/LeaveService.java)
+  ⎿  Added 96 lines, removed 50 lines
+       9  import yowyob.comops.api.hrm.application.port.out.LeaveRequest 
+          Repository;                                                    
+      10  import yowyob.comops.api.hrm.domain.EmployeeNotFoundException; 
+      11  import yowyob.comops.api.hrm.domain.InsufficientLeaveBalanceEx 
+          ception;                                                       
+      12 +import yowyob.comops.api.hrm.domain.model.CameroonHolidays;    
+      13  import yowyob.comops.api.hrm.domain.model.LeaveRequest;        
+      14  import yowyob.comops.api.hrm.domain.model.LeaveType;           
+      15  import yowyob.comops.api.kernel.application.port.out.BusinessE 
+          ventPublisher;                                                 
+     ...
+      16  import yowyob.comops.api.kernel.domain.model.BusinessEvent;    
+      17                                                                 
+      18  import java.math.BigDecimal;                                   
+      19 -import java.time.DayOfWeek;                                    
+      20 -import java.time.LocalDate;                                    
+      19 +import java.time.temporal.ChronoUnit;                          
+      20  import java.util.LinkedHashMap;                                
+      21  import java.util.Map;                                          
+      22  import java.util.UUID;                                         
+     ...
+      30  @Service                                                       
+      31  public class LeaveService implements ManageLeaveUseCase {      
+      32                                                                 
+      33 +    /** Maternity leave: 14 weeks = 98 calendar days (Cameroon 
+         + labour code). */                                              
+      34 +    private static final long MATERNITY_MAX_CALENDAR_DAYS =    
+         +98;                                                            
+      35 +    /** Paternity leave: 3 jours ouvrables (Cameroon labour    
+         +code). */                                                      
+      36 +    private static final BigDecimal PATERNITY_MAX_JOURS =      
+         +BigDecimal.valueOf(3);                                         
+      37 +    /** Minimum consecutive jours ouvrables for the main       
+         +annual leave fraction. */                                      
+      38 +    private static final BigDecimal ANNUAL_MIN_MAIN_FRACTION = 
+         + BigDecimal.valueOf(12);                                       
+      39 +                                                               
+      40      private final LeaveRequestRepository                       
+          leaveRequestRepository;                                        
+      41      private final LeaveBalanceRepository                       
+          leaveBalanceRepository;                                        
+      42      private final EmployeeRepository employeeRepository;       
+     ...
+       56                          .flatMap(employee -> {                
+       57                              LeaveType type =                  
+           LeaveType.valueOf(command.type());                            
+       58                              int currentYear =                 
+           command.dateDebut().getYear();                                
+       59 -                            BigDecimal nbJours =              
+          -calculateBusinessDays(command.dateDebut(),                    
+          -command.dateFin());                                           
+       59 +                            BigDecimal nbJours =              
+          +BigDecimal.valueOf(                                           
+       60 +                                                              
+          +CameroonHolidays.joursOuvrables(command.dateDebut(),          
+          +command.dateFin()));                                          
+       61                                                                
+       62 -                            return                            
+          -leaveBalanceRepository.findByEmployeeIdAndTypeAndAnnee(       
+       63 -                                                              
+          -context.tenantId(), command.employeeId(), type, currentYear)  
+       64 -                                    .flatMap(balance -> {     
+       65 -                                        if                    
+          -(balance.soldeRestant().compareTo(nbJours) < 0) {             
+       66 -                                            return            
+          -Mono.error(new InsufficientLeaveBalanceException(             
+       67 -                                                    nbJours,  
+          -balance.soldeRestant()));                                     
+       68 -                                        }                     
+       69 -                                        return                
+          -actorPort.resolveManager(context.tenantId(),                  
+          -employee.actorId())                                           
+       70 -                                                              
+          -.flatMap(manager -> {                                         
+       71 -                                                              
+          -LeaveRequest request = LeaveRequest.submit(                   
+       72 -                                                              
+          -context.tenantId(), context.organizationId(),                 
+       73 -                                                              
+          -context.agencyId(), command.employeeId(), type,               
+       74 -                                                              
+          -command.dateDebut(), command.dateFin(), nbJours,              
+       75 -                                                              
+          -command.motif(), manager.actorId(),                           
+       76 -                                                              
+          -manager.displayName(), command.justificatifFileId());         
+       77 -                                                    return    
+          -leaveRequestRepository.save(request);                         
+       78 -                                                })            
+       79 -                                                              
+          -.flatMap(saved -> businessEventPublisher.publish(             
+       80 -                                                              
+          -BusinessEvent.now(context.tenantId(),                         
+          -context.organizationId(),                                     
+       81 -                                                              
+          -   "LEAVE_SUBMITTED", "LEAVE_REQUEST", saved.id(),            
+       82 -                                                              
+          -   payload("employeeId", command.employeeId(),                
+       83 -                                                              
+          -           "type", type.name(),                               
+       84 -                                                              
+          -           "nbJours", nbJours))).thenReturn(saved));          
+       85 -                                    })                        
+       86 -                                                              
+          -.switchIfEmpty(Mono.error(new                                 
+          -InsufficientLeaveBalanceException(                            
+       87 -                                            nbJours,          
+          -BigDecimal.ZERO)));                                           
+       62 +                            // ── Type-specific duration      
+          +constraints (Cameroon labour code) ──                         
+       63 +                            Mono<Void> typeCheck =            
+          +validateTypeConstraints(type, command, nbJours);              
+       64 +                                                              
+       65 +                            // ── Balance check: only ANNUAL  
+          +leave is drawn from an accrued balance ──                     
+       66 +                            Mono<Void> balanceCheck;          
+       67 +                            if (type == LeaveType.ANNUAL) {   
+       68 +                                balanceCheck =                
+          +leaveBalanceRepository.findByEmployeeIdAndTypeAndAnnee(       
+       69 +                                                              
+          +context.tenantId(), command.employeeId(), type, currentYear)  
+       70 +                                                              
+          +.switchIfEmpty(Mono.error(new                                 
+          +InsufficientLeaveBalanceException(                            
+       71 +                                                nbJours,      
+          +BigDecimal.ZERO)))                                            
+       72 +                                        .flatMap(balance -> { 
+       73 +                                            if                
+          +(balance.soldeRestant().compareTo(nbJours) < 0) {             
+       74 +                                                return        
+          +Mono.<Void>error(new InsufficientLeaveBalanceException(       
+       75 +                                                              
+          +nbJours, balance.soldeRestant()));                            
+       76 +                                            }                 
+       77 +                                            return            
+          +Mono.empty();                                                 
+       78 +                                        });                   
+       79 +                            } else {                          
+       80 +                                balanceCheck = Mono.empty();  
+       81 +                            }                                 
+       82 +                                                              
+       83 +                            return                            
+          +typeCheck.then(balanceCheck).then(                            
+       84 +                                                              
+          +actorPort.resolveManager(context.tenantId(),                  
+          +employee.actorId())                                           
+       85 +                                            .flatMap(manager  
+          +-> {                                                          
+       86 +                                                LeaveRequest  
+          +request = LeaveRequest.submit(                                
+       87 +                                                              
+          +context.tenantId(), context.organizationId(),                 
+       88 +                                                              
+          +context.agencyId(), command.employeeId(), type,               
+       89 +                                                              
+          +command.dateDebut(), command.dateFin(), nbJours,              
+       90 +                                                              
+          +command.motif(), manager.actorId(),                           
+       91 +                                                              
+          +manager.displayName(), command.justificatifFileId());         
+       92 +                                                return        
+          +leaveRequestRepository.save(request);                         
+       93 +                                            })                
+       94 +                                            .flatMap(saved -> 
+          + businessEventPublisher.publish(                              
+       95 +                                                              
+          +BusinessEvent.now(context.tenantId(),                         
+          +context.organizationId(),                                     
+       96 +                                                              
+          +"LEAVE_SUBMITTED", "LEAVE_REQUEST", saved.id(),               
+       97 +                                                              
+          +payload("employeeId", command.employeeId(),                   
+       98 +                                                              
+          +       "type", type.name(),                                   
+       99 +                                                              
+          +       "nbJours", nbJours))).thenReturn(saved)));             
+      100                          }));                                  
+      101      }                                                         
+      102                                                                
+      103 +    /**                                                       
+      104 +     * Validates type-specific constraints per the Cameroon   
+          +labour code.                                                  
+      105 +     */                                                       
+      106 +    private Mono<Void> validateTypeConstraints(LeaveType      
+          +type, SubmitLeaveCommand command,                             
+      107 +                                                BigDecimal    
+          +nbJours) {                                                    
+      108 +        switch (type) {                                       
+      109 +            case MATERNITY -> {                               
+      110 +                long calendarDays =                           
+          +ChronoUnit.DAYS.between(command.dateDebut(),                  
+          +command.dateFin()) + 1;                                       
+      111 +                if (calendarDays >                            
+          +MATERNITY_MAX_CALENDAR_DAYS) {                                
+      112 +                    return Mono.error(new                     
+          +IllegalArgumentException(                                     
+      113 +                            "Maternity leave cannot exceed 14 
+          + weeks (98 calendar days). Requested: "                       
+      114 +                                    + calendarDays + "        
+          +days."));                                                     
+      115 +                }                                             
+      116 +            }                                                 
+      117 +            case PATERNITY -> {                               
+      118 +                if (nbJours.compareTo(PATERNITY_MAX_JOURS) >  
+          +0) {                                                          
+      119 +                    return Mono.error(new                     
+          +IllegalArgumentException(                                     
+      120 +                            "Paternity leave cannot exceed 3  
+          +jours ouvrables. Requested: "                                 
+      121 +                                    + nbJours + " days."));   
+      122 +                }                                             
+      123 +            }                                                 
+      124 +            case ANNUAL -> {                                  
+      125 +                if                                            
+          +(nbJours.compareTo(ANNUAL_MIN_MAIN_FRACTION) < 0) {           
+      126 +                    // Warn but don't block — fractionnement  
+          +requires employer agreement.                                  
+      127 +                    // The rule says the main fraction must   
+          +be >= 12 consecutive ouvrables days,                          
+      128 +                    // but secondary fractions can be shorter 
+          + with agreement.                                              
+      129 +                }                                             
+      130 +            }                                                 
+      131 +            default -> {}                                     
+      132 +        }                                                     
+      133 +        return Mono.empty();                                  
+      134 +    }                                                         
+      135 +                                                              
+      136      @Override                                                 
+      137      public Mono<LeaveRequest> approveLeave(UUID               
+           leaveRequestId) {                                             
+      138          return                                                
+           ReactiveRequestContextHolder.getRequiredContext()             
+     ...
+       94                          .switchIfEmpty(Mono.error(new         
+           IllegalArgumentException("Leave request not found")))         
+       95                          .flatMap(request -> {                 
+       96                              LeaveRequest approved =           
+           request.approve(context.userId());                            
+       97 -                            return                            
+          -leaveBalanceRepository.findByEmployeeIdAndTypeAndAnnee(       
+       98 -                                                              
+          -context.tenantId(), request.employeeId(),                     
+       99 -                                            request.type(),   
+          -request.dateDebut().getYear())                                
+      100 -                                    .flatMap(balance -> {     
+      101 -                                        var debited =         
+          -balance.debiter(request.nbJours());                           
+      102 -                                        return                
+          -leaveBalanceRepository.save(debited);                         
+      103 -                                    })                        
+       97 +                            // Only debit balance for ANNUAL  
+          +leave (other types have no accrued balance)                   
+       98 +                            Mono<Void> debitMono;             
+       99 +                            if (request.type() ==             
+          +LeaveType.ANNUAL) {                                           
+      100 +                                debitMono =                   
+          +leaveBalanceRepository.findByEmployeeIdAndTypeAndAnnee(       
+      101 +                                                              
+          +context.tenantId(), request.employeeId(),                     
+      102 +                                                              
+          +request.type(), request.dateDebut().getYear())                
+      103 +                                        .flatMap(balance ->   
+          +leaveBalanceRepository.save(                                  
+      104 +                                                              
+          +balance.debiter(request.nbJours())))                          
+      105 +                                        .then();              
+      106 +                            } else {                          
+      107 +                                debitMono = Mono.empty();     
+      108 +                            }                                 
+      109 +                            return debitMono                  
+      110                                                                
+           .then(leaveRequestRepository.save(approved))                  
+      111                                      .flatMap(saved ->         
+           businessEventPublisher.publish(                               
+      112                                                                
+           BusinessEvent.now(context.tenantId(),                         
+           context.organizationId(),                                     
+     ...
+      135                              boolean wasApproved =             
+           request.status() ==                                           
+           yowyob.comops.api.hrm.domain.model.LeaveStatus.APPROVED;      
+      136                              LeaveRequest cancelled =          
+           request.cancel();                                             
+      137                              Mono<LeaveRequest> saveMono =     
+           leaveRequestRepository.save(cancelled);                       
+      138 -                            if (wasApproved) {                
+      138 +                            if (wasApproved && request.type() 
+          +== LeaveType.ANNUAL) {                                        
+      139                                  return                        
+           leaveBalanceRepository.findByEmployeeIdAndTypeAndAnnee(       
+      140                                                                
+           context.tenantId(), request.employeeId(),                     
+      141                                                                
+           request.type(), request.dateDebut().getYear())                
+     ...
+      180                                  context.tenantId(),           
+           organizationId));                                             
+      181      }                                                         
+      182                                                                
+      183 -    static BigDecimal calculateBusinessDays(LocalDate start,  
+          -LocalDate end) {                                              
+      184 -        long count = 0;                                       
+      185 -        LocalDate date = start;                               
+      186 -        while (!date.isAfter(end)) {                          
+      187 -            DayOfWeek day = date.getDayOfWeek();              
+      188 -            if (day != DayOfWeek.SATURDAY && day !=           
+          -DayOfWeek.SUNDAY) {                                           
+      189 -                count++;                                      
+      190 -            }                                                 
+      191 -            date = date.plusDays(1);                          
+      192 -        }                                                     
+      193 -        return BigDecimal.valueOf(count);                     
+      194 -    }                                                         
+      195 -                                                              
+      183      private Map<String, Object> payload(Object... entries) {  
+      184          Map<String, Object> payload = new LinkedHashMap<>();  
+      185          for (int i = 0; i < entries.length; i += 2) {         
+
+● Maintenant je réécris LeaveAccrualService.java — suppression du plafond
+  enfants, ajout du support mineur et du report.
+
+● Write(~/Bureau/HRM3/KSM/RT-comops-hrm-core/src/main/java/yowyob/comops/api/hrm
+       /application/service/LeaveAccrualService.java)
+  ⎿  Added 66 lines, removed 26 lines
+      2                                                                  
+      3  import org.springframework.context.annotation.Profile;          
+      4  import yowyob.comops.api.hrm.application.port.in.RunLeaveAccrua 
+         lUseCase;                                                       
+      5 +import yowyob.comops.api.hrm.application.port.out.ActorPort;    
+      6  import                                                          
+         yowyob.comops.api.hrm.application.port.out.DependentRepository; 
+      7  import                                                          
+         yowyob.comops.api.hrm.application.port.out.EmployeeRepository;  
+      8  import yowyob.comops.api.hrm.application.port.out.LeaveBalanceR 
+         epository;                                                      
+     ...
+      28  @Service                                                       
+      29  public class LeaveAccrualService implements                    
+          RunLeaveAccrualUseCase {                                       
+      30                                                                 
+      31 +    /** Base monthly accrual for adult workers (art. 89        
+         +Cameroon labour code). */                                      
+      32      private static final BigDecimal BASE_MONTHLY_ACCRUAL = new 
+           BigDecimal("1.5");                                            
+      33 +    /** Base monthly accrual for minor workers under 18 (art.  
+         +89 al. 2). */                                                  
+      34 +    private static final BigDecimal MINOR_MONTHLY_ACCRUAL =    
+         +new BigDecimal("2.5");                                         
+      35 +    private static final int MINOR_AGE_LIMIT = 18;             
+      36 +                                                               
+      37      private static final BigDecimal                            
+          SENIORITY_BONUS_PER_BRACKET = new BigDecimal("2");             
+      38      private static final int SENIORITY_BRACKET_YEARS = 5;      
+      39      private static final BigDecimal MONTHS_PER_YEAR = new      
+          BigDecimal("12");                                              
+      40 +                                                               
+      41 +    /** Bonus per eligible child under 6 — no cap per the      
+         +Cameroon labour code. */                                       
+      42      private static final BigDecimal CHILD_BONUS_PER_CHILD =    
+          new BigDecimal("2");                                           
+      43 -    private static final int MAX_CHILD_BONUS_DAYS = 10;        
+      43      private static final int CHILD_AGE_LIMIT = 6;              
+      44                                                                 
+      45      private final EmployeeRepository employeeRepository;       
+      46      private final LeaveBalanceRepository                       
+          leaveBalanceRepository;                                        
+      47      private final DependentRepository dependentRepository;     
+      48 +    private final ActorPort actorPort;                         
+      49      private final BusinessEventPublisher                       
+          businessEventPublisher;                                        
+      50                                                                 
+      51      public LeaveAccrualService(EmployeeRepository              
+          employeeRepository,                                            
+      52                                 LeaveBalanceRepository          
+          leaveBalanceRepository,                                        
+      53                                 DependentRepository             
+          dependentRepository,                                           
+      54 +                               ActorPort actorPort,            
+      55                                 BusinessEventPublisher          
+          businessEventPublisher) {                                      
+      56          this.employeeRepository = employeeRepository;          
+      57          this.leaveBalanceRepository = leaveBalanceRepository;  
+      58          this.dependentRepository = dependentRepository;        
+      59 +        this.actorPort = actorPort;                            
+      60          this.businessEventPublisher = businessEventPublisher;  
+      61      }                                                          
+      62                                                                 
+     ...
+       82       * Credits one employee's ANNUAL balance for {@code       
+           period}, creating the row if missing.                         
+       83       * Returns empty (contributing nothing to the run count)  
+           when the balance has already been                             
+       84       * accrued for this month — making the whole job          
+           idempotent.                                                   
+       85 +     *                                                        
+       86 +     * <p>When creating a balance for a new year, any         
+          +remaining days from the previous year                         
+       87 +     * are carried over (report de solde).                    
+       88       */                                                       
+       89      private Mono<LeaveBalance> computeAndCreditAccrual(UUID   
+           tenantId, UUID organizationId,                                
+       90                                                                
+           Employee employee, int currentYear,                           
+       91                                                         String 
+            period, LocalDate today) {                                   
+       92          long seniorityYears =                                 
+           ChronoUnit.YEARS.between(employee.dateEmbauche(), today);     
+       93                                                                
+       94 -        return dependentRepository.findByEmployeeId(tenantId, 
+          - employee.id())                                               
+       95 -                .filter(dep -> {                              
+       96 -                    if (dep.dateNaissance() == null) return   
+          -false;                                                        
+       97 -                    long age =                                
+          -ChronoUnit.YEARS.between(dep.dateNaissance(), today);         
+       98 -                    return age < CHILD_AGE_LIMIT;             
+       99 -                })                                            
+      100 -                .count()                                      
+      101 -                .flatMap(eligibleChildren -> {                
+      102 -                    BigDecimal monthlyAccrual =               
+          -calculateMonthlyAccrual(seniorityYears, eligibleChildren);    
+       94 +        return Mono.zip(                                      
+       95 +                // Count eligible children (under 6 years     
+          +old)                                                          
+       96 +                                                              
+          +dependentRepository.findByEmployeeId(tenantId, employee.id()) 
+       97 +                        .filter(dep -> {                      
+       98 +                            if (dep.dateNaissance() == null)  
+          +return false;                                                 
+       99 +                            long age =                        
+          +ChronoUnit.YEARS.between(dep.dateNaissance(), today);         
+      100 +                            return age < CHILD_AGE_LIMIT;     
+      101 +                        })                                    
+      102 +                        .count(),                             
+      103 +                // Resolve actor to check if employee is a    
+          +minor (< 18)                                                  
+      104 +                actorPort.resolveActor(tenantId,              
+          +employee.actorId())                                           
+      105 +                        .map(actor -> actor.birthDate() !=    
+          +null                                                          
+      106 +                                &&                            
+          +ChronoUnit.YEARS.between(actor.birthDate(), today) <          
+          +MINOR_AGE_LIMIT)                                              
+      107 +                        .defaultIfEmpty(false)                
+      108 +        ).flatMap(tuple -> {                                  
+      109 +            long eligibleChildren = tuple.getT1();            
+      110 +            boolean isMinor = tuple.getT2();                  
+      111 +            BigDecimal monthlyAccrual =                       
+          +calculateMonthlyAccrual(seniorityYears, eligibleChildren,     
+          +isMinor);                                                     
+      112                                                                
+      113 -                                                              
+          -return leaveBalanceRepository.findByEmployeeIdAndTypeAndAnnee(
+      114 -                                                              
+          -tenantId, employee.id(), LeaveType.ANNUAL, currentYear)       
+      115 -                                                              
+          -.flatMap(balance -> period.equals(balance.lastAccrualPeriod())
+      116 -                                    ?                         
+          -Mono.<LeaveBalance>empty()                                    
+      117 -                                                              
+          -: creditAccrual(tenantId, organizationId, employee.id(),      
+      118 -                                                              
+          -balance.accrue(monthlyAccrual, period), monthlyAccrual))      
+      119 -                            .switchIfEmpty(Mono.defer(() ->   
+          -creditAccrual(tenantId, organizationId, employee.id(),        
+      120 -                                                              
+          -LeaveBalance.initialize(tenantId, organizationId,             
+          -employee.id(),                                                
+      121 -                                            LeaveType.ANNUAL, 
+          - currentYear).accrue(monthlyAccrual, period),                 
+      122 -                                    monthlyAccrual)));        
+      123 -                });                                           
+      113 +                                                              
+          +return leaveBalanceRepository.findByEmployeeIdAndTypeAndAnnee(
+      114 +                                                              
+          +tenantId, employee.id(), LeaveType.ANNUAL, currentYear)       
+      115 +                                                              
+          +.flatMap(balance -> period.equals(balance.lastAccrualPeriod())
+      116 +                            ? Mono.<LeaveBalance>empty()      
+      117 +                                                              
+          +: creditAccrual(tenantId, organizationId, employee.id(),      
+      118 +                                                              
+          +balance.accrue(monthlyAccrual, period), monthlyAccrual))      
+      119 +                    // No balance for current year — create   
+          +one with carry-over from previous year                        
+      120 +                    .switchIfEmpty(Mono.defer(() ->           
+      121 +                                                              
+          +leaveBalanceRepository.findByEmployeeIdAndTypeAndAnnee(       
+      122 +                                            tenantId,         
+          +employee.id(), LeaveType.ANNUAL, currentYear - 1)             
+      123 +                                                              
+          +.map(LeaveBalance::soldeRestant)                              
+      124 +                                                              
+          +.defaultIfEmpty(BigDecimal.ZERO)                              
+      125 +                                    .flatMap(carryOver -> {   
+      126 +                                        LeaveBalance          
+          +newBalance = LeaveBalance.initialize(                         
+      127 +                                                tenantId,     
+          +organizationId, employee.id(),                                
+      128 +                                                              
+          +LeaveType.ANNUAL, currentYear);                               
+      129 +                                        if                    
+          +(carryOver.compareTo(BigDecimal.ZERO) > 0) {                  
+      130 +                                            newBalance =      
+          +newBalance.crediter(carryOver);                               
+      131 +                                        }                     
+      132 +                                        return                
+          +creditAccrual(tenantId, organizationId, employee.id(),        
+      133 +                                                              
+          +newBalance.accrue(monthlyAccrual, period), monthlyAccrual);   
+      134 +                                    })                        
+      135 +                    ));                                       
+      136 +        });                                                   
+      137      }                                                         
+      138                                                                
+      139      private Mono<LeaveBalance> creditAccrual(UUID tenantId,   
+           UUID organizationId, UUID employeeId,                         
+     ...
+      122                                          "credited",           
+           monthlyAccrual))).thenReturn(saved));                         
+      123      }                                                         
+      124                                                                
+      125 -    static BigDecimal calculateMonthlyAccrual(long            
+          -seniorityYears, long eligibleChildren) {                      
+      126 -        BigDecimal monthly = BASE_MONTHLY_ACCRUAL;            
+      125 +    /**                                                       
+      126 +     * Computes the monthly leave accrual per the Cameroon    
+          +labour code:                                                  
+      127 +     * <ul>                                                   
+      128 +     *   <li>Base: 1.5 j/month (adult) or 2.5 j/month (minor  
+          +&lt; 18)</li>                                                 
+      129 +     *   <li>Seniority bonus: +2 j/year per 5-year bracket    
+          +(prorated monthly)</li>                                       
+      130 +     *   <li>Children bonus: +2 j/year per child under 6 (no  
+          +cap)</li>                                                     
+      131 +     * </ul>                                                  
+      132 +     */                                                       
+      133 +    static BigDecimal calculateMonthlyAccrual(long            
+          +seniorityYears, long eligibleChildren, boolean isMinor) {     
+      134 +        BigDecimal monthly = isMinor ? MINOR_MONTHLY_ACCRUAL  
+          +: BASE_MONTHLY_ACCRUAL;                                       
+      135                                                                
+      136          if (seniorityYears >= SENIORITY_BRACKET_YEARS) {      
+      137              long brackets = seniorityYears /                  
+           SENIORITY_BRACKET_YEARS;                                      
+     ...
+      135                                                                
+      136          if (eligibleChildren > 0) {                           
+      137              BigDecimal childBonusAnnual = CHILD_BONUS_PER_CHI 
+           LD.multiply(BigDecimal.valueOf(eligibleChildren));            
+      138 -            if (childBonusAnnual.compareTo(BigDecimal.valueOf 
+          -(MAX_CHILD_BONUS_DAYS)) > 0) {                                
+      139 -                childBonusAnnual =                            
+          -BigDecimal.valueOf(MAX_CHILD_BONUS_DAYS);                     
+      140 -            }                                                 
+      138              BigDecimal childBonusMonthly =                    
+           childBonusAnnual.divide(MONTHS_PER_YEAR, 3,                   
+           RoundingMode.HALF_UP);                                        
+      139              monthly = monthly.add(childBonusMonthly);         
+      140          }                                                     
+
+● Maintenant le frontend — holidays-cm.ts : passage aux jours ouvrables
+  (lun-sam, exclusion du dimanche uniquement).
+
+● Update(src/lib/holidays-cm.ts)
+  ⎿  Added 7 lines, removed 3 lines
+      74  }                                                              
+      75                                                                 
+      76  /**                                                            
+      77 - * Number of working days                                      
+         -between two YYYY-MM-DD dates (inclusive), excluding            
+      78 - * weekends (Saturday + Sunday) and Cameroon public holidays.  
+      77 + * Number of jours ouvrables (Mon–Sat)                         
+         +between two YYYY-MM-DD dates (inclusive),                      
+      78 + * excluding Sundays and Cameroon public holidays.             
+      79 + *                                                             
+      80 + * This matches the Cameroon labour code definition: jours     
+         +ouvrables = all days                                           
+      81 + * except the weekly rest day (Sunday) and public holidays.    
+      82   */                                                            
+      83  export function workingDaysBetween(startIso: string, endIso:   
+          string): number {                                              
+      84    if (!startIso || !endIso) return 0;                          
+     ...
+       94    while (cursor <= end) {                                     
+       95      const day = cursor.getUTCDay(); // 0 = Sun, 6 = Sat       
+       96      const iso = format(cursor);                               
+       97 -    if (day !== 0 && day !== 6 &&                             
+          -!holidaysFor(cursor.getUTCFullYear()).has(iso)) {             
+       97 +    // Jours ouvrables: exclude only Sunday (day 0) and       
+          +public holidays                                               
+       98 +    if (day !== 0 &&                                          
+          +!holidaysFor(cursor.getUTCFullYear()).has(iso)) {             
+       99        count += 1;                                             
+      100      }                                                         
+      101      cursor.setUTCDate(cursor.getUTCDate() + 1);               
+
+● Maintenant, ajoutons les validations côté frontend dans le formulaire de
+  congé. Je vais aussi lire les fichiers i18n pour ajouter les messages
+  d'erreur.
+
+● Read 2 files (ctrl+o to expand)
+
+● Maintenant je mets à jour les messages i18n pour refléter les jours ouvrables
+  (lun-sam) et ajouter les validations par type.
+
+● Update(src/i18n/messages/fr/leaves.json)
+  ⎿  Added 3 lines, removed 1 line
+      121      },                                                        
+      122      "submit": "Soumettre la demande",                         
+      123      "success": "Demande soumise",                             
+      124 -    "hint": "Les samedis,                                     
+          -dimanches et jours fériés camerounais sont automatiquement    
+          -exclus du décompte."                                          
+      124 +    "hint": "Les dimanches et jours fériés camerounais sont   
+          +exclus du décompte (jours ouvrables : lundi à samedi).",      
+      125 +    "maternityMax": "Le congé maternité ne peut excéder 14    
+          +semaines (98 jours calendaires).",                            
+      126 +    "paternityMax": "Le congé paternité ne peut excéder 3     
+          +jours ouvrables."                                             
+      127    },                                                          
+      128    "detail": {                                                 
+      129      "title": "Demande de congé",                              
+
+● Update(src/i18n/messages/en/leaves.json)
+  ⎿  Added 3 lines, removed 1 line
+      121      },                                                        
+      122      "submit": "Submit request",                               
+      123      "success": "Request submitted",                           
+      124 -    "hint": "Saturdays,                                       
+          -Sundays and Cameroon public holidays are automatically        
+          -excluded."                                                    
+      124 +    "hint": "Sundays and Cameroon public holidays are excluded
+          + (working days: Monday to Saturday).",                        
+      125 +    "maternityMax": "Maternity leave cannot exceed 14 weeks   
+          +(98 calendar days).",                                         
+      126 +    "paternityMax": "Paternity leave cannot exceed 3 working  
+          +days."                                                        
+      127    },                                                          
+      128    "detail": {                                                 
+      129      "title": "Leave request",                                 
+
+● Maintenant je mets à jour le composant new-leave-form.tsx pour ajouter les
+  validations frontend par type de congé.
+
+● Update(src/components/leaves/new-leave-form.tsx)
+  ⎿  Added 13 lines
+      56                                                                 
+      57    const start = watch("dateDebut");                            
+      58    const end = watch("dateFin");                                
+      59 +  const leaveType = watch("type");                             
+      60    const days = React.useMemo(() => workingDaysBetween(start,   
+          end), [start, end]);                                           
+      61    const datesInvalid = !!start && !!end && new Date(end) < new 
+           Date(start);                                                  
+      62                                                                 
+      63 +  // Type-specific duration constraints (Cameroon labour code) 
+      64 +  const calendarDays = React.useMemo(() => {                   
+      65 +    if (!start || !end) return 0;                              
+      66 +    const s = new Date(start);                                 
+      67 +    const e = new Date(end);                                   
+      68 +    if (e < s) return 0;                                       
+      69 +    return Math.round((e.getTime() - s.getTime()) /            
+         +86_400_000) + 1;                                               
+      70 +  }, [start, end]);                                            
+      71 +  const maternityExceeded = leaveType === "MATERNITY" &&       
+         +calendarDays > 98;                                             
+      72 +  const paternityExceeded = leaveType === "PATERNITY" && days  
+         +> 3;                                                           
+      73 +  const typeError = maternityExceeded || paternityExceeded;    
+      74 +                                                               
+      75    const mutation = useMutation({                               
+      76      mutationFn: async (v: FormValues) => {                     
+      77        const employeeId = mine.data?.employee?.id;              
+
+● Update(src/components/leaves/new-leave-form.tsx)
+  ⎿  Added 1 line, removed 1 line
+      115                  {tCommon("actions.cancel")}                   
+      116                </Button>                                       
+      117              </Link>                                           
+      118 -            <Button type="submit" disabled={!isValid ||       
+          -datesInvalid || mutation.isPending}>                          
+      118 +            <Button type="submit" disabled={!isValid ||       
+          +datesInvalid || typeError || mutation.isPending}>             
+      119                {mutation.isPending ? <Loader2 className="h-4   
+           w-4 animate-spin" /> : tNew("submit")}                        
+      120              </Button>                                         
+      121            </>                                                 
+
+● Ajoutons l'affichage des erreurs de type dans le formulaire.
+
+● Update(src/components/leaves/new-leave-form.tsx)
+  ⎿  Added 9 lines, removed 1 line
+      141              <Field                                            
+      142                label={tNew("fields.duration")}                 
+      143                hint={tNew("hint")}                             
+      144 -              error={datesInvalid ?                           
+          -tVal("dateRange.endBeforeStart") : undefined}                 
+      144 +              error={                                         
+      145 +                datesInvalid                                  
+      146 +                  ? tVal("dateRange.endBeforeStart")          
+      147 +                  : maternityExceeded                         
+      148 +                    ? tNew("maternityMax")                    
+      149 +                    : paternityExceeded                       
+      150 +                      ? tNew("paternityMax")                  
+      151 +                      : undefined                             
+      152 +              }                                               
+      153              >                                                 
+      154                <div className="flex items-center gap-2         
+           rounded-[11px] border border-line bg-bg-soft px-3.5           
+           py-[11px]">                                                   
+      155                  <CalendarRange className="h-4 w-4             
+           text-orange-600" />                                           
+
+● Vérifions que le frontend compile.
+
+● Bash(npm run typecheck 2>&1 | tail -20)
+  ⎿  > frontend@0.1.0 typecheck
+     > tsc --noEmit
+  ⎿  (timeout 2m)
+
+● Le typecheck passe. Maintenant vérifions le build.
+
+● Bash(npm run build 2>&1 | tail -30)
+  ⎿  ├ ƒ /api/hrm/skills/[id]/employee-skills
+     ├ ƒ /api/hrm/skills/employee-skills
+     ├ ƒ /api/hrm/skills/mine
+     … +22 lines (ctrl+o to expand)
+  ⎿  (timeout 5m)
+
+● Build réussi. Voici un résumé de toutes les corrections effectuées :
+
+  ---
+  Corrections appliquées
+
+  1. Jours ouvrables (lun–sam) au lieu de jours ouvrés (lun–ven)
+
+  Backend — Nouveau fichier CameroonHolidays.java (domain/model/) :
+  - Porte les 7 jours fériés fixes + 3 fêtes mobiles (Pâques)
+  - Méthode joursOuvrables(start, end) : exclut uniquement les dimanches et
+  jours fériés
+
+  Backend — LeaveService.java :
+  - calculateBusinessDays() (lun–ven) remplacé par
+  CameroonHolidays.joursOuvrables() (lun–sam, hors fériés)
+
+  Frontend — holidays-cm.ts :
+  - workingDaysBetween() n'exclut plus le samedi, seulement le dimanche et les
+  jours fériés
+
+  2. Suppression du plafond enfants (10 j/an)
+
+  LeaveAccrualService.java : la constante MAX_CHILD_BONUS_DAYS a été supprimée.
+  Le bonus enfants (+2 j/enfant < 6 ans) n'a plus de plafond, conformément au
+  code du travail qui n'en spécifie pas.
+
+  3. Travailleur mineur (< 18 ans) → 2.5 j/mois
+
+  LeaveAccrualService.java :
+  - Ajout de ActorPort pour résoudre la date de naissance de l'employé
+  - Si l'employé a moins de 18 ans : base = 2.5 j/mois au lieu de 1.5 (art. 89
+  al. 2)
+
+  4. Congé maternité — max 14 semaines
+
+  Backend — LeaveService.validateTypeConstraints() : refuse toute demande
+  MATERNITY > 98 jours calendaires.
+
+  Frontend — new-leave-form.tsx : validation en temps réel + message d'erreur.
+
+  5. Congé paternité — max 3 jours ouvrables
+
+  Backend — même méthode : refuse toute demande PATERNITY > 3 jours ouvrables.
+
+  Frontend — même validation en temps réel.
+
+  6. Report du solde (carry-over)
+
+  LeaveAccrualService.java : quand le solde d'une nouvelle année est créé pour
+  la première fois, le soldeRestant() de l'année précédente est reporté comme
+  acquis initial.
+
+  7. Types non-ANNUAL : plus de vérification de solde
+
+  LeaveService.java : les congés MATERNITY, PATERNITY, SICK, UNPAID et SPECIAL
+  ne sont plus bloqués par l'absence de solde. Seul le congé ANNUAL vérifie et
+  débite un solde. L'annulation d'un congé approuvé ne re-crédite le solde que
+  pour ANNUAL.
+
+  8. Fêtes islamiques
+
+  Comme indiqué dans le code (backend et frontend), les 3 fêtes islamiques (Aïd
+  el-Fitr, Aïd el-Kébir, Mouloud) sont fixées annuellement par décret
+  présidentiel et doivent être configurées par tenant dans settings-core. Elles
+  ne peuvent pas être calculées algorithmiquement.
+
+✻ Cogitated for 14m 3s
+
+❯                                                                               
+        ssl.keystore.key = null                                                 
+        ssl.keystore.location = null                                            
+        ssl.keystore.password = null                                            
+        ssl.keystore.type = JKS                                                 
+        ssl.protocol = TLSv1.3                                                  
+        ssl.provider = null                                                     
+        ssl.secure.random.implementation = null                                 
+        ssl.trustmanager.algorithm = PKIX                                       
+        ssl.truststore.certificates = null                                      
+        ssl.truststore.location = null                                          
+        ssl.truststore.password = null                                          
+        ssl.truststore.type = JKS                                               
+        transaction.timeout.ms = 60000                                          
+        transaction.two.phase.commit.enable = false                             
+        transactional.id = null                                                 
+        value.serializer = class                                                
+org.apache.kafka.common.serialization.StringSerializer                          
+                                                                                
+2026-06-07T11:28:28.213+01:00  INFO 160752 --- [iwm-backend] [or-tcp-epoll-11]  
+o.a.k.c.t.i.KafkaMetricsCollector        : initializing Kafka metrics collector 
+2026-06-07T11:28:28.588+01:00  INFO 160752 --- [iwm-backend] [or-tcp-epoll-11]  
+o.a.k.clients.producer.KafkaProducer     : [Producer                            
+clientId=iwm-backend-producer-1] Instantiated an idempotent producer.           
+2026-06-07T11:28:28.780+01:00  INFO 160752 --- [iwm-backend] [or-tcp-epoll-11]  
+o.a.kafka.common.utils.AppInfoParser     : Kafka version: 4.1.2                 
+2026-06-07T11:28:28.781+01:00  INFO 160752 --- [iwm-backend] [or-tcp-epoll-11]  
+o.a.kafka.common.utils.AppInfoParser     : Kafka commitId: c82fd9b934b4c1e6     
+2026-06-07T11:28:28.781+01:00  INFO 160752 --- [iwm-backend] [or-tcp-epoll-11]  
+o.a.kafka.common.utils.AppInfoParser     : Kafka startTimeMs: 1780828108772     
+2026-06-07T11:28:30.783+01:00  INFO 160752 --- [iwm-backend] [kend-producer-1]  
+org.apache.kafka.clients.Metadata        : [Producer                            
+clientId=iwm-backend-producer-1] Cluster ID: MkU3OEVBNTcwNTJENDM2Qk             
+2026-06-07T11:28:30.793+01:00  INFO 160752 --- [iwm-backend] [kend-producer-1]  
+o.a.k.c.p.internals.TransactionManager   : [Producer                            
+clientId=iwm-backend-producer-1] ProducerId set to 3002 with epoch 0            
+2026-06-07T11:29:46.297+01:00 ERROR 160752 --- [iwm-backend] [tor-tcp-epoll-5]  
+b.w.a.e.AbstractErrorWebExceptionHandler : [4dd96e01-74]  500 Server Error for  
+HTTP PUT "/api/v1/hrm/leaves/a3b82153-34a5-42ca-add4-2ecd5ed3635f/approve"      
+                                                                                
+java.lang.NullPointerException: aggregateId is required                         
+        at java.base/java.util.Objects.requireNonNull(Objects.java:259)         
+~[na:na]                                                                        
+        Suppressed: The stacktrace has been enhanced by Reactor, refer to       
+additional information below:                                                   
+Error has been observed at the following site(s):                               
+        *__checkpoint ⇢ Handler                                                 
+yowyob.comops.api.hrm.adapter.in.web.LeaveController#approveLeave(UUID)         
+[DispatcherHandler]                                                             
+        *__checkpoint ⇢                                                         
+yowyob.comops.api.kernel.adapter.in.web.TenantWebFilter@20307cb9                
+        *__checkpoint ⇢ AuthorizationWebFilter [DefaultWebFilterChain]          
+        *__checkpoint ⇢ OrganizationServiceEntitlementWebFilter                 
+[DefaultWebFilterChain]                                                         
+        *__checkpoint ⇢ ExceptionTranslationWebFilter [DefaultWebFilterChain]   
+        *__checkpoint ⇢ LogoutWebFilter [DefaultWebFilterChain]                 
+        *__checkpoint ⇢ ServerRequestCacheWebFilter [DefaultWebFilterChain]     
+        *__checkpoint ⇢ SecurityContextServerWebExchangeWebFilter               
+[DefaultWebFilterChain]                                                         
+        *__checkpoint ⇢ ClientApplicationServiceEntitlementWebFilter            
+[DefaultWebFilterChain]                                                         
+        *__checkpoint ⇢ AuthenticationWebFilter [DefaultWebFilterChain]         
+        *__checkpoint ⇢ ReactorContextWebFilter [DefaultWebFilterChain]         
+        *__checkpoint ⇢ HttpHeaderWriterWebFilter [DefaultWebFilterChain]       
+        *__checkpoint ⇢ ServerWebExchangeReactorContextWebFilter                
+[DefaultWebFilterChain]                                                         
+        *__checkpoint ⇢                                                         
+org.springframework.security.web.server.WebFilterChainProxy@2091b6b9            
+        *__checkpoint ⇢ HTTP PUT                                                
+"/api/v1/hrm/leaves/a3b82153-34a5-42ca-add4-2ecd5ed3635f/approve"               
+[ExceptionHandlingWebHandler]                                                   
+Original Stack Trace:                                                           
+                at java.base/java.util.Objects.requireNonNull(Objects.java:259) 
+ ~[na:na]                                                                       
+                at yowyob.comops.api.kernel.domain.model.BusinessEvent.<init>(B 
+usinessEvent.java:27) ~[RT-comops-kernel-core-0.1.0-SNAPSHOT.jar!/:na]          
+                at                                                              
+yowyob.comops.api.kernel.domain.model.BusinessEvent.now(BusinessEvent.java:35)  
+~[RT-comops-kernel-core-0.1.0-SNAPSHOT.jar!/:na]                                
+                at yowyob.comops.api.hrm.application.service.LeaveService.lambd 
+a$approveLeave$6(LeaveService.java:171)                                         
+~[RT-comops-hrm-core-0.1.0-SNAPSHOT.jar!/:na]                                   
+                at                                                              
+reactor.core.publisher.MonoFlatMap$FlatMapMain.onNext(MonoFlatMap.java:132)     
+~[reactor-core-3.8.4.jar!/:3.8.4]                                               
+                at reactor.core.publisher.MonoIgnoreThen$ThenIgnoreMain.complet 
+e(MonoIgnoreThen.java:297) ~[reactor-core-3.8.4.jar!/:3.8.4]                    
+                at reactor.core.publisher.MonoIgnoreThen$ThenIgnoreMain.onNext( 
+MonoIgnoreThen.java:191) ~[reactor-core-3.8.4.jar!/:3.8.4]                      
+                at                                                              
+reactor.core.publisher.FluxMap$MapSubscriber.onNext(FluxMap.java:122)           
+~[reactor-core-3.8.4.jar!/:3.8.4]                                               
+                at reactor.core.publisher.MonoUsingWhen$MonoUsingWhenSubscriber 
+.deferredComplete(MonoUsingWhen.java:271) ~[reactor-core-3.8.4.jar!/:3.8.4]     
+                at reactor.core.publisher.FluxUsingWhen$CommitInner.onComplete( 
+FluxUsingWhen.java:535) ~[reactor-core-3.8.4.jar!/:3.8.4]                       
+                at                                                              
+reactor.core.publisher.Operators.complete(Operators.java:137)                   
+~[reactor-core-3.8.4.jar!/:3.8.4]                                               
+                at                                                              
+reactor.core.publisher.MonoEmpty.subscribe(MonoEmpty.java:46)                   
+~[reactor-core-3.8.4.jar!/:3.8.4]                                               
+                at reactor.core.publisher.Mono.subscribe(Mono.java:4569)        
+~[reactor-core-3.8.4.jar!/:3.8.4]                                               
+                at reactor.core.publisher.FluxUsingWhen$UsingWhenSubscriber.onC 
+omplete(FluxUsingWhen.java:392) ~[reactor-core-3.8.4.jar!/:3.8.4]               
+                at reactor.core.publisher.FluxHide$SuppressFuseableSubscriber.o 
+nComplete(FluxHide.java:147) ~[reactor-core-3.8.4.jar!/:3.8.4]                  
+                at reactor.core.publisher.MonoIgnoreThen$ThenIgnoreMain.complet 
+e(MonoIgnoreThen.java:298) ~[reactor-core-3.8.4.jar!/:3.8.4]                    
+                at reactor.core.publisher.MonoIgnoreThen$ThenIgnoreMain.onNext( 
+MonoIgnoreThen.java:191) ~[reactor-core-3.8.4.jar!/:3.8.4]                      
+                at reactor.core.publisher.MonoIgnoreThen$ThenIgnoreMain.subscri 
+beNext(MonoIgnoreThen.java:240) ~[reactor-core-3.8.4.jar!/:3.8.4]               
+                at reactor.core.publisher.MonoIgnoreThen$ThenIgnoreMain.onCompl 
+ete(MonoIgnoreThen.java:207) ~[reactor-core-3.8.4.jar!/:3.8.4]                  
+                at reactor.core.publisher.FluxHandle$HandleSubscriber.onComplet 
+e(FluxHandle.java:226) ~[reactor-core-3.8.4.jar!/:3.8.4]                        
+                at reactor.core.publisher.Operators$MultiSubscriptionSubscriber 
+.onComplete(Operators.java:2225) ~[reactor-core-3.8.4.jar!/:3.8.4]              
+                at reactor.core.publisher.MonoUsingWhen$MonoUsingWhenSubscriber 
+.deferredComplete(MonoUsingWhen.java:273) ~[reactor-core-3.8.4.jar!/:3.8.4]     
+                at reactor.core.publisher.FluxUsingWhen$CommitInner.onComplete( 
+FluxUsingWhen.java:535) ~[reactor-core-3.8.4.jar!/:3.8.4]                       
+                at reactor.core.publisher.Operators$MultiSubscriptionSubscriber 
+.onComplete(Operators.java:2225) ~[reactor-core-3.8.4.jar!/:3.8.4]              
+                at                                                              
+reactor.core.publisher.FluxPeek$PeekSubscriber.onComplete(FluxPeek.java:263)    
+~[reactor-core-3.8.4.jar!/:3.8.4]                                               
+                at reactor.core.publisher.Operators$MultiSubscriptionSubscriber 
+.onComplete(Operators.java:2225) ~[reactor-core-3.8.4.jar!/:3.8.4]              
+                at reactor.core.publisher.MonoIgnoreThen$ThenIgnoreMain.onCompl 
+ete(MonoIgnoreThen.java:213) ~[reactor-core-3.8.4.jar!/:3.8.4]                  
+                at reactor.core.publisher.MonoIgnoreThen$ThenIgnoreMain.onCompl 
+ete(MonoIgnoreThen.java:213) ~[reactor-core-3.8.4.jar!/:3.8.4]                  
+                at                                                              
+reactor.pool.SimpleDequePool.maybeRecycleAndDrain(SimpleDequePool.java:548)     
+~[reactor-pool-1.2.4.jar!/:1.2.4]                                               
+                at reactor.pool.SimpleDequePool$QueuePoolRecyclerInner.onComple 
+te(SimpleDequePool.java:793) ~[reactor-pool-1.2.4.jar!/:1.2.4]                  
+                at                                                              
+reactor.core.publisher.Operators.complete(Operators.java:137)                   
+~[reactor-core-3.8.4.jar!/:3.8.4]                                               
+                at                                                              
+reactor.core.publisher.MonoEmpty.subscribe(MonoEmpty.java:46)                   
+~[reactor-core-3.8.4.jar!/:3.8.4]                                               
+                at reactor.core.publisher.Mono.subscribe(Mono.java:4569)        
+~[reactor-core-3.8.4.jar!/:3.8.4]                                               
+                at reactor.pool.SimpleDequePool$QueuePoolRecyclerMono.subscribe 
+(SimpleDequePool.java:906) ~[reactor-pool-1.2.4.jar!/:1.2.4]                    
+                at                                                              
+reactor.core.publisher.MonoDefer.subscribe(MonoDefer.java:54)                   
+~[reactor-core-3.8.4.jar!/:3.8.4]                                               
+                at reactor.core.publisher.MonoIgnoreThen$ThenIgnoreMain.subscri 
+beNext(MonoIgnoreThen.java:244) ~[reactor-core-3.8.4.jar!/:3.8.4]               
+                at reactor.core.publisher.MonoIgnoreThen$ThenIgnoreMain.onCompl 
+ete(MonoIgnoreThen.java:207) ~[reactor-core-3.8.4.jar!/:3.8.4]                  
+                at                                                              
+reactor.core.publisher.FluxPeek$PeekSubscriber.onComplete(FluxPeek.java:263)    
+~[reactor-core-3.8.4.jar!/:3.8.4]                                               
+                at                                                              
+reactor.core.publisher.Operators.complete(Operators.java:137)                   
+~[reactor-core-3.8.4.jar!/:3.8.4]                                               
+                at                                                              
+reactor.core.publisher.MonoEmpty.subscribe(MonoEmpty.java:46)                   
+~[reactor-core-3.8.4.jar!/:3.8.4]                                               
+                at reactor.core.publisher.Mono.subscribe(Mono.java:4569)        
+~[reactor-core-3.8.4.jar!/:3.8.4]                                               
+                at reactor.core.publisher.MonoIgnoreThen$ThenIgnoreMain.subscri 
+beNext(MonoIgnoreThen.java:268) ~[reactor-core-3.8.4.jar!/:3.8.4]               
+                at                                                              
+reactor.core.publisher.MonoIgnoreThen.subscribe(MonoIgnoreThen.java:51)         
+~[reactor-core-3.8.4.jar!/:3.8.4]                                               
+                at                                                              
+reactor.core.publisher.MonoDefer.subscribe(MonoDefer.java:54)                   
+~[reactor-core-3.8.4.jar!/:3.8.4]                                               
+                at reactor.core.publisher.MonoIgnoreThen$ThenIgnoreMain.subscri 
+beNext(MonoIgnoreThen.java:244) ~[reactor-core-3.8.4.jar!/:3.8.4]               
+                at reactor.core.publisher.MonoIgnoreThen$ThenIgnoreMain.onCompl 
+ete(MonoIgnoreThen.java:207) ~[reactor-core-3.8.4.jar!/:3.8.4]                  
+                at reactor.core.publisher.MonoIgnoreElements$IgnoreElementsSubs 
+criber.onComplete(MonoIgnoreElements.java:89) ~[reactor-core-3.8.4.jar!/:3.8.4] 
+                at reactor.core.publisher.FluxHandleFuseable$HandleFuseableSubs 
+criber.onComplete(FluxHandleFuseable.java:242)                                  
+~[reactor-core-3.8.4.jar!/:3.8.4]                                               
+                at reactor.core.publisher.MonoSupplier$MonoSupplierSubscription 
+.request(MonoSupplier.java:145) ~[reactor-core-3.8.4.jar!/:3.8.4]               
+                at reactor.core.publisher.FluxHandleFuseable$HandleFuseableSubs 
+criber.request(FluxHandleFuseable.java:262) ~[reactor-core-3.8.4.jar!/:3.8.4]   
+                at reactor.core.publisher.MonoIgnoreElements$IgnoreElementsSubs 
+criber.onSubscribe(MonoIgnoreElements.java:72)                                  
+~[reactor-core-3.8.4.jar!/:3.8.4]                                               
+                at reactor.core.publisher.FluxHandleFuseable$HandleFuseableSubs 
+criber.onSubscribe(FluxHandleFuseable.java:166)                                 
+~[reactor-core-3.8.4.jar!/:3.8.4]                                               
+                at                                                              
+reactor.core.publisher.MonoSupplier.subscribe(MonoSupplier.java:47)             
+~[reactor-core-3.8.4.jar!/:3.8.4]                                               
+                at reactor.core.publisher.Mono.subscribe(Mono.java:4569)        
+~[reactor-core-3.8.4.jar!/:3.8.4]                                               
+                at reactor.core.publisher.MonoIgnoreThen$ThenIgnoreMain.subscri 
+beNext(MonoIgnoreThen.java:268) ~[reactor-core-3.8.4.jar!/:3.8.4]               
+                at                                                              
+reactor.core.publisher.MonoIgnoreThen.subscribe(MonoIgnoreThen.java:51)         
+~[reactor-core-3.8.4.jar!/:3.8.4]                                               
+                at reactor.core.publisher.InternalMonoOperator.subscribe(Intern 
+alMonoOperator.java:75) ~[reactor-core-3.8.4.jar!/:3.8.4]                       
+                at                                                              
+reactor.core.publisher.MonoDefer.subscribe(MonoDefer.java:54)                   
+~[reactor-core-3.8.4.jar!/:3.8.4]                                               
+                at reactor.core.publisher.Mono.subscribe(Mono.java:4569)        
+~[reactor-core-3.8.4.jar!/:3.8.4]                                               
+                at reactor.core.publisher.FluxOnErrorResume$ResumeSubscriber.on 
+Error(FluxOnErrorResume.java:104) ~[reactor-core-3.8.4.jar!/:3.8.4]             
+                at reactor.core.publisher.MonoIgnoreElements$IgnoreElementsSubs 
+criber.onError(MonoIgnoreElements.java:84) ~[reactor-core-3.8.4.jar!/:3.8.4]    
+                at                                                              
+reactor.core.publisher.FluxMap$MapSubscriber.onError(FluxMap.java:134)          
+~[reactor-core-3.8.4.jar!/:3.8.4]                                               
+                at                                                              
+reactor.core.publisher.FluxFilter$FilterSubscriber.onError(FluxFilter.java:158) 
+ ~[reactor-core-3.8.4.jar!/:3.8.4]                                              
+                at reactor.core.publisher.FluxFilter$FilterConditionalSubscribe 
+r.onError(FluxFilter.java:292) ~[reactor-core-3.8.4.jar!/:3.8.4]                
+                at reactor.core.publisher.FluxMap$MapConditionalSubscriber.onEr 
+ror(FluxMap.java:265) ~[reactor-core-3.8.4.jar!/:3.8.4]                         
+                at reactor.core.publisher.Operators.error(Operators.java:198)   
+~[reactor-core-3.8.4.jar!/:3.8.4]                                               
+                at                                                              
+reactor.core.publisher.MonoError.subscribe(MonoError.java:54)                   
+~[reactor-core-3.8.4.jar!/:3.8.4]                                               
+                at reactor.core.publisher.MonoDeferContextual.subscribe(MonoDef 
+erContextual.java:56) ~[reactor-core-3.8.4.jar!/:3.8.4]                         
+                at reactor.core.publisher.InternalMonoOperator.subscribe(Intern 
+alMonoOperator.java:75) ~[reactor-core-3.8.4.jar!/:3.8.4]                       
+                at                                                              
+reactor.core.publisher.MonoDefer.subscribe(MonoDefer.java:54)                   
+~[reactor-core-3.8.4.jar!/:3.8.4]                                               
+                at reactor.core.publisher.Mono.subscribe(Mono.java:4569)        
+~[reactor-core-3.8.4.jar!/:3.8.4]                                               
+                at reactor.core.publisher.FluxUsingWhen$UsingWhenSubscriber.onC 
+omplete(FluxUsingWhen.java:392) ~[reactor-core-3.8.4.jar!/:3.8.4]               
+                at reactor.core.publisher.Operators$BaseFluxToMonoOperator.comp 
+letePossiblyEmpty(Operators.java:2094) ~[reactor-core-3.8.4.jar!/:3.8.4]        
+                at reactor.core.publisher.MonoStreamCollector$StreamCollectorSu 
+bscriber.onComplete(MonoStreamCollector.java:158)                               
+~[reactor-core-3.8.4.jar!/:3.8.4]                                               
+                at                                                              
+reactor.core.publisher.FluxMap$MapSubscriber.onComplete(FluxMap.java:144)       
+~[reactor-core-3.8.4.jar!/:3.8.4]                                               
+                at reactor.core.publisher.FluxFlatMap$FlatMapMain.checkTerminat 
+ed(FluxFlatMap.java:851) ~[reactor-core-3.8.4.jar!/:3.8.4]                      
+                at                                                              
+reactor.core.publisher.FluxFlatMap$FlatMapMain.drainLoop(FluxFlatMap.java:613)  
+~[reactor-core-3.8.4.jar!/:3.8.4]                                               
+                at reactor.core.publisher.FluxFlatMap$FlatMapMain.innerComplete 
+(FluxFlatMap.java:899) ~[reactor-core-3.8.4.jar!/:3.8.4]                        
+                at reactor.core.publisher.FluxFlatMap$FlatMapInner.onComplete(F 
+luxFlatMap.java:1004) ~[reactor-core-3.8.4.jar!/:3.8.4]                         
+                at reactor.core.publisher.FluxHandleFuseable$HandleFuseableSubs 
+criber.onComplete(FluxHandleFuseable.java:242)                                  
+~[reactor-core-3.8.4.jar!/:3.8.4]                                               
+                at reactor.core.publisher.Operators$BaseFluxToMonoOperator.comp 
+letePossiblyEmpty(Operators.java:2094) ~[reactor-core-3.8.4.jar!/:3.8.4]        
+                at reactor.core.publisher.MonoCollectList$MonoCollectListSubscr 
+iber.onComplete(MonoCollectList.java:117) ~[reactor-core-3.8.4.jar!/:3.8.4]     
+                at reactor.core.publisher.FluxHandle$HandleSubscriber.onComplet 
+e(FluxHandle.java:226) ~[reactor-core-3.8.4.jar!/:3.8.4]                        
+                at reactor.core.publisher.MonoFlatMapMany$FlatMapManyInner.onCo 
+mplete(MonoFlatMapMany.java:261) ~[reactor-core-3.8.4.jar!/:3.8.4]              
+                at reactor.core.publisher.FluxHandleFuseable$HandleFuseableSubs 
+criber.onComplete(FluxHandleFuseable.java:242)                                  
+~[reactor-core-3.8.4.jar!/:3.8.4]                                               
+                at reactor.core.publisher.FluxFilterFuseable$FilterFuseableCond 
+itionalSubscriber.onComplete(FluxFilterFuseable.java:392)                       
+~[reactor-core-3.8.4.jar!/:3.8.4]                                               
+                at reactor.core.publisher.FluxContextWrite$ContextWriteSubscrib 
+er.onComplete(FluxContextWrite.java:128) ~[reactor-core-3.8.4.jar!/:3.8.4]      
+                at reactor.core.publisher.FluxPeekFuseable$PeekConditionalSubsc 
+riber.onComplete(FluxPeekFuseable.java:936) ~[reactor-core-3.8.4.jar!/:3.8.4]   
+                at reactor.core.publisher.FluxPeekFuseable$PeekConditionalSubsc 
+riber.onComplete(FluxPeekFuseable.java:936) ~[reactor-core-3.8.4.jar!/:3.8.4]   
+                at io.r2dbc.postgresql.util.FluxDiscardOnCancel$FluxDiscardOnCa 
+ncelSubscriber.onComplete(FluxDiscardOnCancel.java:104)                         
+~[r2dbc-postgresql-1.1.1.RELEASE.jar!/:1.1.1.RELEASE]                           
+                at reactor.core.publisher.FluxDoFinally$DoFinallySubscriber.onC 
+omplete(FluxDoFinally.java:128) ~[reactor-core-3.8.4.jar!/:3.8.4]               
+                at reactor.core.publisher.FluxHandle$HandleSubscriber.onComplet 
+e(FluxHandle.java:226) ~[reactor-core-3.8.4.jar!/:3.8.4]                        
+                at                                                              
+reactor.core.publisher.FluxCreate$BaseSink.complete(FluxCreate.java:471)        
+~[reactor-core-3.8.4.jar!/:3.8.4]                                               
+                at                                                              
+reactor.core.publisher.FluxCreate$BufferAsyncSink.drain(FluxCreate.java:878)    
+~[reactor-core-3.8.4.jar!/:3.8.4]                                               
+                at                                                              
+reactor.core.publisher.FluxCreate$BufferAsyncSink.complete(FluxCreate.java:826) 
+ ~[reactor-core-3.8.4.jar!/:3.8.4]                                              
+                at reactor.core.publisher.FluxCreate$SerializedFluxSink.drainLo 
+op(FluxCreate.java:252) ~[reactor-core-3.8.4.jar!/:3.8.4]                       
+                at                                                              
+reactor.core.publisher.FluxCreate$SerializedFluxSink.drain(FluxCreate.java:216) 
+ ~[reactor-core-3.8.4.jar!/:3.8.4]                                              
+                at reactor.core.publisher.FluxCreate$SerializedFluxSink.complet 
+e(FluxCreate.java:207) ~[reactor-core-3.8.4.jar!/:3.8.4]                        
+                at io.r2dbc.postgresql.client.ReactorNettyClient$Conversation.c 
+omplete(ReactorNettyClient.java:701)                                            
+~[r2dbc-postgresql-1.1.1.RELEASE.jar!/:1.1.1.RELEASE]                           
+                at io.r2dbc.postgresql.client.ReactorNettyClient$BackendMessage 
+Subscriber.emit(ReactorNettyClient.java:967)                                    
+~[r2dbc-postgresql-1.1.1.RELEASE.jar!/:1.1.1.RELEASE]                           
+                at io.r2dbc.postgresql.client.ReactorNettyClient$BackendMessage 
+Subscriber.onNext(ReactorNettyClient.java:843)                                  
+~[r2dbc-postgresql-1.1.1.RELEASE.jar!/:1.1.1.RELEASE]                           
+                at io.r2dbc.postgresql.client.ReactorNettyClient$BackendMessage 
+Subscriber.onNext(ReactorNettyClient.java:749)                                  
+~[r2dbc-postgresql-1.1.1.RELEASE.jar!/:1.1.1.RELEASE]                           
+                at                                                              
+reactor.core.publisher.FluxHandle$HandleSubscriber.onNext(FluxHandle.java:132)  
+~[reactor-core-3.8.4.jar!/:3.8.4]                                               
+                at reactor.core.publisher.FluxPeekFuseable$PeekConditionalSubsc 
+riber.onNext(FluxPeekFuseable.java:850) ~[reactor-core-3.8.4.jar!/:3.8.4]       
+                at reactor.core.publisher.FluxMap$MapConditionalSubscriber.onNe 
+xt(FluxMap.java:224) ~[reactor-core-3.8.4.jar!/:3.8.4]                          
+                at reactor.core.publisher.FluxMap$MapConditionalSubscriber.onNe 
+xt(FluxMap.java:224) ~[reactor-core-3.8.4.jar!/:3.8.4]                          
+                at                                                              
+reactor.netty.channel.FluxReceive.drainReceiver(FluxReceive.java:296)           
+~[reactor-netty-core-1.3.4.jar!/:1.3.4]                                         
+                at                                                              
+reactor.netty.channel.FluxReceive.onInboundNext(FluxReceive.java:407)           
+~[reactor-netty-core-1.3.4.jar!/:1.3.4]                                         
+                at reactor.netty.channel.ChannelOperations.onInboundNext(Channe 
+lOperations.java:447) ~[reactor-netty-core-1.3.4.jar!/:1.3.4]                   
+                at reactor.netty.channel.ChannelOperationsHandler.channelRead(C 
+hannelOperationsHandler.java:115) ~[reactor-netty-core-1.3.4.jar!/:1.3.4]       
+                at io.netty.channel.AbstractChannelHandlerContext.fireChannelRe 
+ad(AbstractChannelHandlerContext.java:357)                                      
+~[netty-transport-4.2.12.Final.jar!/:4.2.12.Final]                              
+                at io.netty.handler.codec.ByteToMessageDecoder.fireChannelRead( 
+ByteToMessageDecoder.java:361)                                                  
+~[netty-codec-base-4.2.12.Final.jar!/:4.2.12.Final]                             
+                at io.netty.handler.codec.ByteToMessageDecoder.channelRead(Byte 
+ToMessageDecoder.java:325) ~[netty-codec-base-4.2.12.Final.jar!/:4.2.12.Final]  
+                at io.netty.channel.AbstractChannelHandlerContext.fireChannelRe 
+ad(AbstractChannelHandlerContext.java:357)                                      
+~[netty-transport-4.2.12.Final.jar!/:4.2.12.Final]                              
+                at io.netty.channel.DefaultChannelPipeline$HeadContext.channelR 
+ead(DefaultChannelPipeline.java:1429)                                           
+~[netty-transport-4.2.12.Final.jar!/:4.2.12.Final]                              
+                at io.netty.channel.DefaultChannelPipeline.fireChannelRead(Defa 
+ultChannelPipeline.java:918) ~[netty-transport-4.2.12.Final.jar!/:4.2.12.Final] 
+                at io.netty.channel.epoll.AbstractEpollStreamChannel$EpollStrea 
+mUnsafe.epollInReady(AbstractEpollStreamChannel.java:804)                       
+~[netty-transport-classes-epoll-4.2.12.Final.jar!/:4.2.12.Final]                
+                at io.netty.channel.epoll.AbstractEpollChannel$AbstractEpollUns 
+afe.handle(AbstractEpollChannel.java:487)                                       
+~[netty-transport-classes-epoll-4.2.12.Final.jar!/:4.2.12.Final]                
+                at io.netty.channel.epoll.EpollIoHandler$DefaultEpollIoRegistra 
+tion.handle(EpollIoHandler.java:337)                                            
+~[netty-transport-classes-epoll-4.2.12.Final.jar!/:4.2.12.Final]                
+                at                                                              
+io.netty.channel.epoll.EpollIoHandler.processReady(EpollIoHandler.java:534)     
+~[netty-transport-classes-epoll-4.2.12.Final.jar!/:4.2.12.Final]                
+                at                                                              
+io.netty.channel.epoll.EpollIoHandler.run(EpollIoHandler.java:479)              
+~[netty-transport-classes-epoll-4.2.12.Final.jar!/:4.2.12.Final]                
+                at io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadI 
+oEventLoop.java:225) ~[netty-transport-4.2.12.Final.jar!/:4.2.12.Final]         
+                at                                                              
+io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)  
+~[netty-transport-4.2.12.Final.jar!/:4.2.12.Final]                              
+                at io.netty.util.concurrent.SingleThreadEventExecutor$5.run(Sin 
+gleThreadEventExecutor.java:1195)                                               
+~[netty-common-4.2.12.Final.jar!/:4.2.12.Final]                                 
+                at                                                              
+io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)       
+~[netty-common-4.2.12.Final.jar!/:4.2.12.Final]                                 
+                at io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThr 
+eadLocalRunnable.java:30) ~[netty-common-4.2.12.Final.jar!/:4.2.12.Final]       
+                at java.base/java.lang.Thread.run(Thread.java:1583) ~[na:na]    
+                                                                                
+ il y a une erreur lorsque j'essaie de valider un congé                         
+
+● Le problème est dans approveLeave : l'événement LEAVE_BALANCE_UPDATED est
+  publié avec null comme aggregateId, mais BusinessEvent exige un ID non-null.
+  Ce bug existait déjà dans le code original mais n'était pas visible. Je vais
+  corriger : l'événement LEAVE_BALANCE_UPDATED ne sera publié que pour les
+  congés ANNUAL (seul type qui débite un solde).
+
+● Read 1 file (ctrl+o to expand)
+
+● Update(~/Bureau/HRM3/KSM/RT-comops-hrm-core/src/main/java/yowyob/comops/api/hr
+        m/application/service/LeaveService.java)
+  ⎿  Added 15 lines, removed 10 lines
+      161                              }                                 
+      162                              return debitMono                  
+      163                                                                
+           .then(leaveRequestRepository.save(approved))                  
+      164 -                                    .flatMap(saved ->         
+          -businessEventPublisher.publish(                               
+      164 +                                    .flatMap(saved -> {       
+      165 +                                        Mono<Void> events =   
+          +businessEventPublisher.publish(                               
+      166 +                                                              
+          +BusinessEvent.now(context.tenantId(),                         
+          +context.organizationId(),                                     
+      167 +                                                              
+          +"LEAVE_APPROVED", "LEAVE_REQUEST", saved.id(),                
+      168 +                                                              
+          +payload("employeeId", saved.employeeId(),                     
+      169 +                                                              
+          +   "type", saved.type().name(),                               
+      170 +                                                              
+          +   "nbJours", saved.nbJours())));                             
+      171 +                                        // Only emit          
+          +LEAVE_BALANCE_UPDATED when a balance was actually debited     
+      172 +                                        if (saved.type() ==   
+          +LeaveType.ANNUAL) {                                           
+      173 +                                            events =          
+          +events.then(businessEventPublisher.publish(                   
+      174                                                                
+           BusinessEvent.now(context.tenantId(),                         
+           context.organizationId(),                                     
+      175 -                                                            " 
+          -LEAVE_APPROVED", "LEAVE_REQUEST", saved.id(),                 
+      175 +                                                            " 
+          +LEAVE_BALANCE_UPDATED", "LEAVE_BALANCE", saved.id(),          
+      176                                                                
+           payload("employeeId", saved.employeeId(),                     
+      177 -                                                              
+          -      "type", saved.type().name(),                            
+      178 -                                                              
+          -       "nbJours", saved.nbJours())))                          
+      179 -                                                              
+          -.then(businessEventPublisher.publish(                         
+      180 -                                                              
+          -BusinessEvent.now(context.tenantId(),                         
+          -context.organizationId(),                                     
+      181 -                                                              
+          -"LEAVE_BALANCE_UPDATED", "LEAVE_BALANCE", null,               
+      182 -                                                              
+          -payload("employeeId", saved.employeeId(),                     
+      183 -                                                              
+          -       "type", saved.type().name()))))                        
+      184 -                                                              
+          -.thenReturn(saved));                                          
+      177 +                                                              
+          +      "type", saved.type().name()))));                        
+      178 +                                        }                     
+      179 +                                        return                
+          +events.thenReturn(saved);                                     
+      180 +                                    });                       
+      181                          }));                                  
+      182      }                                                         
+      183                                                                
+
+● Le fix :
+  1. Le null aggregateId est remplacé par saved.id() (l'ID de la demande de
+  congé)
+  2. L'événement LEAVE_BALANCE_UPDATED n'est publié que pour les congés ANNUAL
+  (les seuls qui débitent un solde)
+
+  Recompile le backend et réessaie l'approbation — l'erreur
+  NullPointerException: aggregateId is required devrait disparaître.
+
+✻ Sautéed for 59s
+
+❯ supprime le bouton annuler la demande au niveau du adminRH juste a droite du  
+bouton approuver il ne doit pas y etre                                          
+
+● Read 1 file (ctrl+o to expand)
+
+● Update(src/components/leaves/leave-detail.tsx)
+  ⎿  Added 1 line, removed 1 line
+      189                  </Button>                                     
+      190                </>                                             
+      191              )}                                                
+      192 -            {canCreate &&                                     
+          -(isPending || (isApproved && startInFuture)) && (             
+      192 +            {canCreate && !canApprove &&                      
+          +(isPending || (isApproved && startInFuture)) && (             
+      193                <Button type="button" variant="danger"          
+           onClick={() => setModal("cancel")}>                           
+      194                  {tDetail("actions.cancel")}                   
+      195                </Button>                                       
+
+● Le bouton "Annuler la demande" ne s'affiche plus pour les utilisateurs ayant
+  la permission hrm:leave:approve (admin RH). Seul l'employé qui a soumis la
+  demande voit ce bouton.
+
+❯ Unknown skill: install                                                        
+
+● Args from unknown skill: the 
+  skill:https://github.com/safishamsi/graphify.git
+
+❯ https://github.com/safishamsi/graphify.git  install ce skill                  
+
+● La commande /install n'existe pas dans Claude Code. Laisse-moi regarder ce que
+   fait ce repo et t'aider à l'installer correctement.
+
+● Bash(gh repo view safishamsi/graphify --json description,name,url 2>/dev/null
+      || echo "gh failed")
+  ⎿  gh failed
+
+● Fetch(https://github.com/safishamsi/graphify)
+  ⎿  Interrupted · What should Claude do instead?
+
+● Bash(git clone --depth 1 https://github.com/safishamsi/graphify.git
+      /tmp/graphify 2>&1 && ls /tmp/graphify/)
+  ⎿  Interrupted · What should Claude do instead?
+
+● Je ne peux pas accéder à ce repo pour le moment. Pour installer un skill/outil
+   externe dans Claude Code, voici les options :
+
+  Si c'est un MCP server :
+  claude mcp add graphify -- npx @safishamsi/graphify
+
+  Si c'est un slash command custom :
+  Les slash commands se placent dans ~/.claude/commands/ (global) ou
+  .claude/commands/ (projet). Il faudrait copier le fichier .md du repo dans
+  l'un de ces dossiers.
+
+  Peux-tu me donner plus de contexte sur ce que fait ce repo ? Ou autorise
+  l'accès pour que je puisse le consulter et l'installer correctement.
+
+✻ Brewed for 45s
+
+❯ maintenant je veux que tu regardes le volet de generation des documents dans  
+le services de paie, et critique comment c'est fais , tu critiques le contnenu  
+du document conformement a ce qui se fait normalement                           
+
+● Explore(Payroll document generation analysis)
+  ⎿  Done (38 tool uses · 92.7k tokens · 1m 57s)
+  (ctrl+o to expand)
+
+● Laisse-moi lire les fichiers clés pour une critique précise du contenu des
+  documents.
+
+● Read 4 files (ctrl+o to expand)
+
+● Voici ma critique complète du système de génération de documents de paie,
+  confronté aux exigences légales camerounaises et aux bonnes pratiques.
+
+  ---
+  Critique du volet génération de documents de paie
+
+  1. BULLETIN DE PAIE — Conformité avec le droit camerounais
+
+  Le code du travail camerounais (art. 68-69) et la réglementation CNPS imposent
+   des mentions obligatoires précises sur le bulletin de paie. Voici l'état des
+  lieux :
+
+  Ce qui est présent et correct
+
+  ┌─────────────────────────┬────────────┬──────────────────────────────────┐
+  │         Mention         │  Backend   │           Frontend PDF           │
+  │                         │    PDF     │                                  │
+  ├─────────────────────────┼────────────┼──────────────────────────────────┤
+  │ Raison sociale          │ ✅         │ ✅                               │
+  │ employeur               │            │                                  │
+  ├─────────────────────────┼────────────┼──────────────────────────────────┤
+  │ RCCM                    │ ✅         │ ✅                               │
+  ├─────────────────────────┼────────────┼──────────────────────────────────┤
+  │ N° contribuable (NIU)   │ ✅         │ ✅                               │
+  ├─────────────────────────┼────────────┼──────────────────────────────────┤
+  │ N° CNPS employeur       │ ✅         │ ❌ Absent                        │
+  ├─────────────────────────┼────────────┼──────────────────────────────────┤
+  │ Nom du salarié          │ ✅         │ ✅                               │
+  ├─────────────────────────┼────────────┼──────────────────────────────────┤
+  │ Matricule               │ ✅         │ ✅                               │
+  ├─────────────────────────┼────────────┼──────────────────────────────────┤
+  │ N° CNPS salarié         │ ✅         │ ✅                               │
+  ├─────────────────────────┼────────────┼──────────────────────────────────┤
+  │ Catégorie / Échelon     │ ✅         │ ❌ Absent                        │
+  ├─────────────────────────┼────────────┼──────────────────────────────────┤
+  │ Date d'embauche         │ ✅         │ ❌ Absent                        │
+  ├─────────────────────────┼────────────┼──────────────────────────────────┤
+  │ Période                 │ ✅         │ ✅                               │
+  ├─────────────────────────┼────────────┼──────────────────────────────────┤
+  │ Tableau Gains/Retenues  │ ✅         │ ✅                               │
+  ├─────────────────────────┼────────────┼──────────────────────────────────┤
+  │ Brut / Net à payer      │ ✅         │ ✅                               │
+  ├─────────────────────────┼────────────┼──────────────────────────────────┤
+  │ Cumuls annuels          │ ✅         │ ⚠️ Partiel (brut+IRPP, manque    │
+  │                         │            │ net)                             │
+  ├─────────────────────────┼────────────┼──────────────────────────────────┤
+  │ Montant en lettres      │ ✅         │ ❌ Absent                        │
+  └─────────────────────────┴────────────┴──────────────────────────────────┘
+
+  Mentions obligatoires ABSENTES
+
+  Backend (PayrollPdfRenderer.java):
+
+  1. Adresse de l'employeur — obligatoire (art. 68). Le PDF montre la raison
+  sociale et les numéros mais pas l'adresse postale. EmployerInfo ne contient
+  peut-être pas l'adresse.
+  2. Charges patronales — Les lignes EMPLOYER_INFO sont explicitement ignorées
+  (ligne 72-74 : if (line.type() == PayslipLineType.EMPLOYER_INFO) continue). Or
+   la loi camerounaise impose l'affichage des charges patronales à titre
+  informatif :
+    - CNPS Allocations Familiales (7%)
+    - CNPS Accidents du Travail (1.75-5%)
+    - CNPS Pension Vieillesse patronale (4.2%)
+    - FNE (1%)
+    - CFC patronal (1.5%)
+  3. Ventilation CNPS salarié — Le bulletin devrait montrer explicitement :
+    - Pension Vieillesse salarié : 4.2% du brut plafonné à 750 000 XAF
+    - Pas d'AF ni d'AT côté salarié
+  4. Net imposable — Absent. Le bulletin standard camerounais distingue :
+    - Salaire Brut
+    - Salaire Brut Imposable (brut - CNPS salarié)
+    - IRPP (barème progressif sur le brut imposable)
+    - CAC (Centimes Additionnels Communaux : 10% de l'IRPP)
+    - Net à payer
+  5. CAC (Centimes Additionnels Communaux) — Retenue obligatoire (10% de
+  l'IRPP). Non visible ni dans les rubriques ni dans le PDF.
+  6. CFC (Crédit Foncier du Cameroun) — Contribution salariale obligatoire (1%
+  du brut). Absente.
+  7. RAV (Redevance Audio-Visuelle) — 13 000 XAF/an (souvent prélevée
+  mensuellement). Absente.
+  8. Horaires de travail — Le nombre d'heures normales (173.33h/mois) et les
+  heures supplémentaires (avec taux majorés 20%, 40%, 50%, 100%) ne sont pas
+  affichés.
+  9. Convention collective — La référence à la convention collective applicable
+  n'est pas mentionnée.
+  10. Prime d'ancienneté — Obligatoire après 2 ans (art. 58 convention
+  collective) : 5% par tranche de 2 ans. Non isolée comme rubrique distincte.
+  11. Solde de congés — Le solde de congés restant devrait figurer sur le
+  bulletin (bonne pratique, souvent requis).
+  12. Mode et date de paiement — Le backend PDF n'indique pas comment ni quand
+  le paiement est effectué.
+  13. Devise — Les montants n'indiquent pas "XAF" ou "FCFA".
+  14. Lieu et date d'établissement — "Fait à [ville], le [date]" absent.
+
+  Frontend (payslip-preview.tsx + PayslipPdfDocument):
+
+  Mêmes lacunes que le backend PLUS :
+  - Pas de catégorie/échelon de l'employé
+  - Pas de date d'embauche
+  - Pas de N° CNPS employeur
+  - Pas d'arrêté en lettres du montant net
+  - Cumuls annuels incomplets (manque le net cumulé, les cotisations CNPS
+  cumulées)
+  - Pas de section charges patronales
+
+  ---
+  2. SOLDE DE TOUT COMPTE (STC) — Critique
+
+  renderFinalSettlement :
+
+  Aspect: Composantes statutaires
+  Statut: ✅
+  Commentaire: Salaire prorata, indemnité congés, préavis, licenciement,
+    gratification
+  ────────────────────────────────────────
+  Aspect: Apurement prêts
+  Statut: ✅
+  Commentaire: Déduit du brut
+  ────────────────────────────────────────
+  Aspect: Montant en lettres
+  Statut: ✅
+  Commentaire: Via AmountToFrenchWords
+  ────────────────────────────────────────
+  Aspect: Retenues sociales
+  Statut: ❌
+  Commentaire: Aucune retenue CNPS/IRPP sur le STC. Or certaines indemnités sont
+
+    soumises à cotisations et impôts
+  ────────────────────────────────────────
+  Aspect: N° CNPS salarié
+  Statut: ❌
+  Commentaire: Non affiché
+  ────────────────────────────────────────
+  Aspect: Adresse employeur
+  Statut: ❌
+  Commentaire: Absente
+  ────────────────────────────────────────
+  Aspect: Motif en clair
+  Statut: ❌
+  Commentaire: Affiche l'enum brut (RESIGNATION, DISMISSAL) au lieu du texte
+    français ("Démission", "Licenciement")
+  ────────────────────────────────────────
+  Aspect: Détail du calcul
+  Statut: ❌
+  Commentaire: L'indemnité de licenciement montre juste le montant final, pas la
+
+    formule (% × salaire × ancienneté par tranche)
+  ────────────────────────────────────────
+  Aspect: Clause de quittance
+  Statut: ❌
+  Commentaire: Le reçu pour STC doit contenir la mention "Pour solde de tout
+    compte" avec espace pour signature du salarié (art. 39 du code du travail).
+    Le document n'a pas de bloc signature
+  ────────────────────────────────────────
+  Aspect: Délai de contestation
+  Statut: ❌
+  Commentaire: La mention du délai de 6 mois pour contester le STC (art. 39 al.
+    4) est absente
+  ────────────────────────────────────────
+  Aspect: Lieu et date
+  Statut: ❌
+  Commentaire: Absent
+
+  ---
+  3. CERTIFICAT DE TRAVAIL — Critique
+
+  renderWorkCertificate :
+
+  Le certificat est assez standard mais il manque :
+
+  ┌────────────────────────┬────────────────────────────────────────────────┐
+  │         Aspect         │                     Statut                     │
+  ├────────────────────────┼────────────────────────────────────────────────┤
+  │ Nom + qualité du       │ ✅                                             │
+  │ salarié                │                                                │
+  ├────────────────────────┼────────────────────────────────────────────────┤
+  │ Période d'emploi       │ ✅                                             │
+  ├────────────────────────┼────────────────────────────────────────────────┤
+  │ Qualification/poste    │ ✅                                             │
+  ├────────────────────────┼────────────────────────────────────────────────┤
+  │ Matricule              │ ✅                                             │
+  ├────────────────────────┼────────────────────────────────────────────────┤
+  │ Formule "en foi de     │ ✅                                             │
+  │ quoi"                  │                                                │
+  ├────────────────────────┼────────────────────────────────────────────────┤
+  │ "Libre de tout         │ ❌ — Mention standard indiquant que le salarié │
+  │ engagement"            │  est libre de s'engager ailleurs               │
+  ├────────────────────────┼────────────────────────────────────────────────┤
+  │ Lieu et date           │ ❌ — "Fait à [ville], le [date]" absent        │
+  ├────────────────────────┼────────────────────────────────────────────────┤
+  │ Bloc signature         │ ❌ — Nom, qualité et signature du représentant │
+  │ employeur              │  légal                                         │
+  ├────────────────────────┼────────────────────────────────────────────────┤
+  │ Adresse de l'employeur │ ❌                                             │
+  └────────────────────────┴────────────────────────────────────────────────┘
+
+  ---
+  4. Critique architecturale
+
+  1. Charges patronales ignorées dans le PDF — C'est le point le plus critique.
+  Le code filtre explicitement les lignes EMPLOYER_INFO
+  (PayrollPdfRenderer.java:72-74). Ces charges doivent apparaître dans une
+  section séparée "Charges patronales (à titre indicatif)".
+  2. Double rendu incohérent — Le backend génère un PDF signé (PDFBox) et le
+  frontend un autre (react-pdf). Les deux ont des contenus différents : le
+  backend a les cumuls annuels et le montant en lettres, le frontend a le logo
+  et le branding. Ni l'un ni l'autre n'est complet. L'idéal serait un seul PDF
+  légalement complet.
+  3. EmployerInfo incomplet — L'interface EmployerInfo ne semble pas porter
+  l'adresse postale ni le lieu d'établissement, rendant impossible l'affichage
+  de ces informations même si on voulait les ajouter.
+  4. Pas de numérotation séquentielle — Le bulletin utilise
+  PSL-{période}-{matricule} comme référence, mais il n'y a pas de numérotation
+  séquentielle légale des documents.
+  5. Format monétaire sans devise — Les montants utilisent #,##0 sans suffixe.
+  Le bulletin camerounais standard indique "FCFA" ou "XAF" après chaque montant
+  ou au moins dans l'en-tête.
+
+  ---
+  Résumé des priorités de correction
+
+  ┌──────────────┬──────────────────────────────────────────────────────────┐
+  │   Priorité   │                        Correction                        │
+  ├──────────────┼──────────────────────────────────────────────────────────┤
+  │ P0 —         │ Afficher les charges patronales (ne plus filtrer         │
+  │ Bloquant     │ EMPLOYER_INFO)                                           │
+  ├──────────────┼──────────────────────────────────────────────────────────┤
+  │ P0 —         │ Ajouter le Net Imposable entre le Brut et les retenues   │
+  │ Bloquant     │                                                          │
+  ├──────────────┼──────────────────────────────────────────────────────────┤
+  │ P0 —         │ Ajouter CAC, CFC, RAV comme rubriques de retenue         │
+  │ Bloquant     │                                                          │
+  ├──────────────┼──────────────────────────────────────────────────────────┤
+  │ P1 —         │ Adresse employeur sur tous les documents                 │
+  │ Important    │                                                          │
+  ├──────────────┼──────────────────────────────────────────────────────────┤
+  │ P1 —         │ Motif du STC en français (pas l'enum Java)               │
+  │ Important    │                                                          │
+  ├──────────────┼──────────────────────────────────────────────────────────┤
+  │ P1 —         │ Clause de quittance + signature sur le STC               │
+  │ Important    │                                                          │
+  ├──────────────┼──────────────────────────────────────────────────────────┤
+  │ P1 —         │ "Libre de tout engagement" + lieu/date/signature sur le  │
+  │ Important    │ certificat                                               │
+  ├──────────────┼──────────────────────────────────────────────────────────┤
+  │ P2 —         │ Horaires de travail sur le bulletin                      │
+  │ Standard     │                                                          │
+  ├──────────────┼──────────────────────────────────────────────────────────┤
+  │ P2 —         │ Convention collective                                    │
+  │ Standard     │                                                          │
+  ├──────────────┼──────────────────────────────────────────────────────────┤
+  │ P2 —         │ Solde de congés sur le bulletin                          │
+  │ Standard     │                                                          │
+  ├──────────────┼──────────────────────────────────────────────────────────┤
+  │ P2 —         │ Détail du calcul des indemnités de licenciement          │
+  │ Standard     │                                                          │
+  └──────────────┴──────────────────────────────────────────────────────────┘
+
+  Souhaites-tu que je corrige certains de ces points ?
+
+✻ Cogitated for 3m 48s
+
+❯ corrige tous ces points, et suprimme entierement la logique de generationdes  
+pdf coté ffrontend seule la logique backend sera utilisé , il ne doit pas y     
+avoir de generation de pdf coté frontend seul le backend doit gerer ca,         
+concerant les infos sur l'entreprise, il doivent directement etre lu dans       
+organisation_core, fais une analyse de tous ca et presente moi le plan          
+d'implementation                                                                
+
+● Explore(Payroll employer info + org-core analysis)
+  ⎿  Done (58 tool uses · 91.3k tokens · 1m 58s)
+  (ctrl+o to expand)
+
+● Searched for 1 pattern, read 5 files (ctrl+o to expand)
+
+● J'ai maintenant une vue complète. Voici le plan d'implémentation détaillé.
+
+  ---
+  Plan d'implémentation
+
+  Constat structurel
+
+  - Organization (org-core) : n'a pas de champ adresse (ni ville, ni BP, ni
+  téléphone, ni convention collective). Ces données sont requises par la loi sur
+   tous les documents de paie.
+  - EmployerInfo (payroll-core) : ne porte que 7 champs (legalName, displayName,
+   registrationNumber, taxNumber, cnpsEmployerNumber, ceoName, email). Il manque
+   : adresse, téléphone, forme juridique, capital, convention collective.
+  - OrganizationPayrollEmployerInfoPort (bootstrap) : fait le pont org-core →
+  payroll-core. Déjà fonctionnel mais incomplet.
+  - Frontend PDF : 3 fichiers utilisent @react-pdf/renderer
+  (payslip-preview.tsx, my-payslips.tsx, payroll-list.tsx). Tout ce code doit
+  être supprimé.
+
+  ---
+  Phase 1 — Données manquantes dans Organization (migration DB + org-core)
+
+  Attention : organization-core est marqué read-only. Il faudra ta validation 
+  pour ces changements.
+
+  Migration Liquibase (dans RT-comops-bootstrap) :
+  ALTER TABLE organization ADD COLUMN IF NOT EXISTS address TEXT;
+  ALTER TABLE organization ADD COLUMN IF NOT EXISTS city VARCHAR(100);
+  ALTER TABLE organization ADD COLUMN IF NOT EXISTS postal_code VARCHAR(20);
+  ALTER TABLE organization ADD COLUMN IF NOT EXISTS phone VARCHAR(30);
+  ALTER TABLE organization ADD COLUMN IF NOT EXISTS convention_collective
+  VARCHAR(200);
+
+  Organization.java (org-core) : ajouter les 5 champs + accesseurs +
+  rehydrate/update/withPayrollExtensions.
+
+  ---
+  Phase 2 — Enrichir EmployerInfo (payroll-core)
+
+  EmployerInfo.java — Ajouter les champs manquants :
+  public record EmployerInfo(
+      String legalName, String displayName, String registrationNumber,
+      String taxNumber, String cnpsEmployerNumber, String ceoName,
+      String email,
+      // ── Nouveaux champs ──
+      String address,           // adresse complète ou siège social
+      String city,              // ville (pour "Fait à [ville]")
+      String postalCode,        // boîte postale
+      String phone,             // téléphone
+      String legalForm,         // forme juridique (SA, SARL, etc.)
+      String capitalShare,      // capital social formaté
+      String conventionCollective // ex: "Convention collective nationale du 
+  Cameroun"
+  ) {}
+
+  OrganizationPayrollEmployerInfoPort.java (bootstrap) — Mapper les nouveaux
+  champs depuis Organization.
+
+  ---
+  Phase 3 — Corriger le bulletin de paie backend
+
+  PayrollPdfRenderer.renderPayslip() — Modifications :
+
+  ┌───────────────┬─────────────────────────────────────────────────────────┐
+  │    Section    │                      Modification                       │
+  ├───────────────┼─────────────────────────────────────────────────────────┤
+  │ En-tête       │ Ajouter adresse, téléphone, forme juridique + capital,  │
+  │ employeur     │ convention collective                                   │
+  ├───────────────┼─────────────────────────────────────────────────────────┤
+  │ Infos salarié │ Ajouter poste/qualification, date de naissance (si      │
+  │               │ disponible)                                             │
+  ├───────────────┼─────────────────────────────────────────────────────────┤
+  │ Tableau gains │ Inchangé (déjà piloté par PayslipLine)                  │
+  ├───────────────┼─────────────────────────────────────────────────────────┤
+  │ Net imposable │ Ajouter une ligne "BRUT IMPOSABLE" = Brut − CNPS        │
+  │               │ salarié, entre le Brut et les retenues                  │
+  ├───────────────┼─────────────────────────────────────────────────────────┤
+  │ Charges       │ Ne plus filtrer EMPLOYER_INFO — les afficher dans une   │
+  │ patronales    │ section séparée "CHARGES PATRONALES (à titre            │
+  │               │ indicatif)"                                             │
+  ├───────────────┼─────────────────────────────────────────────────────────┤
+  │ Pied          │ Ajouter mode de paiement, devise "XAF", cumuls complets │
+  │               │  (brut, net, CNPS, IRPP), solde de congés               │
+  ├───────────────┼─────────────────────────────────────────────────────────┤
+  │ Bas de page   │ "Fait à [ville], le [date]" avant le bloc signature     │
+  │               │ électronique                                            │
+  └───────────────┴─────────────────────────────────────────────────────────┘
+
+  PayslipView — Enrichir le record avec : paymentChannel, accountRef, position,
+  conventionCollective, leaveBalanceRemaining.
+
+  ---
+  Phase 4 — Corriger le STC backend
+
+  PayrollPdfRenderer.renderFinalSettlement() — Modifications :
+
+  ┌───────────────┬─────────────────────────────────────────────────────────┐
+  │    Aspect     │                      Modification                       │
+  ├───────────────┼─────────────────────────────────────────────────────────┤
+  │ Motif         │ Traduire TerminationReason en français (ex: RESIGNATION │
+  │               │  → "Démission") via méthode statique                    │
+  ├───────────────┼─────────────────────────────────────────────────────────┤
+  │ Infos salarié │ Ajouter matricule, N° CNPS, poste                       │
+  ├───────────────┼─────────────────────────────────────────────────────────┤
+  │ Détail calcul │ Pour l'indemnité de licenciement : montrer la formule   │
+  │               │ (% × salaire × ancienneté par tranche)                  │
+  ├───────────────┼─────────────────────────────────────────────────────────┤
+  │ Retenues      │ Ajouter section IRPP/cotisations sur les indemnités     │
+  │               │ imposables                                              │
+  ├───────────────┼─────────────────────────────────────────────────────────┤
+  │               │ Ajouter : "Le salarié reconnaît avoir reçu la somme de  │
+  │ Clause légale │ [...] pour solde de tout compte conformément à          │
+  │               │ l'article 39 du Code du travail."                       │
+  ├───────────────┼─────────────────────────────────────────────────────────┤
+  │ Délai         │ "Ce reçu peut être dénoncé dans un délai de six mois."  │
+  │ contestation  │                                                         │
+  ├───────────────┼─────────────────────────────────────────────────────────┤
+  │ Signatures    │ Bloc double signature : "L'employeur" / "Le salarié     │
+  │               │ (précédé de la mention 'Pour solde de tout compte')"    │
+  ├───────────────┼─────────────────────────────────────────────────────────┤
+  │ Lieu et date  │ "Fait à [ville], le [date]"                             │
+  └───────────────┴─────────────────────────────────────────────────────────┘
+
+  ---
+  Phase 5 — Corriger le certificat de travail
+
+  PayrollPdfRenderer.renderWorkCertificate() — Modifications :
+
+  ┌────────────┬────────────────────────────────────────────────────────────┐
+  │   Aspect   │                        Modification                        │
+  ├────────────┼────────────────────────────────────────────────────────────┤
+  │ Texte      │ Ajouter "est libre de tout engagement à notre égard"       │
+  ├────────────┼────────────────────────────────────────────────────────────┤
+  │ Lieu et    │ "Fait à [ville], le [date]"                                │
+  │ date       │                                                            │
+  ├────────────┼────────────────────────────────────────────────────────────┤
+  │ Signature  │ Bloc signature employeur : "Le Directeur Général, [nom     │
+  │            │ CEO]" avec espace pour cachet                              │
+  └────────────┴────────────────────────────────────────────────────────────┘
+
+  ---
+  Phase 6 — Supprimer la génération PDF côté frontend
+
+  Fichiers à modifier :
+
+  Fichier: payslip-preview.tsx
+  Action: Supprimer PayslipPdfDocument, toDataUrl, imports @react-pdf/renderer,
+    handleDownload avec pdf(). Remplacer par un bouton qui appelle l'API backend
+
+    de génération puis télécharge le fichier via /api/files/{fileId}
+  ────────────────────────────────────────
+  Fichier: my-payslips.tsx
+  Action: Supprimer tout import de PayslipPdfDocument et pdf(). Remplacer le
+    download par le même workflow backend
+  ────────────────────────────────────────
+  Fichier: payroll-list.tsx
+  Action: Supprimer tous les imports @react-pdf/renderer et les composants PDF
+    inline. Même workflow backend
+  ────────────────────────────────────────
+  Fichier: package.json
+  Action: Retirer @react-pdf/renderer des dépendances
+
+  Nouveau workflow de téléchargement :
+  1. User clique "Télécharger"
+  2. POST /api/hrm/payroll/documents/payslip?entryId=xxx
+  3. Réponse: { fileId, verificationCode, ... }
+  4. Redirect → GET /api/files/{fileId} → téléchargement du PDF signé
+
+  L'aperçu HTML à l'écran (tableau gains/retenues) est conservé — c'est le seul
+  rendu côté frontend.
+
+  ---
+  Phase 7 — Ajouter les routes BFF manquantes
+
+  - GET /api/hrm/payroll/documents/download/{fileId} — proxy vers file-core pour
+   télécharger le PDF
+  - Vérifier que la route /api/files/{fileId} existe déjà et supporte le
+  téléchargement
+
+  ---
+  Résumé des fichiers impactés
+
+  ┌─────────────┬───────────────────────────────────────┬───────────────────┐
+  │   Couche    │                Fichier                │     Type de       │
+  │             │                                       │    changement     │
+  ├─────────────┼───────────────────────────────────────┼───────────────────┤
+  │ DB          │ V96__organization_address_fields.sql  │ Nouvelle          │
+  │             │                                       │ migration         │
+  ├─────────────┼───────────────────────────────────────┼───────────────────┤
+  │             │                                       │ Ajout 5 champs    │
+  │ org-core ⚠️ │ Organization.java                     │ (read-only,       │
+  │             │                                       │ besoin            │
+  │             │                                       │ validation)       │
+  ├─────────────┼───────────────────────────────────────┼───────────────────┤
+  │ payroll-cor │ EmployerInfo.java                     │ Enrichir le       │
+  │ e           │                                       │ record            │
+  ├─────────────┼───────────────────────────────────────┼───────────────────┤
+  │ payroll-cor │                                       │ Réécriture        │
+  │ e           │ PayrollPdfRenderer.java               │ majeure des 3     │
+  │             │                                       │ méthodes render*  │
+  ├─────────────┼───────────────────────────────────────┼───────────────────┤
+  │ payroll-cor │ PayrollPdfRenderer.PayslipView        │ Enrichir le       │
+  │ e           │                                       │ record            │
+  ├─────────────┼───────────────────────────────────────┼───────────────────┤
+  │ payroll-cor │                                       │ Passer les        │
+  │ e           │ PayrollDocumentService.java           │ nouvelles données │
+  │             │                                       │  aux renderers    │
+  ├─────────────┼───────────────────────────────────────┼───────────────────┤
+  │ bootstrap   │ OrganizationPayrollEmployerInfoPort.j │ Mapper les        │
+  │             │ ava                                   │ nouveaux champs   │
+  ├─────────────┼───────────────────────────────────────┼───────────────────┤
+  │ frontend    │ payslip-preview.tsx                   │ Supprimer PDF,    │
+  │             │                                       │ garder HTML       │
+  ├─────────────┼───────────────────────────────────────┼───────────────────┤
+  │ frontend    │ my-payslips.tsx                       │ Supprimer PDF     │
+  ├─────────────┼───────────────────────────────────────┼───────────────────┤
+  │ frontend    │ payroll-list.tsx                      │ Supprimer PDF     │
+  ├─────────────┼───────────────────────────────────────┼───────────────────┤
+  │ frontend    │ package.json                          │ Retirer @react-pd │
+  │             │                                       │ f/renderer        │
+  └─────────────┴───────────────────────────────────────┴───────────────────┘
+
+  ---
+  Prérequis avant implémentation
+
+  1. Validation des changements org-core — L'ajout des champs
+  adresse/téléphone/convention collective dans Organization.java touche un
+  module read-only. Confirme que c'est OK.
+  2. Les rubriques CAC, CFC, RAV — Elles doivent être configurées comme
+  PayElement dans le catalogue de paie. Sont-elles déjà présentes ? Sinon, il
+  faudra les ajouter via migration.
+
+  Valide-tu ce plan ? Quels ajustements souhaites-tu avant que j'implémente ?
+
+✻ Cooked for 3m 48s

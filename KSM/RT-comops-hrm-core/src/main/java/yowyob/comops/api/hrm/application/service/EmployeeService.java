@@ -125,9 +125,9 @@ public class EmployeeService implements ManageEmployeeUseCase {
                                                 ? contractRepository.save(Contract.create(
                                                         context.tenantId(), context.organizationId(), context.agencyId(),
                                                         savedEmployee.id(), ContractType.valueOf(command.contractType()),
-                                                        command.contractDateDebut(), command.contractDateFin(),
+                                                        command.position(), command.contractDateDebut(), command.contractDateFin(),
                                                         command.salaireBase(), command.avantagesNature(),
-                                                        command.periodeEssai())).then()
+                                                        command.periodeEssai(), null)).then()
                                                 : Mono.empty();
                                         return contractStep
                                                 .then(leaveBalanceRepository.save(
@@ -279,7 +279,7 @@ public class EmployeeService implements ManageEmployeeUseCase {
                                 .switchIfEmpty(Mono.defer(() -> {
                                     Contract contract = Contract.create(context.tenantId(), context.organizationId(),
                                             context.agencyId(), employeeId, ContractType.valueOf(command.type()),
-                                            command.dateDebut(), command.dateFin(), command.salaireBase(),
+                                            command.position(), command.dateDebut(), command.dateFin(), command.salaireBase(),
                                             command.avantagesNature(), command.periodeEssai(), command.documentFileId());
                                     return contractRepository.save(contract)
                                             .flatMap(saved -> businessEventPublisher.publish(

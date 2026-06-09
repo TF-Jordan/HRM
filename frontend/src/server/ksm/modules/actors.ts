@@ -45,3 +45,24 @@ export function createActor(body: CreateActorRequest, session: AppSession) {
     { session },
   );
 }
+
+export type BusinessActorResponse = {
+  id: string;
+  tenantId: string;
+  actorId: string;
+  name?: string | null;
+  code?: string | null;
+  isIndividual: boolean;
+};
+
+/**
+ * Fetch the current user's business actor profile.
+ * The `name` field is typically "firstName lastName" (built by actor-core).
+ */
+export function getMyBusinessActor(session: AppSession) {
+  return callKsm<BusinessActorResponse>(
+    "/api/actors/me",
+    { method: "GET" },
+    { session },
+  );
+}

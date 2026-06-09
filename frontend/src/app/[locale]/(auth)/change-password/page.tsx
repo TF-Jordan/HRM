@@ -14,6 +14,9 @@ export default async function ChangePasswordPage({
   if (!session) {
     redirect("/login");
   }
+  if (session.forcePasswordChange) {
+    redirect("/dashboard");
+  }
 
-  return <ChangePasswordForm forced={session.forcePasswordChange === true} />;
+  return <ChangePasswordForm forced={false} />;
 }

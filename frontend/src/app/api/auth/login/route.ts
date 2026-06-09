@@ -7,6 +7,7 @@ import {
   buildSession,
   buildSessionFromContextual,
   decideAfterDiscover,
+  enrichSessionWithActorName,
   logAuthEvent,
 } from "@/server/auth-flow";
 import { callKsm } from "@/server/ksm/client";
@@ -90,6 +91,7 @@ export async function POST(request: NextRequest) {
         };
       }
     }
+    await enrichSessionWithActorName(appSession);
     await writeSession(appSession);
 
     logAuthEvent("login_success", {

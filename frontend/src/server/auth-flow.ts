@@ -6,6 +6,7 @@ import type {
   LoginResponse,
   UserOrganizationAccess,
 } from "@/server/ksm/modules/auth";
+import { getMyBusinessActor } from "@/server/ksm/modules/actors";
 import { logger } from "@/server/logger";
 import type { AppSession, SessionUser, WorkspaceContext } from "@/lib/types/auth";
 
@@ -120,6 +121,26 @@ function cryptoRandom(): string {
     return (crypto as Crypto).randomUUID();
   }
   return Math.random().toString(36).slice(2) + Date.now().toString(36);
+}
+
+/**
+ * Best-effort: fetch the actor's name from actor-core and populate
+ * firstName / lastName / fullName on the session user. This makes
+ * greetings like "Bonjour, Jordan" work with the real name instead of
+ * a derivation from the email address.
+ */
+export async function enrichSessionWithActorName(session: AppSession): Promise<void> {
+  try {
+    const actor = await getMyBusinessActor(session);
+    if (actor?.name) {
+      const parts = actor.name.trim().split(/\s+/);
+      session.user.firstName = parts[0] ?? actor.name;
+      session.user.lastName = parts.slice(1).join(" ") || undefined;
+      session.user.fullName = actor.name;
+    }
+  } catch {
+    // Non-critical — keep the email-derived name.
+  }
 }
 
 export function logAuthEvent(event: string, fields: Record<string, unknown>): void {

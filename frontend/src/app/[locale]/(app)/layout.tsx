@@ -2,6 +2,7 @@ import { setRequestLocale } from "next-intl/server";
 import { redirect } from "next/navigation";
 
 import { SessionProvider, type ClientSession } from "@/components/providers/session-provider";
+import { ForcePasswordChangeGate } from "@/components/auth/force-password-change-gate";
 import { Sidebar } from "@/components/shell/sidebar";
 import { Topbar } from "@/components/shell/topbar";
 import { readSession } from "@/server/session";
@@ -17,14 +18,11 @@ export default async function AppLayout({
   if (!session) {
     redirect("/login");
   }
-  if (session.forcePasswordChange) {
-    redirect("/change-password");
-  }
 
   const clientSession: ClientSession = {
     user: session.user,
     workspace: session.workspace,
-    forcePasswordChange: false,
+    forcePasswordChange: session.forcePasswordChange === true,
     expiresAt: session.expiresAt,
   };
 
@@ -37,6 +35,7 @@ export default async function AppLayout({
           <div className="mx-auto w-full max-w-[1440px] px-9 py-8 pb-20">{children}</div>
         </main>
       </div>
+      <ForcePasswordChangeGate />
     </SessionProvider>
   );
 }

@@ -31,7 +31,7 @@ export function NewPayrollForm() {
   const {
     register,
     handleSubmit,
-    formState: { errors, isValid },
+    formState: { errors },
   } = useForm<FormValues>({
     mode: "onChange",
     defaultValues: { periode: defaultPeriode(), agencyId: "" },
@@ -76,7 +76,7 @@ export function NewPayrollForm() {
                 {tCommon("actions.cancel")}
               </Button>
             </Link>
-            <Button type="submit" disabled={!isValid || mutation.isPending}>
+            <Button type="submit" disabled={mutation.isPending}>
               {mutation.isPending ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (

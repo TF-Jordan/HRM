@@ -13,24 +13,35 @@ export interface DialogProps {
   children: React.ReactNode;
   footer?: React.ReactNode;
   size?: "sm" | "md" | "lg";
+  /** When false the dialog cannot be closed via Escape, backdrop click, or the X button. */
+  dismissible?: boolean;
 }
 
-export function Dialog({ open, onClose, title, subtitle, children, footer, size = "md" }: DialogProps) {
+export function Dialog({
+  open,
+  onClose,
+  title,
+  subtitle,
+  children,
+  footer,
+  size = "md",
+  dismissible = true,
+}: DialogProps) {
   React.useEffect(() => {
-    if (!open) return;
+    if (!open || !dismissible) return;
     function onKey(e: KeyboardEvent) {
       if (e.key === "Escape") onClose();
     }
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, [open, onClose]);
+  }, [open, onClose, dismissible]);
 
   if (!open) return null;
 
   return (
     <div
-      className="fixed inset-0 z-50 grid place-items-center bg-black/40 backdrop-blur-sm fade-up"
-      onClick={onClose}
+      className="fixed inset-0 z-[100] grid place-items-center bg-black/50 backdrop-blur-sm fade-up"
+      onClick={dismissible ? onClose : undefined}
       role="dialog"
       aria-modal="true"
     >
@@ -43,14 +54,16 @@ export function Dialog({ open, onClose, title, subtitle, children, footer, size 
         )}
         onClick={(e) => e.stopPropagation()}
       >
-        <button
-          type="button"
-          aria-label="Close"
-          onClick={onClose}
-          className="absolute right-3 top-3 grid h-8 w-8 place-items-center rounded-[10px] text-ink-3 hover:bg-bg-soft hover:text-ink"
-        >
-          <X className="h-4 w-4" />
-        </button>
+        {dismissible && (
+          <button
+            type="button"
+            aria-label="Close"
+            onClick={onClose}
+            className="absolute right-3 top-3 grid h-8 w-8 place-items-center rounded-[10px] text-ink-3 hover:bg-bg-soft hover:text-ink"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        )}
         {(title || subtitle) && (
           <div className="border-b border-line-soft px-6 py-5">
             {title && (

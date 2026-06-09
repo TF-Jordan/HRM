@@ -3,8 +3,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { Bell, HelpCircle, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
+import * as React from "react";
 
 import { useSession } from "@/components/providers/session-provider";
+import { GlobalSearch } from "@/components/shell/global-search";
 import { LocaleSwitcher } from "@/components/shell/locale-switcher";
 import { Avatar } from "@/components/ui/avatar";
 import { useCan } from "@/hooks/use-can";
@@ -39,6 +41,20 @@ export function Topbar({ notificationsCount }: TopbarProps) {
   const liveCount = notif.data?.total ?? 0;
   const count = notificationsCount ?? liveCount;
 
+  const [searchOpen, setSearchOpen] = React.useState(false);
+
+  // Open the command palette with ⌘K / Ctrl+K from anywhere in the app.
+  React.useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setSearchOpen((v) => !v);
+      }
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
+
   function openNotifications() {
     const b = notif.data?.buckets;
     if (canManageExpenses && (b?.expensesToApprove ?? 0) > 0) {
@@ -63,17 +79,19 @@ export function Topbar({ notificationsCount }: TopbarProps) {
         "border-b border-line/70 bg-bg/70 backdrop-blur-xl backdrop-saturate-[180%]",
       )}
     >
-      <div className="flex max-w-[540px] flex-1 items-center gap-2.5 rounded-xl border border-line bg-white px-4 py-2 text-ink-3 shadow-xs-brand transition-all duration-200 ease-[var(--ease-brand)] focus-within:border-orange-400 focus-within:ring-4 focus-within:ring-orange-500/12 hover:border-line-strong">
+      <button
+        type="button"
+        onClick={() => setSearchOpen(true)}
+        className="flex max-w-[540px] flex-1 items-center gap-2.5 rounded-xl border border-line bg-white px-4 py-2 text-ink-3 shadow-xs-brand transition-all duration-200 ease-[var(--ease-brand)] hover:border-line-strong hover:text-ink-2"
+      >
         <Search className="h-4 w-4 shrink-0" />
-        <input
-          type="search"
-          placeholder={t("searchPlaceholder")}
-          className="flex-1 border-none bg-transparent text-[13.5px] text-ink outline-none placeholder:text-ink-4"
-        />
+        <span className="flex-1 text-left text-[13.5px] text-ink-4">{t("searchPlaceholder")}</span>
         <kbd className="hidden items-center gap-1 rounded-md border border-line bg-bg-soft px-1.5 py-0.5 font-mono-tabular text-[10px] font-semibold text-ink-3 md:inline-flex">
           ⌘K
         </kbd>
-      </div>
+      </button>
+
+      <GlobalSearch open={searchOpen} onClose={() => setSearchOpen(false)} />
 
       <div className="flex-1" />
 

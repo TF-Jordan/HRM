@@ -101,13 +101,13 @@ public class HrmEmployeeDataAdapter implements HrmEmployeeDataPort {
     @Override
     public Mono<EmployeePayrollView> findEmployee(UUID tenantId, UUID employeeId) {
         return employeeRepository.findById(tenantId, employeeId)
-                .flatMap(emp -> assembleView(tenantId, emp));
+                .flatMap(emp -> assembleView(tenantId, emp, false));
     }
 
     @Override
     public Mono<EmployeePayrollView> findEmployeeByActorId(UUID tenantId, UUID actorId) {
         return employeeRepository.findByActorId(tenantId, actorId)
-                .flatMap(emp -> assembleView(tenantId, emp));
+                .flatMap(emp -> assembleView(tenantId, emp, false));
     }
 
     @Override
@@ -186,11 +186,19 @@ public class HrmEmployeeDataAdapter implements HrmEmployeeDataPort {
     // ---------------------------------------------------------------------- assembly
 
     /**
-     * Pulls the employee's contract (required), personal info (marital status) and dependents
-     * concurrently, then maps the lot onto the payroll view. An employee without an active
-     * contract is filtered out — there is no base salary to pay.
+     * Pulls the employee's contract, personal info (marital status) and dependents concurrently,
+     * then maps the lot onto the payroll view.
+     *
+     * <p>When {@code requireContract} is {@code true} (payroll runs) an employee without an active
+     * contract is filtered out — there is no base salary to pay. When {@code false} (single-employee
+     * lookups feeding documents such as the work certificate or a re-issued payslip) the contract is
+     * optional, so a departed employee whose contract is no longer active is still resolvable.
      */
     private Mono<EmployeePayrollView> assembleView(UUID tenantId, Employee emp) {
+        return assembleView(tenantId, emp, true);
+    }
+
+    private Mono<EmployeePayrollView> assembleView(UUID tenantId, Employee emp, boolean requireContract) {
         Mono<Contract> contractMono = contractRepository.findActiveByEmployeeId(tenantId, emp.id());
         Mono<MaritalStatus> maritalMono = personalInfoRepository.findByEmployeeId(tenantId, emp.id())
                 .map(HrmEmployeeDataAdapter::mapMaritalStatus)
@@ -200,12 +208,22 @@ public class HrmEmployeeDataAdapter implements HrmEmployeeDataPort {
                 .count()
                 .map(Long::intValue);
 
-        return Mono.zip(contractMono, maritalMono, dependentsMono)
-                .map(t -> toView(emp, t.getT1(), t.getT2(), t.getT3()));
+        if (requireContract) {
+            return Mono.zip(contractMono, maritalMono, dependentsMono)
+                    .map(t -> toView(emp, t.getT1(), t.getT2(), t.getT3()));
+        }
+        return Mono.zip(maritalMono, dependentsMono)
+                .flatMap(t -> contractMono
+                        .map(c -> toView(emp, c, t.getT1(), t.getT2()))
+                        .defaultIfEmpty(toView(emp, null, t.getT1(), t.getT2())));
     }
 
     private EmployeePayrollView toView(Employee emp, Contract contract, MaritalStatus marital,
                                        int dependentChildren) {
+        BigDecimal base = contract != null ? contract.salaireBase() : BigDecimal.ZERO;
+        BigDecimal avantages = contract != null && contract.avantagesNature() != null
+                ? contract.avantagesNature() : BigDecimal.ZERO;
+        String position = contract != null ? contract.position() : null;
         return new EmployeePayrollView(
                 emp.id(),
                 emp.organizationId(),
@@ -221,10 +239,10 @@ public class HrmEmployeeDataAdapter implements HrmEmployeeDataPort {
                 emp.dateSortie(),
                 marital,
                 dependentChildren,
-                contract.salaireBase(),
-                contract.avantagesNature() != null ? contract.avantagesNature() : BigDecimal.ZERO,
+                base,
+                avantages,
                 DEFAULT_COUNTRY,
-                contract.position(),
+                position,
                 mapChannel(emp.modePaiement()),
                 resolveAccountRef(emp));
     }

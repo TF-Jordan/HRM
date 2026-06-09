@@ -11,5 +11,6 @@ public record RegisterUserRequest(
         String phoneNumber,
         String password,
         @NotBlank String authProvider,
-        String externalSubject) {
+        String externalSubject,
+        boolean forcePasswordChange) {
 }

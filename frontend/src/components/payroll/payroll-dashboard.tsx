@@ -156,7 +156,7 @@ export function PayrollDashboard() {
             </Link>
             {data?.canRun && (
               <Link href="/payroll/new">
-                <Button disabled={data.hasCurrentMonthRun}>
+                <Button>
                   <Plus className="h-4 w-4" /> {t("dash.newRun")}
                 </Button>
               </Link>

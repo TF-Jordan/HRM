@@ -13,7 +13,15 @@ import { useRouter } from "@/i18n/navigation";
 import { apiFetch, BffApiError } from "@/lib/api-client";
 import { changePasswordSchema, type ChangePasswordFormValues } from "@/lib/validation/auth";
 
-export function ChangePasswordForm({ forced }: { forced: boolean }) {
+export function ChangePasswordForm({
+  forced,
+  embedded = false,
+  onSuccess,
+}: {
+  forced: boolean;
+  embedded?: boolean;
+  onSuccess?: () => void | Promise<void>;
+}) {
   const t = useTranslations("auth.changePassword");
   const tValidation = useTranslations("validation");
   const tErrors = useTranslations("errors");
@@ -49,7 +57,11 @@ export function ChangePasswordForm({ forced }: { forced: boolean }) {
         },
       });
       toast.success(t("title"));
-      router.push("/dashboard");
+      if (onSuccess) {
+        await onSuccess();
+      } else {
+        router.push("/dashboard");
+      }
     } catch (cause) {
       if (cause instanceof BffApiError) {
         toast.error(cause.message);
@@ -57,6 +69,32 @@ export function ChangePasswordForm({ forced }: { forced: boolean }) {
         toast.error(tErrors("unknown"));
       }
     }
+  }
+
+  const form = (
+    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4" noValidate>
+      <Field label={t("current")} error={lookup(errors.currentPassword?.message)}>
+        <Input type="password" autoComplete="current-password" {...register("currentPassword")} />
+      </Field>
+      <Field
+        label={t("new")}
+        hint={t("constraints")}
+        error={lookup(errors.newPassword?.message)}
+      >
+        <Input type="password" autoComplete="new-password" {...register("newPassword")} />
+      </Field>
+      <Field label={t("confirm")} error={lookup(errors.confirmPassword?.message)}>
+        <Input type="password" autoComplete="new-password" {...register("confirmPassword")} />
+      </Field>
+
+      <Button type="submit" disabled={isSubmitting} className={embedded ? "mt-2 w-full" : "mt-2 w-full"}>
+        {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : t("submit")}
+      </Button>
+    </form>
+  );
+
+  if (embedded) {
+    return form;
   }
 
   return (
@@ -70,26 +108,7 @@ export function ChangePasswordForm({ forced }: { forced: boolean }) {
             {forced ? t("subtitle") : t("title")}
           </p>
         </div>
-
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4" noValidate>
-          <Field label={t("current")} error={lookup(errors.currentPassword?.message)}>
-            <Input type="password" autoComplete="current-password" {...register("currentPassword")} />
-          </Field>
-          <Field
-            label={t("new")}
-            hint={t("constraints")}
-            error={lookup(errors.newPassword?.message)}
-          >
-            <Input type="password" autoComplete="new-password" {...register("newPassword")} />
-          </Field>
-          <Field label={t("confirm")} error={lookup(errors.confirmPassword?.message)}>
-            <Input type="password" autoComplete="new-password" {...register("confirmPassword")} />
-          </Field>
-
-          <Button type="submit" disabled={isSubmitting} className="mt-2 w-full">
-            {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : t("submit")}
-          </Button>
-        </form>
+        {form}
       </CardContent>
     </Card>
   );

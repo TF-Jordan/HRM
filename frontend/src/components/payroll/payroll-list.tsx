@@ -91,30 +91,12 @@ export function PayrollList() {
         actions={
           <>
             {canCreate && (
-              <div className="flex flex-col items-end gap-1">
-                {windowState && !windowState.canRun && windowState.reason === "already_run" ? (
-                  <Button disabled>
-                    <Plus className="h-4 w-4" />
-                    {t("actions.newRun")}
-                  </Button>
-                ) : (
-                  <Link href="/payroll/new">
-                    <Button disabled={!windowState}>
-                      <Plus className="h-4 w-4" />
-                      {t("actions.newRun")}
-                    </Button>
-                  </Link>
-                )}
-                {windowState && (
-                  <span className="text-[11px] text-ink-3">
-                    {windowState.canRun
-                      ? t("cycle.openWindow", { days: windowState.daysUntilMonthEnd })
-                      : windowState.reason === "already_run"
-                      ? t("cycle.alreadyRun")
-                      : t("cycle.tooEarlyHint", { days: windowState.daysUntilOpen })}
-                  </span>
-                )}
-              </div>
+              <Link href="/payroll/new">
+                <Button>
+                  <Plus className="h-4 w-4" />
+                  {t("actions.newRun")}
+                </Button>
+              </Link>
             )}
           </>
         }

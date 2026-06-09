@@ -61,7 +61,19 @@
     "subtitle": "Onboarding administratif d'un nouveau collaborateur · génère le matricule, le contrat initial et le compte employé",
     "sections": {
       "admin": "Identification administrative",
-      "paiement": "Mode de paiement du salaire"
+      "paiement": "Mode de paiement du salaire",
+      "dependents": "Personnes à charge (optionnel)"
+    },
+    "dependents": {
+      "hint": "Renseignez les personnes à charge pour le calcul du quotient familial (IRPP). Vous pourrez aussi les ajouter plus tard depuis la fiche employé.",
+      "add": "Ajouter une personne à charge",
+      "relationship": "Lien de parenté",
+      "relations": {
+        "SPOUSE": "Conjoint(e)",
+        "CHILD": "Enfant",
+        "PARENT": "Parent",
+        "OTHER": "Autre"
+      }
     },
     "sidebar": {
       "bonASavoirTitle": "Bon à savoir",
@@ -104,6 +116,8 @@
       "gender": "Genre",
       "nationality": "Nationalité",
       "birthDate": "Date de naissance",
+      "situationMatrimoniale": "Situation matrimoniale",
+      "situationMatrimonialeHint": "Utilisée pour le calcul IRPP (quotient familial)",
       "categorie": "Catégorie",
       "echelon": "Échelon",
       "departmentCode": "Département (code)",
@@ -116,12 +130,25 @@
       "operateurMm": "Opérateur"
     },
     "gender": { "MALE": "Masculin", "FEMALE": "Féminin", "OTHER": "Autre" },
+    "maritalStatus": { "SINGLE": "Célibataire", "MARRIED": "Marié(e)", "DIVORCED": "Divorcé(e)", "WIDOWED": "Veuf/Veuve" },
     "operator": { "MTN": "MTN", "ORANGE": "Orange" },
     "submit": "Créer l'employé",
     "success": "Employé créé",
     "summaryEmail": "Email"
   },
   "detail": {
+    "payrollReadiness": {
+      "title": "Données de paie incomplètes",
+      "subtitle": "Ces informations sont nécessaires pour produire un bulletin de paie conforme.",
+      "completeData": "Compléter",
+      "addContract": "Ajouter un contrat",
+      "items": {
+        "cnps": "Numéro CNPS",
+        "maritalStatus": "Situation matrimoniale (IRPP)",
+        "contract": "Contrat actif",
+        "position": "Poste sur le contrat"
+      }
+    },
     "hero": {
       "salary": "Salaire de base",
       "noContract": "Aucun contrat actif",
@@ -213,6 +240,7 @@
       "noContracts": "Aucun contrat enregistré.",
       "columns": {
         "type": "Type",
+        "position": "Poste",
         "period": "Période",
         "dateDebut": "Début",
         "dateFin": "Fin",

@@ -30,7 +30,7 @@ import { useCan } from "@/hooks/use-can";
 import { apiFetch, BffApiError } from "@/lib/api-client";
 import { formatPeriodShort } from "@/lib/payroll-status";
 import { cn } from "@/lib/utils";
-import type { EmployeeResponse } from "@/server/ksm/modules/employees";
+import type { ContractResponse, EmployeeResponse } from "@/server/ksm/modules/employees";
 import type {
   DocumentVerification,
   FinalSettlementResponse,
@@ -504,17 +504,24 @@ function CertificateDialog({
   onError: (e: unknown) => void;
   t: ReturnType<typeof useTranslations<"payroll">>;
 }) {
-  const [position, setPosition] = React.useState("");
+  // The job title is taken straight from the employee's active contract (set at creation);
+  // we no longer ask for it. KSM resolves the same value server-side when none is sent.
+  const contractsQuery = useQuery({
+    queryKey: ["hrm", "contracts", employeeId],
+    queryFn: () => apiFetch<ContractResponse[]>(`/api/hrm/employees/${employeeId}/contracts`),
+  });
+
+  const activeContract = (contractsQuery.data ?? []).find(
+    (c) => c.status === "ACTIVE" || c.status === "TRIAL",
+  );
+  const savedPosition = activeContract?.position?.trim() ?? "";
 
   const generate = useMutation({
-    mutationFn: () => {
-      const params = new URLSearchParams({ employeeId });
-      if (position.trim()) params.set("position", position.trim());
-      return apiFetch<PayrollDocumentResponse>(
-        `/api/hrm/payroll/documents/work-certificate?${params}`,
+    mutationFn: () =>
+      apiFetch<PayrollDocumentResponse>(
+        `/api/hrm/payroll/documents/work-certificate?employeeId=${encodeURIComponent(employeeId)}`,
         { method: "POST" },
-      );
-    },
+      ),
     onSuccess: onGenerated,
     onError,
   });
@@ -531,7 +538,10 @@ function CertificateDialog({
           <Button variant="secondary" onClick={onClose} disabled={generate.isPending}>
             {t("documents.dialog.cancel")}
           </Button>
-          <Button onClick={() => generate.mutate()} disabled={generate.isPending}>
+          <Button
+            onClick={() => generate.mutate()}
+            disabled={generate.isPending || contractsQuery.isLoading}
+          >
             {generate.isPending ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -544,8 +554,16 @@ function CertificateDialog({
         </>
       }
     >
-      <Field label={t("documents.position")} hint={t("documents.positionHint")}>
-        <Input value={position} onChange={(e) => setPosition(e.target.value)} placeholder={t("documents.positionPlaceholder")} />
+      <Field label={t("documents.position")}>
+        {contractsQuery.isLoading ? (
+          <p className="text-[13px] text-ink-3">…</p>
+        ) : savedPosition ? (
+          <p className="rounded-[11px] border border-line bg-bg-soft px-3.5 py-[11px] text-[13.5px] font-medium text-ink">
+            {savedPosition}
+          </p>
+        ) : (
+          <p className="text-[12.5px] text-ink-3">{t("documents.positionFallback")}</p>
+        )}
       </Field>
     </Dialog>
   );

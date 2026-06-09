@@ -7,12 +7,17 @@ import { welcomeMail } from "@/server/email/templates";
 import { createActor } from "@/server/ksm/modules/actors";
 import { assignRole, listRoles } from "@/server/ksm/modules/admin";
 import {
+  addDependent,
   createEmployee,
   type EmployeeResponse,
   type MobileOperator,
   type PaymentChannel,
 } from "@/server/ksm/modules/employees";
+import { upsertPersonalInfo } from "@/server/ksm/modules/employee-profile";
 import { generateTemporaryPassword, registerUser } from "@/server/ksm/modules/users";
+
+/** Marital status codes understood by the payroll engine (IRPP family quotient). */
+export type MaritalStatus = "SINGLE" | "MARRIED" | "DIVORCED" | "WIDOWED";
 
 export type CreateEmployeeOrchestratedInput = {
   // Identity (Actor)
@@ -29,6 +34,15 @@ export type CreateEmployeeOrchestratedInput = {
   echelon?: string;
   dateEmbauche: string;
   departmentCode?: string;
+  /** Marital status — feeds the IRPP family quotient on payroll. */
+  situationMatrimoniale?: MaritalStatus;
+  /** Dependents captured at hire — feed the IRPP family quotient on payroll. */
+  dependents?: Array<{
+    prenom: string;
+    nom: string;
+    dateNaissance: string;
+    lienParente: string;
+  }>;
   // Payment
   modePaiement?: PaymentChannel;
   compteBancaire?: string;
@@ -117,6 +131,51 @@ export async function createEmployeeOrchestrated(
       { employeeId: employee.id, actorId: actor.id, matricule: employee.matricule },
       "orchestration.employee_created",
     );
+
+    // 2.b Personal info (marital status) — drives the IRPP family quotient on
+    // payroll. Best-effort: a failure must not roll back the hire.
+    if (input.situationMatrimoniale) {
+      try {
+        await upsertPersonalInfo(
+          employee.id,
+          { situationMatrimoniale: input.situationMatrimoniale },
+          session,
+        );
+      } catch (cause) {
+        logger.error(
+          { employeeId: employee.id, cause: String(cause) },
+          "orchestration.employee_personal_info_failed",
+        );
+        warnings.push(`Marital status not saved: ${errorMessage(cause)}`);
+      }
+    }
+
+    // 2.c Dependents — also feed the IRPP family quotient. Best-effort: a
+    // failure on one dependent must not roll back the hire.
+    if (input.dependents && input.dependents.length > 0) {
+      for (const dep of input.dependents) {
+        try {
+          await addDependent(
+            employee.id,
+            {
+              prenom: dep.prenom.trim(),
+              nom: dep.nom.trim(),
+              dateNaissance: dep.dateNaissance,
+              lienParente: dep.lienParente,
+            },
+            session,
+          );
+        } catch (cause) {
+          logger.error(
+            { employeeId: employee.id, cause: String(cause) },
+            "orchestration.employee_dependent_failed",
+          );
+          warnings.push(
+            `Dependent ${dep.prenom} ${dep.nom} not saved: ${errorMessage(cause)}`,
+          );
+        }
+      }
+    }
   } catch (cause) {
     logger.error(
       { actorId: actor.id, cause: String(cause) },

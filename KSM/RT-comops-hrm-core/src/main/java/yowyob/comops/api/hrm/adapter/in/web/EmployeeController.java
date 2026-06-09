@@ -308,11 +308,11 @@ public class EmployeeController {
 
     public record CreateEmployeeRequest(UUID actorId, UUID managerId, String numCnps, int categorie, String echelon,
             LocalDate dateEmbauche, String departmentCode, String modePaiement, String compteBancaire,
-            String numMobileMoney, String operateurMm, String contractType, LocalDate contractDateDebut,
+            String numMobileMoney, String operateurMm, String contractType, String position, LocalDate contractDateDebut,
             LocalDate contractDateFin, BigDecimal salaireBase, BigDecimal avantagesNature, Integer periodeEssai) {
         CreateEmployeeCommand toCommand() {
             return new CreateEmployeeCommand(actorId, managerId, numCnps, categorie, echelon, dateEmbauche, departmentCode,
-                    modePaiement, compteBancaire, numMobileMoney, operateurMm, contractType, contractDateDebut,
+                    modePaiement, compteBancaire, numMobileMoney, operateurMm, contractType, position, contractDateDebut,
                     contractDateFin, salaireBase, avantagesNature, periodeEssai);
         }
     }
@@ -333,10 +333,10 @@ public class EmployeeController {
 
     public record SuspendRequest(String reason) {}
 
-    public record AddContractRequest(String type, LocalDate dateDebut, LocalDate dateFin,
+    public record AddContractRequest(String type, String position, LocalDate dateDebut, LocalDate dateFin,
             BigDecimal salaireBase, BigDecimal avantagesNature, Integer periodeEssai, UUID documentFileId) {
         AddContractCommand toCommand() {
-            return new AddContractCommand(type, dateDebut, dateFin, salaireBase, avantagesNature, periodeEssai, documentFileId);
+            return new AddContractCommand(type, position, dateDebut, dateFin, salaireBase, avantagesNature, periodeEssai, documentFileId);
         }
     }
 
@@ -362,12 +362,12 @@ public class EmployeeController {
         }
     }
 
-    public record ContractResponse(UUID id, UUID employeeId, String type, LocalDate dateDebut, LocalDate dateFin,
-            BigDecimal salaireBase, BigDecimal avantagesNature, Integer periodeEssai, String status,
+    public record ContractResponse(UUID id, UUID employeeId, String type, String position, LocalDate dateDebut,
+            LocalDate dateFin, BigDecimal salaireBase, BigDecimal avantagesNature, Integer periodeEssai, String status,
             String motifFin, UUID documentFileId) {
         static ContractResponse from(Contract c) {
-            return new ContractResponse(c.id(), c.employeeId(), c.type().name(), c.dateDebut(), c.dateFin(),
-                    c.salaireBase(), c.avantagesNature(), c.periodeEssai(), c.status().name(),
+            return new ContractResponse(c.id(), c.employeeId(), c.type().name(), c.position(), c.dateDebut(),
+                    c.dateFin(), c.salaireBase(), c.avantagesNature(), c.periodeEssai(), c.status().name(),
                     c.motifFin(), c.documentFileId());
         }
     }

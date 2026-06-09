@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 096-organization-address-fields
+      author: cursor
+      changes:
+        - sqlFile:
+            path: db/r2dbc/V96__organization_address_fields.sql
+            relativeToChangelogFile: false

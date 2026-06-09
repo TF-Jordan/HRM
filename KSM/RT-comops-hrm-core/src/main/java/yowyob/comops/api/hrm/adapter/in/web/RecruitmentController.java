@@ -235,13 +235,13 @@ public class RecruitmentController {
             UUID managerId, String numCnps, int categorie, String echelon,
             LocalDate dateEmbauche, String departmentCode, String modePaiement,
             String compteBancaire, String numMobileMoney, String operateurMm,
-            String contractType, LocalDate contractDateDebut, LocalDate contractDateFin,
+            String contractType, String position, LocalDate contractDateDebut, LocalDate contractDateFin,
             java.math.BigDecimal salaireBase, java.math.BigDecimal avantagesNature,
             Integer periodeEssai) {
         ConvertApplicationCommand toCommand(UUID applicationId) {
             return new ConvertApplicationCommand(applicationId, managerId, numCnps, categorie,
                     echelon, dateEmbauche, departmentCode, modePaiement, compteBancaire,
-                    numMobileMoney, operateurMm, contractType, contractDateDebut, contractDateFin,
+                    numMobileMoney, operateurMm, contractType, position, contractDateDebut, contractDateFin,
                     salaireBase, avantagesNature, periodeEssai);
         }
     }

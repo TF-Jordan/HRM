@@ -29,6 +29,19 @@ spring:
       port: ${IWM_REDIS_PORT:6379}
       password: ${IWM_REDIS_PASSWORD:}
       timeout: 2s
+  mail:
+    # Gmail SMTP. Set IWM_MAIL_USERNAME (your Gmail address) and IWM_MAIL_PASSWORD
+    # (a Gmail "app password", 16 chars) to enable transactional emails.
+    host: ${IWM_MAIL_HOST:smtp.gmail.com}
+    port: ${IWM_MAIL_PORT:587}
+    username: ${IWM_MAIL_USERNAME:}
+    password: ${IWM_MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 
 management:
   server:
@@ -38,6 +51,8 @@ management:
       enabled: ${IWM_ELASTICSEARCH_HEALTH_ENABLED:false}
     redis:
       enabled: ${IWM_REDIS_HEALTH_ENABLED:false}
+    mail:
+      enabled: false
   endpoint:
     health:
       show-details: when_authorized
@@ -54,6 +69,14 @@ iwm:
   management:
     security:
       api-key: ${IWM_MANAGEMENT_API_KEY:dev-management-api-key}
+  auth:
+    email:
+      # Set IWM_AUTH_EMAIL_ENABLED=true and IWM_AUTH_EMAIL_FROM (your Gmail address)
+      # to actually send password-reset / email-verification mails over SMTP.
+      enabled: ${IWM_AUTH_EMAIL_ENABLED:false}
+      from: ${IWM_AUTH_EMAIL_FROM:}
+      subject-prefix: ${IWM_AUTH_EMAIL_SUBJECT_PREFIX:[HR Core]}
+      public-base-url: ${IWM_AUTH_EMAIL_PUBLIC_BASE_URL:http://localhost:3000}
   persistence:
     mode: r2dbc
   outbox:

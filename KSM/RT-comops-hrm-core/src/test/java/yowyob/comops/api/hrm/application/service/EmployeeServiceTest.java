@@ -10,8 +10,11 @@ import yowyob.comops.api.hrm.application.port.in.CreateEmployeeCommand;
 import yowyob.comops.api.hrm.application.port.out.ActorPort;
 import yowyob.comops.api.hrm.application.port.out.ContractRepository;
 import yowyob.comops.api.hrm.application.port.out.DependentRepository;
+import yowyob.comops.api.hrm.application.port.out.EmergencyContactRepository;
+import yowyob.comops.api.hrm.application.port.out.EmployeePersonalInfoRepository;
 import yowyob.comops.api.hrm.application.port.out.EmployeeRepository;
 import yowyob.comops.api.hrm.application.port.out.LeaveBalanceRepository;
+import yowyob.comops.api.hrm.application.port.out.PerformanceReviewRepository;
 import yowyob.comops.api.hrm.application.port.out.SettingsPort;
 import yowyob.comops.api.hrm.application.port.out.ThirdPartyProfilePort;
 import yowyob.comops.api.hrm.domain.model.Contract;
@@ -44,17 +47,22 @@ class EmployeeServiceTest {
         ContractRepository contractRepository = mock(ContractRepository.class);
         DependentRepository dependentRepository = mock(DependentRepository.class);
         LeaveBalanceRepository leaveBalanceRepository = mock(LeaveBalanceRepository.class);
+        PerformanceReviewRepository performanceReviewRepository = mock(PerformanceReviewRepository.class);
+        EmployeePersonalInfoRepository personalInfoRepository = mock(EmployeePersonalInfoRepository.class);
+        EmergencyContactRepository emergencyContactRepository = mock(EmergencyContactRepository.class);
         ActorPort actorPort = mock(ActorPort.class);
         SettingsPort settingsPort = mock(SettingsPort.class);
         ThirdPartyProfilePort thirdPartyProfilePort = mock(ThirdPartyProfilePort.class);
         BusinessEventPublisher businessEventPublisher = mock(BusinessEventPublisher.class);
 
         EmployeeService service = new EmployeeService(employeeRepository, contractRepository, dependentRepository,
-                leaveBalanceRepository, actorPort, settingsPort, thirdPartyProfilePort, businessEventPublisher);
+                leaveBalanceRepository, performanceReviewRepository, personalInfoRepository,
+                emergencyContactRepository, actorPort, settingsPort, thirdPartyProfilePort, businessEventPublisher);
 
         when(actorPort.resolveActor(tenantId, actorId))
-                .thenReturn(Mono.just(new ActorPort.ActorInfo(actorId, "Alice Employee")));
+                .thenReturn(Mono.just(ActorPort.ActorInfo.of(actorId, "Alice Employee")));
         when(employeeRepository.existsByActorIdAndTenantId(actorId, tenantId)).thenReturn(Mono.just(false));
+        when(employeeRepository.existsByNumCnpsAndTenantId("CNPS-001", tenantId)).thenReturn(Mono.just(false));
         when(settingsPort.generateMatricule(tenantId, organizationId, agencyId)).thenReturn(Mono.just("EMP-001"));
         when(employeeRepository.save(any(Employee.class))).thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
         when(contractRepository.save(any(Contract.class))).thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
@@ -67,6 +75,7 @@ class EmployeeServiceTest {
 
         CreateEmployeeCommand command = new CreateEmployeeCommand(
                 actorId,
+                null,
                 "CNPS-001",
                 1,
                 "A",
@@ -77,6 +86,7 @@ class EmployeeServiceTest {
                 null,
                 null,
                 "CDI",
+                "Développeur",
                 LocalDate.of(2026, 1, 1),
                 null,
                 BigDecimal.valueOf(250000),

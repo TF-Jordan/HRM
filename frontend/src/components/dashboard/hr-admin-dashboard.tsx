@@ -113,7 +113,7 @@ export function HrAdminDashboard() {
   const owned = new Set(user.permissions.map((p) => p.split("#")[0] ?? p));
   const can = (p: string) => owned.has(p);
   const data = query.data;
-  const greeting = user.fullName.split(" ")[0] ?? user.fullName;
+  const greeting = user.firstName ?? user.fullName.split(" ")[0] ?? user.fullName;
   const dateLabel = today.toLocaleDateString(locale === "fr" ? "fr-FR" : "en-US", {
     weekday: "long",
     day: "numeric",

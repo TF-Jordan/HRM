@@ -21,6 +21,18 @@ import type {
   MobileOperator,
   PaymentChannel,
 } from "@/server/ksm/modules/employees";
+import type {
+  PersonalInfoResponse,
+  UpsertPersonalInfoRequest,
+} from "@/server/ksm/modules/employee-profile";
+
+const MARITAL_STATUSES = ["SINGLE", "MARRIED", "DIVORCED", "WIDOWED"] as const;
+type MaritalStatus = (typeof MARITAL_STATUSES)[number];
+
+function normalizeMaritalStatus(value?: string | null): "" | MaritalStatus {
+  const v = (value ?? "").toUpperCase();
+  return (MARITAL_STATUSES as readonly string[]).includes(v) ? (v as MaritalStatus) : "";
+}
 
 /* ── CCNI grid — same as create form ─────────────────────────────────────── */
 const CCNI_CATEGORIES = [
@@ -46,6 +58,7 @@ type FormValues = {
   categorie: string;
   echelon: string;
   departmentCode: string;
+  situationMatrimoniale: "" | MaritalStatus;
   modePaiement: "" | PaymentChannel;
   compteBancaire: string;
   numMobileMoney: string;
@@ -75,6 +88,16 @@ export function EmployeeEditForm({ employeeId }: { employeeId: string }) {
   });
   const e = employeeQuery.data;
 
+  /* ── Load current personal info (marital status) ─────────────────── */
+  const personalInfoQuery = useQuery({
+    queryKey: ["hrm", "personal-info", employeeId],
+    queryFn: () =>
+      apiFetch<PersonalInfoResponse | null>(
+        `/api/hrm/employees/${employeeId}/personal-info`,
+      ),
+    staleTime: 0,
+  });
+
   /* ── Draft restore (optional) ────────────────────────────────────── */
   const savedDraft = React.useMemo<Partial<FormValues> | null>(() => {
     if (typeof window === "undefined") return null;
@@ -93,6 +116,7 @@ export function EmployeeEditForm({ employeeId }: { employeeId: string }) {
     watch,
     getValues,
     reset,
+    setValue,
     control,
     setError,
     clearErrors,
@@ -103,6 +127,7 @@ export function EmployeeEditForm({ employeeId }: { employeeId: string }) {
       categorie: savedDraft?.categorie ?? "11",
       echelon: savedDraft?.echelon ?? "A",
       departmentCode: savedDraft?.departmentCode ?? "",
+      situationMatrimoniale: savedDraft?.situationMatrimoniale ?? "",
       modePaiement: savedDraft?.modePaiement ?? "",
       compteBancaire: savedDraft?.compteBancaire ?? "",
       numMobileMoney: savedDraft?.numMobileMoney ?? "",
@@ -114,13 +139,14 @@ export function EmployeeEditForm({ employeeId }: { employeeId: string }) {
   /* Populate form once employee data arrives (only if no draft) */
   const populated = React.useRef(false);
   React.useEffect(() => {
-    if (e && !populated.current && !savedDraft) {
+    if (e && !personalInfoQuery.isLoading && !populated.current && !savedDraft) {
       populated.current = true;
       reset({
         numCnps: e.numCnps ?? "",
         categorie: String(e.categorie),
         echelon: e.echelon ?? "A",
         departmentCode: e.departmentCode ?? "",
+        situationMatrimoniale: normalizeMaritalStatus(personalInfoQuery.data?.situationMatrimoniale),
         modePaiement: (e.modePaiement as PaymentChannel) ?? "",
         compteBancaire: e.compteBancaire ?? "",
         numMobileMoney: e.numMobileMoney ?? "",
@@ -128,8 +154,12 @@ export function EmployeeEditForm({ employeeId }: { employeeId: string }) {
       });
     } else if (e && !populated.current && savedDraft) {
       populated.current = true; // draft takes precedence, just mark as populated
+      setValue(
+        "situationMatrimoniale",
+        normalizeMaritalStatus(personalInfoQuery.data?.situationMatrimoniale),
+      );
     }
-  }, [e, reset, savedDraft]);
+  }, [e, personalInfoQuery.isLoading, personalInfoQuery.data, reset, setValue, savedDraft]);
 
   const watched = watch();
   const isMobile =
@@ -166,7 +196,7 @@ export function EmployeeEditForm({ employeeId }: { employeeId: string }) {
   /* ── Submit ──────────────────────────────────────────────────────── */
   const mutation = useMutation({
     mutationFn: async (v: FormValues) => {
-      return apiFetch<EmployeeResponse>(`/api/hrm/employees/${employeeId}`, {
+      const updated = await apiFetch<EmployeeResponse>(`/api/hrm/employees/${employeeId}`, {
         method: "PUT",
         body: {
           numCnps: v.numCnps.trim() || undefined,
@@ -181,11 +211,38 @@ export function EmployeeEditForm({ employeeId }: { employeeId: string }) {
           managerId: e?.managerId ?? undefined,
         },
       });
+
+      // Persist marital status on the personal-info row when it changed.
+      // We merge the existing record so other personal fields are preserved
+      // (the backend upsert overwrites the whole row).
+      const current: PersonalInfoResponse | null = personalInfoQuery.data ?? null;
+      const nextStatus = v.situationMatrimoniale || undefined;
+      const previousStatus = normalizeMaritalStatus(current?.situationMatrimoniale) || undefined;
+      if (nextStatus !== previousStatus) {
+        const rest: UpsertPersonalInfoRequest = {};
+        if (current) {
+          for (const [key, value] of Object.entries(current)) {
+            if (key === "id" || key === "employeeId") continue;
+            (rest as Record<string, unknown>)[key] = value;
+          }
+        }
+        const body: UpsertPersonalInfoRequest = {
+          ...rest,
+          situationMatrimoniale: nextStatus,
+        };
+        await apiFetch<PersonalInfoResponse>(
+          `/api/hrm/employees/${employeeId}/personal-info`,
+          { method: "PUT", body },
+        );
+      }
+
+      return updated;
     },
     onSuccess: () => {
       try { localStorage.removeItem(draftKey(employeeId)); } catch { /* ignore */ }
       toast.success(tEdit("success"));
       queryClient.invalidateQueries({ queryKey: ["hrm", "employee", employeeId] });
+      queryClient.invalidateQueries({ queryKey: ["hrm", "personal-info", employeeId] });
       queryClient.invalidateQueries({ queryKey: ["hrm", "employees"] });
       router.push(`/employees/${employeeId}`);
     },
@@ -321,6 +378,20 @@ export function EmployeeEditForm({ employeeId }: { employeeId: string }) {
                       placeholder="Ex. ENG, FIN, RH…"
                       maxLength={50}
                     />
+                  </Field>
+
+                  {/* Situation matrimoniale */}
+                  <Field
+                    label={tCreate("fields.situationMatrimoniale")}
+                    hint={tCreate("fields.situationMatrimonialeHint")}
+                  >
+                    <select {...register("situationMatrimoniale")} className={SELECT_CLS}>
+                      <option value="">—</option>
+                      <option value="SINGLE">{tCreate("maritalStatus.SINGLE")}</option>
+                      <option value="MARRIED">{tCreate("maritalStatus.MARRIED")}</option>
+                      <option value="DIVORCED">{tCreate("maritalStatus.DIVORCED")}</option>
+                      <option value="WIDOWED">{tCreate("maritalStatus.WIDOWED")}</option>
+                    </select>
                   </Field>
                 </div>
               </CardContent>

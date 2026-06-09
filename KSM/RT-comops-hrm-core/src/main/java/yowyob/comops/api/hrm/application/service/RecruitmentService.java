@@ -148,6 +148,7 @@ public class RecruitmentService implements ManageRecruitmentUseCase {
                                             command.numMobileMoney(),
                                             command.operateurMm(),
                                             command.contractType(),
+                                            command.position(),
                                             command.contractDateDebut(),
                                             command.contractDateFin(),
                                             command.salaireBase(),

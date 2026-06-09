@@ -75,6 +75,9 @@ public final class PayrollPdfRenderer {
         w.heading("Salarié");
         w.kv("Nom", v.employeeName());
         w.kv("Matricule", v.matricule());
+        if (v.position() != null && !v.position().isBlank()) {
+            w.kv("Poste / fonction", v.position());
+        }
         w.kv("N° CNPS", v.socialSecurityNo());
         w.kv("Catégorie / Échelon", nullSafe(v.categorie()) + " / " + nullSafe(v.echelon()));
         if (v.hireDate() != null) {
@@ -120,6 +123,12 @@ public final class PayrollPdfRenderer {
             w.heading("Cumuls annuels");
             w.kv("Brut cumulé", money(v.cumulGross()));
             w.kv("Net cumulé", money(v.cumulNet()));
+        }
+
+        // --- Leave balance ---
+        if (v.leaveBalanceRemaining() != null) {
+            w.heading("Congés");
+            w.kv("Solde de congés (jours)", v.leaveBalanceRemaining().stripTrailingZeros().toPlainString());
         }
 
         // --- Payment info ---
@@ -209,40 +218,121 @@ public final class PayrollPdfRenderer {
     public static byte[] renderWorkCertificate(WorkCertificateView v, EmployerInfo employer,
                                                DocumentSeal seal) {
         PdfDocumentWriter w = new PdfDocumentWriter();
-        w.title("CERTIFICAT DE TRAVAIL");
-        employerHeader(w, employer);
+
+        // --- Letterhead ---------------------------------------------------------------
+        String legalName = employer == null ? "L'entreprise" : employer.legalName();
+        w.leftText((employer == null ? "L'EMPLOYEUR" : legalName.toUpperCase()), true, 13);
+        if (employer != null) {
+            if (employer.legalForm() != null) {
+                String form = employer.legalForm();
+                if (employer.capitalShare() != null) {
+                    form += " au capital de " + money(employer.capitalShare()) + " FCFA";
+                }
+                w.text(form);
+            }
+            String address = buildAddress(employer);
+            if (address != null) {
+                w.text(address);
+            }
+            String contact = joinWithDot(
+                    employer.phone() == null ? null : "Tél : " + employer.phone(),
+                    employer.email());
+            if (!contact.isEmpty()) {
+                w.text(contact);
+            }
+            String ids = joinWithDot(
+                    employer.registrationNumber() == null ? null : "RCCM : " + employer.registrationNumber(),
+                    employer.taxNumber() == null ? null : "N° contribuable : " + employer.taxNumber(),
+                    employer.cnpsEmployerNumber() == null ? null : "N° CNPS : " + employer.cnpsEmployerNumber());
+            if (!ids.isEmpty()) {
+                w.text(ids);
+            }
+        }
+        w.spacer(4);
+        w.rule(1.2f);
+        w.spacer(10);
+
+        // --- Place and date -----------------------------------------------------------
+        String city = employer != null && employer.city() != null ? employer.city() : "Douala";
+        w.rightText("Fait à " + city + ", le " + LocalDate.now().format(DATE));
         w.spacer(8);
 
-        String employerName = employer == null ? "L'employeur" : employer.legalName();
-        String ceoName = employer != null && employer.ceoName() != null ? employer.ceoName() : "";
-        String period = v.hireDate().format(DATE) + " au "
-                + (v.departureDate() == null ? "ce jour" : v.departureDate().format(DATE));
-        w.paragraph("Nous, soussignés " + employerName
-                + (ceoName.isEmpty() ? "" : ", représentée par " + ceoName)
-                + ", certifions que "
-                + nullSafe(v.employeeName()) + " (matricule " + nullSafe(v.matricule()) + ") "
-                + "a été employé(e) au sein de notre entreprise du " + period
-                + " en qualité de " + nullSafe(v.position()) + ".");
-
-        w.spacer(6);
-        w.paragraph(nullSafe(v.employeeName()) + " quitte notre entreprise libre de tout engagement.");
-
-        w.spacer(6);
-        w.paragraph("En foi de quoi le présent certificat lui est délivré pour servir et valoir "
-                + "ce que de droit.");
-
-        // Location, date, and signature
-        w.spacer(12);
-        String city = employer != null && employer.city() != null ? employer.city() : "Douala";
-        w.text("Fait à " + city + ", le " + LocalDate.now().format(DATE));
-        w.spacer(20);
-        if (!ceoName.isEmpty()) {
-            w.text(ceoName);
+        // --- Title --------------------------------------------------------------------
+        w.documentTitle("CERTIFICAT DE TRAVAIL");
+        if (seal != null) {
+            w.rightText("Réf. : " + seal.verificationCode());
         }
-        w.text("L'employeur");
+        w.spacer(10);
+
+        // --- Body ---------------------------------------------------------------------
+        String ceoName = employer != null && employer.ceoName() != null ? employer.ceoName() : "";
+        String intro = "Je soussigné" + (ceoName.isEmpty() ? "(e)" : ", " + ceoName)
+                + ", agissant en qualité de représentant légal de " + legalName
+                + ", certifie que :";
+        w.paragraphJustified(intro);
+        w.spacer(10);
+
+        w.kv("Nom et prénom(s)", nullSafe(v.employeeName()));
+        if (v.matricule() != null && !v.matricule().isBlank()) {
+            w.kv("Matricule", v.matricule());
+        }
+        w.kv("Emploi occupé", nullSafe(v.position()));
+        String from = v.hireDate().format(DATE);
+        String to = v.departureDate() == null ? "ce jour" : v.departureDate().format(DATE);
+        w.kv("Période d'emploi", "du " + from + " au " + to);
+        w.spacer(10);
+
+        w.paragraphJustified("a fait partie de notre personnel durant la période susmentionnée, "
+                + "en qualité de " + nullSafe(v.position()) + ".");
+        w.spacer(6);
+        w.paragraphJustified(nullSafe(v.employeeName())
+                + " quitte notre entreprise libre de tout engagement.");
+        w.spacer(6);
+        w.paragraphJustified("En foi de quoi, le présent certificat lui est délivré pour servir et "
+                + "valoir ce que de droit.");
+
+        // --- Signature block ----------------------------------------------------------
+        w.spacer(28);
+        w.rightText("Pour " + legalName);
+        if (!ceoName.isEmpty()) {
+            w.spacer(22);
+            w.rightText(ceoName, true, 10);
+            w.rightText("Représentant légal");
+        } else {
+            w.spacer(22);
+            w.rightText("L'employeur", true, 10);
+        }
 
         sealFooter(w, seal);
         return w.build();
+    }
+
+    private static String buildAddress(EmployerInfo e) {
+        if (e.address() == null) {
+            return null;
+        }
+        String address = e.address();
+        if (e.postalCode() != null) {
+            address += " - " + e.postalCode();
+        }
+        if (e.city() != null) {
+            address += " " + e.city();
+        }
+        return address;
+    }
+
+    private static String joinWithDot(String... parts) {
+        StringBuilder sb = new StringBuilder();
+        for (String part : parts) {
+            if (part == null || part.isBlank()) {
+                continue;
+            }
+            if (sb.length() > 0) {
+                sb.append(" \u00B7 ");
+            }
+            sb.append(part);
+        }
+        return sb.toString();
     }
 
     // ------------------------------------------------------------- shared bits
@@ -322,9 +412,9 @@ public final class PayrollPdfRenderer {
     /** Data needed to render a payslip (assembled by the service). */
     public record PayslipView(
             String periode, String employeeName, String matricule, String socialSecurityNo,
-            String categorie, String echelon, LocalDate hireDate, BigDecimal brut,
+            String categorie, String echelon, String position, LocalDate hireDate, BigDecimal brut,
             BigDecimal totalDeductions, BigDecimal incomeTax, BigDecimal employerCharges, BigDecimal net,
-            BigDecimal cumulGross, BigDecimal cumulNet, List<PayslipLine> lines,
+            BigDecimal cumulGross, BigDecimal cumulNet, BigDecimal leaveBalanceRemaining, List<PayslipLine> lines,
             String paymentChannel, String accountRef) {
     }
 

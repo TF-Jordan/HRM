@@ -134,6 +134,92 @@ public final class PdfDocumentWriter {
         return this;
     }
 
+    /** A left-aligned line with explicit weight and size (e.g. a letterhead company name). */
+    public PdfDocumentWriter leftText(String text, boolean bold, float size) {
+        ensure(size + 5);
+        drawText(bold ? BOLD : REGULAR, size, MARGIN, y, text == null ? "" : text);
+        y -= size + 5;
+        return this;
+    }
+
+    /** A right-aligned line (regular, size 9) flush to the right margin. */
+    public PdfDocumentWriter rightText(String text) {
+        return rightText(text, false, 9);
+    }
+
+    /** A right-aligned line with explicit weight and size. */
+    public PdfDocumentWriter rightText(String text, boolean bold, float size) {
+        ensure(size + 5);
+        drawTextRight(bold ? BOLD : REGULAR, size, MARGIN + WIDTH, y, text == null ? "" : text);
+        y -= size + 5;
+        return this;
+    }
+
+    /** Centered, bold document title with an underline rule the exact width of the text. */
+    public PdfDocumentWriter documentTitle(String text) {
+        ensure(34);
+        float size = 15f;
+        float width = stringWidth(BOLD, size, text);
+        float x = MARGIN + (WIDTH - width) / 2;
+        drawText(BOLD, size, x, y, text);
+        float underlineY = y - 4;
+        try {
+            cs.setLineWidth(1f);
+            cs.moveTo(x, underlineY);
+            cs.lineTo(x + width, underlineY);
+            cs.stroke();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+        y -= 30;
+        return this;
+    }
+
+    /** A full-width horizontal rule of the given thickness. */
+    public PdfDocumentWriter rule(float thickness) {
+        ensure(thickness + 8);
+        try {
+            cs.setLineWidth(thickness);
+            cs.moveTo(MARGIN, y);
+            cs.lineTo(MARGIN + WIDTH, y);
+            cs.stroke();
+            cs.setLineWidth(1f);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+        y -= 8;
+        return this;
+    }
+
+    /** A wrapped paragraph whose non-final lines are justified to the full content width. */
+    public PdfDocumentWriter paragraphJustified(String textBlock) {
+        List<String> lines = wrap(REGULAR, 9, textBlock, WIDTH);
+        for (int i = 0; i < lines.size(); i++) {
+            drawJustified(lines.get(i), i == lines.size() - 1);
+        }
+        return this;
+    }
+
+    private void drawJustified(String line, boolean last) {
+        ensure(14);
+        if (last || !line.contains(" ")) {
+            drawText(REGULAR, 9, MARGIN, y, line);
+        } else {
+            String[] words = line.split(" ");
+            float wordsWidth = 0f;
+            for (String word : words) {
+                wordsWidth += stringWidth(REGULAR, 9, word);
+            }
+            float gap = (WIDTH - wordsWidth) / (words.length - 1);
+            float x = MARGIN;
+            for (String word : words) {
+                drawText(REGULAR, 9, x, y, word);
+                x += stringWidth(REGULAR, 9, word) + gap;
+            }
+        }
+        y -= 14;
+    }
+
     public byte[] build() {
         closeStream();
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {

@@ -114,6 +114,8 @@ class PayrollDocumentServiceTest {
         when(runRepo.findById(TENANT, run.id())).thenReturn(Mono.just(run));
         when(lineRepo.findByEntry(TENANT, entry.id())).thenReturn(Flux.fromIterable(lines));
         when(hrmPort.findEmployee(TENANT, EMP)).thenReturn(Mono.just(employee()));
+        when(hrmPort.findAnnualLeaveBalance(any(), any(), org.mockito.ArgumentMatchers.anyInt()))
+                .thenReturn(Mono.empty());
         when(employerPort.find(TENANT, ORG)).thenReturn(Mono.just(employer()));
         when(accumulatorRepo.findByEmployeeAndYear(any(), any(), org.mockito.ArgumentMatchers.anyInt()))
                 .thenReturn(Mono.empty());
