@@ -1,0 +1,6 @@
+matricule,nom,email,numCnps,categorie,echelon,departement,dateEmbauche,situationMatrimoniale,enfants,salaireBase,avantagesNature,poste,modePaiement,compte
+EMP-101,Jean Mballa,jean.mballa@example.cm,123456789,6,B,FIN,2022-01-15,MARRIED,2,450000,50000,Comptable,BANK_TRANSFER,CM21-10005-00001-12345678901-23
+EMP-102,Awa Ngono,awa.ngono@example.cm,987654321,4,A,ADM,2023-06-01,SINGLE,0,300000,0,Assistante,MTN_MOBILE_MONEY,677000000
+EMP-103,Paul Etogo,paul.etogo@example.cm,555123456,7,C,IT,2021-09-20,MARRIED,3,650000,80000,Lead Developer,BANK_TRANSFER,CM21-10005-00001-98765432101-89
+EMP-104,Marie Tchinda,marie.tchinda@example.cm,,3,A,RH,2024-02-10,DIVORCED,1,250000,0,Stagiaire RH,ORANGE_MONEY,699000000
+EMP-105,Samuel Biya,samuel.biya@example.cm,777888999,8,A,DG,2019-03-01,MARRIED,4,1200000,200000,Directeur Général,BANK_TRANSFER,CM21-10005-00001-11122233344-55
