@@ -3,7 +3,8 @@
   "status": {
     "DRAFT": "Brouillon",
     "SUBMITTED": "Soumis",
-    "VALIDATED": "Validé"
+    "VALIDATED": "Validé",
+    "REJECTED": "Rejeté"
   },
   "hours": {
     "normales": "Heures normales",
@@ -24,6 +25,7 @@
     "viewDetail": "Voir le détail",
     "filters": {
       "toValidate": "À valider",
+      "rejected": "Rejetés",
       "all": "Tous"
     },
     "kpi": {
@@ -33,6 +35,8 @@
       "validatedSub": "pris en compte paie",
       "totalHours": "Heures totales",
       "totalHoursSub": "cumul de la période",
+      "rejected": "Rejetés",
+      "rejectedSub": "à corriger par l'employé",
       "absences": "Absences",
       "absencesSub": "non justifiées (déduites)"
     },
@@ -64,7 +68,8 @@
       "submitSuccess": "Pointage soumis pour validation",
       "draftHint": "Brouillon — pensez à le soumettre pour validation.",
       "submittedHint": "En attente de validation par votre manager.",
-      "validatedHint": "Validé — pris en compte dans votre paie."
+      "validatedHint": "Validé — pris en compte dans votre paie.",
+      "rejectedHint": "Rejeté par votre manager. Consultez le motif ci-dessous."
     },
     "kpis": {
       "total": "Total heures",
@@ -119,10 +124,17 @@
     "title": "Saisie de temps",
     "actions": {
       "submit": "Soumettre",
-      "validate": "Valider"
+      "validate": "Valider",
+      "reject": "Rejeter"
     },
     "submitSuccess": "Timesheet soumis",
     "validateSuccess": "Timesheet validé",
-    "breakdown": "Détail des heures"
+    "rejectSuccess": "Timesheet rejeté",
+    "breakdown": "Détail des heures",
+    "rejectionComment": "Motif du rejet",
+    "rejectionCommentPlaceholder": "Indiquez la raison du rejet…",
+    "rejectionCommentRequired": "Le motif du rejet est obligatoire.",
+    "rejectConfirmTitle": "Rejeter ce pointage ?",
+    "rejectConfirmDescription": "L'employé sera notifié du rejet et pourra consulter le motif."
   }
 }

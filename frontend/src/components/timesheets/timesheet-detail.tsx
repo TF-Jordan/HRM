@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { CheckCircle2, ChevronLeft, Clock, Loader2, Send } from "lucide-react";
+import { AlertTriangle, CheckCircle2, ChevronLeft, Clock, Loader2, Send, XCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
 import * as React from "react";
 import { toast } from "sonner";
@@ -17,6 +17,7 @@ import { AppLink as Link } from "@/components/ui/app-link";
 import { apiFetch, BffApiError } from "@/lib/api-client";
 import { formatPeriod } from "@/lib/format";
 import { timesheetStatusTone, timesheetTotalHours } from "@/lib/timesheet-status";
+import { cn } from "@/lib/utils";
 import type { TimesheetResponse } from "@/server/ksm/modules/timesheets";
 
 export function TimesheetDetail({ timesheetId }: { timesheetId: string }) {
@@ -29,6 +30,11 @@ export function TimesheetDetail({ timesheetId }: { timesheetId: string }) {
 
   const canCreate = useCan("hrm:timesheet:create");
   const canValidate = useCan("hrm:timesheet:validate");
+
+  // Reject modal state
+  const [showRejectModal, setShowRejectModal] = React.useState(false);
+  const [rejectComment, setRejectComment] = React.useState("");
+  const [rejectError, setRejectError] = React.useState(false);
 
   const query = useQuery({
     queryKey: ["hrm", "timesheet", timesheetId],
@@ -67,6 +73,29 @@ export function TimesheetDetail({ timesheetId }: { timesheetId: string }) {
     onError: handleApiError,
   });
 
+  const rejectMutation = useMutation({
+    mutationFn: (comment: string) =>
+      apiFetch<TimesheetResponse>(`/api/hrm/timesheets/${timesheetId}/reject`, {
+        method: "POST",
+        body: { comment },
+      }),
+    onSuccess: () => {
+      toast.success(tDetail("rejectSuccess"));
+      setShowRejectModal(false);
+      setRejectComment("");
+      invalidate();
+    },
+    onError: handleApiError,
+  });
+
+  function handleRejectSubmit() {
+    if (!rejectComment.trim()) {
+      setRejectError(true);
+      return;
+    }
+    rejectMutation.mutate(rejectComment.trim());
+  }
+
   if (query.isLoading) {
     return (
       <div className="grid place-items-center py-20">
@@ -85,6 +114,7 @@ export function TimesheetDetail({ timesheetId }: { timesheetId: string }) {
   const ts = query.data;
   const isDraft = ts.status === "DRAFT";
   const isSubmitted = ts.status === "SUBMITTED";
+  const isRejected = ts.status === "REJECTED";
 
   const steps: WorkflowStep[] = [
     { key: "draft", label: t("status.DRAFT"), state: ts.status === "DRAFT" ? "active" : "done" },
@@ -92,13 +122,27 @@ export function TimesheetDetail({ timesheetId }: { timesheetId: string }) {
       key: "submitted",
       label: t("status.SUBMITTED"),
       state:
-        ts.status === "SUBMITTED" ? "active" : ts.status === "VALIDATED" ? "done" : "pending",
+        ts.status === "SUBMITTED"
+          ? "active"
+          : ts.status === "VALIDATED" || ts.status === "REJECTED"
+            ? "done"
+            : "pending",
     },
-    {
-      key: "validated",
-      label: t("status.VALIDATED"),
-      state: ts.status === "VALIDATED" ? "done" : "pending",
-    },
+    ...(isRejected
+      ? [
+          {
+            key: "rejected" as const,
+            label: t("status.REJECTED"),
+            state: "active" as const,
+          },
+        ]
+      : [
+          {
+            key: "validated" as const,
+            label: t("status.VALIDATED"),
+            state: (ts.status === "VALIDATED" ? "done" : "pending") as "done" | "pending",
+          },
+        ]),
   ];
 
   const num = (v: number | string) => Number(v).toFixed(1);
@@ -156,18 +200,33 @@ export function TimesheetDetail({ timesheetId }: { timesheetId: string }) {
               </Button>
             )}
             {canValidate && isSubmitted && (
-              <Button
-                type="button"
-                onClick={() => validateMutation.mutate()}
-                disabled={validateMutation.isPending}
-              >
-                {validateMutation.isPending ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <CheckCircle2 className="h-4 w-4" />
-                )}
-                {tDetail("actions.validate")}
-              </Button>
+              <>
+                <Button
+                  type="button"
+                  onClick={() => validateMutation.mutate()}
+                  disabled={validateMutation.isPending}
+                >
+                  {validateMutation.isPending ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <CheckCircle2 className="h-4 w-4" />
+                  )}
+                  {tDetail("actions.validate")}
+                </Button>
+                <Button
+                  type="button"
+                  variant="danger"
+                  onClick={() => {
+                    setShowRejectModal(true);
+                    setRejectComment("");
+                    setRejectError(false);
+                  }}
+                  disabled={rejectMutation.isPending}
+                >
+                  <XCircle className="h-4 w-4" />
+                  {tDetail("actions.reject")}
+                </Button>
+              </>
             )}
           </>
         }
@@ -178,6 +237,23 @@ export function TimesheetDetail({ timesheetId }: { timesheetId: string }) {
           <WorkflowStepper steps={steps} />
         </CardContent>
       </Card>
+
+      {/* Rejection banner */}
+      {isRejected && ts.rejectionComment && (
+        <Card className="mb-6">
+          <CardContent padding="lg">
+            <div className="flex items-start gap-3">
+              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-danger-50 text-danger-600">
+                <AlertTriangle className="h-4.5 w-4.5" />
+              </span>
+              <div>
+                <p className="text-[13px] font-semibold text-danger-700">{tDetail("rejectionComment")}</p>
+                <p className="mt-1 text-[13.5px] text-ink-2">{ts.rejectionComment}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <Card>
         <CardContent padding="lg">
@@ -211,6 +287,57 @@ export function TimesheetDetail({ timesheetId }: { timesheetId: string }) {
           </p>
         </CardContent>
       </Card>
+
+      {/* Reject modal */}
+      {showRejectModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setShowRejectModal(false)}>
+          <div
+            className="mx-4 w-full max-w-md rounded-[20px] border border-line bg-white p-6 shadow-lg"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-[16px] font-semibold text-ink">{tDetail("rejectConfirmTitle")}</h3>
+            <p className="mt-1 text-[13px] text-ink-3">{tDetail("rejectConfirmDescription")}</p>
+            <label className="mt-4 block text-[12.5px] font-medium text-ink-2">
+              {tDetail("rejectionComment")}
+            </label>
+            <textarea
+              className={cn(
+                "mt-1.5 w-full rounded-[12px] border bg-bg-soft px-3.5 py-2.5 text-[13.5px] text-ink placeholder:text-ink-4 focus:outline-none focus:ring-2 focus:ring-orange-400",
+                rejectError ? "border-danger-500" : "border-line",
+              )}
+              rows={3}
+              placeholder={tDetail("rejectionCommentPlaceholder")}
+              value={rejectComment}
+              onChange={(e) => {
+                setRejectComment(e.target.value);
+                if (rejectError && e.target.value.trim()) setRejectError(false);
+              }}
+              autoFocus
+            />
+            {rejectError && (
+              <p className="mt-1 text-[12px] text-danger-600">{tDetail("rejectionCommentRequired")}</p>
+            )}
+            <div className="mt-5 flex items-center justify-end gap-2">
+              <Button type="button" variant="secondary" onClick={() => setShowRejectModal(false)}>
+                Annuler
+              </Button>
+              <Button
+                type="button"
+                variant="danger"
+                disabled={rejectMutation.isPending}
+                onClick={handleRejectSubmit}
+              >
+                {rejectMutation.isPending ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <XCircle className="h-4 w-4" />
+                )}
+                {tDetail("actions.reject")}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

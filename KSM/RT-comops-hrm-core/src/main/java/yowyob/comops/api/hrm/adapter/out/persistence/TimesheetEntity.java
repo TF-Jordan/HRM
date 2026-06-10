@@ -24,5 +24,6 @@ public record TimesheetEntity(
         BigDecimal heuresNuit,
         BigDecimal heuresWeekend,
         BigDecimal absencesNonJustifiees,
-        String status) implements PersistableEntity {
+        String status,
+        String rejectionComment) implements PersistableEntity {
 }

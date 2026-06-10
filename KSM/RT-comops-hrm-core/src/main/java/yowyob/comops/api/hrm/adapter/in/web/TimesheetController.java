@@ -55,6 +55,17 @@ public class TimesheetController {
                 .map(r -> ResponseEntity.ok(ApiResponse.success(r, "Timesheet validated.")));
     }
 
+    @PutMapping("/{timesheetId}/reject")
+    @PreAuthorize("@businessAccessPolicy.hasPermission(authentication, 'hrm:timesheet:validate')")
+    public Mono<ResponseEntity<ApiResponse<TimesheetResponse>>> rejectTimesheet(
+            @PathVariable UUID timesheetId, @Valid @RequestBody Mono<RejectTimesheetRequest> requestMono) {
+        return requestMono.flatMap(req -> manageTimesheetUseCase.rejectTimesheet(timesheetId, req.comment()))
+                .map(TimesheetResponse::from)
+                .map(r -> ResponseEntity.ok(ApiResponse.success(r, "Timesheet rejected.")));
+    }
+
+    public record RejectTimesheetRequest(String comment) {}
+
     @GetMapping("/{timesheetId}")
     @PreAuthorize("@businessAccessPolicy.hasPermission(authentication, 'hrm:timesheet:read')")
     public Mono<ResponseEntity<ApiResponse<TimesheetResponse>>> getTimesheet(@PathVariable UUID timesheetId) {
@@ -92,11 +103,11 @@ public class TimesheetController {
 
     public record TimesheetResponse(UUID id, UUID employeeId, String periode, BigDecimal heuresNormales,
             BigDecimal heuresSupplementaires, BigDecimal heuresNuit, BigDecimal heuresWeekend,
-            BigDecimal absencesNonJustifiees, String status) {
+            BigDecimal absencesNonJustifiees, String status, String rejectionComment) {
         static TimesheetResponse from(Timesheet t) {
             return new TimesheetResponse(t.id(), t.employeeId(), t.periode(), t.heuresNormales(),
                     t.heuresSupplementaires(), t.heuresNuit(), t.heuresWeekend(),
-                    t.absencesNonJustifiees(), t.status().name());
+                    t.absencesNonJustifiees(), t.status().name(), t.rejectionComment());
         }
     }
 }

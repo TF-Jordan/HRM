@@ -15,6 +15,8 @@ public interface ManageTimesheetUseCase {
 
     Mono<Timesheet> validateTimesheet(UUID timesheetId);
 
+    Mono<Timesheet> rejectTimesheet(UUID timesheetId, String comment);
+
     Mono<Timesheet> getTimesheet(UUID timesheetId);
 
     Flux<Timesheet> listByEmployeeAndPeriode(UUID employeeId, String periode);

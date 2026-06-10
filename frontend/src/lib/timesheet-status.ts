@@ -16,6 +16,8 @@ export function timesheetStatusTone(status: TimesheetStatus): BadgeTone {
       return "success";
     case "SUBMITTED":
       return "info";
+    case "REJECTED":
+      return "danger";
     case "DRAFT":
       return "gray";
     default:

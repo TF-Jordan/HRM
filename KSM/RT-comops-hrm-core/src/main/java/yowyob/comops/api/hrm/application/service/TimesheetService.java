@@ -61,6 +61,15 @@ public class TimesheetService implements ManageTimesheetUseCase {
     }
 
     @Override
+    public Mono<Timesheet> rejectTimesheet(UUID timesheetId, String comment) {
+        return ReactiveRequestContextHolder.getRequiredContext()
+                .flatMap(context -> timesheetRepository.findById(context.tenantId(), timesheetId)
+                        .switchIfEmpty(Mono.error(new IllegalArgumentException("Timesheet not found")))
+                        .map(ts -> ts.reject(comment))
+                        .flatMap(timesheetRepository::save));
+    }
+
+    @Override
     public Mono<Timesheet> getTimesheet(UUID timesheetId) {
         return ReactiveRequestContextHolder.getRequiredContext()
                 .flatMap(context -> timesheetRepository.findById(context.tenantId(), timesheetId)

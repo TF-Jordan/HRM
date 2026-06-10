@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   AlarmClock,
+  AlertTriangle,
   CalendarClock,
   CheckCircle2,
   Clock,
@@ -12,6 +13,7 @@ import {
   Send,
   TrendingUp,
   UserX,
+  XCircle,
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import * as React from "react";
@@ -50,7 +52,7 @@ type PeriodAgg = {
   draftId: string | null;
 };
 
-const STATUS_RANK: Record<TimesheetStatus, number> = { DRAFT: 0, SUBMITTED: 1, VALIDATED: 2 };
+const STATUS_RANK: Record<TimesheetStatus, number> = { DRAFT: 0, SUBMITTED: 1, VALIDATED: 2, REJECTED: 3 };
 
 /** Legal overtime multipliers (Cameroon Labour Code) — mirrors payroll-core OT_DAY/NIGHT/SUNDAY. */
 const OT_MULTIPLIER = { day: "+25%", night: "+50%", weekend: "+75%" } as const;
@@ -188,6 +190,26 @@ export function MyTimesheets() {
             onSubmit={(id) => submitMutation.mutate(id)}
           />
 
+          {/* Rejection banner */}
+          {current?.status === "REJECTED" && (() => {
+            const rejectedTs = (query.data?.timesheets ?? []).find((ts) => ts.status === "REJECTED");
+            return rejectedTs?.rejectionComment ? (
+              <Card>
+                <CardContent padding="lg">
+                  <div className="flex items-start gap-3">
+                    <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-danger-50 text-danger-600">
+                      <AlertTriangle className="h-4.5 w-4.5" />
+                    </span>
+                    <div>
+                      <p className="text-[13px] font-semibold text-danger-700">{t("detail.rejectionComment")}</p>
+                      <p className="mt-1 text-[13.5px] text-ink-2">{rejectedTs.rejectionComment}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ) : null;
+          })()}
+
           {current && current.total + current.absences > 0 ? (
             <>
               <KpiRow current={current} tMy={tMy} fmtH={fmtH} />
@@ -243,7 +265,9 @@ function Hero({
         ? tMy("hero.draftHint")
         : current.status === "SUBMITTED"
           ? tMy("hero.submittedHint")
-          : tMy("hero.validatedHint");
+          : current.status === "REJECTED"
+            ? tMy("hero.rejectedHint")
+            : tMy("hero.validatedHint");
 
   return (
     <div className="overflow-hidden rounded-[22px] border border-line bg-gradient-to-br from-ink to-[#23314d] text-white shadow-sm">
@@ -317,27 +341,47 @@ function WorkflowStepper({
   status: TimesheetStatus | null;
   t: ReturnType<typeof useTranslations<"timesheets">>;
 }) {
-  const steps: TimesheetStatus[] = ["DRAFT", "SUBMITTED", "VALIDATED"];
+  const isRejected = status === "REJECTED";
+  const steps: TimesheetStatus[] = isRejected
+    ? ["DRAFT", "SUBMITTED", "REJECTED"]
+    : ["DRAFT", "SUBMITTED", "VALIDATED"];
   const rank = status ? STATUS_RANK[status] : -1;
   return (
     <div className="flex flex-col justify-center gap-3 rounded-[16px] bg-white/5 p-4">
       {steps.map((step, i) => {
-        const done = rank >= STATUS_RANK[step];
-        const active = rank === STATUS_RANK[step];
+        const done = step === "REJECTED" ? true : rank >= STATUS_RANK[step];
+        const active = step === status;
+        const rejected = step === "REJECTED";
         return (
           <div key={step} className="flex items-center gap-3">
             <span
               className={cn(
                 "grid h-7 w-7 shrink-0 place-items-center rounded-full text-[12px] font-semibold",
-                done ? "bg-orange-500 text-white" : "bg-white/10 text-white/50",
+                rejected
+                  ? "bg-red-500 text-white"
+                  : done
+                    ? "bg-orange-500 text-white"
+                    : "bg-white/10 text-white/50",
               )}
             >
-              {done ? <CheckCircle2 className="h-4 w-4" /> : i + 1}
+              {rejected ? (
+                <XCircle className="h-4 w-4" />
+              ) : done ? (
+                <CheckCircle2 className="h-4 w-4" />
+              ) : (
+                i + 1
+              )}
             </span>
             <span
               className={cn(
                 "text-[13px]",
-                active ? "font-semibold text-white" : done ? "text-white/85" : "text-white/45",
+                rejected
+                  ? "font-semibold text-red-300"
+                  : active
+                    ? "font-semibold text-white"
+                    : done
+                      ? "text-white/85"
+                      : "text-white/45",
               )}
             >
               {t(`status.${step}`)}
@@ -513,6 +557,7 @@ function PayImpact({
   ].filter((r) => r.value > 0);
 
   const validated = current.status === "VALIDATED";
+  const rejected = current.status === "REJECTED";
 
   return (
     <Card>
@@ -545,11 +590,17 @@ function PayImpact({
         <div
           className={cn(
             "mt-4 flex items-center gap-2 rounded-[12px] px-3 py-2.5 text-[12.5px]",
-            validated ? "bg-success-50 text-success-700" : "bg-warning-50 text-warning-700",
+            validated
+              ? "bg-success-50 text-success-700"
+              : rejected
+                ? "bg-danger-50 text-danger-700"
+                : "bg-warning-50 text-warning-700",
           )}
         >
           {validated ? (
             <CheckCircle2 className="h-4 w-4 shrink-0" />
+          ) : rejected ? (
+            <XCircle className="h-4 w-4 shrink-0" />
           ) : (
             <Clock className="h-4 w-4 shrink-0" />
           )}

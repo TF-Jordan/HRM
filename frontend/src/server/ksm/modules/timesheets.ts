@@ -3,7 +3,7 @@ import "server-only";
 import { callKsm } from "@/server/ksm/client";
 import type { AppSession } from "@/lib/types/auth";
 
-export type TimesheetStatus = "DRAFT" | "SUBMITTED" | "VALIDATED";
+export type TimesheetStatus = "DRAFT" | "SUBMITTED" | "VALIDATED" | "REJECTED";
 
 export type TimesheetResponse = {
   id: string;
@@ -15,6 +15,7 @@ export type TimesheetResponse = {
   heuresWeekend: number | string;
   absencesNonJustifiees: number | string;
   status: TimesheetStatus;
+  rejectionComment: string | null;
 };
 
 /** Timesheet joined (BFF-side) with the employee's identity for the admin console. */
@@ -58,6 +59,14 @@ export function validateTimesheet(timesheetId: string, session: AppSession) {
   return callKsm<TimesheetResponse>(
     `/api/v1/hrm/timesheets/${timesheetId}/validate`,
     { method: "PUT" },
+    { session },
+  );
+}
+
+export function rejectTimesheet(timesheetId: string, comment: string, session: AppSession) {
+  return callKsm<TimesheetResponse>(
+    `/api/v1/hrm/timesheets/${timesheetId}/reject`,
+    { method: "PUT", body: { comment } },
     { session },
   );
 }

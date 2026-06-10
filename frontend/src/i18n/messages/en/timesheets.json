@@ -3,7 +3,8 @@
   "status": {
     "DRAFT": "Draft",
     "SUBMITTED": "Submitted",
-    "VALIDATED": "Validated"
+    "VALIDATED": "Validated",
+    "REJECTED": "Rejected"
   },
   "hours": {
     "normales": "Regular hours",
@@ -24,6 +25,7 @@
     "viewDetail": "View detail",
     "filters": {
       "toValidate": "To validate",
+      "rejected": "Rejected",
       "all": "All"
     },
     "kpi": {
@@ -33,6 +35,8 @@
       "validatedSub": "counted in payroll",
       "totalHours": "Total hours",
       "totalHoursSub": "period total",
+      "rejected": "Rejected",
+      "rejectedSub": "to be corrected by employee",
       "absences": "Absences",
       "absencesSub": "unjustified (deducted)"
     },
@@ -64,7 +68,8 @@
       "submitSuccess": "Timesheet submitted for approval",
       "draftHint": "Draft — remember to submit it for approval.",
       "submittedHint": "Awaiting your manager's approval.",
-      "validatedHint": "Approved — included in your pay."
+      "validatedHint": "Approved — included in your pay.",
+      "rejectedHint": "Rejected by your manager. See the reason below."
     },
     "kpis": {
       "total": "Total hours",
@@ -119,10 +124,17 @@
     "title": "Time entry",
     "actions": {
       "submit": "Submit",
-      "validate": "Validate"
+      "validate": "Validate",
+      "reject": "Reject"
     },
     "submitSuccess": "Timesheet submitted",
     "validateSuccess": "Timesheet validated",
-    "breakdown": "Hours breakdown"
+    "rejectSuccess": "Timesheet rejected",
+    "breakdown": "Hours breakdown",
+    "rejectionComment": "Rejection reason",
+    "rejectionCommentPlaceholder": "Explain why you are rejecting…",
+    "rejectionCommentRequired": "Rejection reason is required.",
+    "rejectConfirmTitle": "Reject this timesheet?",
+    "rejectConfirmDescription": "The employee will be notified and can view the reason."
   }
 }

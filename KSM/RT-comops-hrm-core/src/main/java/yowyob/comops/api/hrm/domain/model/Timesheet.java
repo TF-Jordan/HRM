@@ -19,12 +19,14 @@ public final class Timesheet extends BaseEntity {
     private final BigDecimal heuresWeekend;
     private final BigDecimal absencesNonJustifiees;
     private final TimesheetStatus status;
+    private final String rejectionComment;
 
     private Timesheet(UUID id, UUID tenantId, Instant createdAt, Instant updatedAt,
                       UUID organizationId, UUID agencyId, UUID employeeId, String periode,
                       BigDecimal heuresNormales, BigDecimal heuresSupplementaires,
                       BigDecimal heuresNuit, BigDecimal heuresWeekend,
-                      BigDecimal absencesNonJustifiees, TimesheetStatus status) {
+                      BigDecimal absencesNonJustifiees, TimesheetStatus status,
+                      String rejectionComment) {
         super(id, tenantId, createdAt, updatedAt);
         this.organizationId = Objects.requireNonNull(organizationId);
         this.employeeId = Objects.requireNonNull(employeeId);
@@ -36,6 +38,7 @@ public final class Timesheet extends BaseEntity {
         this.heuresNuit = heuresNuit != null ? heuresNuit : BigDecimal.ZERO;
         this.heuresWeekend = heuresWeekend != null ? heuresWeekend : BigDecimal.ZERO;
         this.absencesNonJustifiees = absencesNonJustifiees != null ? absencesNonJustifiees : BigDecimal.ZERO;
+        this.rejectionComment = rejectionComment;
     }
 
     public static Timesheet create(UUID tenantId, UUID organizationId, UUID agencyId,
@@ -46,7 +49,7 @@ public final class Timesheet extends BaseEntity {
         Instant now = Instant.now();
         return new Timesheet(UUID.randomUUID(), tenantId, now, now, organizationId, agencyId,
                 employeeId, periode, heuresNormales, heuresSupplementaires, heuresNuit,
-                heuresWeekend, absencesNonJustifiees, TimesheetStatus.DRAFT);
+                heuresWeekend, absencesNonJustifiees, TimesheetStatus.DRAFT, null);
     }
 
     public static Timesheet rehydrate(UUID id, UUID tenantId, Instant createdAt, Instant updatedAt,
@@ -54,10 +57,10 @@ public final class Timesheet extends BaseEntity {
                                        String periode, BigDecimal heuresNormales,
                                        BigDecimal heuresSupplementaires, BigDecimal heuresNuit,
                                        BigDecimal heuresWeekend, BigDecimal absencesNonJustifiees,
-                                       TimesheetStatus status) {
+                                       TimesheetStatus status, String rejectionComment) {
         return new Timesheet(id, tenantId, createdAt, updatedAt, organizationId, agencyId,
                 employeeId, periode, heuresNormales, heuresSupplementaires, heuresNuit,
-                heuresWeekend, absencesNonJustifiees, status);
+                heuresWeekend, absencesNonJustifiees, status, rejectionComment);
     }
 
     public Timesheet submit() {
@@ -66,7 +69,7 @@ public final class Timesheet extends BaseEntity {
         }
         return new Timesheet(id(), tenantId(), createdAt(), Instant.now(), organizationId, agencyId,
                 employeeId, periode, heuresNormales, heuresSupplementaires, heuresNuit,
-                heuresWeekend, absencesNonJustifiees, TimesheetStatus.SUBMITTED);
+                heuresWeekend, absencesNonJustifiees, TimesheetStatus.SUBMITTED, null);
     }
 
     public Timesheet validate() {
@@ -75,7 +78,20 @@ public final class Timesheet extends BaseEntity {
         }
         return new Timesheet(id(), tenantId(), createdAt(), Instant.now(), organizationId, agencyId,
                 employeeId, periode, heuresNormales, heuresSupplementaires, heuresNuit,
-                heuresWeekend, absencesNonJustifiees, TimesheetStatus.VALIDATED);
+                heuresWeekend, absencesNonJustifiees, TimesheetStatus.VALIDATED, null);
+    }
+
+    public Timesheet reject(String comment) {
+        if (this.status != TimesheetStatus.SUBMITTED) {
+            throw new IllegalStateException("Cannot reject timesheet in status " + this.status);
+        }
+        Objects.requireNonNull(comment, "Rejection comment is required");
+        if (comment.isBlank()) {
+            throw new IllegalArgumentException("Rejection comment cannot be blank");
+        }
+        return new Timesheet(id(), tenantId(), createdAt(), Instant.now(), organizationId, agencyId,
+                employeeId, periode, heuresNormales, heuresSupplementaires, heuresNuit,
+                heuresWeekend, absencesNonJustifiees, TimesheetStatus.REJECTED, comment);
     }
 
     public UUID organizationId() { return organizationId; }
@@ -88,4 +104,5 @@ public final class Timesheet extends BaseEntity {
     public BigDecimal heuresWeekend() { return heuresWeekend; }
     public BigDecimal absencesNonJustifiees() { return absencesNonJustifiees; }
     public TimesheetStatus status() { return status; }
+    public String rejectionComment() { return rejectionComment; }
 }

@@ -51,13 +51,15 @@ public class TimesheetR2dbcRepositoryAdapter implements TimesheetRepository {
         return new TimesheetEntity(t.id(), t.tenantId(), t.createdAt(), t.updatedAt(),
                 t.organizationId(), t.agencyId(), t.employeeId(), t.periode(),
                 t.heuresNormales(), t.heuresSupplementaires(), t.heuresNuit(),
-                t.heuresWeekend(), t.absencesNonJustifiees(), t.status().name());
+                t.heuresWeekend(), t.absencesNonJustifiees(), t.status().name(),
+                t.rejectionComment());
     }
 
     private Timesheet toDomain(TimesheetEntity e) {
         return Timesheet.rehydrate(e.id(), e.tenantId(), e.createdAt(), e.updatedAt(),
                 e.organizationId(), e.agencyId(), e.employeeId(), e.periode(),
                 e.heuresNormales(), e.heuresSupplementaires(), e.heuresNuit(),
-                e.heuresWeekend(), e.absencesNonJustifiees(), TimesheetStatus.valueOf(e.status()));
+                e.heuresWeekend(), e.absencesNonJustifiees(), TimesheetStatus.valueOf(e.status()),
+                e.rejectionComment());
     }
 }
