@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 099-payroll-standalone-employees
+      author: claude
+      changes:
+        - sqlFile:
+            path: db/r2dbc/V99__payroll_standalone_employees.sql
+            relativeToChangelogFile: false

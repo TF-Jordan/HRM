@@ -294,3 +294,6 @@ databaseChangeLog:
   - include:
       file: releases/098-payroll-run-rejection.yaml
       relativeToChangelogFile: true
+  - include:
+      file: releases/099-payroll-standalone-employees.yaml
+      relativeToChangelogFile: true

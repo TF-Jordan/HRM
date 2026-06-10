@@ -64,6 +64,73 @@
     "bulkPartial": "{sent} bulletins envoyés, {failed} échec(s)",
     "failed": "Échec de l'envoi du bulletin par email"
   },
+  "localEmployees": {
+    "uc": "Paie autonome",
+    "title": "Employés paie",
+    "subtitle": "Référentiel des employés utilisé par le moteur de paie (import CSV ou saisie directe)",
+    "actions": {
+      "import": "Importer CSV",
+      "template": "Modèle CSV",
+      "add": "Ajouter",
+      "deactivate": "Désactiver"
+    },
+    "source": {
+      "HRM": "Source : module RH",
+      "HRMHint": "Les employés proviennent du module RH. Importez un CSV pour passer en mode paie autonome.",
+      "LOCAL": "Source : données paie locales",
+      "LOCALHint": "Le moteur de paie utilise les employés importés ci-dessous, sans dépendre du module RH."
+    },
+    "stats": {
+      "total": "Total",
+      "active": "Actifs"
+    },
+    "table": {
+      "title": "Employés",
+      "employee": "Employé",
+      "email": "Email",
+      "department": "Département",
+      "baseSalary": "Salaire de base",
+      "channel": "Paiement",
+      "status": "Statut",
+      "active": "Actif",
+      "inactive": "Inactif",
+      "emptyTitle": "Aucun employé paie",
+      "emptyHint": "Importez un fichier CSV pour alimenter le moteur de paie, ou ajoutez un employé manuellement."
+    },
+    "import": {
+      "title": "Importer des employés (CSV)",
+      "subtitle": "En-tête + une ligne par employé. Séparateur virgule ou point-virgule.",
+      "dropHint": "Cliquez pour choisir un fichier CSV",
+      "formatHint": "Colonnes requises : matricule, nom, dateEmbauche, salaireBase",
+      "linesDetected": "{count} ligne(s) détectée(s)",
+      "confirm": "Importer",
+      "close": "Fermer",
+      "reportTitle": "Rapport d'import",
+      "created": "Créés",
+      "updated": "Mis à jour",
+      "failed": "Erreurs"
+    },
+    "add": {
+      "title": "Ajouter un employé",
+      "subtitle": "Création manuelle d'un employé paie.",
+      "matricule": "Matricule",
+      "displayName": "Nom complet",
+      "email": "Email",
+      "hireDate": "Date d'embauche",
+      "baseSalary": "Salaire de base",
+      "department": "Département",
+      "confirm": "Créer",
+      "cancel": "Annuler"
+    },
+    "toasts": {
+      "created": "Employé créé",
+      "deactivated": "Employé désactivé",
+      "imported": "{created} créés, {updated} mis à jour",
+      "importedPartial": "Import terminé avec {errors} erreur(s)",
+      "importFailed": "Échec de l'import CSV",
+      "templateFailed": "Impossible de télécharger le modèle"
+    }
+  },
   "stepper": {
     "variables": "1 · Variables",
     "calculation": "2 · Calcul",

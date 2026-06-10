@@ -64,6 +64,73 @@
     "bulkPartial": "{sent} payslips sent, {failed} failure(s)",
     "failed": "Failed to send the payslip by email"
   },
+  "localEmployees": {
+    "uc": "Standalone payroll",
+    "title": "Payroll employees",
+    "subtitle": "Employee referential used by the payroll engine (CSV import or direct entry)",
+    "actions": {
+      "import": "Import CSV",
+      "template": "CSV template",
+      "add": "Add",
+      "deactivate": "Deactivate"
+    },
+    "source": {
+      "HRM": "Source: HR module",
+      "HRMHint": "Employees come from the HR module. Import a CSV to switch to standalone payroll mode.",
+      "LOCAL": "Source: local payroll data",
+      "LOCALHint": "The payroll engine uses the employees imported below, without depending on the HR module."
+    },
+    "stats": {
+      "total": "Total",
+      "active": "Active"
+    },
+    "table": {
+      "title": "Employees",
+      "employee": "Employee",
+      "email": "Email",
+      "department": "Department",
+      "baseSalary": "Base salary",
+      "channel": "Payment",
+      "status": "Status",
+      "active": "Active",
+      "inactive": "Inactive",
+      "emptyTitle": "No payroll employees",
+      "emptyHint": "Import a CSV file to feed the payroll engine, or add an employee manually."
+    },
+    "import": {
+      "title": "Import employees (CSV)",
+      "subtitle": "Header + one row per employee. Comma or semicolon separated.",
+      "dropHint": "Click to choose a CSV file",
+      "formatHint": "Required columns: matricule, name, hireDate, baseSalary",
+      "linesDetected": "{count} line(s) detected",
+      "confirm": "Import",
+      "close": "Close",
+      "reportTitle": "Import report",
+      "created": "Created",
+      "updated": "Updated",
+      "failed": "Errors"
+    },
+    "add": {
+      "title": "Add an employee",
+      "subtitle": "Manually create a payroll employee.",
+      "matricule": "Employee #",
+      "displayName": "Full name",
+      "email": "Email",
+      "hireDate": "Hire date",
+      "baseSalary": "Base salary",
+      "department": "Department",
+      "confirm": "Create",
+      "cancel": "Cancel"
+    },
+    "toasts": {
+      "created": "Employee created",
+      "deactivated": "Employee deactivated",
+      "imported": "{created} created, {updated} updated",
+      "importedPartial": "Import finished with {errors} error(s)",
+      "importFailed": "CSV import failed",
+      "templateFailed": "Could not download the template"
+    }
+  },
   "stepper": {
     "variables": "1 · Variables",
     "calculation": "2 · Calculation",

@@ -7,6 +7,7 @@ import { callKsm } from "@/server/ksm/client";
 import { logger } from "@/server/logger";
 import * as profileApi from "@/server/ksm/modules/employee-profile";
 import * as payrollApi from "@/server/ksm/modules/payroll";
+import * as payrollEmployeesApi from "@/server/ksm/modules/payroll-employees";
 import type { AppSession } from "@/lib/types/auth";
 
 /**
@@ -108,8 +109,9 @@ async function doSend(
   netToPay: string,
   session: AppSession,
 ): Promise<PayslipEmailOutcome> {
-  // 1. Resolve the recipient email + display name + matricule via the profile endpoint
-  //    (which carries actorEmail joined from actor-core).
+  // 1. Resolve the recipient email + display name + matricule. HRM tenants resolve via the
+  //    employee profile endpoint (actorEmail joined from actor-core); standalone payroll
+  //    tenants fall back to the payroll-owned employee record, which carries its own email.
   let recipientEmail: string | null = null;
   let employeeName = "";
   let matricule = "";
@@ -122,6 +124,16 @@ async function doSend(
     matricule = profile.matricule ?? "";
   } catch (cause) {
     logger.warn({ employeeId, cause: String(cause) }, "payslipMail.profile_lookup_failed");
+  }
+  if (!recipientEmail) {
+    try {
+      const local = await payrollEmployeesApi.getPayrollEmployee(employeeId, session);
+      recipientEmail = (local.email ?? "").trim() || null;
+      employeeName = employeeName || local.displayName;
+      matricule = matricule || local.matricule;
+    } catch {
+      // Not a payroll-local employee either — fall through to NO_EMAIL.
+    }
   }
   if (!recipientEmail) {
     return { entryId, employeeId, email: null, ok: false, reason: "NO_EMAIL" };

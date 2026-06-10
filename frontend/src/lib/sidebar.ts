@@ -253,6 +253,12 @@ const PAYROLL_MANAGER_SECTIONS: NavSection[] = [
     items: [
       { href: "/payroll", labelKey: "nav.runs", icon: Wallet, permission: "hrm:payroll:read" },
       {
+        href: "/payroll-employees",
+        labelKey: "nav.payrollEmployees",
+        icon: Users,
+        permission: "hrm:payroll:read",
+      },
+      {
         href: "/payroll-variables",
         labelKey: "nav.variables",
         icon: ClipboardList,
