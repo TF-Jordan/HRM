@@ -3,12 +3,21 @@ import "server-only";
 import { serverEnv } from "@/env";
 import { logger } from "@/server/logger";
 
+export type MailAttachment = {
+  filename: string;
+  /** Raw bytes (UTF-8 text or binary). Use Buffer for PDFs. */
+  content: Buffer;
+  /** Optional MIME type — defaults to application/octet-stream when omitted. */
+  contentType?: string;
+};
+
 export type MailMessage = {
   to: string;
   subject: string;
   html: string;
   text: string;
   replyTo?: string;
+  attachments?: MailAttachment[];
 };
 
 export type MailResult =
@@ -26,12 +35,15 @@ export async function sendMail(message: MailMessage): Promise<MailResult> {
 
   try {
     if (provider === "none") {
+      const attachmentList = (message.attachments ?? [])
+        .map((a) => `${a.filename} (${a.content.byteLength} B)`)
+        .join(", ");
       logger.warn(
-        { to: message.to, subject: message.subject, from },
+        { to: message.to, subject: message.subject, from, attachments: attachmentList || undefined },
         "mailer.dispatch_skipped (EMAIL_PROVIDER=none)",
       );
       console.log(
-        `\n[MAILER · NONE] from=${from} to=${message.to}\nsubject=${message.subject}\n---\n${message.text}\n---\n`,
+        `\n[MAILER · NONE] from=${from} to=${message.to}\nsubject=${message.subject}\n${attachmentList ? `attachments=${attachmentList}\n` : ""}---\n${message.text}\n---\n`,
       );
       return { ok: true, provider: "none" };
     }
@@ -57,6 +69,11 @@ export async function sendMail(message: MailMessage): Promise<MailResult> {
         text: message.text,
         html: message.html,
         replyTo,
+        attachments: message.attachments?.map((a) => ({
+          filename: a.filename,
+          content: a.content,
+          contentType: a.contentType,
+        })),
       });
       logger.info({ to: message.to, messageId: info.messageId }, "mailer.dispatch_ok");
       return { ok: true, provider: "smtp", id: info.messageId };
@@ -75,6 +92,11 @@ export async function sendMail(message: MailMessage): Promise<MailResult> {
         text: message.text,
         html: message.html,
         replyTo,
+        attachments: message.attachments?.map((a) => ({
+          filename: a.filename,
+          content: a.content,
+          contentType: a.contentType,
+        })),
       });
       if (result.error) {
         return { ok: false, provider: "resend", error: result.error.message };

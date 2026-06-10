@@ -54,6 +54,16 @@
     "rejectedAt": "Rejeté le {date}",
     "recalcHint": "Corrigez les éléments concernés puis recalculez la paie pour soumettre à nouveau."
   },
+  "email": {
+    "emailAll": "Envoyer à tous",
+    "sending": "Envoi en cours…",
+    "singleTooltip": "Envoyer le bulletin par email à cet employé",
+    "disabledTooltip": "L'envoi par email est disponible une fois le cycle validé par l'Admin RH",
+    "singleSuccess": "Bulletin envoyé à {email}",
+    "bulkSuccess": "{count} bulletins envoyés par email",
+    "bulkPartial": "{sent} bulletins envoyés, {failed} échec(s)",
+    "failed": "Échec de l'envoi du bulletin par email"
+  },
   "stepper": {
     "variables": "1 · Variables",
     "calculation": "2 · Calcul",

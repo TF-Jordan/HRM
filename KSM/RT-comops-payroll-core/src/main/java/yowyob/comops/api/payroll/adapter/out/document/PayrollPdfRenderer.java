@@ -65,89 +65,115 @@ public final class PayrollPdfRenderer {
 
     public static byte[] renderPayslip(PayslipView v, EmployerInfo employer, DocumentSeal seal) {
         PdfDocumentWriter w = new PdfDocumentWriter();
-        w.title("BULLETIN DE PAIE");
+
+        // ════════════════════ TITLE (centered, ink-coloured underline) ════════════════════
+        w.documentTitle("BULLETIN DE PAIE");
+        w.spacer(2);
         w.text("Période : " + v.periode());
         if (employer != null && employer.conventionCollective() != null) {
             w.text("Convention collective : " + employer.conventionCollective());
         }
+
+        // ════════════════════ EMPLOYER ════════════════════
+        w.spacer(6);
+        w.sectionLabel("Employeur");
         employerHeader(w, employer);
 
-        w.heading("Salarié");
-        w.kv("Nom", v.employeeName());
-        w.kv("Matricule", v.matricule());
+        // ════════════════════ EMPLOYEE ════════════════════
+        w.spacer(6);
+        w.sectionLabel("Salarié");
+        w.kvSoft("Nom", v.employeeName());
+        w.kvSoft("Matricule", v.matricule());
         if (v.position() != null && !v.position().isBlank()) {
-            w.kv("Poste / fonction", v.position());
+            w.kvSoft("Poste / fonction", v.position());
         }
-        w.kv("N° CNPS", v.socialSecurityNo());
-        w.kv("Catégorie / Échelon", nullSafe(v.categorie()) + " / " + nullSafe(v.echelon()));
+        w.kvSoft("N° CNPS", v.socialSecurityNo());
+        w.kvSoft("Catégorie / Échelon", nullSafe(v.categorie()) + " / " + nullSafe(v.echelon()));
         if (v.hireDate() != null) {
-            w.kv("Date d'embauche", v.hireDate().format(DATE));
+            w.kvSoft("Date d'embauche", v.hireDate().format(DATE));
         }
 
-        // --- Earnings and employee deductions ---
-        w.heading("Détail des éléments de paie");
-        w.row("Libellé", "Base", "Taux", "Montant", true);
-        w.separator();
+        // ════════════════════ PAY ELEMENTS ════════════════════
+        w.spacer(8);
+        w.sectionLabel("Détail des éléments de paie");
+        w.tableHeader("Libellé", "Base", "Taux", "Montant");
         for (PayslipLine line : v.lines()) {
             if (line.type() == PayslipLineType.EARNING || line.type() == PayslipLineType.DEDUCTION) {
-                w.row(line.libelle(), line.base() == null ? null : money(line.base()),
-                        line.taux() == null ? null : ratePct(line.taux()), money(line.montant()), false);
+                w.row(line.libelle(),
+                        line.base() == null ? null : money(line.base()),
+                        line.taux() == null ? null : ratePct(line.taux()),
+                        money(line.montant()), false);
             }
         }
-        w.separator();
-        w.row("SALAIRE BRUT", null, null, money(v.brut()), true);
+
+        // SALAIRE BRUT subtotal — soft band, bold ink.
+        w.subtotalRow("Salaire brut", money(v.brut()));
+
+        // Retenues
         w.row("Total retenues salariales", null, null, money(v.totalDeductions()), false);
         if (v.incomeTax() != null && v.incomeTax().signum() > 0) {
-            w.row("  dont IRPP", null, null, money(v.incomeTax()), false);
+            w.row("    dont IRPP", null, null, money(v.incomeTax()), false);
         }
-        w.separator();
-        w.row("NET À PAYER", null, null, money(v.net()), true);
+        w.strongSeparator();
 
-        // --- Employer charges ---
+        // NET À PAYER — ink band, white text.
+        w.netToPayBand("NET À PAYER", money(v.net()) + " XAF");
+
+        // ════════════════════ EMPLOYER CHARGES ════════════════════
         boolean hasEmployerLines = v.lines().stream()
                 .anyMatch(l -> l.type() == PayslipLineType.EMPLOYER_INFO);
         if (hasEmployerLines || (v.employerCharges() != null && v.employerCharges().signum() > 0)) {
-            w.heading("Charges patronales");
+            w.spacer(8);
+            w.sectionLabel("Charges patronales");
+            w.tableHeader("Libellé", "Base", "Taux", "Montant");
             for (PayslipLine line : v.lines()) {
                 if (line.type() == PayslipLineType.EMPLOYER_INFO) {
-                    w.row(line.libelle(), line.base() == null ? null : money(line.base()),
-                            line.taux() == null ? null : ratePct(line.taux()), money(line.montant()), false);
+                    w.row(line.libelle(),
+                            line.base() == null ? null : money(line.base()),
+                            line.taux() == null ? null : ratePct(line.taux()),
+                            money(line.montant()), false);
                 }
             }
-            w.separator();
-            w.row("TOTAL CHARGES PATRONALES", null, null, money(v.employerCharges()), true);
+            w.subtotalRow("Total charges patronales", money(v.employerCharges()));
         }
 
-        // --- Annual cumulative ---
+        // ════════════════════ ANNUAL CUMULATIVE ════════════════════
         if (v.cumulGross() != null || v.cumulNet() != null) {
-            w.heading("Cumuls annuels");
-            w.kv("Brut cumulé", money(v.cumulGross()));
-            w.kv("Net cumulé", money(v.cumulNet()));
+            w.spacer(8);
+            w.sectionLabel("Cumuls annuels");
+            if (v.cumulGross() != null) w.kvSoft("Brut cumulé", money(v.cumulGross()));
+            if (v.cumulNet() != null) w.kvSoft("Net cumulé", money(v.cumulNet()));
         }
 
-        // --- Leave balance ---
+        // ════════════════════ LEAVE BALANCE ════════════════════
         if (v.leaveBalanceRemaining() != null) {
-            w.heading("Congés");
-            w.kv("Solde de congés (jours)", v.leaveBalanceRemaining().stripTrailingZeros().toPlainString());
+            w.spacer(6);
+            w.sectionLabel("Congés");
+            w.kvSoft("Solde de congés (jours)",
+                    v.leaveBalanceRemaining().stripTrailingZeros().toPlainString());
         }
 
-        // --- Payment info ---
+        // ════════════════════ PAYMENT ════════════════════
         if (v.paymentChannel() != null) {
-            w.heading("Mode de paiement");
-            w.kv("Canal", v.paymentChannel());
+            w.spacer(6);
+            w.sectionLabel("Mode de paiement");
+            w.kvSoft("Canal", v.paymentChannel());
             if (v.accountRef() != null) {
-                w.kv("Référence", v.accountRef());
+                w.kvSoft("Référence", v.accountRef());
             }
         }
 
-        w.spacer(6);
-        w.paragraph("Arrêté le présent bulletin à la somme nette de "
+        // ════════════════════ CERTIFICATION (italic, grey) ════════════════════
+        w.spacer(8);
+        w.rule(0.5f, PdfDocumentWriter.LINE);
+        w.spacer(4);
+        w.italicClause("Arrêté le présent bulletin à la somme nette de "
                 + AmountToFrenchWords.moneyInWords(v.net(), "francs CFA") + ".");
 
-        // --- Location and date ---
+        // Location and date
         String city = employer != null && employer.city() != null ? employer.city() : "Douala";
-        w.spacer(6);
-        w.text("Fait à " + city + ", le " + LocalDate.now().format(DATE));
+        w.spacer(4);
+        w.italicClause("Fait à " + city + ", le " + LocalDate.now().format(DATE) + ".");
 
         sealFooter(w, seal);
         return w.build();
@@ -338,18 +364,17 @@ public final class PayrollPdfRenderer {
     // ------------------------------------------------------------- shared bits
 
     private static void employerHeader(PdfDocumentWriter w, EmployerInfo employer) {
-        w.heading("Employeur");
         if (employer == null) {
             w.text("—");
             return;
         }
-        w.kv("Raison sociale", employer.legalName());
+        w.kvSoft("Raison sociale", employer.legalName());
         if (employer.legalForm() != null) {
             String formLine = employer.legalForm();
             if (employer.capitalShare() != null) {
                 formLine += " au capital de " + money(employer.capitalShare()) + " FCFA";
             }
-            w.kv("Forme juridique", formLine);
+            w.kvSoft("Forme juridique", formLine);
         }
         if (employer.address() != null) {
             String addr = employer.address();
@@ -359,22 +384,22 @@ public final class PayrollPdfRenderer {
             if (employer.city() != null) {
                 addr += " " + employer.city();
             }
-            w.kv("Adresse", addr);
+            w.kvSoft("Adresse", addr);
         }
         if (employer.phone() != null) {
-            w.kv("Tél", employer.phone());
+            w.kvSoft("Tél", employer.phone());
         }
         if (employer.email() != null) {
-            w.kv("Email", employer.email());
+            w.kvSoft("Email", employer.email());
         }
         if (employer.registrationNumber() != null) {
-            w.kv("RCCM", employer.registrationNumber());
+            w.kvSoft("RCCM", employer.registrationNumber());
         }
         if (employer.taxNumber() != null) {
-            w.kv("N° contribuable", employer.taxNumber());
+            w.kvSoft("N° contribuable", employer.taxNumber());
         }
         if (employer.cnpsEmployerNumber() != null) {
-            w.kv("N° CNPS employeur", employer.cnpsEmployerNumber());
+            w.kvSoft("N° CNPS employeur", employer.cnpsEmployerNumber());
         }
     }
 

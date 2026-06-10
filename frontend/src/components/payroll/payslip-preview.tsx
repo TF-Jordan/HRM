@@ -1,18 +1,20 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { ArrowLeft, Download, Loader2, Mail } from "lucide-react";
 import { useTranslations } from "next-intl";
 import * as React from "react";
+import { toast } from "sonner";
 
 import { PageHeader } from "@/components/shell/page-header";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useSession } from "@/components/providers/session-provider";
+import { useCan } from "@/hooks/use-can";
 import { Link } from "@/i18n/navigation";
 import { apiFetch, BffApiError } from "@/lib/api-client";
 import { formatMoney } from "@/lib/format";
-import { formatPeriodFr } from "@/lib/payroll-status";
+import { formatPeriodFr, isPayrollEmailable } from "@/lib/payroll-status";
 import type { OrganizationResponse } from "@/server/ksm/modules/organization";
 import type { EmployeeResponse } from "@/server/ksm/modules/employees";
 import type {
@@ -103,6 +105,23 @@ export function PayslipPreview({ runId, entryId }: { runId: string; entryId: str
       setIsDownloading(false);
     }
   }
+
+  const canRun = useCan("hrm:payroll:run");
+  const emailEnabled = !!run && canRun && isPayrollEmailable(run.status);
+
+  const emailMutation = useMutation({
+    mutationFn: () =>
+      apiFetch<{ ok: true; email: string }>(
+        `/api/hrm/payroll/${runId}/entries/${entryId}/email`,
+        { method: "POST" },
+      ),
+    onSuccess: (data) => {
+      toast.success(t("email.singleSuccess", { email: data.email ?? "" }));
+    },
+    onError: (cause) => {
+      toast.error(cause instanceof BffApiError ? cause.message : t("email.failed"));
+    },
+  });
 
   const fmt = (v: number | string | null | undefined) =>
     formatMoney(Number(v ?? 0), { locale, withCurrency: false });
@@ -408,9 +427,19 @@ export function PayslipPreview({ runId, entryId }: { runId: string; entryId: str
             {/* ══════════════════ FOOTER ACTIONS ══════════════════ */}
             <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-line-soft pt-4">
               <div className="ml-auto flex flex-wrap items-center gap-2">
-                <Button variant="secondary" size="sm">
-                  <Mail className="h-3.5 w-3.5" />
-                  {t("actions.emailPayslip")}
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => emailMutation.mutate()}
+                  disabled={!emailEnabled || emailMutation.isPending}
+                  title={emailEnabled ? undefined : t("email.disabledTooltip")}
+                >
+                  {emailMutation.isPending ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <Mail className="h-3.5 w-3.5" />
+                  )}
+                  {emailMutation.isPending ? t("email.sending") : t("actions.emailPayslip")}
                 </Button>
                 <Button
                   size="sm"

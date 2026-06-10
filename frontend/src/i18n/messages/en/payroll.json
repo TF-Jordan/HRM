@@ -54,6 +54,16 @@
     "rejectedAt": "Rejected on {date}",
     "recalcHint": "Fix the flagged items then recalculate payroll to resubmit."
   },
+  "email": {
+    "emailAll": "Email all",
+    "sending": "Sending…",
+    "singleTooltip": "Email this payslip to the employee",
+    "disabledTooltip": "Email sending is unlocked once the HR admin validates the cycle",
+    "singleSuccess": "Payslip sent to {email}",
+    "bulkSuccess": "{count} payslips sent by email",
+    "bulkPartial": "{sent} payslips sent, {failed} failure(s)",
+    "failed": "Failed to send the payslip by email"
+  },
   "stepper": {
     "variables": "1 · Variables",
     "calculation": "2 · Calculation",

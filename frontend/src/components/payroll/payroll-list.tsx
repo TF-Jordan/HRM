@@ -1,6 +1,6 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   ChevronRight,
   Download,
@@ -28,6 +28,7 @@ import { toast } from "sonner";
 import {
   formatPeriodFr,
   getPayrollWindowState,
+  isPayrollEmailable,
   isPayrollRunTerminal,
   payrollStatusProgress,
   payrollStatusTone,
@@ -132,7 +133,9 @@ export function PayrollList() {
             </div>
             <RunsTable runs={visibleRuns} t={t} locale={locale} />
           </Card>
-          {active && <InlinePayslip runId={active.id} t={t} locale={locale} />}
+          {active && (
+            <InlinePayslip runId={active.id} runStatus={active.status} t={t} locale={locale} />
+          )}
         </div>
       )}
     </>
@@ -619,14 +622,18 @@ function formatMoneyXAF(n: number, locale: "fr" | "en"): string {
 
 function InlinePayslip({
   runId,
+  runStatus,
   t,
   locale,
 }: {
   runId: string;
+  runStatus: PayrollRunStatus | string;
   t: ReturnType<typeof useTranslations<"payroll">>;
   locale: "fr" | "en";
 }) {
   const { session } = useSession();
+  const canRun = useCan("hrm:payroll:run");
+  const emailEnabled = canRun && isPayrollEmailable(runStatus);
 
   const entriesQuery = useQuery({
     queryKey: ["hrm", "payroll", runId, "entries"],
@@ -634,6 +641,20 @@ function InlinePayslip({
   });
 
   const firstEntry = entriesQuery.data?.[0] ?? null;
+
+  const emailMutation = useMutation({
+    mutationFn: () =>
+      apiFetch<{ ok: true; email: string }>(
+        `/api/hrm/payroll/${runId}/entries/${firstEntry!.id}/email`,
+        { method: "POST" },
+      ),
+    onSuccess: (data) => {
+      toast.success(t("email.singleSuccess", { email: data.email ?? "" }));
+    },
+    onError: (cause) => {
+      toast.error(cause instanceof BffApiError ? cause.message : t("email.failed"));
+    },
+  });
 
   const linesQuery = useQuery({
     queryKey: ["hrm", "payroll", "entry", firstEntry?.id, "payslip"],
@@ -808,9 +829,19 @@ function InlinePayslip({
               XAF
             </span>
             <div className="ml-auto flex flex-wrap items-center gap-2">
-              <Button variant="secondary" size="sm">
-                <Mail className="h-3.5 w-3.5" />
-                {t("actions.emailPayslip")}
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => emailMutation.mutate()}
+                disabled={!emailEnabled || emailMutation.isPending || !firstEntry}
+                title={emailEnabled ? undefined : t("email.disabledTooltip")}
+              >
+                {emailMutation.isPending ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Mail className="h-3.5 w-3.5" />
+                )}
+                {emailMutation.isPending ? t("email.sending") : t("actions.emailPayslip")}
               </Button>
               <Link href={`/payroll/${runId}/entries/${entry.id}`}>
                 <Button size="sm">

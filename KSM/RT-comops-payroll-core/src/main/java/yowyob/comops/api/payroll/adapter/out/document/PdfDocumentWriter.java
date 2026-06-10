@@ -16,20 +16,34 @@ import java.util.List;
 
 /**
  * A small, flowing-layout PDF builder over Apache PDFBox: a downward y-cursor with helpers for
- * titles, key/value lines, table rows, separators and wrapped paragraphs, plus automatic page
- * breaks. Pure (no Spring); produces the document bytes via {@link #build()}.
+ * titles, key/value lines, table rows, separators, wrapped paragraphs, filled bands, colored
+ * text and section labels, plus automatic page breaks. Pure (no Spring); produces the document
+ * bytes via {@link #build()}.
  *
  * Text is rendered with the Standard-14 Helvetica fonts (WinAnsi), which cover French accents;
  * any character outside that encoding is sanitised so rendering never fails.
+ *
+ * The colour palette mirrors the frontend design tokens so a payslip rendered to PDF reads
+ * like its on-screen preview (ink, ink-3, line, bg-soft …).
  */
 public final class PdfDocumentWriter {
 
     private static final PDFont REGULAR = PDType1Font.HELVETICA;
     private static final PDFont BOLD = PDType1Font.HELVETICA_BOLD;
+    private static final PDFont ITALIC = PDType1Font.HELVETICA_OBLIQUE;
     private static final float MARGIN = 50f;
     private static final float TOP = PDRectangle.A4.getHeight() - MARGIN;
     private static final float BOTTOM = MARGIN;
     private static final float WIDTH = PDRectangle.A4.getWidth() - 2 * MARGIN;
+
+    // Design tokens — same RGB triplets as the frontend Tailwind palette.
+    public static final Color INK = new Color(0x1A150E);
+    public static final Color INK_2 = new Color(0x3F3326);
+    public static final Color INK_3 = new Color(0x756449);
+    public static final Color BG_SOFT = new Color(0xF5F1EA);
+    public static final Color LINE = new Color(0xE5E0D5);
+    public static final Color LINE_SOFT = new Color(0xEFE9DD);
+    public static final Color WHITE = Color.WHITE;
 
     private final PDDocument document = new PDDocument();
     private PDPage page;
@@ -61,7 +75,7 @@ public final class PdfDocumentWriter {
     public PdfDocumentWriter title(String text) {
         ensure(30);
         float width = stringWidth(BOLD, 16, text);
-        drawText(BOLD, 16, MARGIN + (WIDTH - width) / 2, y, text);
+        drawText(BOLD, 16, MARGIN + (WIDTH - width) / 2, y, text, INK);
         y -= 30;
         return this;
     }
@@ -69,14 +83,14 @@ public final class PdfDocumentWriter {
     public PdfDocumentWriter heading(String text) {
         ensure(20);
         y -= 6;
-        drawText(BOLD, 11, MARGIN, y, text);
+        drawText(BOLD, 11, MARGIN, y, text, INK);
         y -= 16;
         return this;
     }
 
     public PdfDocumentWriter text(String text) {
         ensure(14);
-        drawText(REGULAR, 9, MARGIN, y, text);
+        drawText(REGULAR, 9, MARGIN, y, text, INK_2);
         y -= 13;
         return this;
     }
@@ -84,9 +98,18 @@ public final class PdfDocumentWriter {
     /** A label (bold) + value on one line. */
     public PdfDocumentWriter kv(String label, String value) {
         ensure(14);
-        drawText(BOLD, 9, MARGIN, y, label);
-        drawText(REGULAR, 9, MARGIN + 150, y, value == null ? "" : value);
+        drawText(BOLD, 9, MARGIN, y, label, INK);
+        drawText(REGULAR, 9, MARGIN + 150, y, value == null ? "" : value, INK_2);
         y -= 14;
+        return this;
+    }
+
+    /** A label/value row tinted like the frontend preview (label in INK_3, value in INK). */
+    public PdfDocumentWriter kvSoft(String label, String value) {
+        ensure(13);
+        drawText(REGULAR, 9, MARGIN, y, label, INK_3);
+        drawText(REGULAR, 9, MARGIN + 150, y, value == null ? "" : value, INK);
+        y -= 13;
         return this;
     }
 
@@ -94,36 +117,104 @@ public final class PdfDocumentWriter {
     public PdfDocumentWriter row(String label, String base, String rate, String amount, boolean bold) {
         ensure(15);
         PDFont font = bold ? BOLD : REGULAR;
-        drawText(font, 9, MARGIN, y, label);
+        Color color = bold ? INK : INK_2;
+        drawText(font, 9, MARGIN, y, label, color);
         if (base != null) {
-            drawTextRight(REGULAR, 9, MARGIN + 320, y, base);
+            drawTextRight(REGULAR, 9, MARGIN + 320, y, base, INK_3);
         }
         if (rate != null) {
-            drawTextRight(REGULAR, 9, MARGIN + 390, y, rate);
+            drawTextRight(REGULAR, 9, MARGIN + 390, y, rate, INK_3);
         }
-        drawTextRight(font, 9, MARGIN + WIDTH, y, amount == null ? "" : amount);
+        drawTextRight(font, 9, MARGIN + WIDTH, y, amount == null ? "" : amount, color);
         y -= 14;
         return this;
     }
 
+    /**
+     * A bold subtotal row drawn on a soft background band — matches the
+     * "Salaire brut" / "Total charges patronales" rows in the on-screen preview.
+     */
+    public PdfDocumentWriter subtotalRow(String label, String amount) {
+        ensure(20);
+        fillBand(BG_SOFT, 18);
+        drawText(BOLD, 10, MARGIN + 6, y - 13, label, INK);
+        drawTextRight(BOLD, 10, MARGIN + WIDTH - 6, y - 13, amount == null ? "" : amount, INK);
+        y -= 22;
+        return this;
+    }
+
+    /**
+     * Highlighted "Net à payer" band: full-width ink-coloured rectangle with white text
+     * (label on the left, amount right-aligned in a larger size).
+     */
+    public PdfDocumentWriter netToPayBand(String label, String amount) {
+        ensure(34);
+        fillBand(INK, 30);
+        drawText(BOLD, 12, MARGIN + 10, y - 19, label, WHITE);
+        drawTextRight(BOLD, 18, MARGIN + WIDTH - 10, y - 21, amount == null ? "" : amount, WHITE);
+        y -= 36;
+        return this;
+    }
+
+    /**
+     * Tiny uppercase, letter-spaced section label like the
+     * "EMPLOYEUR" / "SALARIÉ" labels in the preview.
+     */
+    public PdfDocumentWriter sectionLabel(String text) {
+        ensure(14);
+        y -= 4;
+        drawText(BOLD, 8, MARGIN, y, text == null ? "" : text.toUpperCase(), INK_3);
+        y -= 12;
+        return this;
+    }
+
+    /**
+     * Table column header line: small uppercase grey labels and a 2px ink bottom border —
+     * matches the table head in {@code PayslipPreview}.
+     */
+    public PdfDocumentWriter tableHeader(String labelCol, String baseCol, String rateCol, String amountCol) {
+        ensure(20);
+        drawText(BOLD, 8, MARGIN, y, labelCol == null ? "" : labelCol.toUpperCase(), INK_3);
+        if (baseCol != null) {
+            drawTextRight(BOLD, 8, MARGIN + 320, y, baseCol.toUpperCase(), INK_3);
+        }
+        if (rateCol != null) {
+            drawTextRight(BOLD, 8, MARGIN + 390, y, rateCol.toUpperCase(), INK_3);
+        }
+        drawTextRight(BOLD, 8, MARGIN + WIDTH, y, amountCol == null ? "" : amountCol.toUpperCase(), INK_3);
+        y -= 6;
+        rule(2f, INK);
+        return this;
+    }
+
+    /** Faint, full-width separator (light grey 1px line). */
     public PdfDocumentWriter separator() {
         ensure(8);
-        try {
-            cs.setStrokingColor(Color.LIGHT_GRAY);
-            cs.moveTo(MARGIN, y);
-            cs.lineTo(MARGIN + WIDTH, y);
-            cs.stroke();
-            cs.setStrokingColor(Color.BLACK);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-        y -= 8;
+        rule(1f, LINE);
+        return this;
+    }
+
+    /** Strong, full-width separator (ink 2px line). */
+    public PdfDocumentWriter strongSeparator() {
+        ensure(10);
+        rule(2f, INK);
         return this;
     }
 
     public PdfDocumentWriter paragraph(String textBlock) {
         for (String line : wrap(REGULAR, 9, textBlock, WIDTH)) {
             text(line);
+        }
+        return this;
+    }
+
+    /** An italic, grey, justified clause — matches the certification footer of the preview. */
+    public PdfDocumentWriter italicClause(String textBlock) {
+        if (textBlock == null || textBlock.isBlank()) return this;
+        for (String line : wrap(ITALIC, 8, textBlock, WIDTH)) {
+            ensure(12);
+            drawText(ITALIC, 8, MARGIN, y, line, INK_3);
+            y -= 11;
         }
         return this;
     }
@@ -137,7 +228,7 @@ public final class PdfDocumentWriter {
     /** A left-aligned line with explicit weight and size (e.g. a letterhead company name). */
     public PdfDocumentWriter leftText(String text, boolean bold, float size) {
         ensure(size + 5);
-        drawText(bold ? BOLD : REGULAR, size, MARGIN, y, text == null ? "" : text);
+        drawText(bold ? BOLD : REGULAR, size, MARGIN, y, text == null ? "" : text, INK);
         y -= size + 5;
         return this;
     }
@@ -150,24 +241,27 @@ public final class PdfDocumentWriter {
     /** A right-aligned line with explicit weight and size. */
     public PdfDocumentWriter rightText(String text, boolean bold, float size) {
         ensure(size + 5);
-        drawTextRight(bold ? BOLD : REGULAR, size, MARGIN + WIDTH, y, text == null ? "" : text);
+        drawTextRight(bold ? BOLD : REGULAR, size, MARGIN + WIDTH, y, text == null ? "" : text, INK);
         y -= size + 5;
         return this;
     }
 
-    /** Centered, bold document title with an underline rule the exact width of the text. */
+    /** Centered, bold document title with a 2px ink rule the exact width of the text. */
     public PdfDocumentWriter documentTitle(String text) {
         ensure(34);
         float size = 15f;
         float width = stringWidth(BOLD, size, text);
         float x = MARGIN + (WIDTH - width) / 2;
-        drawText(BOLD, size, x, y, text);
+        drawText(BOLD, size, x, y, text, INK);
         float underlineY = y - 4;
         try {
-            cs.setLineWidth(1f);
+            cs.setStrokingColor(INK);
+            cs.setLineWidth(2f);
             cs.moveTo(x, underlineY);
             cs.lineTo(x + width, underlineY);
             cs.stroke();
+            cs.setLineWidth(1f);
+            cs.setStrokingColor(Color.BLACK);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -175,15 +269,21 @@ public final class PdfDocumentWriter {
         return this;
     }
 
-    /** A full-width horizontal rule of the given thickness. */
+    /** A full-width horizontal rule of the given thickness (uses INK). */
     public PdfDocumentWriter rule(float thickness) {
+        return rule(thickness, INK);
+    }
+
+    public PdfDocumentWriter rule(float thickness, Color color) {
         ensure(thickness + 8);
         try {
+            cs.setStrokingColor(color);
             cs.setLineWidth(thickness);
             cs.moveTo(MARGIN, y);
             cs.lineTo(MARGIN + WIDTH, y);
             cs.stroke();
             cs.setLineWidth(1f);
+            cs.setStrokingColor(Color.BLACK);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -203,7 +303,7 @@ public final class PdfDocumentWriter {
     private void drawJustified(String line, boolean last) {
         ensure(14);
         if (last || !line.contains(" ")) {
-            drawText(REGULAR, 9, MARGIN, y, line);
+            drawText(REGULAR, 9, MARGIN, y, line, INK_2);
         } else {
             String[] words = line.split(" ");
             float wordsWidth = 0f;
@@ -213,11 +313,23 @@ public final class PdfDocumentWriter {
             float gap = (WIDTH - wordsWidth) / (words.length - 1);
             float x = MARGIN;
             for (String word : words) {
-                drawText(REGULAR, 9, x, y, word);
+                drawText(REGULAR, 9, x, y, word, INK_2);
                 x += stringWidth(REGULAR, 9, word) + gap;
             }
         }
         y -= 14;
+    }
+
+    /** Draws a full-width rectangle from the current y down by {@code height}. y is not advanced. */
+    private void fillBand(Color color, float height) {
+        try {
+            cs.setNonStrokingColor(color);
+            cs.addRect(MARGIN, y - height, WIDTH, height);
+            cs.fill();
+            cs.setNonStrokingColor(Color.BLACK);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     public byte[] build() {
@@ -233,22 +345,24 @@ public final class PdfDocumentWriter {
 
     // --- low level ---
 
-    private void drawText(PDFont font, float size, float x, float yPos, String text) {
+    private void drawText(PDFont font, float size, float x, float yPos, String text, Color color) {
         String safe = sanitize(text);
         try {
             cs.beginText();
             cs.setFont(font, size);
+            cs.setNonStrokingColor(color);
             cs.newLineAtOffset(x, yPos);
             cs.showText(safe);
             cs.endText();
+            cs.setNonStrokingColor(Color.BLACK);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    private void drawTextRight(PDFont font, float size, float rightX, float yPos, String text) {
+    private void drawTextRight(PDFont font, float size, float rightX, float yPos, String text, Color color) {
         float w = stringWidth(font, size, text);
-        drawText(font, size, rightX - w, yPos, text);
+        drawText(font, size, rightX - w, yPos, text, color);
     }
 
     private static float stringWidth(PDFont font, float size, String text) {

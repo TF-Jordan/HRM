@@ -179,3 +179,143 @@ function escape(s: string): string {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
 }
+
+/* ============================== Payslip ============================== */
+
+export type PayslipMailInput = {
+  employeeName: string;
+  matricule: string;
+  periode: string; // "YYYY-MM"
+  netToPay: string; // already formatted, e.g. "650 000"
+  currency: string; // e.g. "XAF"
+  organizationName: string;
+  locale?: "fr" | "en";
+};
+
+/**
+ * Cover email for a single employee's payslip PDF — the actual document travels as an
+ * attachment so it can be archived as-is. The body intentionally restates the period and
+ * net amount so the recipient can verify the attachment matches before opening it.
+ */
+export function payslipMail(input: PayslipMailInput): { subject: string; html: string; text: string } {
+  const locale = input.locale ?? "fr";
+  const periodLabel = formatPeriod(input.periode, locale);
+  if (locale === "en") {
+    return {
+      subject: `Your payslip · ${periodLabel}`,
+      text: payslipEnText({ ...input, periodLabel }),
+      html: payslipEnHtml({ ...input, periodLabel }),
+    };
+  }
+  return {
+    subject: `Votre bulletin de paie · ${periodLabel}`,
+    text: payslipFrText({ ...input, periodLabel }),
+    html: payslipFrHtml({ ...input, periodLabel }),
+  };
+}
+
+type PayslipCtx = PayslipMailInput & { periodLabel: string };
+
+function payslipFrText(c: PayslipCtx): string {
+  return [
+    `Bonjour ${c.employeeName},`,
+    ``,
+    `Veuillez trouver ci-joint votre bulletin de paie pour la période ${c.periodLabel}.`,
+    ``,
+    `  Matricule    : ${c.matricule}`,
+    `  Période      : ${c.periodLabel}`,
+    `  Net à payer  : ${c.netToPay} ${c.currency}`,
+    ``,
+    `Le document PDF joint est signé électroniquement par ${c.organizationName}.`,
+    `Pour toute question, contactez votre service Ressources humaines.`,
+    ``,
+    `— HR Core`,
+  ].join("\n");
+}
+
+function payslipEnText(c: PayslipCtx): string {
+  return [
+    `Hello ${c.employeeName},`,
+    ``,
+    `Please find attached your payslip for ${c.periodLabel}.`,
+    ``,
+    `  Employee #   : ${c.matricule}`,
+    `  Period       : ${c.periodLabel}`,
+    `  Net to pay   : ${c.netToPay} ${c.currency}`,
+    ``,
+    `The attached PDF is digitally signed by ${c.organizationName}.`,
+    `For any question, contact your HR department.`,
+    ``,
+    `— HR Core`,
+  ].join("\n");
+}
+
+function payslipFrHtml(c: PayslipCtx): string {
+  return shell(
+    "Votre bulletin de paie",
+    `
+    <p style="margin:0 0 18px 0;">Bonjour <b>${escape(c.employeeName)}</b>,</p>
+    <p style="margin:0 0 14px 0;">
+      Veuillez trouver ci-joint votre bulletin de paie pour la période
+      <b>${escape(c.periodLabel)}</b>.
+    </p>
+    ${payslipSummaryTable(c, "fr")}
+    <p style="margin:18px 0 8px 0;color:#6B7280;font-size:12.5px;">
+      Le document PDF joint est signé électroniquement par
+      <b>${escape(c.organizationName)}</b>.
+    </p>
+    <p style="margin:0;color:#9CA3AF;font-size:11.5px;">
+      Pour toute question, contactez votre service Ressources humaines.
+    </p>
+    `,
+  );
+}
+
+function payslipEnHtml(c: PayslipCtx): string {
+  return shell(
+    "Your payslip",
+    `
+    <p style="margin:0 0 18px 0;">Hello <b>${escape(c.employeeName)}</b>,</p>
+    <p style="margin:0 0 14px 0;">
+      Please find attached your payslip for <b>${escape(c.periodLabel)}</b>.
+    </p>
+    ${payslipSummaryTable(c, "en")}
+    <p style="margin:18px 0 8px 0;color:#6B7280;font-size:12.5px;">
+      The attached PDF is digitally signed by
+      <b>${escape(c.organizationName)}</b>.
+    </p>
+    <p style="margin:0;color:#9CA3AF;font-size:11.5px;">
+      For any question, contact your HR department.
+    </p>
+    `,
+  );
+}
+
+function payslipSummaryTable(c: PayslipCtx, locale: "fr" | "en"): string {
+  const L = locale === "fr"
+    ? { matricule: "Matricule", period: "Période", net: "Net à payer" }
+    : { matricule: "Employee #", period: "Period", net: "Net to pay" };
+  return `
+    <table cellpadding="0" cellspacing="0" style="margin:8px 0 0 0;border-collapse:collapse;font:13px/1.4 ui-sans-serif,system-ui;">
+      <tr><td style="padding:6px 14px 6px 0;color:#6B7280;">${L.matricule}</td>
+          <td style="padding:6px 0;font-family:monospace"><b>${escape(c.matricule)}</b></td></tr>
+      <tr><td style="padding:6px 14px 6px 0;color:#6B7280;">${L.period}</td>
+          <td style="padding:6px 0;"><b>${escape(c.periodLabel)}</b></td></tr>
+      <tr><td style="padding:10px 14px 6px 0;color:#6B7280;border-top:1px solid #E5E7EB;">${L.net}</td>
+          <td style="padding:10px 0 6px 0;font-family:monospace;border-top:1px solid #E5E7EB;">
+            <b style="font-size:15px;color:#1A150E;">${escape(c.netToPay)} ${escape(c.currency)}</b>
+          </td></tr>
+    </table>`;
+}
+
+function formatPeriod(periode: string, locale: "fr" | "en"): string {
+  const parts = periode.split("-");
+  const y = Number(parts[0]);
+  const m = Number(parts[1]);
+  if (!y || !m || m < 1 || m > 12) return periode;
+  const date = new Date(y, m - 1, 1);
+  return date.toLocaleDateString(locale === "fr" ? "fr-FR" : "en-US", {
+    month: "long",
+    year: "numeric",
+  });
+}

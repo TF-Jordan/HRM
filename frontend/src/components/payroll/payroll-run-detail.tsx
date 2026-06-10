@@ -9,7 +9,9 @@ import {
   Download,
   Loader2,
   Lock,
+  Mail,
   RefreshCw,
+  Send,
   ShieldCheck,
   Stamp,
   Undo2,
@@ -31,6 +33,7 @@ import { apiFetch, BffApiError } from "@/lib/api-client";
 import { formatDate, formatMoney } from "@/lib/format";
 import {
   formatPeriodFr,
+  isPayrollEmailable,
   nextPayrollAction,
   payrollStatusTone,
   payrollStepperState,
@@ -118,6 +121,24 @@ export function PayrollRunDetail({ runId }: { runId: string }) {
     },
   });
 
+  const emailAll = useMutation({
+    mutationFn: () =>
+      apiFetch<{ sent: number; failed: number; total: number }>(
+        `/api/hrm/payroll/${runId}/email-all`,
+        { method: "POST" },
+      ),
+    onSuccess: (data) => {
+      if (data.failed === 0) {
+        toast.success(t("email.bulkSuccess", { count: data.sent }));
+      } else {
+        toast.warning(t("email.bulkPartial", { sent: data.sent, failed: data.failed }));
+      }
+    },
+    onError: (cause) => {
+      toast.error(cause instanceof BffApiError ? cause.message : t("email.failed"));
+    },
+  });
+
   const run = runQuery.data;
   const action = run ? nextPayrollAction(run.status) : null;
   const canReject = !!run && canValidate && (run.status === "CALCULATED" || run.status === "REVIEW");
@@ -125,6 +146,7 @@ export function PayrollRunDetail({ runId }: { runId: string }) {
     !!run &&
     canRun &&
     (run.status === "CALCULATED" || run.status === "REVIEW" || run.status === "REJECTED");
+  const canEmailRun = !!run && canRun && isPayrollEmailable(run.status);
   const entries = entriesQuery.data ?? [];
   const employeesById = React.useMemo(() => {
     const m = new Map<string, EmployeeResponse>();
@@ -191,6 +213,21 @@ export function PayrollRunDetail({ runId }: { runId: string }) {
               >
                 <Undo2 className="h-4 w-4" />
                 {t("actions.reject")}
+              </Button>
+            )}
+            {canRun && run && (
+              <Button
+                variant="secondary"
+                onClick={() => emailAll.mutate()}
+                disabled={!canEmailRun || emailAll.isPending}
+                title={canEmailRun ? undefined : t("email.disabledTooltip")}
+              >
+                {emailAll.isPending ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Send className="h-4 w-4" />
+                )}
+                {emailAll.isPending ? t("email.sending") : t("email.emailAll")}
               </Button>
             )}
             {run && action && canValidate && (
@@ -365,6 +402,8 @@ export function PayrollRunDetail({ runId }: { runId: string }) {
               t={t}
               locale={locale}
               runId={run.id}
+              runStatus={run.status}
+              canEmail={canRun}
             />
           </Card>
         </div>
@@ -455,6 +494,8 @@ function EntriesTable({
   t,
   locale,
   runId,
+  runStatus,
+  canEmail,
 }: {
   entries: PayrollEntryResponse[];
   employeesById: Map<string, EmployeeResponse>;
@@ -462,7 +503,10 @@ function EntriesTable({
   t: ReturnType<typeof useTranslations<"payroll">>;
   locale: "fr" | "en";
   runId: string;
+  runStatus: PayrollRunStatus | string;
+  canEmail: boolean;
 }) {
+  const emailEnabled = canEmail && isPayrollEmailable(runStatus);
   if (loading) {
     return (
       <div className="grid place-items-center py-12">
@@ -525,11 +569,21 @@ function EntriesTable({
                   </Badge>
                 </td>
                 <td className="px-6 py-3 text-right">
-                  <Link href={`/payroll/${runId}/entries/${e.id}`}>
-                    <Button variant="secondary" size="sm">
-                      {t("actions.viewPayslip")} <ChevronRight className="h-3 w-3" />
-                    </Button>
-                  </Link>
+                  <div className="flex items-center justify-end gap-1.5">
+                    {canEmail && (
+                      <EmailEntryButton
+                        runId={runId}
+                        entryId={e.id}
+                        enabled={emailEnabled}
+                        t={t}
+                      />
+                    )}
+                    <Link href={`/payroll/${runId}/entries/${e.id}`}>
+                      <Button variant="secondary" size="sm">
+                        {t("actions.viewPayslip")} <ChevronRight className="h-3 w-3" />
+                      </Button>
+                    </Link>
+                  </div>
                 </td>
               </tr>
             );
@@ -565,4 +619,47 @@ function paymentTone(s: string): "warning" | "info" | "success" | "danger" | "gr
     case "FAILED": return "danger";
     default: return "gray";
   }
+}
+
+function EmailEntryButton({
+  runId,
+  entryId,
+  enabled,
+  t,
+}: {
+  runId: string;
+  entryId: string;
+  enabled: boolean;
+  t: ReturnType<typeof useTranslations<"payroll">>;
+}) {
+  const send = useMutation({
+    mutationFn: () =>
+      apiFetch<{ ok: true; email: string }>(
+        `/api/hrm/payroll/${runId}/entries/${entryId}/email`,
+        { method: "POST" },
+      ),
+    onSuccess: (data) => {
+      toast.success(t("email.singleSuccess", { email: data.email ?? "" }));
+    },
+    onError: (cause) => {
+      toast.error(cause instanceof BffApiError ? cause.message : t("email.failed"));
+    },
+  });
+  return (
+    <Button
+      variant="ghost"
+      size="sm"
+      className="h-8 w-8 p-0"
+      onClick={() => send.mutate()}
+      disabled={!enabled || send.isPending}
+      title={enabled ? t("email.singleTooltip") : t("email.disabledTooltip")}
+      aria-label={t("actions.emailPayslip")}
+    >
+      {send.isPending ? (
+        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+      ) : (
+        <Mail className="h-3.5 w-3.5" />
+      )}
+    </Button>
+  );
 }

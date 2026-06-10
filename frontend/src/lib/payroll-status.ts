@@ -29,6 +29,22 @@ export function isPayrollRunTerminal(s: PayrollRunStatus | string): boolean {
   return s === "PAID" || s === "CLOSED";
 }
 
+/**
+ * Whether payslips for a run can be sent to employees by email. The HR admin must have
+ * validated the cycle — pre-validation, the payslip is a draft and must not be diffused.
+ * Same set is enforced on the BFF (`isEmailable`) and on the backend by the signed PDF
+ * being immutable past validation.
+ */
+export function isPayrollEmailable(s: PayrollRunStatus | string): boolean {
+  return (
+    s === "VALIDATED" ||
+    s === "APPROVED" ||
+    s === "PAYMENT_INITIATED" ||
+    s === "PAID" ||
+    s === "CLOSED"
+  );
+}
+
 export function payrollStatusTone(
   s: PayrollRunStatus | string,
 ): "warning" | "info" | "success" | "gray" | "danger" {
