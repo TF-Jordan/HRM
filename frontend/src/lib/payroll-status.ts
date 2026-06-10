@@ -8,6 +8,9 @@ import type { PayrollRunResponse, PayrollRunStatus } from "@/server/ksm/modules/
 export const PAYROLL_RUN_ORDER: Record<PayrollRunStatus, number> = {
   DRAFT: 0,
   VARIABLES_LOCKED: 1,
+  // REJECTED sits back at the calculation step: the payroll manager must recalculate before
+  // the HR admin can validate again.
+  REJECTED: 1,
   CALCULATED: 2,
   REVIEW: 3,
   VALIDATED: 4,
@@ -28,8 +31,10 @@ export function isPayrollRunTerminal(s: PayrollRunStatus | string): boolean {
 
 export function payrollStatusTone(
   s: PayrollRunStatus | string,
-): "warning" | "info" | "success" | "gray" {
+): "warning" | "info" | "success" | "gray" | "danger" {
   switch (s) {
+    case "REJECTED":
+      return "danger";
     case "CALCULATED":
     case "REVIEW":
       return "warning";

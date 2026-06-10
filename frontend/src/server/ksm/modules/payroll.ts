@@ -15,6 +15,7 @@ export type PayrollRunStatus =
   | "VARIABLES_LOCKED"
   | "CALCULATED"
   | "REVIEW"
+  | "REJECTED"
   | "VALIDATED"
   | "APPROVED"
   | "PAYMENT_INITIATED"
@@ -42,6 +43,9 @@ export type PayrollRunResponse = {
   approvedAt: string | null;
   paidAt: string | null;
   closedAt: string | null;
+  rejectionReason: string | null;
+  rejectedBy: string | null;
+  rejectedAt: string | null;
 };
 
 export type PayrollEntryResponse = {
@@ -123,6 +127,14 @@ export function validatePayroll(id: string, session: AppSession) {
   return callKsm<PayrollRunResponse>(
     `/api/v1/payroll/runs/${id}/validate`,
     { method: "PUT" },
+    { session },
+  );
+}
+
+export function rejectPayroll(id: string, reason: string, session: AppSession) {
+  return callKsm<PayrollRunResponse>(
+    `/api/v1/payroll/runs/${id}/reject`,
+    { method: "PUT", body: { reason } },
     { session },
   );
 }

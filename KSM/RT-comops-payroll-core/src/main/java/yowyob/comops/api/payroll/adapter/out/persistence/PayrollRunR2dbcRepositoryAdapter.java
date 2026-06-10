@@ -61,7 +61,8 @@ public class PayrollRunR2dbcRepositoryAdapter implements PayrollRunRepository {
                 r.agencyId(), r.period().format(), r.runType().name(), r.status().name(), r.currency(),
                 r.totalGross(), r.totalEmployeeDeductions(), r.totalIncomeTax(), r.totalNet(),
                 r.totalEmployerCharges(), r.nbEmployes(), r.calculatedAt(), r.validatedBy(), r.validatedAt(),
-                r.approvedBy(), r.approvedAt(), r.paidAt(), r.closedAt());
+                r.approvedBy(), r.approvedAt(), r.paidAt(), r.closedAt(),
+                r.rejectionReason(), r.rejectedBy(), r.rejectedAt());
     }
 
     private PayrollRun toDomain(PayrollRunEntity e) {
@@ -70,6 +71,7 @@ public class PayrollRunR2dbcRepositoryAdapter implements PayrollRunRepository {
                 PayrollRunStatus.valueOf(e.status()), e.currency(), e.totalGross(),
                 e.totalEmployeeDeductions(), e.totalIncomeTax(), e.totalNet(), e.totalEmployerCharges(),
                 e.nbEmployes(), e.calculatedAt(), e.validatedBy(), e.validatedAt(), e.approvedBy(),
-                e.approvedAt(), e.paidAt(), e.closedAt());
+                e.approvedAt(), e.paidAt(), e.closedAt(),
+                e.rejectionReason(), e.rejectedBy(), e.rejectedAt());
     }
 }

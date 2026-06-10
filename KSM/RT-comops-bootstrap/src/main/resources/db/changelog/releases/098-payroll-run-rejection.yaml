@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 098-payroll-run-rejection
+      author: claude
+      changes:
+        - sqlFile:
+            path: db/r2dbc/V98__payroll_run_rejection.sql
+            relativeToChangelogFile: false

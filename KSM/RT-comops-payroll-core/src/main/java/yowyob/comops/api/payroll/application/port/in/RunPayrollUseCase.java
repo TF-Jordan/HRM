@@ -17,6 +17,9 @@ public interface RunPayrollUseCase {
 
     Mono<PayrollRun> validatePayroll(UUID payrollRunId);
 
+    /** HR admin returns a CALCULATED/REVIEW cycle to the payroll manager with a justification. */
+    Mono<PayrollRun> rejectPayroll(UUID payrollRunId, String reason);
+
     Mono<PayrollRun> approvePayroll(UUID payrollRunId);
 
     Mono<PayrollRun> initiatePayment(UUID payrollRunId);

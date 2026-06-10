@@ -86,4 +86,40 @@ class PayrollRunLifecycleTest {
         assertThatThrownBy(() -> validated.validate(UUID.randomUUID()))
                 .isInstanceOf(IllegalStateException.class);
     }
+
+    @Test
+    void rejectReturnsCycleWithJustification() {
+        UUID hrAdmin = UUID.randomUUID();
+        PayrollRun rejected = open().markCalculated(totals()).reject(hrAdmin, "  Prime manquante  ");
+        assertThat(rejected.status()).isEqualTo(PayrollRunStatus.REJECTED);
+        assertThat(rejected.rejectedBy()).isEqualTo(hrAdmin);
+        assertThat(rejected.rejectedAt()).isNotNull();
+        assertThat(rejected.rejectionReason()).isEqualTo("Prime manquante");
+    }
+
+    @Test
+    void rejectRequiresAJustification() {
+        PayrollRun calculated = open().markCalculated(totals());
+        assertThatThrownBy(() -> calculated.reject(UUID.randomUUID(), "  "))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    void rejectIsOnlyAllowedFromCalculatedOrReview() {
+        PayrollRun draft = open();
+        assertThatThrownBy(() -> draft.reject(UUID.randomUUID(), "too early"))
+                .isInstanceOf(IllegalStateException.class);
+    }
+
+    @Test
+    void rejectedCycleCanBeRecalculatedThenValidated() {
+        PayrollRun recalculated = open()
+                .markCalculated(totals())
+                .reject(UUID.randomUUID(), "fix overtime")
+                .markCalculated(totals());
+        assertThat(recalculated.status()).isEqualTo(PayrollRunStatus.CALCULATED);
+
+        PayrollRun validated = recalculated.validate(UUID.randomUUID());
+        assertThat(validated.status()).isEqualTo(PayrollRunStatus.VALIDATED);
+    }
 }

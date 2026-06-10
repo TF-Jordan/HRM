@@ -9,8 +9,10 @@ import {
   Download,
   Loader2,
   Lock,
+  RefreshCw,
   ShieldCheck,
   Stamp,
+  Undo2,
   Users,
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
@@ -22,10 +24,11 @@ import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Dialog } from "@/components/ui/dialog";
 import { useCan } from "@/hooks/use-can";
 import { Link } from "@/i18n/navigation";
 import { apiFetch, BffApiError } from "@/lib/api-client";
-import { formatMoney } from "@/lib/format";
+import { formatDate, formatMoney } from "@/lib/format";
 import {
   formatPeriodFr,
   nextPayrollAction,
@@ -46,8 +49,12 @@ import type {
 export function PayrollRunDetail({ runId }: { runId: string }) {
   const t = useTranslations("payroll");
   const locale = useLocale() as "fr" | "en";
+  // Validation/rejection is HR-admin only; the payroll manager keeps the recalculate ability.
   const canValidate = useCan("hrm:payroll:validate");
+  const canRun = useCan("hrm:payroll:run");
   const qc = useQueryClient();
+  const [rejectOpen, setRejectOpen] = React.useState(false);
+  const [rejectReason, setRejectReason] = React.useState("");
 
   const runQuery = useQuery({
     queryKey: ["hrm", "payroll", runId],
@@ -76,8 +83,48 @@ export function PayrollRunDetail({ runId }: { runId: string }) {
     },
   });
 
+  const invalidateRun = React.useCallback(() => {
+    qc.invalidateQueries({ queryKey: ["hrm", "payroll", runId] });
+    qc.invalidateQueries({ queryKey: ["hrm", "payroll", runId, "entries"] });
+    qc.invalidateQueries({ queryKey: ["hrm", "payroll", "runs"] });
+  }, [qc, runId]);
+
+  const reject = useMutation({
+    mutationFn: (reason: string) =>
+      apiFetch<PayrollRunResponse>(`/api/hrm/payroll/${runId}/reject`, {
+        method: "POST",
+        body: { reason },
+      }),
+    onSuccess: () => {
+      toast.success(t("reject.success"));
+      setRejectOpen(false);
+      setRejectReason("");
+      invalidateRun();
+    },
+    onError: (cause) => {
+      toast.error(cause instanceof BffApiError ? cause.message : "—");
+    },
+  });
+
+  const recalculate = useMutation({
+    mutationFn: (body: { period: string; runType?: string }) =>
+      apiFetch<PayrollRunResponse>("/api/hrm/payroll", { method: "POST", body }),
+    onSuccess: (data) => {
+      toast.success(t(`status.${data.status as PayrollRunStatus}`));
+      invalidateRun();
+    },
+    onError: (cause) => {
+      toast.error(cause instanceof BffApiError ? cause.message : "—");
+    },
+  });
+
   const run = runQuery.data;
   const action = run ? nextPayrollAction(run.status) : null;
+  const canReject = !!run && canValidate && (run.status === "CALCULATED" || run.status === "REVIEW");
+  const canRecalculate =
+    !!run &&
+    canRun &&
+    (run.status === "CALCULATED" || run.status === "REVIEW" || run.status === "REJECTED");
   const entries = entriesQuery.data ?? [];
   const employeesById = React.useMemo(() => {
     const m = new Map<string, EmployeeResponse>();
@@ -119,6 +166,33 @@ export function PayrollRunDetail({ runId }: { runId: string }) {
                 <ArrowLeft className="h-4 w-4" /> {t("actions.back")}
               </Button>
             </Link>
+            {canRecalculate && (
+              <Button
+                variant="secondary"
+                onClick={() =>
+                  run && recalculate.mutate({ period: run.periode, runType: run.runType })
+                }
+                disabled={recalculate.isPending}
+              >
+                {recalculate.isPending ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <RefreshCw className="h-4 w-4" />
+                )}
+                {recalculate.isPending ? t("actions.calculating") : t("actions.recalculate")}
+              </Button>
+            )}
+            {canReject && (
+              <Button
+                variant="secondary"
+                className="border-danger-200 text-danger-600 hover:bg-danger-50"
+                onClick={() => setRejectOpen(true)}
+                disabled={reject.isPending}
+              >
+                <Undo2 className="h-4 w-4" />
+                {t("actions.reject")}
+              </Button>
+            )}
             {run && action && canValidate && (
               <ActionButton
                 action={action}
@@ -131,6 +205,51 @@ export function PayrollRunDetail({ runId }: { runId: string }) {
         }
       />
 
+      <Dialog
+        open={rejectOpen}
+        onClose={() => {
+          if (!reject.isPending) setRejectOpen(false);
+        }}
+        size="sm"
+        title={t("reject.title")}
+        subtitle={t("reject.subtitle")}
+        footer={
+          <>
+            <Button
+              variant="secondary"
+              onClick={() => setRejectOpen(false)}
+              disabled={reject.isPending}
+            >
+              {t("reject.cancel")}
+            </Button>
+            <Button
+              className="bg-danger-600 hover:bg-danger-700"
+              onClick={() => reject.mutate(rejectReason)}
+              disabled={reject.isPending || rejectReason.trim().length === 0}
+            >
+              {reject.isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Undo2 className="h-4 w-4" />
+              )}
+              {t("reject.confirm")}
+            </Button>
+          </>
+        }
+      >
+        <label className="text-[12px] font-semibold uppercase tracking-[0.05em] text-ink-3">
+          {t("reject.reasonLabel")}
+        </label>
+        <textarea
+          autoFocus
+          value={rejectReason}
+          onChange={(e) => setRejectReason(e.target.value)}
+          rows={4}
+          placeholder={t("reject.reasonPlaceholder")}
+          className="mt-2 w-full resize-y rounded-[12px] border border-line bg-white px-3.5 py-2.5 text-[13px] text-ink outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
+        />
+      </Dialog>
+
       {runQuery.isLoading ? (
         <div className="grid place-items-center py-16">
           <Loader2 className="h-8 w-8 animate-spin text-orange-500" />
@@ -141,6 +260,30 @@ export function PayrollRunDetail({ runId }: { runId: string }) {
         </div>
       ) : (
         <div className="flex flex-col gap-5">
+          {run.status === "REJECTED" && run.rejectionReason && (
+            <div className="flex items-start gap-3 rounded-[16px] border border-danger-200 bg-danger-50 px-5 py-4">
+              <Undo2 className="mt-0.5 h-5 w-5 shrink-0 text-danger-600" />
+              <div className="min-w-0">
+                <div className="text-[13px] font-bold text-danger-700">
+                  {t("reject.bannerTitle")}
+                </div>
+                <p className="mt-1 whitespace-pre-wrap text-[13px] text-danger-700/90">
+                  {run.rejectionReason}
+                </p>
+                {run.rejectedAt && (
+                  <div className="mt-1.5 text-[11px] text-danger-600/70">
+                    {t("reject.rejectedAt", {
+                      date: formatDate(run.rejectedAt, { locale }),
+                    })}
+                  </div>
+                )}
+                {canRun && (
+                  <p className="mt-2 text-[12px] text-ink-3">{t("reject.recalcHint")}</p>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* Stepper */}
           <Card>
             <CardContent padding="md">

@@ -33,6 +33,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { IconTile } from "@/components/ui/icon-tile";
 import { AppLink as Link } from "@/components/ui/app-link";
+import { useCan } from "@/hooks/use-can";
 import { apiFetch, BffApiError } from "@/lib/api-client";
 import { formatMoney, formatNumber } from "@/lib/format";
 import {
@@ -220,7 +221,11 @@ function CurrentCycleCard({ data, locale, t }: { data: DashboardData; locale: "f
 
   const run = data.current;
   const stepper = payrollStepperState(run.status);
-  const action = nextPayrollAction(run.status);
+  // Validation/approval is HR-admin only: never label the CTA "Validate" for a payroll
+  // manager — they open the cycle to recalculate, not to validate.
+  const canValidate = useCan("hrm:payroll:validate");
+  const rawAction = nextPayrollAction(run.status);
+  const action = rawAction && !canValidate ? null : rawAction;
   const tone = payrollStatusTone(run.status);
 
   return (

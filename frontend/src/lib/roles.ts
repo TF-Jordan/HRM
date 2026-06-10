@@ -96,8 +96,9 @@ export function inferRoleSlugFromPermissions(
   if (has("tenant:admin")) return "admin";
   // HR_ADMIN / HR_MANAGER / HR_DIRECTOR / MANAGER / RECRUITER — full HRM perimeter.
   if (has("hrm:employee:create")) return "hr-admin";
-  // PAYROLL_MANAGER — payroll run/validate without employee/declaration create.
-  if (has("hrm:payroll:run", "hrm:payroll:validate")) return "payroll-manager";
+  // PAYROLL_MANAGER — can run payroll but is not an HR admin (no employee:create, matched
+  // above). Validation is HR-admin only, so it is not a marker for this space.
+  if (has("hrm:payroll:run")) return "payroll-manager";
   // OCCUPATIONAL_DOCTOR — medical-only.
   if (has("hrm:medical:create", "hrm:medical:read") && !has("hrm:leave:read")) return "doctor";
   // HR_CONTROLLER — broad HRM reads + KPI create, no manage.

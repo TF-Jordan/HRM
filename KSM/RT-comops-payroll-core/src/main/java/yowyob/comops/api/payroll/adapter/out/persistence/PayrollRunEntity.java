@@ -33,5 +33,8 @@ public record PayrollRunEntity(
         UUID approvedBy,
         Instant approvedAt,
         Instant paidAt,
-        Instant closedAt) implements PersistableEntity {
+        Instant closedAt,
+        String rejectionReason,
+        UUID rejectedBy,
+        Instant rejectedAt) implements PersistableEntity {
 }

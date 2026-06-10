@@ -56,6 +56,16 @@ public class PayrollRunController {
                 .map(r -> ResponseEntity.ok(ApiResponse.success(r, "Payroll validated.")));
     }
 
+    @PutMapping("/runs/{payrollRunId}/reject")
+    @PreAuthorize("@businessAccessPolicy.hasPermission(authentication, 'hrm:payroll:validate')")
+    public Mono<ResponseEntity<ApiResponse<PayrollRunResponse>>> reject(
+            @PathVariable UUID payrollRunId, @RequestBody Mono<RejectRunRequest> requestMono) {
+        return requestMono
+                .flatMap(req -> useCase.rejectPayroll(payrollRunId, req.reason()))
+                .map(PayrollRunResponse::from)
+                .map(r -> ResponseEntity.ok(ApiResponse.success(r, "Payroll cycle returned for recalculation.")));
+    }
+
     @PutMapping("/runs/{payrollRunId}/approve")
     @PreAuthorize("@businessAccessPolicy.hasPermission(authentication, 'hrm:payroll:validate')")
     public Mono<ResponseEntity<ApiResponse<PayrollRunResponse>>> approve(@PathVariable UUID payrollRunId) {
@@ -121,16 +131,20 @@ public class PayrollRunController {
 
     public record RunPayrollRequest(String period, UUID agencyId, String runType) {}
 
+    public record RejectRunRequest(String reason) {}
+
     public record PayrollRunResponse(UUID id, String periode, String runType, String status, String currency,
             BigDecimal totalGross, BigDecimal totalEmployeeDeductions, BigDecimal totalIncomeTax,
             BigDecimal totalNet, BigDecimal totalEmployerCharges, int nbEmployes,
             Instant calculatedAt, UUID validatedBy, Instant validatedAt, UUID approvedBy, Instant approvedAt,
-            Instant paidAt, Instant closedAt) {
+            Instant paidAt, Instant closedAt,
+            String rejectionReason, UUID rejectedBy, Instant rejectedAt) {
         static PayrollRunResponse from(PayrollRun r) {
             return new PayrollRunResponse(r.id(), r.period().format(), r.runType().name(), r.status().name(),
                     r.currency(), r.totalGross(), r.totalEmployeeDeductions(), r.totalIncomeTax(),
                     r.totalNet(), r.totalEmployerCharges(), r.nbEmployes(), r.calculatedAt(), r.validatedBy(),
-                    r.validatedAt(), r.approvedBy(), r.approvedAt(), r.paidAt(), r.closedAt());
+                    r.validatedAt(), r.approvedBy(), r.approvedAt(), r.paidAt(), r.closedAt(),
+                    r.rejectionReason(), r.rejectedBy(), r.rejectedAt());
         }
     }
 

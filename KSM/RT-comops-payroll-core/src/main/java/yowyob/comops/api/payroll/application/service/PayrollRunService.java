@@ -141,7 +141,11 @@ public class PayrollRunService implements RunPayrollUseCase {
 
     private Mono<PayrollRun> recalculateExistingRun(TenantContext ctx, PayrollRun run,
                                                      RunPayrollCommand command, PayPeriod period) {
-        if (run.status() == PayrollRunStatus.PAID || run.status() == PayrollRunStatus.CLOSED) {
+        // The payroll manager may recalculate freely until the cycle is validated — including after
+        // an HR-admin rejection — but a VALIDATED/APPROVED/PAID/CLOSED cycle is frozen.
+        if (run.status() != PayrollRunStatus.DRAFT && run.status() != PayrollRunStatus.VARIABLES_LOCKED
+                && run.status() != PayrollRunStatus.CALCULATED && run.status() != PayrollRunStatus.REVIEW
+                && run.status() != PayrollRunStatus.REJECTED) {
             return Mono.error(new IllegalStateException(
                     "Payroll run for period " + command.period() + " is already " + run.status()));
         }
@@ -397,6 +401,23 @@ public class PayrollRunService implements RunPayrollUseCase {
     @Override
     public Mono<PayrollRun> validatePayroll(UUID payrollRunId) {
         return transition(payrollRunId, PayrollRun::validate, "PAYROLL_VALIDATED");
+    }
+
+    @Override
+    public Mono<PayrollRun> rejectPayroll(UUID payrollRunId, String reason) {
+        if (reason == null || reason.isBlank()) {
+            return Mono.error(new IllegalArgumentException(
+                    "A justification is required to reject a payroll cycle"));
+        }
+        return ReactiveRequestContextHolder.getRequiredContext().flatMap(ctx ->
+                requireRun(ctx, payrollRunId)
+                        .map(run -> run.reject(ctx.userId(), reason))
+                        .flatMap(payrollRunRepository::save)
+                        .flatMap(saved -> publish(ctx, "PAYROLL_REJECTED", "PAYROLL_RUN", saved.id(),
+                                orderedMap("periode", saved.period().format(),
+                                        "reason", saved.rejectionReason(),
+                                        "rejectedBy", saved.rejectedBy()))
+                                .thenReturn(saved)));
     }
 
     @Override
