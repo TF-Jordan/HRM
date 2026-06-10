@@ -15,7 +15,13 @@ Thumbs.db
 
 # file-core local storage (resolved relative to whichever CWD KSM is started in)
 KSM/data/
+KSM/**/data/files/
 /data/
 
 # Redis runtime snapshot (created when redis-server runs in the repo dir)
 dump.rdb
+
+# Environment files — only .env.example is tracked
+.env
+.env.local
+.env.*.local
