@@ -65,6 +65,27 @@ covering every payment channel (BANK_TRANSFER, MTN_MOBILE_MONEY, ORANGE_MONEY)
 and a mix of marital statuses / dependents so the proration + family-quotient
 paths get exercised by the next payroll run.
 
+## Sister script — `verify-payonly-cycle.mjs`
+
+Companion verifier that confirms a caller carrying **only** the three payroll
+permissions (`hrm:payroll:read|run|validate`) can drive the **entire** payroll
+cycle from a single workspace, with no HR admin involved.
+
+It seeds a temporary `PAYROLL_ADMIN_VERIFY` role + user via SQL (since
+administration-core isn't always wired up locally), logs in as that user, then
+walks calculate → reject → recalculate → validate → approve → initiate
+payment → sign PDF. Also asserts a `403` on `/hrm/employees` to prove the
+caller is fenced off from the HR perimeter.
+
+```sh
+PGPASSWORD=iwm node tools/payroll-onboarding-mock/verify-payonly-cycle.mjs
+# optional: pin the period (otherwise picks a random month in 2027 each run)
+PERIOD=2027-04 node tools/payroll-onboarding-mock/verify-payonly-cycle.mjs
+```
+
+Expected output ends with eight `✓` lines and `(correctly forbidden)` on the
+negative test. Anything else means the standalone-mode contract regressed.
+
 ## Exit codes
 
 - `0` — every step succeeded; the org now reads its employees from the

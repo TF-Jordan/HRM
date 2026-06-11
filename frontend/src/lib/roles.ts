@@ -28,6 +28,11 @@ export const ROLE_CODE_TO_SLUG: Record<string, RoleSlug> = {
   HR_MANAGER: "hr-admin",
   HR_DIRECTOR: "hr-admin",
   PAYROLL_MANAGER: "payroll-manager",
+  // Standalone-payroll role (provisioned by administration-core from our manifest):
+  // owns the full cycle — calculate, validate, approve, initiate payment, close, email —
+  // all from the same workspace, with no HR admin involvement.
+  PAYROLL_ADMIN: "payroll-manager",
+  PAYROLL_EMPLOYEE: "employee",
   MANAGER: "hr-admin",
   EMPLOYEE: "employee",
   RECRUITER: "hr-admin",
