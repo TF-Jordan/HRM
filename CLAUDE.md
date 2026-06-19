@@ -184,16 +184,31 @@ Migrations live in `RT-comops-bootstrap/src/main/resources/db/changelog/` and fo
 
 ## Demo accounts
 
-All demo accounts share the password **`Demo@2024!`**. After login, select the `MUFID Union` organization.
+All demo accounts share the password **`Demo@2024!`**.
+
+### HRM-integrated tenant — organization `MUFID Union`
 
 | Email | Role | Frontend space |
 |---|---|---|
 | `super.admin@hrcore.demo` | SuperAdmin | `admin` |
 | `hr.admin@hrcore.demo` | Admin RH | `hr-admin` |
-| `payroll@hrcore.demo` | Payroll Manager | `payroll-manager` |
+| `payroll@hrcore.demo` | Payroll Manager (runs payroll, can't validate) | `payroll-manager` |
 | `employee@hrcore.demo` | Employee | `employee` |
 | `doctor@hrcore.demo` | Occupational doctor | `doctor` |
 | `controller@hrcore.demo` | HR Controller | `controller` |
+
+### Standalone-payroll tenant — organization `PAYONLY S.A.` (paie autonome)
+
+| Email | Role | Frontend space |
+|---|---|---|
+| `payroll.standalone@hrcore.demo` | Payroll Administrator (standalone) | `payroll-manager` |
+
+This account drives **the whole cycle from a single workspace** — calculate,
+reject, recalculate, validate, approve, initiate payment, close, email — with
+no HR-admin involvement. The organization has `payroll_data_source = LOCAL`,
+three pre-imported employees (PAY-001/002/003) and no HRM subscription, so
+calls to `/api/v1/hrm/*` return 403 for this caller (the cloisonnement is
+expected and tested by `tools/payroll-onboarding-mock/verify-payonly-cycle.mjs`).
 
 ---
 

@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 100-payroll-standalone-demo-seed
+      author: claude
+      changes:
+        - sqlFile:
+            path: db/r2dbc/V100__payroll_standalone_demo_seed.sql
+            relativeToChangelogFile: false

@@ -297,3 +297,6 @@ databaseChangeLog:
   - include:
       file: releases/099-payroll-standalone-employees.yaml
       relativeToChangelogFile: true
+  - include:
+      file: releases/100-payroll-standalone-demo-seed.yaml
+      relativeToChangelogFile: true
