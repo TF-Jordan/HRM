@@ -70,9 +70,38 @@
     "subtitle": "Employee referential used by the payroll engine (CSV import or direct entry)",
     "actions": {
       "import": "Import CSV",
-      "template": "CSV template",
+      "template": "Download template",
       "add": "Add",
       "deactivate": "Deactivate"
+    },
+    "hrmManaged": {
+      "title": "Employees managed by the HR module",
+      "body": "Your organization subscribes to the HR module: employee data is already available in the system and feeds payroll directly. CSV import is only needed for standalone-payroll organizations."
+    },
+    "legend": {
+      "column": "Column",
+      "description": "Description",
+      "example": "Example",
+      "required": "Required",
+      "optional": "Optional",
+      "acceptedValues": "Accepted values"
+    },
+    "columns": {
+      "matricule": "Unique employee identifier (the update key on re-import).",
+      "nom": "Employee full name, as shown on the payslip.",
+      "email": "Email address used to send the payslip (leave empty if none).",
+      "numCnps": "Employee social-security (CNPS) number.",
+      "categorie": "Professional category (collective-agreement grid). Default: 1.",
+      "echelon": "Step within the category.",
+      "departement": "Department / cost-centre code.",
+      "dateEmbauche": "Hire date in YYYY-MM-DD format. Drives seniority and proration.",
+      "situationMatrimoniale": "Marital status, an input to the family-quotient (income tax).",
+      "enfants": "Number of dependent children (family quotient).",
+      "salaireBase": "Monthly gross base salary, in XAF.",
+      "avantagesNature": "Valued benefits in kind, in XAF. Default: 0.",
+      "poste": "Job title / position.",
+      "modePaiement": "Channel used to disburse net pay.",
+      "compte": "Bank account or mobile-money number, per payment channel."
     },
     "source": {
       "HRM": "Source: HR module",
@@ -100,6 +129,8 @@
     "import": {
       "title": "Import employees (CSV)",
       "subtitle": "Header + one row per employee. Comma or semicolon separated.",
+      "step1Title": "1. Download the template, then fill it with your employees",
+      "step1Hint": "Keep the header row; replace the example rows with your data.",
       "dropHint": "Click to choose a CSV file",
       "formatHint": "Required columns: matricule, name, hireDate, baseSalary",
       "linesDetected": "{count} line(s) detected",

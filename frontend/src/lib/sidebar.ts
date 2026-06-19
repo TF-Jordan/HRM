@@ -42,6 +42,12 @@ export type NavItem = {
   icon: LucideIcon;
   /** Optional permission gate; the item is hidden when the session lacks it. */
   permission?: string;
+  /**
+   * Inverse gate: the item is hidden when the session *holds* this permission. Used to show an
+   * entry only to standalone-payroll tenants — e.g. "Employés paie" (CSV import) is irrelevant to
+   * HRM tenants, whose employee data is already in the DB and who carry {@code hrm:employee:read}.
+   */
+  hideWhenPermission?: string;
   /** Routes to the shared placeholder page instead of a real screen. */
   comingSoon?: boolean;
 };
@@ -257,6 +263,9 @@ const PAYROLL_MANAGER_SECTIONS: NavSection[] = [
         labelKey: "nav.payrollEmployees",
         icon: Users,
         permission: "hrm:payroll:read",
+        // Standalone-payroll tenants only: HRM tenants read their employees from the DB and
+        // carry hrm:employee:read, so this CSV-import screen is hidden for them.
+        hideWhenPermission: "hrm:employee:read",
       },
       {
         href: "/payroll-variables",

@@ -33,7 +33,12 @@ import java.util.UUID;
 @PreAuthorize("@businessAccessPolicy.hasUserContext(authentication)")
 public class PayrollEmployeeController {
 
-    /** Canonical CSV template served to the frontend for download. */
+    /**
+     * Canonical CSV template served to the frontend for download. The header row uses the
+     * intuitive French column names; three example rows cover the three payment channels and a
+     * mix of marital / dependent situations so the user can copy-and-adapt. The frontend renders
+     * the {@link #templateColumns()} legend next to it for an at-a-glance "what goes where".
+     */
     static final String CSV_TEMPLATE = String.join("\n",
             "matricule,nom,email,numCnps,categorie,echelon,departement,dateEmbauche,"
                     + "situationMatrimoniale,enfants,salaireBase,avantagesNature,poste,"
@@ -41,7 +46,36 @@ public class PayrollEmployeeController {
             "EMP-001,Jean Mballa,jean.mballa@example.cm,123456789,6,B,FIN,2022-01-15,"
                     + "MARRIED,2,450000,50000,Comptable,BANK_TRANSFER,CM21-10005-00001-12345678901-23",
             "EMP-002,Awa Ngono,awa.ngono@example.cm,987654321,4,A,ADM,2023-06-01,"
-                    + "SINGLE,0,300000,0,Assistante,MTN_MOBILE_MONEY,677000000") + "\n";
+                    + "SINGLE,0,300000,0,Assistante,MTN_MOBILE_MONEY,677000000",
+            "EMP-003,Paul Etogo,paul.etogo@example.cm,555123456,7,C,DG,2021-09-20,"
+                    + "DIVORCED,1,650000,0,Directeur,CASH,") + "\n";
+
+    /**
+     * Column specification driving the on-screen legend: the canonical header, whether it is
+     * required, an example value, and the closed list of accepted values when applicable. This is
+     * the single source of truth for "what the payroll engine expects", so the frontend never has
+     * to hard-code it. Labels and help text are localized on the frontend, keyed by {@code header}.
+     */
+    static List<CsvColumnSpec> templateColumns() {
+        return List.of(
+                new CsvColumnSpec("matricule", true, "EMP-001", List.of()),
+                new CsvColumnSpec("nom", true, "Jean Mballa", List.of()),
+                new CsvColumnSpec("email", false, "jean.mballa@example.cm", List.of()),
+                new CsvColumnSpec("numCnps", false, "123456789", List.of()),
+                new CsvColumnSpec("categorie", false, "6", List.of()),
+                new CsvColumnSpec("echelon", false, "B", List.of()),
+                new CsvColumnSpec("departement", false, "FIN", List.of()),
+                new CsvColumnSpec("dateEmbauche", true, "2022-01-15", List.of()),
+                new CsvColumnSpec("situationMatrimoniale", false, "MARRIED",
+                        List.of("MARRIED", "SINGLE", "DIVORCED", "WIDOWED")),
+                new CsvColumnSpec("enfants", false, "2", List.of()),
+                new CsvColumnSpec("salaireBase", true, "450000", List.of()),
+                new CsvColumnSpec("avantagesNature", false, "50000", List.of()),
+                new CsvColumnSpec("poste", false, "Comptable", List.of()),
+                new CsvColumnSpec("modePaiement", false, "BANK_TRANSFER",
+                        List.of("BANK_TRANSFER", "MTN_MOBILE_MONEY", "ORANGE_MONEY", "CASH")),
+                new CsvColumnSpec("compte", false, "677000000", List.of()));
+    }
 
     private final ManagePayrollEmployeeUseCase useCase;
 
@@ -113,8 +147,8 @@ public class PayrollEmployeeController {
     @GetMapping("/template")
     @PreAuthorize("@businessAccessPolicy.hasPermission(authentication, 'hrm:payroll:read')")
     public Mono<ResponseEntity<ApiResponse<CsvTemplateResponse>>> template() {
-        return Mono.just(ResponseEntity.ok(
-                ApiResponse.success(new CsvTemplateResponse(CSV_TEMPLATE), "CSV template.")));
+        return Mono.just(ResponseEntity.ok(ApiResponse.success(
+                new CsvTemplateResponse(CSV_TEMPLATE, templateColumns()), "CSV template.")));
     }
 
     @GetMapping("/data-source")
@@ -157,7 +191,14 @@ public class PayrollEmployeeController {
 
     public record CsvImportRequest(String csv) {}
 
-    public record CsvTemplateResponse(String csv) {}
+    public record CsvTemplateResponse(String csv, List<CsvColumnSpec> columns) {}
+
+    /**
+     * One CSV column the payroll engine understands. {@code header} is the canonical column name
+     * (also the i18n key on the frontend); {@code acceptedValues} is empty for free-text columns.
+     */
+    public record CsvColumnSpec(String header, boolean required, String example,
+                                List<String> acceptedValues) {}
 
     public record DataSourceRequest(String source) {}
 

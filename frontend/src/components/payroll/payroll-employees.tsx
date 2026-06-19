@@ -26,8 +26,11 @@ import { Field, Input } from "@/components/ui/input";
 import { useCan } from "@/hooks/use-can";
 import { apiFetch, BffApiError } from "@/lib/api-client";
 import { formatMoney } from "@/lib/format";
+import { cn } from "@/lib/utils";
 import type {
+  CsvColumnSpec,
   CsvImportReport,
+  CsvTemplateResponse,
   PayrollDataSource,
   PayrollEmployeeResponse,
 } from "@/server/ksm/modules/payroll-employees";
@@ -36,6 +39,11 @@ export function PayrollEmployees() {
   const t = useTranslations("payroll.localEmployees");
   const locale = useLocale() as "fr" | "en";
   const canManage = useCan("hrm:payroll:run");
+  // A tenant is "standalone payroll" when it has no HRM module: its users cannot read HRM
+  // employees, so CSV import / template are the only way to feed the engine. HRM+payroll tenants
+  // hold hrm:employee:read and get their employees from the DB — these controls are hidden for them.
+  const isStandalone = !useCan("hrm:employee:read");
+  const canImport = canManage && isStandalone;
   const qc = useQueryClient();
 
   const [importOpen, setImportOpen] = React.useState(false);
@@ -44,10 +52,18 @@ export function PayrollEmployees() {
   const listQuery = useQuery({
     queryKey: ["hrm", "payroll", "local-employees"],
     queryFn: () => apiFetch<PayrollEmployeeResponse[]>("/api/hrm/payroll/employees"),
+    enabled: isStandalone,
   });
   const sourceQuery = useQuery({
     queryKey: ["hrm", "payroll", "data-source"],
     queryFn: () => apiFetch<{ source: PayrollDataSource }>("/api/hrm/payroll/employees/data-source"),
+    enabled: isStandalone,
+  });
+  const templateQuery = useQuery({
+    queryKey: ["hrm", "payroll", "employees-template"],
+    queryFn: () => apiFetch<CsvTemplateResponse>("/api/hrm/payroll/employees/template"),
+    enabled: canImport,
+    staleTime: 60 * 60_000,
   });
 
   const invalidate = React.useCallback(() => {
@@ -73,9 +89,9 @@ export function PayrollEmployees() {
         title={t("title")}
         subtitle={t("subtitle")}
         actions={
-          canManage ? (
+          canImport ? (
             <>
-              <TemplateButton t={t} />
+              <TemplateButton template={templateQuery.data} t={t} />
               <Button variant="secondary" onClick={() => setAddOpen(true)}>
                 <Plus className="h-4 w-4" /> {t("actions.add")}
               </Button>
@@ -87,6 +103,15 @@ export function PayrollEmployees() {
         }
       />
 
+      {!isStandalone ? (
+        <Card>
+          <div className="flex flex-col items-center gap-3 px-6 py-14 text-center">
+            <IconTile icon={Database} tone="info" size="lg" />
+            <div className="text-[15px] font-bold text-ink">{t("hrmManaged.title")}</div>
+            <p className="max-w-lg text-[13px] text-ink-3">{t("hrmManaged.body")}</p>
+          </div>
+        </Card>
+      ) : (
       <div className="flex flex-col gap-5">
         {/* Data source banner */}
         <Card>
@@ -122,7 +147,7 @@ export function PayrollEmployees() {
               <IconTile icon={Users} tone="orange" size="lg" />
               <div className="text-[14px] font-bold text-ink">{t("table.emptyTitle")}</div>
               <p className="max-w-md text-[13px] text-ink-3">{t("table.emptyHint")}</p>
-              {canManage && (
+              {canImport && (
                 <Button onClick={() => setImportOpen(true)}>
                   <FileUp className="h-4 w-4" /> {t("actions.import")}
                 </Button>
@@ -133,11 +158,13 @@ export function PayrollEmployees() {
           )}
         </Card>
       </div>
+      )}
 
       <ImportDialog
         open={importOpen}
         onClose={() => setImportOpen(false)}
         onImported={invalidate}
+        template={templateQuery.data}
         t={t}
       />
       <AddDialog open={addOpen} onClose={() => setAddOpen(false)} onCreated={invalidate} t={t} />
@@ -241,19 +268,32 @@ function EmployeesTable({
   );
 }
 
-function TemplateButton({ t }: { t: T }) {
+function downloadTemplateCsv(csv: string) {
+  // Prefix with a UTF-8 BOM so Excel opens accented French headers correctly.
+  const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "modele-employes-paie.csv";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function TemplateButton({
+  template,
+  t,
+  variant = "secondary",
+}: {
+  template: CsvTemplateResponse | undefined;
+  t: T;
+  variant?: "secondary" | "ghost";
+}) {
   const [busy, setBusy] = React.useState(false);
   async function download() {
     setBusy(true);
     try {
-      const data = await apiFetch<{ csv: string }>("/api/hrm/payroll/employees/template");
-      const blob = new Blob([data.csv], { type: "text/csv;charset=utf-8" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "modele-employes-paie.csv";
-      a.click();
-      URL.revokeObjectURL(url);
+      const data = template ?? (await apiFetch<CsvTemplateResponse>("/api/hrm/payroll/employees/template"));
+      downloadTemplateCsv(data.csv);
     } catch {
       toast.error(t("toasts.templateFailed"));
     } finally {
@@ -261,10 +301,58 @@ function TemplateButton({ t }: { t: T }) {
     }
   }
   return (
-    <Button variant="secondary" onClick={download} disabled={busy}>
+    <Button variant={variant} onClick={download} disabled={busy}>
       {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
       {t("actions.template")}
     </Button>
+  );
+}
+
+/**
+ * At-a-glance legend of the CSV columns — required badge, accepted values, and an example —
+ * driven entirely by the backend column spec so it never drifts from what the engine parses.
+ */
+function CsvLegend({ columns, t }: { columns: CsvColumnSpec[]; t: T }) {
+  if (columns.length === 0) return null;
+  return (
+    <div className="overflow-hidden rounded-[12px] border border-line">
+      <table className="w-full text-[12px]">
+        <thead>
+          <tr className="border-b border-line-soft bg-bg-soft text-left text-[10px] uppercase tracking-[0.05em] text-ink-3">
+            <th className="px-3 py-2">{t("legend.column")}</th>
+            <th className="px-3 py-2">{t("legend.description")}</th>
+            <th className="px-3 py-2">{t("legend.example")}</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-line-soft">
+          {columns.map((c) => (
+            <tr key={c.header} className="align-top">
+              <td className="px-3 py-2 whitespace-nowrap">
+                <span className="font-mono-tabular font-semibold text-ink">{c.header}</span>
+                <span
+                  className={cn(
+                    "ml-1.5 rounded-full px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide",
+                    c.required ? "bg-orange-100 text-orange-700" : "bg-bg-soft text-ink-4",
+                  )}
+                >
+                  {c.required ? t("legend.required") : t("legend.optional")}
+                </span>
+              </td>
+              <td className="px-3 py-2 text-ink-2">
+                {t(`columns.${c.header}` as "columns.matricule")}
+                {c.acceptedValues.length > 0 && (
+                  <span className="mt-0.5 block text-[11px] text-ink-3">
+                    {t("legend.acceptedValues")} :{" "}
+                    <span className="font-mono-tabular">{c.acceptedValues.join(" · ")}</span>
+                  </span>
+                )}
+              </td>
+              <td className="px-3 py-2 font-mono-tabular text-ink-3">{c.example || "—"}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }
 
@@ -272,11 +360,13 @@ function ImportDialog({
   open,
   onClose,
   onImported,
+  template,
   t,
 }: {
   open: boolean;
   onClose: () => void;
   onImported: () => void;
+  template: CsvTemplateResponse | undefined;
   t: T;
 }) {
   const [fileName, setFileName] = React.useState<string | null>(null);
@@ -354,8 +444,21 @@ function ImportDialog({
         </>
       }
     >
+      {/* Step 1 — grab the template */}
+      <div className="mb-4 flex items-center justify-between gap-3 rounded-[12px] border border-orange-100 bg-orange-50/60 px-4 py-3">
+        <div className="min-w-0">
+          <div className="text-[12.5px] font-semibold text-ink">{t("import.step1Title")}</div>
+          <p className="text-[11.5px] text-ink-3">{t("import.step1Hint")}</p>
+        </div>
+        {template && <TemplateButton template={template} t={t} variant="secondary" />}
+      </div>
+
+      {/* Column legend */}
+      {template && <CsvLegend columns={template.columns} t={t} />}
+
+      {/* Step 2 — upload the filled file */}
       <label
-        className="grid cursor-pointer place-items-center rounded-[14px] border-2 border-dashed border-line bg-bg-soft/60 px-6 py-8 text-center hover:border-orange-300"
+        className="mt-4 grid cursor-pointer place-items-center rounded-[14px] border-2 border-dashed border-line bg-bg-soft/60 px-6 py-8 text-center hover:border-orange-300"
         htmlFor="payroll-csv-input"
       >
         <FileUp className="h-7 w-7 text-orange-500" />

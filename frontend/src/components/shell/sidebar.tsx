@@ -186,7 +186,9 @@ function SidebarItem({
 }) {
   const tCommon = useTranslations("common.comingSoon");
   const can = useCan(item.permission ?? "");
+  const hiddenBy = useCan(item.hideWhenPermission ?? "");
   if (item.permission && !can) return null;
+  if (item.hideWhenPermission && hiddenBy) return null;
   const Icon = item.icon;
   return (
     <Link

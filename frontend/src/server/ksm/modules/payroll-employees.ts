@@ -121,8 +121,20 @@ export function importPayrollEmployeesCsv(csv: string, session: AppSession, orga
   );
 }
 
+export type CsvColumnSpec = {
+  header: string;
+  required: boolean;
+  example: string;
+  acceptedValues: string[];
+};
+
+export type CsvTemplateResponse = {
+  csv: string;
+  columns: CsvColumnSpec[];
+};
+
 export function getPayrollEmployeesCsvTemplate(session: AppSession) {
-  return callKsm<{ csv: string }>(`/api/v1/payroll/employees/template`, {}, { session });
+  return callKsm<CsvTemplateResponse>(`/api/v1/payroll/employees/template`, {}, { session });
 }
 
 export function getPayrollDataSource(session: AppSession, organizationId?: string) {

@@ -70,9 +70,38 @@
     "subtitle": "Référentiel des employés utilisé par le moteur de paie (import CSV ou saisie directe)",
     "actions": {
       "import": "Importer CSV",
-      "template": "Modèle CSV",
+      "template": "Télécharger le modèle",
       "add": "Ajouter",
       "deactivate": "Désactiver"
+    },
+    "hrmManaged": {
+      "title": "Employés gérés par le module RH",
+      "body": "Votre organisation a souscrit au module RH : les données employés sont déjà disponibles dans le système et alimentent directement la paie. L'import CSV n'est nécessaire que pour les organisations en paie autonome."
+    },
+    "legend": {
+      "column": "Colonne",
+      "description": "Description",
+      "example": "Exemple",
+      "required": "Requis",
+      "optional": "Optionnel",
+      "acceptedValues": "Valeurs acceptées"
+    },
+    "columns": {
+      "matricule": "Identifiant unique de l'employé (clé de mise à jour lors d'un ré-import).",
+      "nom": "Nom complet de l'employé, tel qu'il apparaîtra sur le bulletin.",
+      "email": "Adresse email pour l'envoi du bulletin de paie (laisser vide si aucun).",
+      "numCnps": "Numéro CNPS de l'employé.",
+      "categorie": "Catégorie professionnelle (grille conventionnelle). Défaut : 1.",
+      "echelon": "Échelon au sein de la catégorie.",
+      "departement": "Code du département / centre de coût.",
+      "dateEmbauche": "Date d'embauche au format AAAA-MM-JJ. Détermine l'ancienneté et le prorata.",
+      "situationMatrimoniale": "Situation matrimoniale, entre dans le calcul du quotient familial (IRPP).",
+      "enfants": "Nombre d'enfants à charge (quotient familial).",
+      "salaireBase": "Salaire de base mensuel brut, en FCFA.",
+      "avantagesNature": "Avantages en nature valorisés, en FCFA. Défaut : 0.",
+      "poste": "Intitulé du poste / fonction.",
+      "modePaiement": "Canal de versement du net à payer.",
+      "compte": "Numéro de compte bancaire ou mobile money, selon le mode de paiement."
     },
     "source": {
       "HRM": "Source : module RH",
@@ -100,6 +129,8 @@
     "import": {
       "title": "Importer des employés (CSV)",
       "subtitle": "En-tête + une ligne par employé. Séparateur virgule ou point-virgule.",
+      "step1Title": "1. Téléchargez le modèle, puis remplissez-le avec vos employés",
+      "step1Hint": "Conservez la ligne d'en-tête ; remplacez les lignes d'exemple par vos données.",
       "dropHint": "Cliquez pour choisir un fichier CSV",
       "formatHint": "Colonnes requises : matricule, nom, dateEmbauche, salaireBase",
       "linesDetected": "{count} ligne(s) détectée(s)",
