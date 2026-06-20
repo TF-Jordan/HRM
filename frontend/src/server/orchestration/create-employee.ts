@@ -14,7 +14,46 @@ import {
   type PaymentChannel,
 } from "@/server/ksm/modules/employees";
 import { upsertPersonalInfo } from "@/server/ksm/modules/employee-profile";
+import { listDocumentSequences, upsertDocumentSequence } from "@/server/ksm/modules/settings";
 import { generateTemporaryPassword, registerUser } from "@/server/ksm/modules/users";
+
+/** Document-numbering type the payroll/HR matricule allocator reads (settings-core). */
+const MATRICULE_DOCUMENT_TYPE = "HRM_MATRICULE";
+
+/**
+ * Ensure the organisation has an HRM_MATRICULE document sequence before creating an
+ * employee. KSM allocates the employee code via `settingsPort.generateMatricule`, which
+ * throws `DocumentSequenceNotFoundException` (HTTP 500) when no sequence exists — the case
+ * for any freshly-created organisation (the demo seed only provisions it for the demo org).
+ *
+ * Idempotent: we only create the sequence when absent (an unconditional upsert would reset
+ * `nextNumber` and cause matricule collisions). Best-effort — if it fails, employee creation
+ * proceeds and surfaces the original error.
+ */
+async function ensureMatriculeSequence(session: AppSession, organizationId: string): Promise<void> {
+  try {
+    const sequences = await listDocumentSequences(organizationId, session);
+    if (sequences.some((s) => s.documentType === MATRICULE_DOCUMENT_TYPE)) return;
+    await upsertDocumentSequence(
+      {
+        organizationId,
+        agencyId: null,
+        documentType: MATRICULE_DOCUMENT_TYPE,
+        prefix: "EMP",
+        suffix: null,
+        paddingWidth: 6,
+        nextNumber: 1,
+      },
+      session,
+    );
+    logger.info({ organizationId }, "orchestration.matricule_sequence_provisioned");
+  } catch (cause) {
+    logger.error(
+      { organizationId, cause: String(cause) },
+      "orchestration.matricule_sequence_ensure_failed",
+    );
+  }
+}
 
 /** Marital status codes understood by the payroll engine (IRPP family quotient). */
 export type MaritalStatus = "SINGLE" | "MARRIED" | "DIVORCED" | "WIDOWED";
@@ -61,7 +100,7 @@ export type CreateEmployeeOrchestratedResult = {
   matricule: string;
   status: string;
   employee: EmployeeResponse;
-  /** Login account info — only present when provisionLogin = true. */
+  /** Login account info — only present when a login was actually provisioned. */
   login?: {
     userId: string;
     username: string;
@@ -71,6 +110,13 @@ export type CreateEmployeeOrchestratedResult = {
     welcomeMailSent: boolean;
     welcomeMailProvider: string;
   };
+  /**
+   * Set when login provisioning was requested but deliberately skipped because
+   * the caller lacks the identity privilege (`tenant:admin`). The employee record
+   * is created; the SuperAdmin must create the login separately. This is the
+   * platform's intended split: only a tenant admin provisions credentials.
+   */
+  loginSkipped?: "forbidden";
   warnings: string[];
 };
 
@@ -108,6 +154,12 @@ export async function createEmployeeOrchestrated(
     session,
   );
   logger.info({ actorId: actor.id }, "orchestration.employee_actor_created");
+
+  // Ensure the organisation can allocate a matricule (provisions the HRM_MATRICULE
+  // sequence on first hire for freshly-created orgs). Best-effort.
+  if (session.workspace?.organizationId) {
+    await ensureMatriculeSequence(session, session.workspace.organizationId);
+  }
 
   // 2. Employee
   let employee: EmployeeResponse;
@@ -185,11 +237,19 @@ export async function createEmployeeOrchestrated(
   }
 
   // 3. Login provisioning (best-effort).
+  // Only a tenant admin (SUPER_ADMIN) may create login accounts — `/api/auth/register`
+  // is gated by `canManageIdentity` = {system:admin, iam:admin, tenant:admin}. An HR
+  // admin (DRH) can create the employee record but NOT its credentials, so we skip the
+  // step cleanly instead of letting it 403 mid-flow. The SuperAdmin provisions the login.
   const provisionLogin = input.provisionLogin ?? true;
   const sendWelcomeEmail = input.sendWelcomeEmail ?? true;
   let login: CreateEmployeeOrchestratedResult["login"];
+  let loginSkipped: CreateEmployeeOrchestratedResult["loginSkipped"];
 
-  if (provisionLogin) {
+  if (provisionLogin && !canProvisionLogins(session)) {
+    loginSkipped = "forbidden";
+    logger.info({ actorId: actor.id }, "orchestration.employee_login_skipped_forbidden");
+  } else if (provisionLogin) {
     const username = input.email.trim().toLowerCase();
     const temporaryPassword = generateTemporaryPassword();
 
@@ -291,8 +351,17 @@ export async function createEmployeeOrchestrated(
     status: employee.status,
     employee,
     login,
+    loginSkipped,
     warnings,
   };
+}
+
+/** Identity permissions that authorise creating a login account (`/api/auth/register`). */
+const IDENTITY_PERMISSIONS = ["tenant:admin", "system:admin", "iam:admin"];
+
+function canProvisionLogins(session: AppSession): boolean {
+  const owned = new Set((session.user.permissions ?? []).map((p) => p.split("#")[0] ?? p));
+  return IDENTITY_PERMISSIONS.some((p) => owned.has(p));
 }
 
 function errorMessage(cause: unknown): string {

@@ -100,7 +100,9 @@
       "continue": "Accéder au profil employé",
       "noLogin": "Aucun compte créé (provisionnement désactivé)",
       "noLoginTitle": "Compte de connexion non créé",
-      "noLoginHint": "L'employé est bien enregistré. Vous pourrez réessayer la création du compte depuis sa fiche."
+      "noLoginHint": "L'employé est bien enregistré. Vous pourrez réessayer la création du compte depuis sa fiche.",
+      "loginByAdminTitle": "Accès de connexion à créer par l'administrateur",
+      "loginByAdminHint": "L'employé est enregistré. La création des identifiants de connexion est réservée à l'administrateur (SuperAdmin)."
     },
     "steps": {
       "identity": "Identité",

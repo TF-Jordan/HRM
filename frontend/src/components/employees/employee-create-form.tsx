@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation } from "@tanstack/react-query";
-import { Check, Copy, Eye, EyeOff, Loader2, Plus, Trash2 } from "lucide-react";
+import { Check, Copy, Eye, EyeOff, Info, Loader2, Plus, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import * as React from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
@@ -35,6 +35,8 @@ type CreatedEmployeeResult = {
     welcomeMailSent: boolean;
     welcomeMailProvider: string;
   };
+  /** Login skipped on purpose: caller is not a tenant admin (SuperAdmin provisions logins). */
+  loginSkipped?: "forbidden";
   warnings: string[];
 };
 
@@ -770,7 +772,7 @@ function CredentialsModal({
   onContinue: () => void;
 }) {
   const tCreate = useTranslations("employees.create");
-  const { login, matricule, warnings } = result;
+  const { login, loginSkipped, matricule, warnings } = result;
   const [showPassword, setShowPassword] = React.useState(false);
   const [copiedField, setCopiedField] = React.useState<"username" | "password" | null>(null);
 
@@ -880,6 +882,14 @@ function CredentialsModal({
               </ul>
             </div>
           )}
+        </div>
+      ) : loginSkipped === "forbidden" ? (
+        <div className="flex items-start gap-2 rounded-[11px] border border-info-500/30 bg-info-50 px-4 py-3 text-[12.5px] text-info-600">
+          <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+          <div>
+            <p className="font-semibold">{tCreate("credentials.loginByAdminTitle")}</p>
+            <p className="mt-0.5">{tCreate("credentials.loginByAdminHint")}</p>
+          </div>
         </div>
       ) : (
         <div className="space-y-3">

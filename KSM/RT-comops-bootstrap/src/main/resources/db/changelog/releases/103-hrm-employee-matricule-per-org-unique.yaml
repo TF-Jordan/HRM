@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 103-hrm-employee-matricule-per-org-unique
+      author: claude
+      changes:
+        - sqlFile:
+            path: db/r2dbc/V103__hrm_employee_matricule_per_org_unique.sql
+            relativeToChangelogFile: false

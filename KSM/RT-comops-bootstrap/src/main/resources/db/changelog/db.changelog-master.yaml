@@ -306,3 +306,6 @@ databaseChangeLog:
   - include:
       file: releases/102-payroll-client-application-grant.yaml
       relativeToChangelogFile: true
+  - include:
+      file: releases/103-hrm-employee-matricule-per-org-unique.yaml
+      relativeToChangelogFile: true

@@ -100,7 +100,9 @@
       "continue": "Go to employee profile",
       "noLogin": "No account created (provisioning disabled)",
       "noLoginTitle": "Login account not created",
-      "noLoginHint": "The employee record was saved. You can retry account creation from their profile."
+      "noLoginHint": "The employee record was saved. You can retry account creation from their profile.",
+      "loginByAdminTitle": "Login access to be created by the administrator",
+      "loginByAdminHint": "The employee record was saved. Creating login credentials is reserved to the administrator (SuperAdmin)."
     },
     "steps": {
       "identity": "Identity",
