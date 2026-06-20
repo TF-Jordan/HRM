@@ -2,6 +2,7 @@ import "server-only";
 
 import { callKsm } from "@/server/ksm/client";
 import type { AppSession } from "@/lib/types/auth";
+import type { EmployeeResponse, PaymentChannel } from "@/server/ksm/modules/employees";
 
 /**
  * Payroll-owned employee referential (standalone payroll mode — tenants using payroll
@@ -60,6 +61,36 @@ export type CsvImportReport = {
   updated: number;
   errors: { line: number; matricule: string; message: string }[];
 };
+
+/**
+ * Project a payroll-owned employee onto the HRM {@link EmployeeResponse} shape the payroll UI
+ * (monthly variables, run entries, garnishments…) already consumes — so standalone-payroll
+ * tenants reuse the exact same screens as HRM tenants.
+ */
+export function toEmployeeResponse(p: PayrollEmployeeResponse): EmployeeResponse {
+  const channel = p.paymentChannel as PaymentChannel;
+  return {
+    id: p.id,
+    organizationId: p.organizationId,
+    agencyId: p.agencyId,
+    actorId: p.actorId ?? p.id,
+    managerId: null,
+    matricule: p.matricule,
+    numCnps: p.socialSecurityNo,
+    categorie: p.categorie,
+    echelon: p.echelon,
+    dateEmbauche: p.hireDate,
+    status: p.active ? "ACTIVE" : "TERMINATED",
+    departmentCode: p.departmentCode,
+    modePaiement: channel,
+    compteBancaire: channel === "BANK_TRANSFER" ? p.accountRef : null,
+    numMobileMoney:
+      channel === "MTN_MOBILE_MONEY" || channel === "ORANGE_MONEY" ? p.accountRef : null,
+    operateurMm:
+      channel === "MTN_MOBILE_MONEY" ? "MTN" : channel === "ORANGE_MONEY" ? "ORANGE" : null,
+    actorDisplayName: p.displayName,
+  };
+}
 
 function requireOrgId(session: AppSession, organizationId?: string): string {
   const orgId = organizationId ?? session.workspace?.organizationId;
