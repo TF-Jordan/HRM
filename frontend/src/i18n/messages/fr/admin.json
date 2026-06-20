@@ -213,6 +213,8 @@
       "email": "Email",
       "phone": "Téléphone",
       "roleHint": "Au moins un rôle est requis pour que l'utilisateur puisse se connecter.",
+      "roleTaken": "Déjà attribué à {holder}",
+      "roleTakenError": "Cette fonction est déjà occupée. Libérez-la d'abord ou choisissez un autre rôle.",
       "submit": "Créer l'utilisateur",
       "success": "Utilisateur créé",
       "tempPasswordTitle": "Mot de passe temporaire",

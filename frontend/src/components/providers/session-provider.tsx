@@ -8,6 +8,7 @@ export type ClientSession = {
   user: SessionUser;
   workspace?: WorkspaceContext;
   forcePasswordChange: boolean;
+  hrmNeedsReconnect?: boolean;
   expiresAt: number;
 };
 

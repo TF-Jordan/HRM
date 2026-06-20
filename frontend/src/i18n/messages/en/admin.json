@@ -213,6 +213,8 @@
       "email": "Email",
       "phone": "Phone",
       "roleHint": "At least one role is required for the user to sign in.",
+      "roleTaken": "Already held by {holder}",
+      "roleTakenError": "This function is already held. Vacate it first, or pick a different role.",
       "submit": "Create user",
       "success": "User created",
       "tempPasswordTitle": "Temporary password",

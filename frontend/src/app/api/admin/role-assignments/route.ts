@@ -4,73 +4,10 @@ import type { NextRequest } from "next/server";
 
 import { ROLE_CODE_TO_SLUG } from "@/lib/roles";
 import { fail, ok } from "@/server/api-response";
+import { EXCLUSIVE_FUNCTION_CODES, holdersByRole } from "@/server/admin/exclusive-roles";
 import { requirePermissionRoute } from "@/server/handlers";
 import * as adminApi from "@/server/ksm/modules/admin";
-import type {
-  AdministrationRole,
-  AdministrationUser,
-} from "@/server/ksm/modules/admin";
-import type { AppSession } from "@/lib/types/auth";
-
-/**
- * Management functions that may be held by exactly ONE account at a time
- * (business rule: one tenant has a single payroll manager, recruiter, …).
- * Plain employees, team managers and the admin account itself are excluded —
- * they are not exclusive, tenant-wide functions.
- */
-const FUNCTION_CODES: readonly string[] = [
-  "HR_ADMIN",
-  "HR_DIRECTOR",
-  "PAYROLL_MANAGER",
-  "RECRUITER",
-  "HR_CONTROLLER",
-  "OCCUPATIONAL_DOCTOR",
-  "ACCOUNTANT",
-];
-
-type Holder = {
-  userId: string;
-  username: string;
-  email: string;
-  assignmentId: string;
-};
-
-/**
- * Scan every tenant account for assignments of the given role ids. There is no
- * KSM endpoint to list holders by role, so we fan out over the user list. The
- * function set is small and held by few people, so the result map stays tiny.
- */
-async function holdersByRole(
-  users: AdministrationUser[],
-  roleIds: Set<string>,
-  session: AppSession,
-): Promise<Map<string, Holder[]>> {
-  const byRole = new Map<string, Holder[]>();
-  const perUser = await Promise.all(
-    users.map(async (u) => {
-      try {
-        const assignments = await adminApi.listUserRoles(u.id, session);
-        return { user: u, assignments };
-      } catch {
-        return { user: u, assignments: [] };
-      }
-    }),
-  );
-  for (const { user, assignments } of perUser) {
-    for (const a of assignments) {
-      if (!roleIds.has(a.roleId)) continue;
-      const list = byRole.get(a.roleId) ?? [];
-      list.push({
-        userId: user.id,
-        username: user.username,
-        email: user.email,
-        assignmentId: a.id,
-      });
-      byRole.set(a.roleId, list);
-    }
-  }
-  return byRole;
-}
+import type { AdministrationRole } from "@/server/ksm/modules/admin";
 
 export async function GET() {
   return requirePermissionRoute(
@@ -81,7 +18,7 @@ export async function GET() {
         adminApi.listTenantUsers(session),
       ]);
 
-      const functionRoles = roles.filter((r) => FUNCTION_CODES.includes(r.code));
+      const functionRoles = roles.filter((r) => EXCLUSIVE_FUNCTION_CODES.includes(r.code));
       const roleIds = new Set(functionRoles.map((r) => r.id));
       const holders = await holdersByRole(users, roleIds, session);
 
@@ -97,7 +34,7 @@ export async function GET() {
         }))
         .sort(
           (a, b) =>
-            FUNCTION_CODES.indexOf(a.code) - FUNCTION_CODES.indexOf(b.code),
+            EXCLUSIVE_FUNCTION_CODES.indexOf(a.code) - EXCLUSIVE_FUNCTION_CODES.indexOf(b.code),
         );
 
       const accounts = users

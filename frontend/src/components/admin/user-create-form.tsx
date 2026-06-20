@@ -36,6 +36,14 @@ type CreateUserResult = {
   warnings: string[];
 };
 
+type RoleAssignmentsView = {
+  functions: Array<{
+    roleId: string;
+    code: string;
+    holders: Array<{ userId: string; username: string; email: string }>;
+  }>;
+};
+
 export function UserCreateForm() {
   const t = useTranslations("admin");
   const tCreate = useTranslations("admin.users.create");
@@ -48,6 +56,21 @@ export function UserCreateForm() {
     queryKey: ["admin", "roles"],
     queryFn: () => apiFetch<AdministrationRole[]>("/api/admin/roles"),
   });
+
+  // Exclusive function roles already held by an account (single-holder rule).
+  // Used to disable those roles in the picker; the server re-checks authoritatively.
+  const assignmentsQuery = useQuery({
+    queryKey: ["admin", "role-assignments"],
+    queryFn: () => apiFetch<RoleAssignmentsView>("/api/admin/role-assignments"),
+  });
+  const takenByRoleId = React.useMemo(() => {
+    const map = new Map<string, string>();
+    for (const fn of assignmentsQuery.data?.functions ?? []) {
+      const holder = fn.holders[0];
+      if (holder) map.set(fn.roleId, holder.username);
+    }
+    return map;
+  }, [assignmentsQuery.data]);
 
   const { register, handleSubmit, watch, formState: { isSubmitting, errors } } = useForm<FormValues>({
     defaultValues: { firstName: "", lastName: "", email: "", phoneNumber: "", roleId: "" },
@@ -86,7 +109,11 @@ export function UserCreateForm() {
     },
     onError: (cause) => {
       if (cause instanceof BffApiError) {
-        toast.error(cause.message);
+        toast.error(
+          cause.errorCode === "ROLE_ALREADY_ASSIGNED"
+            ? tCreate("roleTakenError")
+            : cause.message,
+        );
       } else {
         toast.error(tErrors("unknown"));
       }
@@ -214,19 +241,25 @@ export function UserCreateForm() {
             <div className="grid grid-cols-2 gap-2">
               {(rolesQuery.data ?? []).map((role) => {
                 const isSelected = watch("roleId") === role.id;
+                const takenBy = takenByRoleId.get(role.id);
+                const disabled = Boolean(takenBy);
                 return (
                   <label
                     key={role.id}
                     className={cn(
-                      "flex cursor-pointer items-start gap-3 rounded-[14px] border bg-white p-3.5 transition-all",
+                      "flex items-start gap-3 rounded-[14px] border bg-white p-3.5 transition-all",
+                      disabled
+                        ? "cursor-not-allowed border-line opacity-60"
+                        : "cursor-pointer",
                       isSelected
                         ? "border-orange-400 shadow-orange-brand"
-                        : "border-line hover:border-line-strong",
+                        : !disabled && "border-line hover:border-line-strong",
                     )}
                   >
                     <input
                       type="radio"
                       value={role.id}
+                      disabled={disabled}
                       {...register("roleId", { required: true })}
                       className="mt-1"
                     />
@@ -238,9 +271,15 @@ export function UserCreateForm() {
                         </span>
                       </div>
                       <div className="mt-0.5 font-mono-tabular text-[11px] text-ink-3">{role.code}</div>
-                      <div className="mt-1 text-[11.5px] text-ink-3">
-                        {role.permissions.length} permission(s)
-                      </div>
+                      {takenBy ? (
+                        <div className="mt-1 text-[11.5px] font-medium text-warning-600">
+                          {tCreate("roleTaken", { holder: takenBy })}
+                        </div>
+                      ) : (
+                        <div className="mt-1 text-[11.5px] text-ink-3">
+                          {role.permissions.length} permission(s)
+                        </div>
+                      )}
                     </div>
                   </label>
                 );

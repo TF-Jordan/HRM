@@ -12,6 +12,7 @@ import {
 } from "@/server/auth-flow";
 import { callKsm } from "@/server/ksm/client";
 import * as authApi from "@/server/ksm/modules/auth";
+import { ensureHrmSuperAdmin } from "@/server/orchestration/bootstrap-hrm-superadmin";
 import { writeSession } from "@/server/session";
 
 export async function POST(request: NextRequest) {
@@ -92,7 +93,21 @@ export async function POST(request: NextRequest) {
       }
     }
     await enrichSessionWithActorName(appSession);
+    // First-access HRM bootstrap: provision default role templates and promote a
+    // tenant admin (OWNER) to HRM SuperAdmin. Best-effort, mutates the session
+    // flag in place; must run before writeSession so the flag is persisted.
+    const bootstrap = await ensureHrmSuperAdmin(appSession);
     await writeSession(appSession);
+
+    if (bootstrap.ran) {
+      logAuthEvent("hrm_bootstrap", {
+        userId: appSession.user.userId,
+        tenantId: appSession.user.tenantId,
+        rolesProvisioned: bootstrap.rolesProvisioned,
+        assignedSuperAdmin: bootstrap.assignedSuperAdmin,
+        needsReconnect: bootstrap.needsReconnect,
+      });
+    }
 
     logAuthEvent("login_success", {
       userId: appSession.user.userId,

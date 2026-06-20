@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 
 import { SessionProvider, type ClientSession } from "@/components/providers/session-provider";
 import { ForcePasswordChangeGate } from "@/components/auth/force-password-change-gate";
+import { HrmReconnectBanner } from "@/components/auth/hrm-reconnect-banner";
 import { Sidebar } from "@/components/shell/sidebar";
 import { Topbar } from "@/components/shell/topbar";
 import { readSession } from "@/server/session";
@@ -23,6 +24,7 @@ export default async function AppLayout({
     user: session.user,
     workspace: session.workspace,
     forcePasswordChange: session.forcePasswordChange === true,
+    hrmNeedsReconnect: session.hrmNeedsReconnect === true,
     expiresAt: session.expiresAt,
   };
 
@@ -32,6 +34,7 @@ export default async function AppLayout({
         <Sidebar />
         <main className="flex min-w-0 flex-col">
           <Topbar />
+          <HrmReconnectBanner />
           <div className="mx-auto w-full max-w-[1440px] px-9 py-8 pb-20">{children}</div>
         </main>
       </div>
