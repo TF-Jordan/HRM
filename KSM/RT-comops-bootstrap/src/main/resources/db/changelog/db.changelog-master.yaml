@@ -300,3 +300,9 @@ databaseChangeLog:
   - include:
       file: releases/100-payroll-standalone-demo-seed.yaml
       relativeToChangelogFile: true
+  - include:
+      file: releases/101-payroll-service-backfill.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: releases/102-payroll-client-application-grant.yaml
+      relativeToChangelogFile: true

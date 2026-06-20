@@ -43,9 +43,14 @@ public enum PlatformServiceCode {
     RESOURCE("Resource", "Material resource lifecycle, reservations and assignments.", false, true,
             Set.of("RESOURCE", "RESOURCES", "RESSOURCE", "RESSOURCES"),
             Set.of(), Set.of("INVENTORY")),
-    HRM("HRM", "Human resources management, payroll, leave, training and compliance.", false, true,
+    HRM("HRM", "Human resources management, leave, training, recruitment and compliance.", false, true,
             Set.of("HRM", "RH", "HUMAN_RESOURCES"),
-            Set.of(), Set.of()),
+            Set.of(), Set.of("PAYROLL")),
+    PAYROLL("Payroll",
+            "Payroll engine: employees, pay variables, cycles, payslips and statutory declarations. "
+                    + "Subscribable standalone (without HRM) or alongside HRM.",
+            false, true, Set.of("PAYROLL", "PAIE", "PAYSLIPS", "PAY"),
+            Set.of(), Set.of("HRM")),
     BLOCKCHAIN("Blockchain", "Cryptographic ledger, signed transactions, proof-of-work blocks and document anchoring.",
             false, true, Set.of("BLOCKCHAIN", "CHAIN", "LEDGER", "AUDIT_LEDGER"),
             Set.of(), Set.of("ACCOUNTING", "BILLING"));

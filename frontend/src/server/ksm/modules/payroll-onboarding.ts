@@ -12,6 +12,7 @@ import type { AppSession } from "@/lib/types/auth";
 export type PayrollOnboardingManifest = {
   module: "payroll";
   version: string;
+  requiredServiceCode: string;
   permissions: { code: string; label: string; description: string }[];
   suggestedRoleTemplates: {
     code: string;

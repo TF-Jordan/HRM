@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 102-payroll-client-application-grant
+      author: claude
+      changes:
+        - sqlFile:
+            path: db/r2dbc/V102__payroll_client_application_grant.sql
+            relativeToChangelogFile: false

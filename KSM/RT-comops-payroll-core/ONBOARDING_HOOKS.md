@@ -31,13 +31,20 @@ the data-source flip, which is a payroll-core endpoint.
 | Step | Owner | Endpoint |
 |---|---|---|
 | 1. Create tenant + organization | administration-core | `POST /api/v1/administration/governance/organizations/{organizationId}` |
-| 2. Provision the role templates (`PAYROLL_ADMIN`, `PAYROLL_EMPLOYEE`) listed in our manifest | administration-core | `POST /api/v1/administration/roles` (per template) |
-| 3. Assign `PAYROLL_ADMIN` to the first user | administration-core | `POST /api/v1/administration/users/{userId}/roles` |
-| 4. Flip the organization payroll source to LOCAL | payroll-core | `PUT /api/v1/payroll/employees/data-source?organizationId={id}` body `{"source":"LOCAL"}` |
-| 5. (Optional) Import the initial employee CSV | payroll-core | `POST /api/v1/payroll/employees/import?organizationId={id}` body `{"csv":"..."}` |
+| 2. **Subscribe the org to the `PAYROLL` service** | organization-core | `POST /api/organizations/{organizationId}/services` body `{"serviceCode":"PAYROLL", ...}` |
+| 3. Provision the role templates (`PAYROLL_ADMIN`, `PAYROLL_EMPLOYEE`) listed in our manifest | administration-core | `POST /api/v1/administration/roles` (per template) |
+| 4. Assign `PAYROLL_ADMIN` to the first user | administration-core | `POST /api/v1/administration/users/{userId}/roles` |
+| 5. Flip the organization payroll source to LOCAL | payroll-core | `PUT /api/v1/payroll/employees/data-source?organizationId={id}` body `{"source":"LOCAL"}` |
+| 6. (Optional) Import the initial employee CSV | payroll-core | `POST /api/v1/payroll/employees/import?organizationId={id}` body `{"csv":"..."}` |
 
-Step 4 is idempotent: re-running it never duplicates a row (one row per
-organization, upserted in `payroll_data_source`). Step 5 is also idempotent at
+**Step 2 is mandatory**: every `/api/v1/payroll/**` route is gated by the
+`PAYROLL` platform service. Without the subscription the org gets
+`403 ORGANIZATION_SERVICE_NOT_SUBSCRIBED`. The required code is also published in
+the manifest as `requiredServiceCode`. `PAYROLL` is standalone-subscribable (it
+does not require `HRM`); an HRM tenant simply subscribes to both.
+
+Step 5 is idempotent: re-running it never duplicates a row (one row per
+organization, upserted in `payroll_data_source`). Step 6 is also idempotent at
 the row level (upsert by matricule).
 
 ## 3. Permission codes

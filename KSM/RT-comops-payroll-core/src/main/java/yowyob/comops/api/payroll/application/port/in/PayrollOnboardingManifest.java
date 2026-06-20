@@ -15,6 +15,8 @@ import java.util.List;
 public record PayrollOnboardingManifest(
         String module,
         String version,
+        /** Platform service the organization must be subscribed to for /api/v1/payroll/** to work. */
+        String requiredServiceCode,
         List<PermissionDescriptor> permissions,
         List<RoleTemplate> suggestedRoleTemplates,
         List<DataSourceMode> dataSourceModes,

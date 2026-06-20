@@ -81,6 +81,7 @@ public final class PlatformServiceRouteResolver {
             new RouteServiceMapping("/api/resources", PlatformServiceCode.RESOURCE.code()),
             new RouteServiceMapping("/api/employees", PlatformServiceCode.HRM.code()),
             new RouteServiceMapping("/api/v1/hrm", PlatformServiceCode.HRM.code()),
+            new RouteServiceMapping("/api/v1/payroll", PlatformServiceCode.PAYROLL.code()),
             new RouteServiceMapping("/api/v1/blockchain", PlatformServiceCode.BLOCKCHAIN.code()));
 
     private static final List<RouteServiceMapping> ORGANIZATION_ENTITLEMENT_MAPPINGS = CLIENT_APPLICATION_MAPPINGS.stream()

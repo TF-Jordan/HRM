@@ -15,8 +15,16 @@ class PayrollOnboardingManifestServiceTest {
         PayrollOnboardingManifest m = service.get();
         assertThat(m.module()).isEqualTo("payroll");
         assertThat(m.version()).isEqualTo("1");
+        assertThat(m.requiredServiceCode()).isEqualTo("PAYROLL");
         assertThat(m.permissions()).extracting(PayrollOnboardingManifest.PermissionDescriptor::code)
                 .containsExactlyInAnyOrder("hrm:payroll:read", "hrm:payroll:run", "hrm:payroll:validate");
+    }
+
+    @Test
+    void onboardingFlowIncludesPayrollServiceSubscription() {
+        boolean hasSubscriptionStep = service.get().onboardingFlow().steps().stream()
+                .anyMatch(s -> s.endpoint().contains("/services") && s.method().equals("POST"));
+        assertThat(hasSubscriptionStep).isTrue();
     }
 
     @Test
